@@ -1,9 +1,9 @@
 %% For double-blind review submission
-\documentclass[acmlarge,review,anonymous]{acmart}\settopmatter{printfolios=true}
+%\documentclass[acmlarge,review,anonymous]{acmart}\settopmatter{printfolios=true}
 %% For single-blind review submission
 %\documentclass[acmlarge,review]{acmart}\settopmatter{printfolios=true}
 %% For final camera-ready submission
-%\documentclass[acmlarge]{acmart}\settopmatter{}
+\documentclass[acmlarge]{acmart}\settopmatter{}
 
 %% Note: Authors migrating a paper from PACMPL format to traditional
 %% SIGPLAN proceedings format should change 'acmlarge' to
@@ -271,8 +271,140 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 %% environment and commands, and keywords command.
 \maketitle
 
-\input{intro}
+\section{Introduction}
 
+\subsection{Thesis statement}
+
+\begin{verbatim}
+Typed Clojure can be extended to be user friendly while still
+retaining most of its strong properties in practice.
+\end{verbatim}
+
+\subsection{History}
+
+The initial spark to develop a type system for Clojure came about
+after the release and successes of Typed Racket, a gradual typing system
+for Racket. The surface similarities of Racket and Clojure raised the
+obvious question: could a similar type system be developed for Clojure?
+
+Initial investigation revealed that yes, many ideas in Typed Racket
+were directly applicable to a Clojure type system. The novelties
+in Typed Racket's static semantics in particular (typically the least interesting part
+of a gradual typing system) yielded surprisingly good results in the context of Clojure.
+We found the ``occurrence typing'' approach to type checking local control flow
+to be as applicable to Clojure's idioms as Racket's,
+where it was initially invented.
+
+Emulating the dynamic semantics of Typed Racket in a Clojure type system
+was initially deferred in lieu of building an ``optional'' type system---roughly
+a ``gradual'' type system without any runtime mediation. Later investigations
+found that building a gradual typing system for Clojure raised interesting questions,
+but fundamental limitations on creating proxies on many runtime objects stopped
+much progress in this area (most classes are declared ``final'', and therefore wrapping
+them could break existing ``instanceof'' checks and method calls).
+We hypothesize that a proxy-based gradual typing system
+for ClojureScript would fare better, where proxies are freely allowed for any object,
+but we defer this work indefinitely.
+Other approaches like ``transient'' gradual typing would probably work in either Clojure
+or ClojureScript, but we have not investigated this.
+
+So, Typed Clojure remains an ``optional'' type system for now, sharing identical
+runtime semantics as Clojure. Why, then, has porting the static semantics of a gradually
+typed language yielded interesting research in Clojure?
+
+\subsection{Why Typed Clojure implements the static semantics of a gradual type system}
+
+There are several key insights into why this decision was made.
+
+\begin{enumerate}
+  \item Clojure strongly favors immutability, Typed Racket's approach
+    to flow typing (called ``occurrence typing'') was
+    arguably even more effective in this context.
+  \item Besides occurrence typing, Typed Racket's static checker is a
+   straightforward bidirectional checking algorithm, utilizing Pierce
+   and Turner's Local Type Inference for polymorphic invocations.
+   In contrast to previous attempts at type checking untyped languages,
+   this approach is simple to implement, yields good error messages,
+   and acts predictably in practice.
+ \item Clojure and Racket programming style are similar, in that they favour
+   manipulating data with a largely functional style, and they are both
+   untyped.
+ \item Clojure and Racket both feature Lisp-style macros, which Typed Racket approaches
+   by supporting the fixed number of special core forms Racket provides, and
+   simply expanding all macros before type checking. This approach is equally
+   applicable in Clojure.
+\end{enumerate}
+
+\subsection{Downsides to Typed Clojure's implementation}
+
+\begin{enumerate}
+  \item Macroexpansion occurs before type checking
+    \begin{itemize}
+      \item  macros hold valuable structure that are expanded away before type checking
+      \item must first expand arbitrary macro calls and then type check its results
+      \item in practice, must define "typed" version of macro that carefully constructs
+        necessary conditions for the expansion to type check successfully
+    \end{itemize}
+  \item Compilation unit is a file
+    \begin{itemize}
+      \item type checking quickly becomes viral without planning and effort in 
+        working around the type system.
+    \end{itemize}
+  \item Abundance of top-level and local annotations needed
+    \begin{itemize}
+      \item In practice, every top-level variable, including library imports
+        requires an annotation
+      \item limitations in Local Type Inference mean local lambdas and many
+        polymorphic calls must also be annotated
+    \end{itemize}
+  \item Users cannot distinguish between user-errors and limitations of
+    the type system.
+    \begin{itemize}
+      \item Typed Clojure chooses a subset of Clojure idioms to support,
+        and this is not always conveyed to the user in a helpful manner.
+    \end{itemize}
+  \item Over-conservative implementation limits dynamism during development
+    of Typed Clojure programs compared to Clojure.
+    \begin{itemize}
+      \item Tradeoffs should be made, documented and implemented to bring the balance
+        of development agility that Clojure developers require, with a strong
+        level of verification options.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Initiatives to improve this situation}
+
+\begin{enumerate}
+  \item Use runtime observations to automatically generate annotations for variables,
+    cutting the manual effort in the untyped-typed conversion.
+    \begin{itemize}
+      \item extensions: polymorphic functions
+    \end{itemize}
+  \item ``Type systems as macros'' approaches
+    \begin{itemize}
+      \item interleave type checking and macro expansion so type system can have custom
+        rules for each macro expansion to provide better error messages
+      \item provide DSL/API for users to write their own custom type systems for any macro
+    \end{itemize}
+  \item ``Colored local type inference''-style partial type information propagation
+    \begin{itemize}
+      \item local lambda annotations are frustrating for users
+      \item not needed in clojure.spec and other runtime-based verification tools
+      \item often, argument types can be inferred from context
+      \item but partial information flow is needed
+      \item pairing colored LTI with extensible typing rules can eliminate most local annotations
+        in typical Clojure programs
+      \item use polymorphic function types to influence type checking order of arguments
+    \end{itemize}
+  \item letfn-rewriting to eliminate local letfn annotations
+  \item Repurpose clojure.spec annotations as type annotations
+    \begin{itemize}
+      \item clojure.spec annotations are ubiquitous, and the de-facto tool for specifying functions
+      \item less expressive, but still valuable as static annotations
+      \item if granularity of type checking is satisfying, could provide quickest
+        path to static type checking for many projects
+    \end{itemize}
+\end{enumerate}
 
 \bibliography{bibliography}
 
