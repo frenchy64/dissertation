@@ -1,0 +1,15 @@
+*.pdf
+*.aux
+*.log
+*.swp
+*.swo
+*.bbl
+*.blg
+code/demo/:
+_minted-small/
+_minted*
+*~
+minimal
+example.bib
+*.out
+*.gz

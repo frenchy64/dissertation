@@ -1,0 +1,76 @@
+% macros for Clojure grammars
+\usepackage{mathpartir}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage{mmm}
+
+\newcommand\specialformfont[1]{{\textbf{#1}}}
+\newcommand\trackE[2]{({\specialformfont{track}}\ #1\ #2)}
+\newcommand\trackpolyE[3]{({\specialformfont{trackPoly}}\ #1\ #2\ #3)}
+\newcommand\genE[0]{({\specialformfont{genInt}})}
+\newcommand\letliteral[0]{{\specialformfont{let}}}
+\newcommand\assocE[3]{({\specialformfont{assoc}}\ #1\ #2\ #3)}
+\newcommand\PairOfT[1]{{\mathsf{PairOf}}}
+\newcommand\NatT[1]{{\mathsf{N}}}
+\newcommand\IntT[1]{{\mathsf{N}}}
+\newcommand\UnknownT[1]{{\mathrm{?}}}
+\newcommand\HMaptwo[2]{({\mathsf{HMap}}\ #1\ #2)}
+\newcommand\appendone[2]{#1 :: [#2]}
+\newcommand\Proxy[0]{\specialformfont{Proxy}}
+\newcommand\ProxyE[3]{(\Proxy{}\ #1\ #2\ #3)}
+% types
+\newcommand\arrow[2]{[#1 \rightarrow #2]}
+\newmeta\ty{\tau}
+
+% semantics
+\newcommand\bigstep[4]{ #1 \vdash #2 \Downarrow #3\ ; #4}
+\newcommand\bigstepgen[6]{ #1 ; #2 \vdash #3 \Downarrow #4\ ; #5 ; #6}
+
+% environments
+\newmeta\aenv{\ma{A}}
+\newmeta\tenv{\ma{\Gamma}}
+\newmeta\atenv{\ma{\Delta}}
+
+% algorithm
+\newcommand\metafnfont[1]{\mathsf{#1}}
+\newcommand\steptwo[0]{\metafnfont{squashLocal}}
+\newcommand\steptwohelper[0]{\metafnfont{squashLocal'}}
+\newcommand\stepthree[0]{\metafnfont{squashGlobal}}
+\newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
+\newcommand\aliassinglehmap[0]{aliasSingleHMap}      %% TODO needs definition!
+\newcommand\inferanns[0]{\metafnfont{inferAnns}}
+\newcommand\generatetenv[0]{\metafnfont{gen{\Gamma}}}
+\newcommand\genupdate[0]{\metafnfont{genUpdate}}
+\newcommand\trackmeta[0]{\metafnfont{track}}
+\newcommand\trackpolymeta[0]{\metafnfont{trackPoly}}
+\newcommand\update[4]{\metafnfont{update}(#1, #2, #3, #4)}
+\newcommand\updatecommon[6]{\update{#1}{#2}{#3}{#4} #5 #6} % takes the = sign to allow extra alignment
+\newcommand\updatenoalign[5]{\updatecommon{#1}{#2}{#3}{#4}{=}{#5}}
+\newcommand\updatealign[5]{\updatecommon{#1}{#2}{#3}{#4}{&=&}{#5}}
+
+% aliases
+\newmeta\alias{a}
+
+% expressions
+\newmeta\exp{e}
+\newmeta\val{v}
+\newmeta\kw{k}
+\newmeta\xvar{x}
+\newmeta\yvar{y}
+\newmeta\num{n}
+
+% abstract syntax for pathelem
+\newmeta\pth{l}
+\newcommand\pefont[1]{\textbf{#1}}
+\newmeta\classpe{\ma{\pefont{class}}}
+\newcommand\keype[2]{\ma{\pefont{key}_{#1}(#2)}}
+\newcommand\dompe[0]{\ma{\pefont{dom}}}
+\newcommand\rngpe[0]{\ma{\pefont{rng}}}
+
+% abstract syntax for paths
+\newmeta\path{\ma{\pi}}
+
+% inference results
+\newmeta\res{{\ma{r}}}
