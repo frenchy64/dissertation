@@ -431,6 +431,9 @@ Some ideas.
 	\item extensive benchmarking and profiling cases
 	\item disable union simplification (this takes up a lot of time and it isn't obvious
 				it's always needed.
+  \item by default, don't type check anything. Provide a function that will type check
+        a given top-level variable (like clojure.spec's 'instrument' function). So
+        give complete power to the user at the level of granularity of functions.
 \end{enumerate}
 
 \subsection{Core.typed Does Not Implement The Entire Clojure Language}
