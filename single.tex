@@ -276,9 +276,14 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \subsection{Thesis statement}
 
 \begin{verbatim}
-Typed Clojure can be extended to be user friendly while still
-retaining most of its strong properties in practice.
+Top level annotations are all that's needed to infer local annotations
+in most Clojure code.
 \end{verbatim}
+
+%\begin{verbatim}
+%Typed Clojure can be extended to be user friendly while still
+%retaining most of its strong properties in practice.
+%\end{verbatim}
 
 \subsection{History}
 
@@ -407,12 +412,14 @@ There are several key insights into why this decision was made.
 \end{enumerate}
 
 
-Answering CircleCI's complaints
+Answering CircleCI's complaints:
 
 \subsection{Slower Iteration Time}
 
 The biggest complaint is that transitive dependencies are eagerly rechecked,
 which is a huge performance hit for large projects. This has since been fixed.
+The key was to collect type annotations at runtime, instead of typechecking time,
+so we don't need to manually search through dependencies for type annotations.
 
 That said, there is a clear performance hit over regular untyped evaluation.
 Some ideas.
@@ -475,6 +482,67 @@ The main complaint is the effort needed to annotate libraries.
 	\item Yet another approach: provide a sweetened DSL for annotating clojure.spec code
 			  that is a superset of core.typed annotations. (tagged unions, functions with argument names)
 \end{enumerate}
+
+\section{Eliminating Local Annotations}
+
+A large problem in day to day usages of core.typed are boilerplate annotations that
+are required to be manually written to drive type checking. These are often redundant
+and annoying to write.
+
+For example, the following code requires an annoying type annotation: the variable
+'a' needs an 'Int' annotation.
+
+\begin{verbatim}
+(map (fn [a] (inc a)) [1 2 3])
+\end{verbatim}
+
+Interestingly, a human type checking this in a bidirectional fashion can do a good
+job at type checking this invocation, without oracles or complicated global
+type inference. All they require is to propagate partial type information
+to local functions (like Colored Local Type Inference).
+
+The recipe is: first, type check the collection:
+
+\begin{verbatim}
+[1 2 3] : (Seqable Int)
+\end{verbatim}
+
+Then, type check the function argument: 
+
+\begin{verbatim}
+(fn [a] (inc a)) : [Int -> ?]
+\end{verbatim}
+
+Finally, take the inferred return type of the function, here 'Int'
+and synthesize the entire 'map' expression as type:
+
+\begin{verbatim}
+(map (fn [a] (inc a)) [1 2 3]) : (Seqable Int)
+\end{verbatim}
+
+How can we encode this procedure into a type checking rule?
+
+We propose several possible approaches.
+
+\subsection{Automatically decide argument type checking order from function type}
+
+Here is the type of map (with 2 arguments):
+
+\begin{verbatim}
+(All [x y] [[x -> y] (Seqable x) -> (Seqable y)])
+\end{verbatim}
+
+Let's use the number of occurrences to the left of an arrow
+to decide which argument to type check first.
+
+In the first argument [x -> y], x appears once to the left of the arrow.
+
+In the second argument (Seqable x), x appears zero times to the left of an arrow.
+
+So, we should check the second argument first, and then propagate the type of
+x derived so far to check the first argument.
+
+\subsection{Custom typing rules with types-as-macros}
 
 \bibliography{bibliography}
 
