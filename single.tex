@@ -406,6 +406,73 @@ There are several key insights into why this decision was made.
     \end{itemize}
 \end{enumerate}
 
+
+Answering CircleCI's complaints
+
+\subsection{Slower Iteration Time}
+
+The biggest complaint is that transitive dependencies are eagerly rechecked,
+which is a huge performance hit for large projects. This has since been fixed.
+
+That said, there is a clear performance hit over regular untyped evaluation.
+Some ideas.
+
+\begin{enumerate}
+	\item asynchronous type checking will allow very fast compiles, but slow
+				feedback from the type checker.
+	\item type systems as macros may allow us to avoid many polymorphic type reconstructions.
+	\item another performance hit is occurrence typing. Try and type check things with
+				naive occurrence typing, if it doesn't work, try again. Or perhaps, opt-in to
+				more sophisticated type checking (we can suggest this to user).
+	\item only recheck functions whose types have changed
+	\item dependency analysis on function dependencies to ensure we only retype-check
+				things that matter.
+	\item instrument functions so that they type check at runtime if/when they are called.
+	\item extensive benchmarking and profiling cases
+	\item disable union simplification (this takes up a lot of time and it isn't obvious
+				it's always needed.
+\end{enumerate}
+
+\subsection{Core.typed Does Not Implement The Entire Clojure Language}
+
+Several important points are made here.
+
+\begin{enumerate}
+	\item if a Clojure idiom is not supported by core.typed, the error message
+			  that core.typed throws is not informative. The user cannot immediately tell the
+				difference between a genuine type error and an undersupported idiom
+		\begin{itemize}
+			\item this could be addressed for common core functions with custom errors in types-as-macros
+		\end{itemize}
+	\item it's frustrating for the programmer to have idioms that are not supported, and
+				they keep trying to make it work but this isn't what the type system was designed
+				to solve.
+	\item trying to type check usages of helper functions can be very hard to do.
+		\begin{itemize}
+			\item Perhaps type systems as macros can provide a more pleasant UI to direct the
+						 type system than spending much more time on inventing more sophisticated function
+						 types
+			\item helper functions are often simple variations on existing functions. We could provide
+						a base set of templates to easily characterise how to check usages (eg. filter,
+						map, or apply variations)
+		\end{itemize}
+\end{enumerate}
+
+
+\subsection{Third Party Code}
+
+The main complaint is the effort needed to annotate libraries.
+
+\begin{enumerate}
+	\item This is currently being addressed in the runtime-type inference work.
+	\item perhaps this could be automated: the type system detected an unannotated library
+				function, and walks you through how to generate a type annotation for it (if it
+				isn't already on github)
+	\item Another approach is to leverage existing clojure.spec annotations as type annotations
+	\item Yet another approach: provide a sweetened DSL for annotating clojure.spec code
+			  that is a superset of core.typed annotations. (tagged unions, functions with argument names)
+\end{enumerate}
+
 \bibliography{bibliography}
 
 
