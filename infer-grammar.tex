@@ -1,0 +1,48 @@
+\begin{figure*}
+  $$
+  \begin{altgrammar}
+    \val{} &::=& \num
+       \alt {\kw{}}
+       \alt [\lambda \xvar{}. \exp{}, \rho]
+       \alt \{\overrightarrow{\kw{}\ \val{}}\}
+       &\mbox{Values} \\
+   \exp{} &::=& \xvar{}
+       \alt \val
+       \alt \trackE{\exp}{\pi{}}
+       \alt \lambda \xvar{}. \exp{}
+       \alt \{\overrightarrow{\exp\ \exp}\}
+       \alt (\exp{}\ \exp{})
+       &\mbox{Expressions} \\
+    \rho &::=& \{\overrightarrow{x \mapsto \val}\}
+       &\mbox{Runtime environments} \\
+   \pth{}
+      &::=& x 
+       \alt \dompe{}
+       \alt \rngpe{}
+       \alt \inferkeype{\overrightarrow{\kw{}}}{\kw{}}
+       &\mbox{Path Elements} \\
+     \pi &::=& \overrightarrow{\pth{}}
+       &\mbox{Paths} \\
+       \res{}
+      &::=& \{\overrightarrow{\path{} : \tau}\}
+      &\mbox{Inference results} \\
+    \ty{}, \sigma
+      &::=& \IntT{}
+       \alt [\tau \rightarrow \tau]
+       %\alt [\overrightarrow{\tau} \tau * \rightarrow \tau]
+       \alt \{\overrightarrow{\kw{}\ \tau}\}
+       \\
+       &\alt& \HMaptwo{\{\overrightarrow{\kw{}\ \tau}\}}{\{\overrightarrow{\kw{}\ \tau}\}}
+       \alt \tau \cup \tau
+       \alt \alias{} % type alias
+       \alt \UnknownT{}
+      &\mbox{Types} \\
+    \tenv{} &::=& \{\overrightarrow{\xvar{} : \tau}\}
+      &\mbox{Type environments} \\
+    \aenv{} &::=& \{\overrightarrow{\alias{} \mapsto \tau}\}
+      &\mbox{Type alias environments} \\
+    \atenv{} &::=& (\aenv{}, \tenv{})
+      &\mbox{Combined environments} \\
+  \end{altgrammar}
+  $$
+\end{figure*}

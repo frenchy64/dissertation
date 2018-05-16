@@ -1,0 +1,443 @@
+\section{The algorithm}
+
+\subsection{Step 1}
+
+\begin{figure*}
+\begin{mathpar}
+
+  \begin{array}{lllll}
+    joinHMap(A, (HMap\  m_1\ o_1),
+                (HMap\  m_2\ o_2))
+      = (HMap\ m\ o) ; A
+      \\
+  \begin{array}{lllll}
+      \text{ where }
+          &m_1 = \{\overrightarrow{km_1 : tm_1}\}\\
+          &m_2 = \{\overrightarrow{km_2 : tm_2}\}\\
+          &o_1 = \{\overrightarrow{ko_1 : to_1}\}\\
+          &o_2 = \{\overrightarrow{ko_2 : to_2}\}\\
+          &allreq = km_1 \cup km_2 \\
+          &commonreq = km_1 \cap km_2 \\
+          &reqtoopt = allreq \setminus commonreq\\
+          &newopt = ko_1 \cup ko_2 \cup reqtoopt \\
+          &newreq = commonreq \setminus newopt,\\
+          &m = \{k : t_m | k \in newreq, t_m = join*(A, [t | \overrightarrow{\bigvee(k, t) \in s_i}^{s = [m_1, m_2]}])\}\\
+          &o = \{k : t_o | k \in newopt, t_o = join*(A, [t | \overrightarrow{\bigvee(k, t) \in s_i}^{s = [m_1, m_2, o_1, o_2]}])\}\\
+  \end{array}
+    \\
+    \\
+    containsUnknown(t) = (t = (HMap\ \{k : ?, \overrightarrow{k': t'}\}\ o) \vee t = (HMap\ m \{k' : ?, \overrightarrow{k'': t''}\})))
+    \\
+    unionHMaps(A, hmaps) = hmapsmerged2
+    \\
+  \begin{array}{lllll}
+    \text{ where }
+      &commonkeys = \bigcap[k_m | (HMap\ \{\overrightarrow{k_m : t}\} \ o) \in ts]\\
+      &likelytags = [k | k \in commonkeys \wedge \bigwedge [\textbf{if}\ (k,k_1) \in m\ \textbf{then}\ T\ \textbf{else}\ F\ | (HMap\ m\ o) \in ts]]\\
+      &hmapsbykeys = [(ks, ts) | t  \in hmaps \wedge t = (HMap\ \{\overrightarrow{ks: t}\}\ o) \wedge 
+                                 ts = [t | t \in hmaps \wedge t = (HMap\ \{\overrightarrow{ks: t'}\}\ o')]
+                                 ]\\
+      &hmapsmerged = \textbf{if}\ (\textbf{empty?}\ likelytags)\ \textbf{then}\ hmaps\ \textbf{else}\ 
+                            [t | ts \in hmapsbykeys \wedge t = \textbf{fold}\ (joinHMap\ A)\ ts]
+      \\
+      &isolatetag() =
+\begin{cases}
+    [(Map\ Any\ Any)], \text{if } \textbf{empty?}(commonkeys)\\
+    newmaps, \text{if } \neg \textbf{empty?}(likelytags)\\
+  \begin{array}{lllll}
+    \text{where}
+      &k_t = \textbf{first}(likelytags)\\
+      &hmapsbytags = %[(k_m, ts) | t  \in hmapsmerged \wedge t = (HMap\ \{k_t : k_m, \overrightarrow{k': t'}\}\ o) \wedge 
+                     %             ts = [t | t \in hmaps \wedge t = (HMap\ \{k_t : k_m, \overrightarrow{k'' : t''}\}\ o')]
+                     %             ]
+                     \textbf{group-by}(\lambda (HMap\ \{k_t : k_m, \overrightarrow{k': t'}\}\ o). k_m)
+                     hmapsmerged
+                                  \\
+      &newmaps = [t | ts \in hmapsbytags \wedge t = \textbf{fold}\ (joinHMap\ A)\ ts]
+  \end{array}\\
+    hmapsmerged , \text{if} \neg\textbf{empty?}([t | t \in hmapsmerged \wedge containsUnknown(t)])\\
+    \textbf{fold}\ (joinHMap\ A)\ hmapsmerged, \text{otherwise}
+\end{cases}
+      \\
+      % check common keys
+      &hmapsmerged2 = \textbf{if}\ (\textbf{length}\ hmapsmerged) > 1\ \textbf{then}\ isolatetag() \textbf{else}\ hmapsmerged
+  \end{array}\\
+    \\
+    makeUnion(A, ts) = u
+    \\
+  \begin{array}{lllll}
+    \text{ where }
+      &hmaps = [(HMap\ m\ o) | (HMap\ m\ o) \in ts]\\
+      &nonhmaps = [t | t \in ts \wedge t \not= (HMap\ m\ o)]\\
+      &hmapsmerged = unionHMaps(A, hmaps)\\
+      &u = nonhmaps \cup hmapsmerged
+  \end{array}
+      \\
+      \\
+  \end{array}
+\end{mathpar}
+\caption{Union constructor. Does not create new aliases, merges HMaps on the same "level"
+using optional entries where appropriate. Omitted: merging function types, upcasting certain
+combinations of types.}
+\end{figure*}
+
+Where: \emph{make-Union}
+
+This step begins by merging HMap's 
+and functions that are contained in the same union.
+
+Algorithm: Traverse each union and merge members
+of the same union with the following merge strategy.
+
+HMaps with 100\% same keys are merged, with
+entries being the union of the original HMaps.
+In the special case where we can guess a common
+dispatch key for all maps 
+(a common entry mapped to a keyword),
+we instead merge using the value of that entry.
+
+If there is a mix of collection and non-collection
+types, we upcast the entire union to Any.
+From experience, these combinations are rare in
+non-polymorphic functions, so instead we require
+a polymorphic type variable, which is future work.
+
+Functions with the same arities are merged, with
+the new domains being the join of the domains
+point-wise, and the new range being the join
+of the old ranges.
+
+Assumption: No optional keys. No recursive types.
+
+%TODO
+\subsection{Step 2.a}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+      walk(A, t) =
+\begin{cases}
+  doalias(A, t), \text{if } t = (HMap\ m\ o)\\
+  doalias(A, t), \text{if } t = (\cup\ \overrightarrow{ts}) \wedge \neg\textbf{every?}(\textbf{simple?},\ ts)\\
+  t, \text{otherwise}
+\end{cases}
+    \\
+  \end{array}
+
+\end{mathpar}
+\caption{Step 2.a}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+      doalias(A, t) =   res\\
+  \begin{array}{lllll}
+    \text{ where } 
+      &t' =
+\begin{cases}
+  (\cup\ \overrightarrow{\textbf{map}(\textbf{fullyResolveType}, \overrightarrow{ts})}), \text{if } t = (\cup\ \overrightarrow{ts})\\
+  t, \text{otherwise}
+\end{cases}\\
+      &n = \textbf{generateName}(A, t')\\
+      &A' = \textbf{registerAlias}(A, n, t')\\
+      &res = (A', n')
+  \end{array}
+  \\
+      walk(A, t) =
+\begin{cases}
+  doalias(A, t), \text{if } t = (HMap\ m\ o)\\
+  doalias(A, t), \text{if } t = (\cup\ \overrightarrow{ts}) \wedge \neg\textbf{every?}(\textbf{simple?},\ ts)\\
+  t, \text{otherwise}
+\end{cases}
+\\
+    aliasHMap(A, t) = \textbf{postwalk}(A, t, walk)
+    \\
+  \end{array}
+
+\end{mathpar}
+\caption{Step 2.a}
+\end{figure*}
+
+Where: \emph{alias-HMap}
+
+Relabel graph nodes to keysets.
+
+Traverse graph up from leaves.
+Label each HMap as a singleton set containing
+its keyset.
+Label each union as a set of keysets of its
+members. Delete HMap labels of its members.
+
+There are effectively two types of edges.
+"Union edges" don't really exist, since
+they're on the same level as their members.
+Other edges are normal, thus we don't delete
+HMaps labels they point to.
+
+Assumption: No recursive types.
+
+\subsection{Step 2.b}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    tryMergeAliases(A, f, t) = 
+      \begin{cases}
+        A2, \text{if } (\textbf{deep-keysets}(f) \cap \textbf{deep-keysets}(t)) \ne \varnothing\\
+        \begin{array}{lllll}
+          \text{ where }
+          % FIXME pretty sure each join argument needs `substAlias` first, check fixed implementation
+          &nt = join(\textbf{get}(A, f), \textbf{substAlias}(\textbf{get}(A, t), f, t))\\
+          &A1 = \textbf{assoc}(A, f, t)\\
+          &A2 = \textbf{assoc}(A1, t, nt)\\
+        \end{array}\\
+        A, \text{otherwise}
+      \end{cases}
+      \\
+    squash(A, t) = h(A, [t], [])\\
+  \begin{array}{lllll}
+    \text{ where }
+      h(A, w, d) = 
+      \begin{cases}
+        A, \text{if } \textbf{empty?}(w)\\
+        h(A',w',d'), \text{otherwise}\\
+  \begin{array}{lllll}
+    \text{ where }
+      &t = \textbf{first}(w)\\
+      &as = \textbf{aliases-in}(A, \textbf{resolve-alias}(A, t))\\
+      &ap = d \setminus \{t\}\\
+      &A' = 
+      \begin{cases}
+        \textbf{fold}(\lambda (A', f). tryMergeAliases(A', f, t), A, as \cup ap), \text{if } \textbf{contains?}(d, t)\\
+        A, \text{otherwise}
+      \end{cases}\\
+      &d' = (d \cup \{t\})
+      \\
+      &w' = \textbf{rest}(w) \cup (\textbf{aliases-in}(A, t) \setminus d')
+      \\
+  \end{array}
+      \end{cases}\\
+  \end{array}
+    \\
+    squashAll(A, t) = A'
+    \\
+  \begin{array}{lllll}
+    \text{ where }
+      &as = \textbf{aliases-in}(A, t)\\
+      &A' = \textbf{fold}(squash, A, as)\\
+  \end{array}
+  \end{array}
+
+\end{mathpar}
+\caption{Step 2.b}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    \steptwohelper{} : \atenv{}, (\xvar{}, \ty{}) \rightarrow \atenv{}\\
+    \steptwohelper{} ((\aenv{}, \Gamma), (\xvar{}, \ty{})) = (\aenv2, \tenv{}[\xvar{} \mapsto \ty2])\\
+  \begin{array}{lllll}
+    \text{ where }
+      &(\aenv1, \ty1) = aliasHMap(\aenv{}, \ty{})\\
+      &(\aenv2, \ty2) = squashAll(\aenv1, \ty1)\\
+  \end{array}
+  \\
+  \\
+  \steptwo{} : \tenv{} \rightarrow \atenv{}
+  \\
+  \steptwo{}(\tenv{}) = \textbf{fold}(\steptwohelper{}, ([], \tenv{}), \tenv{})\\
+  \end{array}
+\end{mathpar}
+\caption{Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
+(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
+redundant aliases.}
+\end{figure*}
+
+Where: \emph{squash-all}
+
+Vertical recursive types.
+
+Now recursive types are derived by
+depth traversal of the types.
+
+We start at the top of each branch and remember
+the keysets of the current node.
+We then traverse down depth-first and remember
+the keyset of each subsequent node. 
+If we find two nodes that have overlapping set of keysets,
+we merge them.
+
+The set of keysets of a HMap are every union of the keys
+in its required entry set and the subsets of the
+keys in its optional entry set.
+The set of keysets of a type is the union of
+all the keysets in its members (eg., for a union type,
+take the union of the set of keysets of its members).
+
+Here is the merge algorithm:
+
+Given nodes m and n, where non-empty(intersection(keysets(m), keyset(n))),
+and m was found before n.
+
+1. Redirect all in/out edges on n to m.
+2. Delete node n.
+3. Let type(m) = join(type(m), type(n))
+4. Let label(m) = union(label(m), label(n))
+
+Question: This algorithm could run until a fixed point.
+Should it? The next step does something similar that
+merges types in different graph forests, but does
+not handle recursive types.
+
+Assumption: No recursive types before we start 
+(?but surely as we go?)
+
+\subsection{Step 3.a}
+
+Where: \emph{alias-single-HMaps}
+
+Relabel nodes to HMap keyset.
+
+Relabel each node to its keyset if it is
+a HMap, otherwise do not label.
+
+\subsection{Step 3.b}
+
+Where: \emph{squash-horizontally}
+
+Horizontally merge similar types.
+
+Given a collection of sets of labelled nodes (to HMap
+keysets), in each set, choose just the types
+that are not recursive (by traversing the type and
+noticing if a cycle is made to the original label)
+and merge these nodes into the same graph.
+
+The merge is performed by joining the types
+of all the candidate nodes to a "new" node. Then reroute all
+in/out edges belonging to the candidate
+node to the "new" node.
+
+Note: This only merges non-recursive nodes.
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    \stepthree{} : \atenv{} \rightarrow \atenv{}\\
+    \stepthree{} = \squashhorizonally{} \circ \aliassinglehmap{}
+  \\
+  \end{array}
+\end{mathpar}
+\caption{Step 3 summary: First ensure all HMaps correspond to an alias. Then merge
+aliases that point to a HMaps with identical required keysets (aliases must point to exactly one
+top-level HMap, no unions).}
+\end{figure*}
+
+\subsection{Step 4}
+%\begin{figure*}
+%\begin{mathpar}
+%  \begin{array}{lllll}
+%    followTEnv'(A, t, f, s) = 
+%\begin{cases}
+%  t, \text{if } \textbf{contains?}(s, f)\\
+%  t', \text{otherwise}\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%    &t' = 
+%\begin{cases}
+%  followTEnv'(A, t, r, s \cup \{f\}), \text{if } \textbf{alias?}(r)\\
+%  t'', \text{otherwise } \textbf{alias?}(r)\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%    &r' = 
+%\begin{cases}
+%  r, \text{if } \textbf{simpleAlias?}(A, f)\\
+%  f, \text{otherwise}
+%\end{cases}\\
+%    &t'' = t[f \mapsto r']
+%  \end{array}
+%
+%\end{cases}\\
+%  \end{array}
+%\end{cases}\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%      &r = \textbf{resolve-alias}(A, f)
+%  \end{array}\\
+%    followTypeEnv(A, t) = t'\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%    &(A', t') = \textbf{fold}(\lambda ((A, t), f). followTEnv'(A, t, f, []), (A, t), \textbf{aliases-in}(A, t))
+%  \end{array}\\
+%
+%    followAEnv'(A, t, f, s) = 
+%\begin{cases}
+%  t, \text{if } \textbf{contains?}(s, f)\\
+%  t', \text{otherwise}\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%    &t' = 
+%\begin{cases}
+%  followAEnv'(A, t, r, s \cup \{f\}), \text{if } \textbf{alias?}(r)\\
+%  t'', \text{otherwise } \textbf{alias?}(r)\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%    &r' = 
+%\begin{cases}
+%  r, \text{if } \textbf{simpleAlias?}(A, f)\\
+%  f, \text{otherwise}
+%\end{cases}\\
+%    &t'' = t[f \mapsto r']
+%  \end{array}
+%
+%\end{cases}\\
+%  \end{array}
+%\end{cases}\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%      &r = \textbf{resolve-alias}(A, f)
+%  \end{array}\\
+%
+%    followAliasEnv(A, \Gamma) = \textbf{fold}(followAEnv', A, as)\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%    &A = \{\overrightarrow{as \mapsto ts}\}
+%  \end{array}\\
+%    followall(A, \Gamma) = res\\
+%  \begin{array}{lllll}
+%    \text{ where }
+%      &(A1, \Gamma_1) = \textbf{fold}(followTypeEnv, (A, \Gamma), \Gamma)\\
+%      &(A2, \Gamma_2) = followAliasEnv(A1, \Gamma_1)\\
+%      &res = (A2, \Gamma_2)
+%  \end{array}\\
+%  \end{array}
+%\end{mathpar}
+%\caption{Follow-all: Simplify aliases in the type environment and alias environment.}
+%\end{figure*}
+
+Where: \emph{follow-all}
+
+Remove aliases that just point to other aliases.
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    % FIXME the types for 'update' don't quite work out
+    \genupdate{} : \Gamma, (\path{}, \tau) \rightarrow \tau\\
+    \genupdate{}(\Gamma, (\path{}, \tau)) = update([], \Gamma, \path{}, \tau)\\
+    \\
+    \generatetenv{} : \res{} \rightarrow \Gamma\\
+    \generatetenv{} (\res{}) = \textbf{fold}(\genupdate{}, [], \res{})\\
+    \\
+    \inferanns{} : \res{} \rightarrow \atenv{}\\
+    \inferanns{} = \stepthree{} \circ \steptwo{} \circ \generatetenv{}\\
+  \end{array}
+\end{mathpar}
+\caption{Algorithm summary: Generate an initial type environment from inference results.
+Then generate an updated type environment paired with a type alias environment by 1: creating
+a recursive type if a HMap contains another HMap whose keysets have a non-empty intersection, 2:
+globally merging type aliases based on identical HMap keysets, 3: cleaning up redundant aliases.}
+\end{figure*}

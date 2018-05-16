@@ -1,0 +1,119 @@
+\section{Extensions}
+
+\subsection{Polymorphic types}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{altgrammar}
+   \exp{} &::=& ...
+       \alt \trackpolyE{\exp}{\pi{}}{\exp{}}
+       \alt \genE{}
+  \end{altgrammar}
+
+  \infer [B-Gen]
+  { \num{}' = \num{} + 1
+  }
+  { \bigstepgen{\rho}{\num{}}{\genE{}}{\num{}'}{\{\}}{\num{}'}}
+
+
+  \infer [B-TrackPoly]
+  { \bigstepgen{\rho}{\num0}{\exp{}}{\val{}}{\res{}}{\num1} 
+    \\\\
+    \bigstepgen{\rho}{\num1}{\exp{}'}{\num{}}{\res{}'}{\num2}
+    \\\\
+    \trackpolymeta{}(\val{}, \path{}, {\num{}}) = \val{}'\ ; \res{}'' }
+  { \bigstepgen{\rho}{\num0}{\trackpolyE{\exp{}}{\path{}}{\exp{}'}}{\val{}'}{\res{} \sqcup \res{}' \sqcup \res{}''}{\num2} }
+
+  \begin{array}{lllll}
+    \trackpolymeta{}(\val{}, \path{}, \num{}) = \val{}\ ;\ \res{}\\\\
+
+    \trackpolymeta{}(\num{}, \path{}, \num{}')
+    &=&
+    n\ ; \{\path{} : \IntT{}\}
+    \\
+    \trackpolymeta{}([\lambda \xvar{}. \exp{}, \rho], \path{}, \num{})
+    &=&
+    [
+    \lambda \yvar{}.
+    \letliteral (\xvar{n} \genE{})
+    \\&&
+      \trackpolyE{((\lambda \xvar{}. \exp{}) \trackpolyE{\yvar{}}{\appendone{\path{}}{\dompe{}}}{\xvar{n}})}
+             {\appendone{\path{}}{\rngpe{}}}{\xvar{n}}
+         , \rho]
+         \ ; \{\path{} : [\UnknownT{} \rightarrow \UnknownT{}] \}
+         \\
+    &&
+    \text{where}\ \yvar{} \text{ is fresh}
+    \\
+    \trackpolymeta{}(\{\overrightarrow{\val1\ \val2}\}, \path{}, \num{})
+    &=&
+    \{\overrightarrow{\val1\ \val2{}'}\}
+    \ ;\ \overrightarrow{\sqcup\ \res{}}
+      \sqcup
+    \{\path{} : \{\overrightarrow{\val1\ \UnknownT{}}\} \}
+    \\
+    &&
+    \text{where}\ \overrightarrow{\trackpolymeta{}(\val2, \appendone{\path{}}{\inferkeype{\overrightarrow{\val1}}{\val1}}) = \val2{}'\ ;\ \res{}}
+  \end{array}
+\end{mathpar}
+\caption{Polymorphic type tracking extensions}
+\end{figure*}
+
+\subsection{Space efficient tracking}
+
+To reduce the overhead of runtime tracking, we can borrow
+the concept of ``space efficient'' contract checking from
+the gradual typing literature.
+
+Instead of tracking just one path at once, a space efficient
+implementation of track threads through a set of paths.
+When a tracked value flows into another tracked position,
+we extract the unwrapped value, and then our new tracked value
+tracks the paths that is the set of the old paths with the new path.
+
+To model this, we introduce a new kind of value $\ProxyE{\val1{}}{\val2{}}{\overrightarrow{\path{}}}$
+that tracks old value $\val1{}$ as new value $\val2{}$ with the paths $\overrightarrow{\path{}}$.
+Proxy expressions are introduced when tracking functions, where instead of just returning
+a new wrapped function, we return a $\ProxyE{}$.
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{altgrammar}
+    \val{} &::=& ... \alt \ProxyE{\val{}}{\val{}}{\overrightarrow{\path{}}}
+       &\mbox{Values}
+  \end{altgrammar}
+  \\
+
+  \begin{array}{lllll}
+    \trackmeta{}([\lambda \xvar{}. \exp{}, \rho], \overrightarrow{\path{}})
+    &=&
+    \ProxyE{[\lambda \xvar{}. \exp{}, \rho]}
+    {[
+    \lambda \yvar{}.
+      \trackE{((\lambda \xvar{}. \exp{}) \trackE{\yvar{}}{\overrightarrow{\appendone{\path{}}{\dompe{}}}})}
+             {\overrightarrow{\appendone{\path{}}{\rngpe{}}}}
+         , \rho]}
+         {\overrightarrow{\path{}}}
+         \ ; \overrightarrow{\{\path{} : [\UnknownT{} \rightarrow \UnknownT{}] \}}
+         \\
+    &&
+    \text{where}\ \yvar{} \text{ is fresh}
+    \\
+    \trackmeta{}(\ProxyE{\val1{}}{\val2{}}{\overrightarrow{\path{}'}}, \overrightarrow{\path{}})
+    &=&
+    \ProxyE{\val1{}}{\val3{}}{(\path{} \cup \path{}')}
+         \ ; \res{}
+         \\
+    &&
+    \text{where}\ \trackmeta{}(\val1{},\ \overrightarrow{\appendone{(\path{} \cup \path{}')}{\dompe{}}}) = \val3{} ;\ \res{}
+  \end{array}
+
+  \\
+\infer [B-ProxyApp]
+{ \bigstep{\rho}{\exp1}{\ProxyE{\val{}''}{\val{}}{\overrightarrow{\path{}}}}{\res1} \\\\
+  \bigstep{\rho}{(\val{}\ \exp2)}{\val{}'}{\res2}\\
+}
+{ \bigstep{\rho}{(\exp1\ \exp2)}{\val{}'}{\res1 \sqcup \res2}}
+\end{mathpar}
+\caption{Space efficient tracking extensions}
+\end{figure*}

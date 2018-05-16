@@ -10,7 +10,6 @@
 \newcommand\trackE[2]{({\specialformfont{track}}\ #1\ #2)}
 \newcommand\trackpolyE[3]{({\specialformfont{trackPoly}}\ #1\ #2\ #3)}
 \newcommand\genE[0]{({\specialformfont{genInt}})}
-\newcommand\letliteral[0]{{\specialformfont{let}}}
 \newcommand\assocE[3]{({\specialformfont{assoc}}\ #1\ #2\ #3)}
 \newcommand\PairOfT[1]{{\mathsf{PairOf}}}
 \newcommand\NatT[1]{{\mathsf{N}}}
@@ -34,7 +33,6 @@
 \newmeta\atenv{\ma{\Delta}}
 
 % algorithm
-\newcommand\metafnfont[1]{\mathsf{#1}}
 \newcommand\steptwo[0]{\metafnfont{squashLocal}}
 \newcommand\steptwohelper[0]{\metafnfont{squashLocal'}}
 \newcommand\stepthree[0]{\metafnfont{squashGlobal}}
@@ -45,10 +43,13 @@
 \newcommand\genupdate[0]{\metafnfont{genUpdate}}
 \newcommand\trackmeta[0]{\metafnfont{track}}
 \newcommand\trackpolymeta[0]{\metafnfont{trackPoly}}
-\newcommand\update[4]{\metafnfont{update}(#1, #2, #3, #4)}
-\newcommand\updatecommon[6]{\update{#1}{#2}{#3}{#4} #5 #6} % takes the = sign to allow extra alignment
-\newcommand\updatenoalign[5]{\updatecommon{#1}{#2}{#3}{#4}{=}{#5}}
-\newcommand\updatealign[5]{\updatecommon{#1}{#2}{#3}{#4}{&=&}{#5}}
+\newcommand\inferupdate[4]{\metafnfont{update}(#1, #2, #3, #4)}
+\newcommand\inferupdatecommon[6]{\inferupdate{#1}{#2}{#3}{#4} #5 #6} % takes the = sign to allow extra alignment
+\newcommand\inferupdatenoalign[5]{\inferupdatecommon{#1}{#2}{#3}{#4}{=}{#5}}
+\newcommand\inferupdatealign[5]{\inferupdatecommon{#1}{#2}{#3}{#4}{&=&}{#5}}
+\newcommand\joinalign[4]{\metafnfont{join}(#1, #2, #3) &=& #4}
+\newcommand\joinnoalign[4]{\metafnfont{join}(#1, #2, #3) = #4}
+\newcommand\joinexpression[3]{\metafnfont{join}(#1, #2, #3)}
 
 % aliases
 \newmeta\alias{a}
@@ -63,9 +64,8 @@
 
 % abstract syntax for pathelem
 \newmeta\pth{l}
-\newcommand\pefont[1]{\textbf{#1}}
 \newmeta\classpe{\ma{\pefont{class}}}
-\newcommand\keype[2]{\ma{\pefont{key}_{#1}(#2)}}
+\newcommand\inferkeype[2]{\ma{\pefont{key}_{#1}(#2)}}
 \newcommand\dompe[0]{\ma{\pefont{dom}}}
 \newcommand\rngpe[0]{\ma{\pefont{rng}}}
 
