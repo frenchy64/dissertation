@@ -1,6 +1,6 @@
 all:
-	pdflatex single.tex 
-	bibtex single
-	pdflatex single.tex 
-	bibtex single
-	pdflatex single.tex 
+	pdflatex proposal.tex 
+	bibtex proposal
+	pdflatex proposal.tex 
+	bibtex proposal
+	pdflatex proposal.tex 

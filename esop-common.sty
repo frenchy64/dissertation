@@ -1,0 +1,187 @@
+\usepackage{textcomp}
+
+\usepackage{mmm}
+\usepackage{mathpartir}
+\usepackage{esop-clj-grammar}
+\usepackage{xcolor}
+\usepackage{framed}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{chngcntr}
+
+\floatstyle{plain} % optionally change the style of the new float
+\newfloat{Code}{H}{myc}
+
+\usepackage{listings}
+
+\lstdefinelanguage{clojure}%
+{morekeywords={*,*1,*2,*3,*agent*,*allow-unresolved-vars*,*assert*,*clojure-version*,*command-line-args*,%
+*compile-files*,*compile-path*,*e,*err*,*file*,*flush-on-newline*,*in*,*macro-meta*,%
+*math-context*,*ns*,*out*,*print-dup*,*print-length*,*print-level*,*print-meta*,*print-readably*,%
+*read-eval*,*source-path*,*use-context-classloader*,*warn-on-reflection*,+,-,->,->>,..,/,:else,%
+<,<=,=,==,>,>=,@,accessor,aclone,add-classpath,add-watch,agent,agent-errors,aget,alength,alias,%
+all-ns,alter,alter-meta!,alter-var-root,amap,ancestors,and,apply,areduce,array-map,aset,%
+aset-boolean,aset-byte,aset-char,aset-double,aset-float,aset-int,aset-long,aset-short,assert,%
+assoc,assoc!,assoc-in,associative?,atom,await,await-for,await1,bases,bean,bigdec,bigint,binding,%
+bit-and,bit-and-not,bit-clear,bit-flip,bit-not,bit-or,bit-set,bit-shift-left,bit-shift-right,%
+bit-test,bit-xor,boolean,boolean-array,booleans,bound-fn,bound-fn*,butlast,byte,byte-array,%
+bytes,cast,char,char-array,char-escape-string,char-name-string,char?,chars,chunk,chunk-append,%
+chunk-buffer,chunk-cons,chunk-first,chunk-next,chunk-rest,chunked-seq?,class,class?,%
+clear-agent-errors,clojure-version,coll?,comment,commute,comp,comparator,compare,compare-and-set!,%
+compile,complement,concat,cond,condp,conj,conj!,cons,constantly,construct-proxy,contains?,count,%
+counted?,create-ns,create-struct,cycle,dec,decimal?,declare,def,definline,defmacro,defmethod,%
+defmulti,defn,defn-,defonce,defprotocol,defstruct,deftype,delay,delay?,deliver,deref,derive,%
+descendants,destructure,disj,disj!,dissoc,dissoc!,distinct,distinct?,do,do-template,doall,doc,%
+dorun,doseq,dosync,dotimes,doto,double,double-array,doubles,drop,drop-last,drop-while,empty,empty?,%
+ensure,enumeration-seq,eval,even?,every?,false,false?,ffirst,file-seq,filter,finally,find,find-doc,%
+find-ns,find-var,first,float,float-array,float?,floats,flush,fn,fn?,fnext,for,force,format,future,%
+future-call,future-cancel,future-cancelled?,future-done?,future?,gen-class,gen-interface,gensym,%
+get,get-in,get-method,get-proxy-class,get-thread-bindings,get-validator,hash,hash-map,hash-set,%
+identical?,identity,if,if-let,if-not,ifn?,import,in-ns,inc,init-proxy,instance?,int,int-array,%
+integer?,interleave,intern,interpose,into,into-array,ints,io!,isa?,iterate,iterator-seq,juxt,%
+key,keys,keyword,keyword?,last,lazy-cat,lazy-seq,let,letfn,line-seq,list,list*,list?,load,load-file,%
+load-reader,load-string,loaded-libs,locking,long,long-array,longs,loop,macroexpand,macroexpand-1,%
+make-array,make-hierarchy,map,map?,mapcat,max,max-key,memfn,memoize,merge,merge-with,meta,%
+method-sig,methods,min,min-key,mod,monitor-enter,monitor-exit,name,namespace,neg?,new,newline,%
+next,nfirst,nil,nil?,nnext,not,not-any?,not-empty,not-every?,not=,ns,ns-aliases,ns-imports,%
+ns-interns,ns-map,ns-name,ns-publics,ns-refers,ns-resolve,ns-unalias,ns-unmap,nth,nthnext,num,%
+number?,odd?,or,parents,partial,partition,pcalls,peek,persistent!,pmap,pop,pop!,pop-thread-bindings,%
+pos?,pr,pr-str,prefer-method,prefers,primitives-classnames,print,print-ctor,print-doc,print-dup,%
+print-method,print-namespace-doc,print-simple,print-special-doc,print-str,printf,println,println-str,%
+prn,prn-str,promise,proxy,proxy-call-with-super,proxy-mappings,proxy-name,proxy-super,%
+push-thread-bindings,pvalues,quot,rand,rand-int,range,ratio?,rational?,rationalize,re-find,%
+re-groups,re-matcher,re-matches,re-pattern,re-seq,read,read-line,read-string,recur,reduce,ref,%
+ref-history-count,ref-max-history,ref-min-history,ref-set,refer,refer-clojure,reify,%
+release-pending-sends,rem,remove,remove-method,remove-ns,remove-watch,repeat,repeatedly,%
+replace,replicate,require,reset!,reset-meta!,resolve,rest,resultset-seq,reverse,reversible?,%
+rseq,rsubseq,second,select-keys,send,send-off,seq,seq?,seque,sequence,sequential?,set,set!,%
+set-validator!,set?,short,short-array,shorts,shutdown-agents,slurp,some,sort,sort-by,sorted-map,%
+sorted-map-by,sorted-set,sorted-set-by,sorted?,special-form-anchor,special-symbol?,split-at,%
+split-with,str,stream?,string?,struct,struct-map,subs,subseq,subvec,supers,swap!,symbol,symbol?,%
+sync,syntax-symbol-anchor,take,take-last,take-nth,take-while,test,the-ns,throw,time,to-array,%
+to-array-2d,trampoline,transient,tree-seq,true,true?,try,type,unchecked-add,unchecked-dec,%
+unchecked-divide,unchecked-inc,unchecked-multiply,unchecked-negate,unchecked-remainder,%
+unchecked-subtract,underive,unquote,unquote-splicing,update-in,update-proxy,use,val,vals,%
+var,var-get,var-set,var?,vary-meta,vec,vector,vector?,when,when-first,when-let,when-not,%
+while,with-bindings,with-bindings*,with-in-str,with-loading-context,with-local-vars,%
+with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
+},%
+   sensitive,% ???
+   alsodigit=-,%
+   morecomment=[l];,%
+   morestring=[b]"%
+  }[keywords,comments,strings]%
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{stringgray}{rgb}{0.4,0.4,0.4}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{types}{rgb}{0.16, 0.32, 0.75}
+%\definecolor{types}{rgb}{0.0, 0.75, 1.0}
+\definecolor{turnstile}{rgb}{0.0, 0.5, 1.0}
+%\definecolor{interop}{rgb}{0,0.8,0}
+%\definecolor{interop}{rgb}{0.89, 0.44, 0.48}
+\definecolor{interop}{rgb}{0.01, 0.75, 0.24}
+\definecolor{invoke}{rgb}{0,0,0}
+
+\lstset{ %
+  upquote=true,
+  language=clojure,                % choose the language of the code
+  columns=fixed,basewidth=.5em,
+  basicstyle=\ttfamily,       % the size of the fonts that are used for the code
+  %numbers=left,                   % where to put the line-numbers
+  %numberstyle=\small\ttfamily,      % the size of the fonts that are used for the line-numbers
+  %stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+  %numbersep=5pt,                  % how far the line-numbers are from the code
+  %backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  %showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  %showtabs=false,                 % show tabs within strings adding particular underscores
+  %frame=single,           % adds a frame around the code
+  %tabsize=2,          % sets default tabsize to 2 spaces
+  %captionpos=t,           % sets the caption-position to bottom
+  %breaklines=true,        % sets automatic line breaking
+  %breakatwhitespace=true,    % sets if automatic breaks should only happen at whitespace
+  %escapeinside={\%*}{*)},          % if you want to add a comment within your code
+  literate= 
+            %{\#\{*set\ }{{\textcolor{red}{\#\{}}}1
+            %{\ set*\}} {{\textcolor{red}{\}}}}1
+            {\{}{{\textcolor{mygray}{\{}}}1
+            {\}} {{\textcolor{mygray}{\}}}}1
+            {\{*map\ }{{\textcolor{red}{\{}}}1
+            {\ map*\}} {{\textcolor{red}{\}}}}1
+            {[}  {{\textcolor{mygray}{[}}}1
+            {]}  {{\textcolor{mygray}{]}}}1     
+            {(}  {{\textcolor{mygray}{(}}}1
+            {)}  {{\textcolor{mygray}{)}}}1     
+            {:-}  {{\textcolor{types}{:-}}}1     
+            {->}  {{\textcolor{mygray}{->}}}1     
+            {[*vec\ }  {{\textcolor{red}{[}}}1
+            {\ vec*]}  {{\textcolor{red}{]}}}1     
+            {(*list\ }  {{\textcolor{red}{(}}}1
+            {\ list*)}  {{\textcolor{red}{)}}}1     
+            {(*interop\ }  {{\textcolor{interop}{(}}}1     
+            {\ interop*)}  {{\textcolor{interop}{)}}}1     
+            {(*typed\ }  {{\textcolor{types}{(}}}1     
+            {\ typed*)}  {{\textcolor{types}{)}}}1     
+            {(*invoke\ }  {{\textcolor{invoke}{(}}}1     
+            {\ invoke*)}  {{\textcolor{invoke}{)}}}1     
+}
+
+\lstset{ %
+  %backgroundcolor=\color{white},   % choose the background color
+  %basicstyle=\footnotesize,        % size of fonts used for the code
+  commentstyle=\color{mygray},    % comment style
+  escapeinside={(*@}{@*)},
+  %escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\textbf,       % keyword style
+  stringstyle=\color{stringgray}\textit,     % string literal style
+}
+
+\usepackage{amsmath}
+\DeclareMathSymbol{\Gamma}{\mathalpha}{operators}{0}
+
+\newcommand\smallsection[1]{\textbf{\emph{#1}}}
+
+\usepackage{amsthm}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem*{case}{Case}
+
+\theoremstyle{remark}
+\newtheorem*{subcase}{Subcase}
+
+%http://tex.stackexchange.com/questions/150492/how-to-use-itemize-in-table-environment
+\usepackage{booktabs}
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+
+\newcommand{\clj}[1]{\lstinline{#1}}
+\newcommand{\java}[1]{\lstinline{#1}}
+\newcommand{\rkt}[1]{\lstinline{#1}}
+
+\usepackage{url}
+\newcounter{ex}
+\newenvironment{exmp}{
+\refstepcounter{ex}%
+\par\vspace{.8em}\hfill\framebox{\small Example~\theex}\nopagebreak
+\\[-3.23em]\nopagebreak}
+{\relax}
+
+\newenvironment{exmp2}{
+\refstepcounter{ex}%
+\par\vspace{3em}\hfill\framebox{\small Example~\theex}\nopagebreak
+\\[-3.23em]\nopagebreak}
+{\relax}
+
+\newenvironment{mintedclj}{
+\begin{verbatim}%
+}
+{\end{verbatim}%
+}%
+

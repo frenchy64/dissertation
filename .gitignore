@@ -13,3 +13,5 @@ minimal
 example.bib
 *.out
 *.gz
+*blx.bib
+*.run.xml

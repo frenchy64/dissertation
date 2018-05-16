@@ -1,0 +1,45 @@
+\counterwithin{figure}{section}
+\counterwithin{assumption}{section}
+\counterwithin{theorem}{section}
+\counterwithin{lemma}{section}
+\counterwithin{definition}{section}
+
+\onecolumn
+\appendix
+
+\input{esop-proof}
+
+\input{esop-syntax-figure}
+
+\input{esop-typing-rules}
+
+%\input{tools-analyzer-figure}
+
+\input{esop-subtyping}
+
+%$$
+%\begin{tdisplay}{Evaluation Contexts}
+%  \begin{altgrammar}
+%    \E{} &::=& [ ] % application rules
+%              \alt (\c{}\ \overrightarrow{\v{}}\ \E{}\ \overrightarrow{\exp{}}) % eval arguments left-to-right
+%              % map rules
+%              \alt \{\overrightarrow{\v{}\ \v{}}\ \E{}\ \exp{}\ \overrightarrow{\exp{}\ \exp{}} \} % key first
+%              \alt \{\overrightarrow{\v{}\ \v{}}\ \v{}\ \E{}\ \overrightarrow{\exp{}\ \exp{}} \}   % value next
+%              &\mbox{Evaluation Contexts}
+%  \end{altgrammar}
+%\end{tdisplay}
+%$$ 
+
+\input{esop-convert-types-figure}
+\input{esop-constant}
+
+\input{esop-isa-figure}
+\input{esop-get-method}
+
+\clearpage
+
+\input{esop-operational-semantics}
+\input{esop-update}
+\input{esop-satisfaction}
+\input{esop-proof-system}
+\input{esop-subst}

@@ -143,6 +143,11 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \newcommand{\clj}[1]{\lstinline{#1}}
 \newcommand{\java}[1]{\lstinline{#1}}
 \newcommand{\rkt}[1]{\lstinline{#1}}
+\newcommand\secref[1]{Section~\ref{#1}}
+\newcommand\figref[1]{Figure~\ref{#1}}
+\newcommand\egref[1]{Example~\ref{#1}}
+\newcommand\lemref[1]{Lemma~\ref{#1}}
+
 
 \usepackage{fancyvrb}
 \usepackage{amsmath}
@@ -157,57 +162,14 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 
 \newcommand{\cL}{{\cal L}}
 
-
-
-%\makeatletter\if@ACM@journal\makeatother
-%%% Journal information (used by PACMPL format)
-%%% Supplied to authors by publisher for camera-ready submission
-%\acmJournal{PACMPL}
-%\acmVolume{1}
-%\acmNumber{1}
-%\acmArticle{1}
-%\acmYear{2017}
-%\acmMonth{1}
-%\acmDOI{10.1145/nnnnnnn.nnnnnnn}
-%\startPage{1}
-%\else\makeatother
-%%% Conference information (used by SIGPLAN proceedings format)
-%%% Supplied to authors by publisher for camera-ready submission
-%\acmConference[PL'17]{ACM SIGPLAN Conference on Programming Languages}{January 01--03, 2017}{New York, NY, USA}
-%\acmYear{2017}
-%\acmISBN{978-x-xxxx-xxxx-x/YY/MM}
-%\acmDOI{10.1145/nnnnnnn.nnnnnnn}
-%\startPage{1}
-%\fi
-
-
-%% Copyright information
-%% Supplied to authors (based on authors' rights management selection;
-%% see authors.acm.org) by publisher for camera-ready submission
-\setcopyright{none}             %% For review submission
-%\setcopyright{acmcopyright}
-%\setcopyright{acmlicensed}
-%\setcopyright{rightsretained}
-%\copyrightyear{2017}           %% If different from \acmYear
-
-
-%% Bibliography style
-%\bibliographystyle{splncs03}
-%\bibliographystyle{ACM-Reference-Format}
-%% Citation style
-%% Note: author/year citations are required for papers published as an
-%% issue of PACMPL.
-%\citestyle{acmauthoryear}   %% For author/year citations
-
-
-
 \begin{document}
 
 %\title{Development and study of Verification Tools for Clojure}
 %\title{Typed Clojure in Practice}
 %\title{Theory and Practice of Verification Tools for Clojure}
 %\title{Theory, Practice, and Study of }
-\title{Thesis Proposal: Theory, Practice, and Study of Clojure Verification Techniques for Clojure}
+%\title{Thesis Proposal: Theory, Practice, and Study of Clojure Verification Techniques for Clojure}
+\title{Thesis Proposal: Typed Clojure in Theory and Practice}
 
 %% Author with single affiliation.
 \author{Ambrose Bonnaire-Sergeant}
@@ -225,16 +187,6 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
   \country{USA}
 }
 \email{abonnair@indiana.edu}          %% \email is recommended
-
-%% Paper note
-%% The \thanks command may be used to create a "paper note" ---
-%% similar to a title note or an author note, but not explicitly
-%% associated with a particular element.  It will appear immediately
-%% above the permission/copyright statement.
-%\thanks{with paper note}                %% \thanks is optional
-                                        %% can be repeated if necesary
-                                        %% contents suppressed with 'anonymous'
-
 
 %% Abstract
 %% Note: \begin{abstract}...\end{abstract} environment must come
@@ -264,34 +216,6 @@ Then, I will synthesize these ideas into a practical implementation that
 
 \end{abstract}
 
-
-%% 2012 ACM Computing Classification System (CSS) concepts
-%% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
-%\begin{CCSXML}
-%<ccs2012>
-%<concept>
-%<concept_id>10011007.10011006.10011008</concept_id>
-%<concept_desc>Software and its engineering~General programming languages</concept_desc>
-%<concept_significance>500</concept_significance>
-%</concept>
-%<concept>
-%<concept_id>10003456.10003457.10003521.10003525</concept_id>
-%<concept_desc>Social and professional topics~History of programming languages</concept_desc>
-%<concept_significance>300</concept_significance>
-%</concept>
-%</ccs2012>
-%\end{CCSXML}
-
-%\ccsdesc[500]{Software and its engineering~General programming languages}
-%\ccsdesc[300]{Social and professional topics~History of programming languages}
-%% End of generated code
-
-
-%% Keywords
-%% comma separated list
-%\keywords{keyword1, keyword2, keyword3}  %% \keywords is optional
-
-
 %% \maketitle
 %% Note: \maketitle command must come after title commands, author
 %% commands, abstract environment, Computing Classification System
@@ -300,10 +224,214 @@ Then, I will synthesize these ideas into a practical implementation that
 
 \section{Introduction}
 
+The popularity of dynamically-typed languages in software
+development, combined with a recognition that types often improve
+programmer productivity, software reliability, and performance, has
+led to the recent development of a wide variety of optional and
+gradual type systems aimed at checking existing programs written in
+existing languages.  These include  TypeScript~\cite{typescript} and Flow~\cite{flow} for
+JavaScript, Hack~\cite{hack} for PHP, and mypy~\cite{mypy}
+for Python among the optional systems, and Typed Racket~\cite{TF08}, Reticulated
+Python~\cite{Vitousek14}, and GradualTalk~\cite{gradualtalk} among gradually-typed systems.\footnote{We
+  use ``gradual typing'' for systems like Typed Racket with sound
+  interoperation between typed and untyped code; Typed Clojure or
+ TypeScript which don't
+  enforce type invariants we describe as ``optionally typed''.}
+
+One key lesson of these systems, indeed a lesson known to early
+developers of optional type systems such as StrongTalk, is that type
+systems for existing languages must be designed to work with the
+features and idioms of the target language. Often this takes the form
+of a core language, be it of functions or classes and objects,
+together with extensions to handle distinctive language features.
 
 \subsection{Typed Clojure}
 
+We synthesize these lessons to present \emph{Typed Clojure}, an
+optional type system for Clojure. 
+%
+Clojure is a dynamically
+typed language in the Lisp family---built on the Java Virtual
+Machine (JVM)---which has recently gained popularity as an alternative
+JVM language.  It offers the flexibility of a Lisp dialect, including
+macros, emphasizes a functional style via
+immutable data structures, and provides
+interoperability with existing Java code, allowing programmers to use
+existing Java libraries without leaving Clojure.
+%
+Since its initial release in 2007, Clojure has been widely adopted for
+``backend'' development in places where its support for parallelism,
+functional programming, and Lisp-influenced abstraction is desired on
+the JVM. As a result, there is an extensive base of existing untyped
+programs whose developers can benefit from Typed Clojure,
+an experience we discuss in this paper.
+
+Since Clojure is a language in the
+Lisp family, we apply the lessons of Typed Racket, an existing gradual type
+system for Racket, to the core of Typed Clojure, consisting of an extended
+$\lambda$-calculus over a variety of base types shared between all Lisp systems.
+%
+Furthermore, Typed Racket's \emph{occurrence typing} has proved
+necessary for type checking realistic Clojure programs.
+
+\begin{figure*}[t!]
+  \normalsize
+\begin{lstlisting}
+(*typed ann pname [(U File String) -> (U nil String)] typed*)
+(defmulti pname class)  ; multimethod dispatching on class of argument
+(defmethod pname String [s] (*invoke pname (*interop new File s interop*) invoke*)) ; String case 
+(defmethod pname File [f] (*interop .getName f interop*)) ; File case, static null check
+(*invoke pname "STAINS/JELLY" invoke*) ;=> "JELLY" :- (U nil Str)
+\end{lstlisting}
+\caption{A simple Typed Clojure program (delimiters: {\color{interop}Java interoperation (green)}, 
+  {\color{types}type annotation (blue)},
+  {\color{invoke}function invocation (black)}, {\color{red}collection literal (red)}, {\color{mygray}other (gray)})}
+\label{fig:ex1}
+\end{figure*}
+
+
+However, Clojure goes beyond Racket in many ways, requiring several
+new type system features which we detail in this paper.
+%
+Most significantly, Clojure supports, and Clojure developers use,
+\textbf{multimethods} to structure their code in extensible
+fashion. Furthermore, since Clojure is an untyped language, dispatch
+within multimethods is determined by application of dynamic predicates
+to argument values. 
+%
+Fortunately, the dynamic dispatch used by multimethods has surprising
+symmetry with the conditional dispatch handled by occurrence
+typing. Typed Clojure is therefore able to effectively handle complex
+and highly dynamic dispatch as present in existing Clojure programs. 
+
+But multimethods are not the only Clojure feature crucial to type
+checking existing programs. As a language built on the Java Virtual
+Machine, Clojure provides flexible and transparent access to existing
+Java libraries, and \textbf{Clojure/Java interoperation} is found in almost
+every significant Clojure code base. Typed Clojure therefore builds in
+an understanding of the Java type system and handles interoperation
+appropriately. Notably, \texttt{null} is a distinct type in Typed Clojure,
+designed to automatically rule out null-pointer exceptions.
+
+An example of these features is given in
+\figref{fig:ex1}. Here, the \clj{pname} multimethod dispatches
+on the \clj{class} of the argument---for \clj{String}s,
+the first method implementation is called, for \clj{File}s, the
+second. The \clj{String} method calls
+a \clj{File} constructor, returning a non-nil \clj{File} instance---the 
+\clj{getName} method 
+on \clj{File} requires a non-nil target, returning a nilable
+type.  
+%Typed Clojure offers an opt-in mode that
+%resolves JVM overloading, avoiding expensive runtime reflective calls.
+
+Finally, flexible, high-performance immutable dictionaries
+are the most common Clojure data structure.
+Simply treating them as uniformly-typed
+key-value mappings would be insufficient for existing
+programs and programming styles. Instead, Typed Clojure provides a
+flexible \textbf{heterogenous map} type, in which specific entries can be specified. 
+
+While these features may seem disparate, they are unified in important
+ways. First, they leverage the type system mechanisms
+inherited from Typed Racket---multimethods when using 
+dispatch via predicates, Java interoperation for handling
+\texttt{null} tests, and heterogenous maps using union types and
+reasoning about subcomponents of data. Second,
+they are crucial features for handling Clojure code in
+practice. Typed Clojure's use in real Clojure deployments would not be
+possible without effective handling of these three Clojure features. 
+
 \subsection{Automatic Type Annotations}
+
+% - set the scene for inferring types
+%   - Typed Clojure
+%   - optional/gradual typing requires annotations
+
+We now address major usability flaw
+for gradually and optionally typed languages:
+writing type annotations is a manual process.
+
+Take \texttt{vertices} (Figure~\ref{vertices}),
+written in Clojure.
+As is good style, it comes with a unit test.
+Our goal is to \textit{generate} Typed Clojure~\cite{typed-clojure}
+annotations
+for this function, relieving most of the annotation
+burden.
+
+Our approach features several stages.
+First, we \textit{instrument} top-level functions
+%(Section \ref{instrument-TODO})
+,
+then run the unit tests and \textit{track}
+how they are used at runtime
+%(Section \ref{track-TODO})
+.
+At this point, we have a preliminary
+annotation:
+%
+\begin{Verbatim}
+(ann vertices ['{:op ':node, :left '{:op ':leaf, :val Int}, :right '{:op ':leaf, :val Int}} -> Int]})
+\end{Verbatim}
+%
+This type is too specific---trees are recursively
+defined---we \textit{squash} types to be
+recursive from example unrollings%(Section \ref{recursive-TODO})
+:
+
+\begin{Verbatim}
+(defalias NodeLeaf 
+  (U '{:op ':node :left NodeLeaf :right NodeLeaf}
+     '{:op ':leaf :val Int}))
+(ann vertices [NodeLeaf -> Int])
+\end{Verbatim}
+%
+%\begin{Verbatim}
+%(declare Node Leaf)
+%(defalias NodeLeaf (U Node Leaf))
+%(defalias Node 
+%  '{:op ':node :left NodeLeaf :right NodeLeaf})
+%(defalias Leaf '{:op ':leaf :val int})
+%(ann verbatim [NodeLeaf -> Int]})
+%\end{Verbatim}
+%
+If \texttt{NodeLeaf} is used in multiple positions
+in the program, local recursive types are redundant.
+In this paper, we name and \textit{merge} recursive
+types, reusing them in annotations.
+%
+\begin{Verbatim}
+(ann vertices [NodeLeaf -> Int])
+(ann sum-tree [NodeLeaf NodeLeaf -> NodeLeaf])
+\end{Verbatim}
+%
+If minor variants of the recursive types occur
+across a program,
+we use \textit{optional} entries~\cite{typed-clojure}
+to reduce redundancy.
+%(Section \ref{optional-merge-TODO})
+\begin{Verbatim}
+(defalias NodeLeaf 
+  (U '{:op ':node :left NodeLeaf :right NodeLeaf}
+     (HMap :mandatory {:op ':leaf :val Int}
+           :optional {:label Str})))
+\end{Verbatim}
+
+After inserting these annotations, we can run the
+type checker over them to check their usefulness.
+We found annotations to be readable and minimize
+redundancy compared to hand-written annotations
+%(Section \ref{experiment1})
+.
+Minimal changes were needed to successfully type check
+functions with the generated annotations,
+mostly consisting of local function and loop annotations,
+and renaming of type aliases.
+%(Section \ref{experiment2})
+Generating and running \textit{tests} improved the quality
+of type annotations by exercising more paths through the
+program. %(Section \ref{experiment3})
 
 \subsection{Investigation}
 
@@ -335,6 +463,7 @@ I will support this thesis statement with the following:
     type annotations, and emperically study the manual changes needed for the generated annotations
     to pass type checking.
   %\item \emph{clojure.spec model and Automatic Annotations} 
+  %\item \emph{Repurpose automation technology}
   \item \emph{Repurpose automation technology}
     We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs.
     We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
@@ -346,6 +475,8 @@ I will support this thesis statement with the following:
 \end{itemize}
 
 \section{Technical Overview}
+
+\input{track}
 
 \section{Related Work}
 
@@ -505,7 +636,26 @@ I plan to publish the following papers:
   \item \textbf{ESOP 2016 - Published} \emph{Practical Optional Types for Clojure}.
     A paper that provides a formal model of Typed Clojure and presents an emperical
     study of usage patterns.
-  \item \textbf{Spring 2018} \emph{}
+  \item \textbf{Spring 2018} \emph{Squash the work: Automatic annotations for Typed Clojure}
+		A paper that presents a tool capable of generating Typed Clojure and clojure.spec
+		annotations based on runtime observations of the program.
+		We present a formal model of the tool, as well as several manual experiments in how
+		accurate our annotations are.
+    We conduct a larger study by sourcing several hundred projects and automatically
+    generating types and specs, then using these annotations to answer various questions
+    about how clojure.spec and Clojure is used.
+\end{itemize}
+
+My timeline is:
+
+\begin{itemize}
+  \item \textbf{[June-August 2018]} Finish automatic annotation experiments, including
+    manually measuring the difference between automatically generated annotations and
+    fully type-checked annotations, and large scale generation of specs for
+    hundreds of projects.
+  \item \textbf{[September-November 2018]} Write paper (PLDI submission)
+  \item \textbf{[November 2018-May 2019]} Write dissertation
+  \item \textbf{[June 2019]} Defend
 \end{itemize}
 
 \bibliography{bibliography}

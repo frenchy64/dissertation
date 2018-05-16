@@ -1,0 +1,2690 @@
+% see mmm.sty for implementation of newmeta etc
+
+% macros for Clojure grammars
+\usepackage{mathpartir}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{xcolor}
+\usepackage{xspace}
+
+% newmeta variables are automatically subscripted
+% \x0, \x1, \x{}
+
+%% metavariables
+
+% constants
+\newmeta\const{c}
+
+% types
+\newmeta\s{\sigma}              % these are automatically wrapped in \ma
+\newmeta\sp{\sigma{'}}
+\newmeta\t{\tau}
+\newmeta\tp{\tau{'}}
+\newmeta\tpp{\tau{''}}
+\newmeta\T{T}
+
+% expressions
+\newmeta\M{M}
+\newmeta\N{N}
+\newmeta\P{P}
+\newmeta\e{e}
+\newmeta\ep{e'}
+\newmeta\epp{e''}
+\newmeta\expd{d}
+\newmeta\ReflectiveExp{R}
+\newmeta\NonReflectiveExp{E}
+\newmeta\MultimethodExp{M}
+\newmeta\HintedExp{H}
+\newmeta\HashMapExp{G}
+
+\newcommand\lambdatc{\ma{\lambda_{TC}}}
+
+% we write a macro for every bit of abstract syntax.  That way they
+% will all look the same!
+
+% types
+\newbfop\int{int}
+\newbfop\Boolean{B}
+\newbfop\Booleanlong{Boolean}
+\newbfop\Booleanhint{Boolean}
+\newbfop\IFn{Fn}
+\newbfop\MultiFn{MultiFn}
+\newbfop\PMulti{Multi}
+\newbfop\IPersistentMapLiteral{Map}
+\newbfop\MapLiteral{Map}
+\newbfop\Uliteral{\ma{\bigcup}}
+\newbfop\Iliteral{\ma{\bigcap}}
+\newbfop\Not{Not}
+\newbfop\Allliteral{All}
+\newbfop\TFnliteral{TFn}
+\newbfop\Valueliteral{Val}
+\newbfop\ArrayTwoLiteral{Array2}
+\newbfop\ArrayLiteral{Array}
+\newbfop\ArrayPLiteral{ArrayP}
+\newbfop\Throwable{Throwable}
+\newbfop\Class{Class}
+\newbfop\Object{Object}
+\newbfop\Expr{Expr}
+\newbfop\Order{Order}
+\newbfop\Breakfast{Bf}
+\newbfop\Lunch{Lu}
+\newcommand\MultiFntype[2]{(\PMulti #1\ #2)}
+\newcommand\proctype[2]{(#1 \to #2)}
+\newcommand\EmptyUnion[0]{\ma{(\Uliteral)}}
+\newcommand\Unionsplice[1]{(\ma{\Uliteral\ #1})}
+\newcommand\Unionsplicenospace[1]{(\ma{\Uliteral #1})}
+\newcommand\Union[2]{(\ma{\Uliteral\ #1\ #2})}
+\newcommand\UnionNilNum[0]{\ma{\Union{\Nil}{\Number}}}
+\newcommand\UnionNilFile[0]{\ma{\Union{\Nil}{\File}}}
+\newcommand\In[1]{(\ma{\Iliteral\ #1})}
+\newcommand\ArrayTwo[2]{(\ma{\ArrayTwoLiteral\ #1\ #2})}
+\newcommand\Array[1]{(\ArrayLiteral #1)}
+\newcommand\ArrayP[1]{(\ArrayPLiteral #1)}
+% \proctype is a little overkill.
+%% Reynolds' package can also abstract things like (\s1 \to \s2 \to \s3).
+\newcommand\Arrow[4]{\ma{#1 \xrightarrow[#4]{#3} #2}}
+% TODO figure out how to make #1 : #2 closer to the :
+\newcommand\ArrowOne[5]{\ma{{\hastypesmall {#1} {#2}} \xrightarrow[#5]{#4} #3}}
+\newcommand\ArrowOverright[5]{\ma{{\overrightarrow{\hastypesmall {#1} {#2}}} \xrightarrow[#5]{#4} #3}}
+% minus filters and object, implicitly tt | tt; empty
+\newcommand\ArrowTwo[3]{\ma{{\hastypesmall {#1} {#2}} \xrightarrow\ {#3}}}
+% easy math mode overrightarrow
+\newcommand\overr[1]{\ma{\overrightarrow{#1}}}
+
+\newcommand\getparent{\operatorfont{getParent}}
+\newcommand\getx{getX}
+\newcommand\coretyped{\texttt{core.typed}\xspace}
+\newcommand\All[2]{(\ma{\Allliteral\ [#1]\ #2})}
+\newcommand\TFn[2]{(\ma{\TFnliteral\ [#1]\ #2})}
+\newcommand\Value[1]{(\ma{\Valueliteral #1})}
+\newcommand\ValueFalse[0]{(\ma{\Valueliteral \false})}
+\newcommand\ValueNil[0]{(\ma{\Valueliteral \nil})}
+\newcommand\ValueTrue[0]{(\ma{\Valueliteral \true})}
+\newcommand\ValueBool[0]{(\ma{\Valueliteral \bool{}})}
+\newcommand\ValueClass[0]{(\ma{\Valueliteral \class{}})}
+\newcommand\ValueKw[0]{(\ma{\Valueliteral \k{}})}
+\newcommand\ValueStr[0]{(\ma{\Valueliteral \str{}})}
+\newcommand\Valkw[1]{\ma{\Value{\makekw{#1}}}}
+\newmeta\singletonmeta{l}
+\newbfop\Top{\ma{\top}}
+\newbfop\Bottom{\ma{\bot}}
+\newbfop\Bot{\ma{\bot}}
+\newbfop\Keyword{K}
+\newbfop\Keywordlong{Keyword}
+\newbfop\Keywordhint{Keyword}
+\newbfop\Symbol{Symbol}
+\newbfop\NumberFull{Nat}
+\newbfop\Number{N}
+\newbfop\Nil{nil}
+\newbfop\True{true}
+\newbfop\False{false}
+\newbfop\falsy{(\ma{\cup\ \Nil\ \False})}
+\newbfop\falsydiff{\ma{\trdiff{\falsy}}}
+\newcommand\IPersistentMap[2]{(\ma{\IPersistentMapLiteral\ #1\ #2})}
+\newcommand\Map[2]{(\ma{\MapLiteral #1\ #2})}
+\newcommand\HMapInstance[0]{\ma{\IPersistentMapLiteral}}
+\newbfop\HMapliteral{HMap}
+\newmeta\completenessmeta{\mathcal{E}}
+\newmeta\complete{\mathcal{C}}
+\newmeta\partial{\mathcal{P}}
+\newcommand\HMapcliteral[0]{\HMapliteral^{\complete{}}}
+\newcommand\HMappliteral[0]{\HMapliteral^{\partial{}}}
+\newcommand\HMapgenericliteral[0]{\HMapliteral^{\completenessmeta{}}}
+\newcommand\HMapgeneric[2]{(\ma{\HMapgenericliteral #1\ #2})}
+\newcommand\HMapc[1]{(\ma{\HMapcliteral #1})}
+\newcommand\HMapcwithabsent[2]{(\ma{\HMapcliteral #1\ #2})}
+\newcommand\HMapp[2]{(\ma{\HMappliteral #1\ #2})}
+\newcommand\mandatoryentry[2]{\ma{{#1} \mapsto {#2}}}
+\newcommand\mandatoryentrykwnoarrow[2]{\ma{\makekw{#1}\ {#2}}}
+\newcommand\mandatoryentrynoarrow[2]{\ma{{#1}\ {#2}}}
+\newcommand\mandatoryset[1]{\ma{\{#1\}}}
+\newcommand\mandatorysetsingleton[2]{\ma{\mandatoryset{\mandatoryentry{#1}{#2}}}}
+\newcommand\mandatorysetoverright[2]{\ma{\{\overrightarrow{\mandatoryentry{#1}{#2}}\}}}
+\newcommand\notinmandatory[3]{\ma{#1 \not\in dom({#3})}}
+\newcommand\inmandatory[3]{\ma{{#3}[{#1}] = {#2}}}
+\newcommand\extendmandatoryset[3]{#1[\mandatoryentry{#2}{#3}]}
+\newmeta\mandatory{\ma{\mathcal{M}}}
+\newmeta\absent{\ma{\mathcal{A}}}
+\newmeta\absentp{\ma{{\mathcal{A}}'}}
+\newcommand\absentoverright[1]{\ma{\{{\overrightarrow{#1}}\}}}
+\newcommand\emptyabsent[0]{\ma{\{\}}}
+\newcommand\inabsent[2]{\ma{#1 \in #2}}
+\newcommand\notinabsent[2]{\ma{#1 \not\in #2}}
+\newcommand\extendabsentset[2]{\ma{({#1} \cup \{#2\})}}
+\newbfop\Satisfiesliteral{Satisfies}
+\newcommand\Satisfies[1]{(\ma{\Satisfiesliteral\ #1})}
+\newbfop\Instanceliteral{InstanceOf}
+\newcommand\Instance[1]{(\ma{\Instanceliteral\ #1})}
+\newcommand\HVec[1]{[{#1}]}
+\newcommand\makekw[1]{\ma{\metafunctionfont{\mathbin{:}#1}}}
+\newcommand\makestr[1]{\ma{``{\metafunctionfont{#1}}"}}
+\newcommand\makelocal[1]{\ma{#1}}
+\newcommand\secref[1]{Section~\ref{#1}}
+\newcommand\figref[1]{Figure~\ref{#1}}
+\newcommand\egref[1]{Example~\ref{#1}}
+\newcommand\lemref[1]{Lemma~\ref{#1}}
+
+% terms
+\newmeta\x{x}                   % not sure if \x is reserved...
+\newmeta\xp{x{'}}                   % not sure if \x is reserved...
+\newmeta\y{y}
+\newmeta\z{z}
+\newmeta\v{v}
+\newmeta\vp{v'}
+\newmeta\class{C}
+\newmeta\classp{C{'}}
+\newmeta\protocol{P}
+\newmeta\k{k}
+\newmeta\str{s}
+\newmeta\num{n}
+\newmeta\nat{n}
+\newmeta\bool{b}
+\newcommand\operatorfont[1]{\ma{{\mathsf{#1}}}}
+\newcommand\literalfont[1]{\ma{{\mathsf{#1}}}}
+\newcommand\nil[0]{{\literalfont{nil}}}
+\newcommand\true[0]{{\literalfont{true}}}
+\newcommand\false[0]{{\literalfont{false}}}
+\newcommand\assocliteral[0]{{\operatorfont{assoc}}}
+\newcommand\assocexp[3]{(\assocliteral{}\ #1\ #2\ #3)}
+\newmeta\dissoc{dissoc}
+\newmeta\getliteral{{\operatorfont{get}}}
+\newcommand\getexp[2]{(\getliteral{}\ #1\ #2)}
+\newcommand\ifliteral[0]{{\operatorfont{if}}}
+\newcommand\doliteral[0]{{\operatorfont{do}}}
+\newcommand\letliteral[0]{{\operatorfont{let}}}
+\newcommand\throwliteral[0]{{\operatorfont{throw}}}
+\newcommand\newliteral[0]{{\operatorfont{new}}}
+\newcommand\defmultiliteral[0]{{\operatorfont{defmulti}}}
+\newcommand\defmethodliteral[0]{{\operatorfont{defmethod}}}
+\newcommand\abs[3]{\ma{\l #1^{#2} . #3}}
+\newcommand\absoverright[3]{\ma{\l \overrightarrow{#1^{#2}} . #3}}
+\newcommand\curlymap[1]{\ma{\{#1\}}}
+\newcommand\emptymap[1]{\ma{\{\}}}
+\newcommand\roundpair[2]{\ma{(#1, #2)}}
+\newcommand\mapvalentry[2]{\ma{{#1} \mapsto {#2}}}
+\newcommand\mapvalentrynoarrow[2]{\ma{{#1}\ {#2}}}
+\newcommand\mapvalentrykwkey[2]{\ma{\makekw{#1} \mapsto {#2}}}
+\newcommand\mapvalentrykwkeynoarrow[2]{\ma{\makekw{#1}\ {#2}}}
+\newcommand\curlymapvaloverright[2]{\ma{\{{\overrightarrow{\mapvalentry{#1}{#2}}}\}}}
+\newcommand\curlymapvaloverrightnoarrow[2]{\ma{\{{\overrightarrow{\mapvalentrynoarrow{#1}{#2}}}\}}}
+\newcommand\extendmap[3]{\ma{#1[#2 \mapsto #3]}}
+\newcommand\getmap[2]{\ma{#1[#2]}}
+\newcommand\entryinmap[2]{\ma{{#1} \in {#2}}}
+\newcommand\keyinmap[2]{\ma{{#1} \in dom({#2})}}
+\newcommand\keynotinmap[2]{\ma{{#1} \not\in dom({#2})}}
+\newcommand\comb[2]{\ma{(#1\ #2)}}
+\newcommand\zeroliteral[0]{0}
+\newcommand\ifexp[3]{\ma{(\ifliteral{}\ #1\ #2\ #3)}}
+\newcommand\doexp[2]{\ma{(\doliteral{}\ #1\ #2)}}
+\newcommand\letexp[3]{\ma{(\letliteral{}\ [\ma{#1\ #2}]\ #3)}}
+\newcommand\appexp[2]{\ma{(#1\ #2)}}
+\newcommand\appexpone[1]{\ma{(#1)}}
+\newcommand\apptwoexp[3]{\ma{(#1\ #2\ #3)}}
+\newcommand\throwexp[1]{\ma{(\throwliteral{}\ #1)}}
+\newcommand\newexp[2]{\ma{(\newliteral{}\ #1 #2)}}
+% deleted 2nd argument which is just the same as #3
+\newcommand\newstaticexp[4]{\ma{({\newliteral}_{[#1]}\ #3\ #4)}}
+\newcommand\dotliteral[0]{{\operatorfont{.}}}
+\newcommand\fieldexp[2]{\ma{(\dotliteral\ #2\ #1)}}
+\newcommand\fieldstaticexp[4]{\ma{(\dotliteral\ #4\ {#3}^{#1}_{#2})}}
+\newcommand\methodexp[3]{\ma{(\dotliteral\ #2\ (#1 #3))}}
+\newcommand\methodstaticexp[6]{\ma{(\dotliteral\ #5\ ({#4}^{#1}_{[[#2], #3]} #6))}}
+\newcommand\createmultiexp[2]{\ma{(\defmultiliteral{}\ #1\ #2)}}
+\newcommand\defmultiexp[2]{(\ma{\defmultiliteral{}\ #1\ #2})}
+\newcommand\defmethodexp[4]{(\ma{\defmethodliteral{}\ #1\ #2\ [#3]\ #4})}
+\newcommand\extendmultiexp[3]{(\ma{\defmethodliteral{}\ #1\ #2\ #3})}
+\newmeta\defliteral{\textbf{def}}
+\newcommand\defexp[2]{(\ma{\defliteral{}\ #1\ #2})}
+\newcommand\wrong[0]{\ma{wrong}}
+\newcommand\errorval[1]{\ma{\metafunctionfont{err}}}
+\newcommand\errorvalv[0]{\errorval{\v{}}}
+\newcommand\reflerror[0]{\errorval{refl}}
+\newcommand\mmerror[0]{\errorval{mm}}
+\newcommand\rtvector[1]{[{#1}]}
+
+% Java primitives
+\newmeta\pint{int}
+\newbfop\Integer{java.lang.Integer}
+\newbfop\Int{Int}
+\newmeta\plong{long}
+\newbfop\Long{Long}
+\newmeta\pdouble{double}
+\newbfop\Double{java.lang.Double}
+\newmeta\pchar{char}
+\newbfop\Character{java.lang.Character}
+\newmeta\pvoid{void}
+\newbfop\Void{Void}
+\newbfop\File{F}
+\newbfop\FileFull{File}
+\newbfop\Point{Point}
+\newbfop\String{S}
+\newbfop\StringFull{String}
+\newmeta\mth{mth}
+\newmeta\fld{fld}
+
+% Clojure values
+\newmeta\symbol{symbol}
+\newmeta\nat{n}
+
+% constant calls
+\newbfop\ccclass{class}
+\newcommand\instanceliteral[0]{\operatorfont{instance?}}
+\newcommand\isaliteral[0]{{\operatorfont{isa?}}}
+\newcommand\instanceapp[2]{{(\instanceliteral\ #1\ #2)}}
+\newcommand\isaapp[2]{(\isaliteral\ #1\ #2)}
+\newcommand\equivliteral[0]{\ma{=}}
+\newcommand\equivapp[2]{(\equivliteral\ #1\ #2)}
+
+% constant typing
+\newcommand\constanttypeliteral[0]{\ma{{\delta}_{\t{}}}}
+\newcommand\constantopsemliteral[0]{\ma{\delta}}
+\newcommand\constanttypetwo[2]{\ma{\constanttypeliteral{}(#2)}}
+\newcommand\constanttype[1]{\constanttypetwo{\t{}}{#1}}
+\newcommand\constantopsem[2]{\ma{{\constantopsemliteral}(#1, #2)}}
+\newcommand\classconst[0]{\emph{class}}
+\newcommand\throwconst[0]{\emph{throw}}
+\newcommand\numberhuh[0]{\emph{n?}}
+\newcommand\inc[0]{\emph{inc}}
+
+% differences from TR
+%\newcommand\trdiff[1]{\mathbin{\textcolor{blue}{#1}}}
+\newcommand\trdiff[1]{#1}
+
+% update function
+\newcommand\metafunctionfont[1]{{\mathsf{#1}}}
+\newcommand\updateliteral[0]{\ma{\metafunctionfont{update}}}
+\newcommand\update[3]{\updateliteral({#1}, {#2}, {#3})}
+\newcommand\restrictliteral[0]{\ma{\metafunctionfont{restrict}}}
+\newcommand\restrict[2]{\restrictliteral(#1, #2)}
+\newcommand\removeliteral[0]{\ma{\metafunctionfont{remove}}}
+\newcommand\remove[2]{\removeliteral(#1, #2)}
+\newcommand\emptypath[0]{\ma{\epsilon}}
+
+% class table
+\newcommand\ct[0]{\ma{\mathcal{CT}}}
+\newmeta\ctentrymeta{ce}
+\newmeta\ctmethod{m}
+\newmeta\ctfield{f}
+\newmeta\ctctor{c}
+\newcommand\inct[2]{\ma{#1 \in #2}}
+\newcommand\ctmethodsliteral[0]{\metafunctionfont{m}}
+\newcommand\ctfieldsliteral[0]{\metafunctionfont{f}}
+\newcommand\ctconstructorsliteral[0]{\metafunctionfont{c}}
+\newcommand\ctmthentry[3]{\ma{#1 \mapsto [[#2], #3]}}
+\newcommand\ctfldentry[2]{\ma{#1 \mapsto #2}}
+\newcommand\ctctorentry[1]{\ma{[#1]}}
+\newcommand\set[1]{\ma{\{#1\}}}
+% WARNING specific formatting for figure
+\newcommand\ctlookup[2]{\ma{{#1}[#2]}}
+\newcommand\ctlookuptwo[3]{\ma{\ctlookup{{\ctlookup{#1}{#2}}}{#3}}}
+\newcommand\ctlookupmethods[2]{\ma{\ctlookuptwo{#1}{#2}{\ctmethodsliteral}}}
+\newcommand\ctlookupfields[2]{\ma{\ctlookuptwo{#1}{#2}{\ctfieldsliteral}}}
+\newcommand\ctlookupctors[2]{\ma{\ctlookuptwo{#1}{#2}{\ctconstructorsliteral}}}
+
+% typing judgements
+\newcommand\rewrites[2]{#1 \Rightarrow #2}
+\newcommand\hastype[2]{\ma{#1 \mathbin{:} #2}}
+\newcommand\hastypesmall[2]{\ma{#1 {:} #2}}
+\newcommand\issubtype[2]{\ma{#1 \mathbin{<:} #2}}
+\newcommand\issubtypein[3]{\ma{{\inpropenv{#1} {#2 \mathbin{<:} #3}}}}
+\newcommand\issubobjin[3]{\ma{{\inpropenv{#1} {#2 \mathbin{<:} #3}}}}
+\newcommand\notsubtypein[3]{\ma{{\inpropenv{#1} {#2 \mathbin{\not<:} #3}}}}
+% 5 place relation (TR formalism)
+\newcommand\judgement[5]{\ma{#1 \vdash {\hastype{#2}{#3}} \ ;\ #4\ ;\ #5}}
+% 6 place relation (w/ rewrite)
+\newcommand\judgementselfrewrite[5]{\ma{#1 \vdash {\hastype{#2}{#3}}\ ;\ #4\ ;\ #5}}
+\newcommand\judgementrewrite[6]{\ma{#1 \vdash {\hastype{\rewrites{#2}{#6}}{#3}}\ ;\ #4\ ;\ #5}}
+%\newcommand\judgementsev[7]{\ma{#3 \vdash_{\scriptscriptstyle{\trdiff{\ct{}}}} #4\ ;\ #5\ ;\ #6}}
+% lookuping props in the env
+% 2 place relation (same as tt | tt; empty)
+\newcommand\judgementtwo[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
+\newcommand\judgementtworewrite[4]{\ma{#1 \vdash {\hastype{\rewrites{#2}{#4}}{#3}} }}
+\newcommand\inpropenv[2]{\ma{#1 \vdash #2}}
+
+% operational semantics
+\newmeta\openv{\rho}
+\newmeta\openvp{\rho'}
+\newcommand\inopenvnoeq[2]{\ma{#1 (#2)}}
+\newcommand\inopenv[3]{\ma{#1 (#2) = #3}}
+\newcommand\inopenvalign[3]{\ma{#1 (#2) &=& #3}}
+\newcommand\notinopenv[2]{\ma{#2 \not\in dom(#1)}}
+\newcommand\extendopenv[3]{\ma{#1[#2 \mapsto #3]}}
+\newcommand\opsem[3]{\ma{#1 \vdash #2 \Downarrow #3}}
+\newcommand\notopsem[3]{\ma{#1 \not\vdash #2 \Downarrow #3}}
+\newcommand\closuresuffixliteral[0]{\metafunctionfont{c}}
+\newcommand\closure[2]{\ma{[#1, #2]_{\closuresuffixliteral}}}
+% multimethod semantics
+\newcommand\multisuffixliteral[0]{\metafunctionfont{m}}
+\newcommand\multi[2]{\ma{[#1, #2]_{\multisuffixliteral}}}
+\newcommand\emptydisptable[0]{\{\}}
+\newmeta\disptable{t}
+\newmeta\disptablep{t'}
+\newmeta\mapval{m}
+\newcommand\extenddisptable[3]{\ma{#1[#2 \mapsto #3]}}
+\newcommand\getmethodliteral[0]{\ma{\metafunctionfont{GM}}}
+\newcommand\getmethoderr[3]{\getmethodliteral(#1, #2) = #3}
+\newcommand\getmethod[4]{\getmethodliteral(#1, #2) = #4}
+
+% java reflection rewrite 
+\newcommand\rewrite[3]{\ma{#1\ \vdash^{\ct{}}_{\metafunctionfont{r}} #2 \Rightarrow #3}}
+
+% tools.analyzer judgements
+\newcommand\ta[0]{\mathcal{TA}}
+\newcommand\intaenv[3]{\ma{#1 (#2) = #3}}
+\newcommand\tajudgement[2]{\ma{#1 \vdash_{\metafunctionfont{h}} #2}}
+
+% type hints
+\newmeta\tatypeunknown{\ma{\gamma^{?}}}
+\newmeta\tatype{\ma{\gamma}}
+\newmeta\tatypep{\ma{\gamma'}}
+\newmeta\classhint{C}
+\newmeta\primitivehint{p}
+\newmeta\unknownhint{\mathbbm{?}}
+\newcommand\hinted[2]{\ma{\ \widehat{}\ #1\ #2}}
+
+% convert tools.analyzer types to core.typed types
+\newcommand\tatotc[2]{\ma{[[#1]]\ =\ #2}}
+
+% environment
+\newcommand\propenv{\ma{\Gamma}}
+\newcommand\propenvp{\ma{\Gamma'}}
+\newcommand\propenvc{\ma{\Gamma_c}}
+\newcommand\mmenv{\Delta}
+\newcommand\mmenvp{\mmenv'}
+\newcommand\mmenvpp{\mmenvp'}
+\newcommand\taenv{\ma{\Sigma}}
+\newcommand\taenvp{\taenv'}
+
+% multimethod envs
+\newcommand\adddispatchfn[2]{\ma{add\_dispatch\_fn(#1,\ #2)}}
+\newcommand\getdispatchfn[2]{\ma{get\_dispatch\_fn(#1)_{#2}}}
+\newcommand\inmmenv[3]{\ma{#1 (#2) = #3}}
+
+\newcommand\metafnfont[1]{{\metafunctionfont{#1}}}
+
+% isa? special functions
+\newcommand\isacompareliteral[0]{\ma{\metafnfont{IsAProps}}}
+\newcommand\isacomparetwo[2]{\ma{\isacompareliteral(#1, #2)}}
+\newcommand\isacomparethree[3]{\ma{\isacompareliteral(#2, #3)}} % delete 1st argument, unusued outside of vectors
+\newcommand\isacompare[4]{\ma{\isacomparethree{#1}{#2}{#3} = {#4}}}
+\newcommand\isacomparealign[4]{\ma{\isacomparethree{#1}{#2}{#3} &=& {#4}}}
+\newcommand\isaopsemliteral[0]{\ma{\metafnfont{IsA}}}
+\newcommand\isaopsem[2]{\ma{\isaopsemliteral(#1, #2)}}
+
+% new special functions
+% Type -> [Type]
+\newcommand\ctorparamsliteral[0]{\metafnfont{Ctor}}
+\newcommand\ctorparamsnoeq[2]{\ma{\ctorparamsliteral(#1, #2)}}
+\newcommand\ctorparams[3]{\ma{\ctorparamsnoeq{#1}{#2} = [#3]}}
+\newcommand\ctorparamsalign[3]{\ma{\ctorparamsnoeq{#1}{#2} &=& [#3]}}
+
+% field special functions
+% Type Field -> Type
+\newcommand\fieldtypeliteral[0]{\ma{\metafnfont{Fld}}}
+\newcommand\fieldtypenoeq[3]{\ma{\fieldtypeliteral(#1, #2, #3)}}
+\newcommand\fieldtype[4]{\ma{\fieldtypenoeq{#1}{#2}{#3} = [#4]}}
+\newcommand\fieldtypealign[4]{\ma{\fieldtypenoeq{#1}{#2}{#3} &=& [#4]}}
+
+% method special functions
+% Type [Type] Method -> [Type]
+\newcommand\methodtypeliteral[0]{\metafnfont{Mth}}
+\newcommand\methodtypenoeq[3]{\ma{\methodtypeliteral(#1, #2, #3)}}
+\newcommand\methodtype[5]{\ma{\methodtypenoeq{#1}{#2}{#3} = [[#4], #5]}}
+\newcommand\methodtypealign[5]{\ma{\methodtypenoeq{#1}{#2}{#3} &=& [[#4], #5]}}
+
+% java subtyping
+\newcommand\assignable[2]{\ma{assignable(#1, #2)}}
+
+% evaluation contexts
+\newmeta\E{E}
+
+
+% propositions
+\newmeta\prop{\psi}
+\newmeta\propp{\psi'}
+\newmeta\proppp{\psi''}
+\newmeta\propisnotmeta{\nu}
+\newcommand\isprop[2]{\ma{{#1}_{#2}}}
+\newcommand\impprop[2]{\ma{#1 \supset #2}}
+\newcommand\nottype[1]{\ma{\overline{#1}}}
+\newcommand\notprop[2]{\ma{{\nottype{#1}}_{#2}}}
+\newcommand\andprop[2]{\ma{#1 \wedge #2}}
+\newcommand\orprop[2]{\ma{#1 \vee #2}}
+\newmeta\topprop{\mathbbm{tt}}
+\newmeta\botprop{\mathbbm{ff}}
+\newcommand\filterset[2]{\ma{#1 | #2}}
+\newcommand\filtersetparen[2]{\ma{(\filterset{#1}{#2})}}
+\newcommand\thenprop[1]{\ma{{#1}_+}}
+\newcommand\elseprop[1]{\ma{{#1}_-}}
+\newcommand\localfilterset[1]{\ma{\filterset{\notprop{\falsy}{#1}}}{\isprop{\falsy}{#1}}}
+
+% polarities
+\newmeta\polaritymeta{pol}
+\newcommand\withpolarity[2]{\ma{{#1}^{#2}}}
+\newcommand\pluspolarityliteral[0]{\metafunctionfont{pos}}
+\newcommand\minuspolarityliteral[0]{\metafunctionfont{neg}}
+\newcommand\pluspolarity[1]{\withpolarity{#1}{\pluspolarityliteral}}
+\newcommand\minuspolarity[1]{\withpolarity{#1}{\minuspolarityliteral}}
+
+\newcommand\notequal[0]{\ma{\not=}}
+
+% objects
+\newcommand\path[2]{\ma{#1(#2)}}
+\newmeta\object{o}
+\newmeta\objectp{o'}
+\newmeta\emptyobject{\emptyset}
+\newmeta\pathelem{\pi}
+\newmeta\pathelemp{\pi'}
+% abstract syntax for pathelem
+\newmeta\pesyntax{pe}
+\newcommand\pefont[1]{\textbf{#1}}
+\newmeta\classpe{\ma{\pefont{class}}}
+\newcommand\keype[1]{\ma{\pefont{key}_{\ma{#1}}}}
+\newcommand\carpe[0]{\ma{\pefont{car}}}
+\newcommand\cdrpe[0]{\ma{\pefont{cdr}}}
+
+\newcommand\destructpath[2]{\ma{#1 :: #2}}
+
+% scope replacements
+\newcommand\replacefor[3]{\ma{#1 [#2 / #3]}}
+
+% Java type conversion functions
+\newcommand\javatotcliteral[0]{\ma{\metafnfont{JT}}}
+\newcommand\javatotcnilliteral[0]{\ma{\javatotcliteral_{\nil{}}}}
+\newcommand\javatotcexp[1]{\javatotcliteral\ma{(#1)}}
+\newcommand\javatotc[2]{\javatotcexp{#1}\ =\ #2}
+\newcommand\javatotcnilexp[1]{\ma{\javatotcnilliteral\ma{(#1)}}}
+\newcommand\javatotcnil[2]{\ma{\javatotcnilliteral\ma{(#1)}\ =\ #2}}
+\newcommand\javatotcalign[2]{\javatotcliteral\ma{(#1)}\ &=&\ #2}
+\newcommand\javatotcalignnil[2]{\javatotcliteral_{\nil{}}\ma{(#1)}\ &=&\ #2}
+
+% TC type conversion functions
+\newcommand\tctojavaliteral[0]{\ma{\metafnfont{TJ}}}
+\newcommand\tctojava[2]{\tctojavaliteral\ma{(#1)}\ =\ #2}
+\newcommand\tctojavaalign[2]{\tctojavaliteral\ma{(#1)}\ &=&\ #2}
+
+% reflection resolution
+\newcommand\resolvenewliteral[0]{\ma{\metafnfont{ResolveNew}}}
+\newcommand\resolvenew[2]{\ma{\resolvenewliteral{}(#1, #2)}}
+\newcommand\resolveneweq[3]{\ma{\resolvenewliteral{}(#1, #2)\ =\ #3}}
+\newcommand\resolvefieldliteral[0]{\ma{\metafnfont{ResolveField}}}
+\newcommand\resolvefield[2]{\ma{\resolvefieldliteral{}(#1, #2)}}
+\newcommand\resolvefieldeq[4]{\ma{\resolvefieldliteral{}(#1, #2)\ =\ [#3, #4]}}
+\newcommand\resolvemethodliteral[0]{\ma{\metafnfont{ResolveMethod}}}
+\newcommand\resolvemethod[2]{\ma{\resolvemethodliteral{}(#1, #2)}}
+\newcommand\resolvemethodeq[5]{\ma{\resolvemethodliteral{}(#1, #2)\ =\ [#3, [#4], #5]}}
+
+% # Runtime semantics
+% ## Runtime class syntax
+\newmeta\classvaluemeta{I}
+\newcommand\classfieldpair[2]{#1 : #2}
+\newcommand\classvalue[2]{\ma{#1\ \{#2\}}}
+
+% ## metafunction to invoke java
+% Class Target Method ArgTypes Args ReturnType ReturnValue
+\newcommand\JVMliteral[0]{\ma{\metafunctionfont{JVM}}}
+\newcommand\invokejavamethodliteral[0]{\ma{\JVMliteral_{\metafunctionfont{invokestatic}}}}
+\newcommand\invokejavamethodnoeq[6]{\ma{\invokejavamethodliteral[#1, #2, #3, [#4], [#5], #6]}}
+\newcommand\invokejavamethod[7]{\ma{\invokejavamethodnoeq{#1}{#2}{#3}{#4}{#5}{#6} = #7}} % Class Args ReturnValue
+% Class ArgTypes Args ReturnValue
+\newcommand\newjavaliteral[0]{\ma{\JVMliteral_{\metafunctionfont{new}}}}
+\newcommand\newjavanoeq[3]{\ma{\newjavaliteral[#1, [#2], [#3]]}}
+\newcommand\newjava[4]{\ma{\newjavanoeq{#1}{#2}{#3} = #4}}
+% Class Target Field FieldType ReturnValue
+\newcommand\getfieldliteral[0]{\ma{\JVMliteral_{\metafunctionfont{getstatic}}}}
+\newcommand\getfieldjavanoeq[4]{\ma{\getfieldliteral[#1, #2, #3, #4]}}
+\newcommand\getfieldjava[5]{\ma{\getfieldjavanoeq{#1}{#2}{#3}{#4} = #5}}
+
+\newcommand\jvmfieldliteral[0]{\ma{\JVMliteral_{\metafunctionfont{field}}}}
+\newcommand\jvmfieldnoeq[2]{\ma{\jvmfieldliteral[#1, #2]}}
+\newcommand\jvmfield[3]{\ma{\jvmfieldnoeq{#1}{#2} = #3}}
+
+\newcommand\jvmmethodliteral[0]{\ma{\JVMliteral_{\metafunctionfont{method}}}}
+\newcommand\jvmmethodnoeq[3]{\ma{\jvmmethodliteral[#1, #2, #3]}}
+\newcommand\jvmmethod[4]{\ma{\jvmmethodnoeq{#1}{#2}{#3} = #4}}
+
+\newcommand\jvmctorliteral[0]{\ma{\JVMliteral_{\metafunctionfont{ctor}}}}
+\newcommand\jvmctornoeq[2]{\ma{\jvmctorliteral[#1, #2]}}
+\newcommand\jvmctor[3]{\ma{\jvmctornoeq{#1}{#2} = #3}}
+% Class Target Bool
+\newcommand\instanceofjava[3]{\ma{JVM_{instanceof}[#1, #2] = #3}}
+
+\newcommand\satisfies[2]{\ma{{#1} \models {#2}}}
+
+\newmeta\wrongorerror{\beta}
+
+\newcommand\consistentwith[2]{\ma{{#1}\ \text{is consistent with}\ {#2}}}
+\newcommand\isconsistent[1]{\ma{{#1}\ \text{is consistent}}}
+\newcommand\fv[1]{\ma{{\metafunctionfont{fv}}(#1)}}
+
+\newcommand\istrueval[1]{\ma{\metafunctionfont{TrueVal}(#1)}}
+\newcommand\isfalseval[1]{\ma{\metafunctionfont{FalseVal}(#1)}}
+
+\newmeta\definedreduction{\alpha}
+
+% Joshua Dunfield stuff
+%
+% ``Judgment boxes'' that should precede a mathpar, so the reader
+% can instantly see which judgment is being defined by the rules.
+%
+% The first argument is the judgment form.
+% The second argument tells the reader how to interpret the judgment.
+% I don't mean *what* the judgment is, but literally how to *say* it:
+% If you're defining \Gamma \entails e : \tau, don't write
+%
+%   \judgbox{\Gamma \entails e : \tau}{Typing}
+%
+% Instead, write
+%
+%   \judgbox{\Gamma \entails e : \tau}
+%           {Under context $\Gamma$, expression $e$ has type $\tau$}
+%
+% This tells the reader what the judgment is supposed to mean.  It's also
+% an opportunity to remind the reader what your metavariables (like $e$)
+% stand for.  The reader doesn't know your system as well as you do,
+% and will lose track of all the kinds of animals you have in your zoo.
+%
+% For less familiar judgments than typing, this is even more important.
+% 
+
+\newcommand{\textgraybox}[1]{\boxed{#1}}
+
+\newcommand{\judgboxfontsize}[1]{\large #1}
+
+\newcommand{\judgbox}[2]{%
+      {\raggedright \textgraybox{\judgboxfontsize{\ensuremath{#1}}}\!\begin{tabular}[c]{l} #2 \end{tabular} %
+      \\[-2.1ex] %
+}}
+
+% Common typing rules
+\newcommand\TLocal[0]{
+\infer [T-Local]
+{ \inpropenv {\propenv{}} {\isprop {\t{}} {\x{}}}
+  \\\\
+  \s{} = {\falsydiff} 
+}
+{ \judgementselfrewrite {\propenv{}} 
+            {\x{}} {\t{}}
+            {\filterset {{\notprop {\s{}} {\x{}}}} {{\isprop {\s{}} {\x{}}}}}
+            %{\filterset {{\notprop {\falsy{}} {\x{}}}} {{\isprop {\falsy{}} {\x{}}}}}
+            {\x{}}
+           }
+                 }
+
+\newcommand\TNum[0]{
+\infer [T-Num]
+{}
+{ \judgementselfrewrite {\propenv{}}
+      {\num{}} {\Number{}}
+      {\filterset {\topprop{}} {\botprop{}}}
+      {\emptyobject{}}
+    }
+  }
+
+\newcommand\TTrue[0]{
+\infer [T-True]
+{}
+{ \judgementselfrewrite {\propenv{}}
+      {\true{}} {\True{}}
+      {\filterset {\topprop{}} {\botprop{}}}
+      {\emptyobject{}}
+    }
+  }
+
+\newcommand\TFalse[0]{
+\infer [T-False]
+{}
+{ \judgementselfrewrite {\propenv{}}
+      {\false{}} {\False{}}
+      {\filterset {\botprop{}} {\topprop{}}}
+    {\emptyobject{}}
+   }
+ }
+
+\newcommand\TNil[0]{
+\infer [T-Nil]
+{}
+{ \judgementselfrewrite {\propenv{}} 
+      {\nil{}} {\Nil{}}
+      {\filterset {\trdiff{\botprop{}}} {\topprop{}}}
+      {\emptyobject{}} 
+    }
+  }
+
+\newcommand\TDo[0]{
+\infer [T-Do]
+{ 
+  \judgementrewrite {\propenv{}} 
+             {\e1} {\t1}
+             {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop1}}} 
+             {\object{1}}
+             {\ep1}
+\\\\
+\judgementrewrite {\propenv{}, {\orprop {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}}
+           {\e{}} {\t{}}
+           {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}} 
+           {\object{}}
+           {\ep{}}
+  }
+{ \judgementrewrite
+    {\propenv{}} 
+    {\doexp {\e1} {\e{}}} {\t{}}
+    {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}} {\object{}} 
+    {\doexp {\ep1} {\ep{}}}
+             }
+           }
+
+\newcommand\TIf[0]{
+\infer [T-If]
+{ \judgementrewrite {\propenv{}} {\e1} {\t{1}} {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}
+                 {\object{1}} 
+                 {\ep1}
+             \\\\
+  \judgementrewrite {\propenv{}, {\thenprop {\prop{1}}}}
+                 {\e2} {\t{}} {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+                 {\object{}}
+                 {\ep2}
+  \\\\
+  \judgementrewrite {\propenv{}, {\elseprop {\prop{1}}}}
+                 {\e3} {\t{}} {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+                 {\object{}}
+                 {\ep3}
+                 \\\\
+                 \ep{} = {\ifexp {\ep1} {\ep2} {\ep3}}
+             }
+{ \judgementrewrite {\propenv{}} {\ifexp {\e1} {\e2} {\e3}} {\t{}}
+                 {\filterset {\thenprop {\prop{}}}
+                             {\elseprop {\prop{}}}}
+                 {\object{}} 
+                 {\ep{}}}
+
+             }
+
+% WARNING: this is copied in formal-model.tex, no idea why this macro won't work there.
+\newcommand\TLet[0]{
+\infer [T-Let]
+{ \judgementrewrite {\propenv{}} {\e{1}} {\s{}} {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}
+             {\object{1}}
+             {\ep{1}}
+             \\
+             \propp{} = {\impprop {\notprop {\falsydiff{}} {\x{}}} {\thenprop {\prop{1}}}}
+             \\
+             \proppp{} = {\impprop {\isprop {\falsydiff{}} {\x{}}} {\elseprop {\prop{1}}}}
+  \\
+  \judgementrewrite
+       {\propenv{}, {\isprop {\s{}} {\x{}}},
+         {\propp{}},
+         {\proppp{}}}
+             {\e{2}} {\t{}} {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+             {\object{}} 
+             {\ep{2}}
+             }
+{ \judgementrewrite {\propenv{}} {\letexp {\x{}} {\e{1}} {\e{2}}} 
+             {\replacefor {\t{}}
+                          {\object{1}}
+                          {\x{}}}
+             {\replacefor {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+                          {\object{1}}
+                          {\x{}}}
+             {\replacefor {\object{}} 
+                          {\object{1}}
+                          {\x{}}}
+             {\letexp {\x{}} {\ep{1}} {\ep{2}}}
+             }
+
+           }
+
+\newcommand\TApp[0]{
+\infer [T-App]
+{ \judgementrewrite {\propenv{}} {\e{}} {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}}
+                {\filterset {\thenprop {\prop{}}}
+                            {\elseprop {\prop{}}}}
+                {\object{}}
+                {\e{1}}
+  \\\\
+  \judgementrewrite {\propenv{}}
+                 {\ep{}} {\s{}}
+                 {\filterset {\thenprop {\propp{}}}
+                             {\elseprop {\propp{}}}}
+                 {\objectp{}} 
+                {\ep{1}}
+}
+{ \judgementrewrite {\propenv{}} {\appexp {\e{}} {\ep{}}}
+                                        {\replacefor {\t{}}
+                                                     {\objectp{}}
+                                                     {\x{}}}
+                 {\replacefor {\filterset {\thenprop {\prop{f}}}
+                                          {\elseprop {\prop{f}}}}
+                              {\objectp{}}
+                              {\x{}}}
+                 {\replacefor {\object{f}}
+                              {\objectp{}}
+                              {\x{}}}
+                 {\appexp {\e{1}} {\ep{1}}}
+}
+}
+
+\newcommand\TAbs[0]{
+\infer [T-Abs]
+{ \judgementrewrite {\propenv{}, {\isprop {\s{}} {\x{}}}}
+            {\e{}} {\sp{}}
+             {\filterset {\thenprop {\prop{}}}
+                         {\elseprop {\prop{}}}}
+             {\object{}}
+             {\ep{}}
+             \\\\
+             \t{} = {\ArrowOne {\x{}} {\s{}}
+                                                      {\sp{}}
+                                                      {\filterset {\thenprop {\prop{}}}
+                                                                  {\elseprop {\prop{}}}}
+                                                      {\object{}}}
+           }
+{ \judgementrewrite {\propenv{}} {\abs {\x{}} {\s{}} {\e{}}}
+  {\t{}}
+                {\filterset {\topprop{}}
+                            {\botprop{}}}
+                {\emptyobject{}}
+                {\abs {\x{}} {\s{}} {\ep{}}}}
+            }
+
+\newcommand\TSubsume[0]{
+\infer [T-Subsume]
+{ \judgementrewrite {\propenv{}} {\e{}} {\t{}}
+             {\filterset {\thenprop {\prop{}}}
+                         {\elseprop {\prop{}}}}
+             {\object{}}
+             {\ep{}}
+\\\\
+\inpropenv {\propenv{}, {\thenprop {\prop{}}}} {\thenprop {\propp{}}}
+\\
+\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
+\\\\
+\issubtypein {} {\t{}} {\tp{}}
+\\
+\issubobjin {} {\object{}} {\objectp{}}
+}
+{ \judgementrewrite {\propenv{}} {\e{}} {\tp{}}
+             {\filterset {\thenprop {\propp{}}}
+                         {\elseprop {\propp{}}}}
+             {\objectp{}}
+           {\ep{}}
+           }
+         }
+
+\newcommand\TNew[0]{
+\infer [T-New]
+{ \inct{\ctctorentry{\overrightarrow{\class{i}}}}{\ctlookupctors{\ct{}}{\classhint{}}}
+  \\
+  \overrightarrow{\javatotcnil{\classhint{i}}{\t{i}}}
+  \\
+  \overrightarrow{
+  \judgementtworewrite {\propenv{}}
+                    {\e{i}} {\t{i}}
+                    {\ep{i}}
+                  }
+  \\
+  \javatotc {\classhint{}}
+            {\t{}}
+           }
+{ \judgementrewrite {\propenv{}} {\newexp {\class{}} {\overrightarrow{\e{i}}}} {\t{}}
+             {\filterset {\topprop{}} {\botprop{}}}
+             {\emptyobject{}}
+             {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{}} 
+                            {\class{}} {\overrightarrow{\ep{i}}}}
+             }
+         }
+
+\newcommand\TNewStatic[0]{
+\infer [T-NewStatic]
+{ 
+  \overrightarrow{
+\javatotc {\classhint{i}}
+          {\t{i}}
+          }
+  \\
+  \javatotc {\classhint{}}
+            {\t{}}
+  \\
+  \overrightarrow{
+  \judgementtworewrite {\propenv{}}
+                    {\e{i}} {\t{i}}
+                    {\ep{i}}
+                  }
+           }
+{ \judgementrewrite {\propenv{}} {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{}} 
+                                                          {\class{}} {\overrightarrow{\e{i}}}} {\t{}}
+             {\filterset {\topprop{}} {\botprop{}}}
+             {\emptyobject{}}
+             {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{}} 
+                            {\class{}} {\overrightarrow{\ep{i}}}}
+             }
+         }
+
+\newcommand\TField[0]{
+\infer [T-Field]
+{ \judgementtworewrite {\propenv{}} {\e{}} {\s{}} {\ep{}}
+  \ \ \ 
+  %\\
+  \issubtypein{}{\s{}}{\Object{}}
+  \ \ \ 
+                  %\\
+  \tctojava{\s{}}{\classhint{1}}
+  \ \ \ 
+                  %\\
+                  \inct{\ctfldentry{\fld{}}{\classhint{2}}}{\ctlookupfields{\ct{}}{\classhint{1}}}
+  \ \ \ 
+                  %\\
+  \javatotcnil{\classhint{2}}{\t{}}
+           }
+{ \judgementrewrite {\propenv{}} {\fieldexp {\fld{}} {\e{}}} {\t{}}
+             {\filterset {\topprop{}} {\topprop}}
+             {\emptyobject{}}
+             {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\ep{}}}
+         }
+         }
+
+\newcommand\TFieldStatic[0]{
+\infer [T-FieldStatic]
+{ \javatotc {\classhint{1}} {\s{}}
+             \\
+  \issubtypein{}{\s{}}{\Object{}}
+  \\
+  \javatotcnil {\classhint{2}} {\t{}}
+  \\
+  \judgementtworewrite {\propenv{}} {\e{}} {\s{}} {\ep{}}
+           }
+{ \judgementrewrite {\propenv{}} {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{}}} {\t{}}
+             {\filterset {\topprop{}} {\topprop}}
+             {\emptyobject{}}
+             {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\ep{}}}
+         }
+         }
+
+\newcommand\TMethod[0]{
+\infer [T-Method]
+{ 
+  \judgementtworewrite {\propenv{}} {\e{}} {\s{}} {\ep{}}
+             \\
+  \tctojava{\s{}}{\classhint{1}}
+                  \\
+                  \inct{\ctmthentry{\mth{}}{\overrightarrow{\classhint{i}}}{\classhint{2}}}{\ctlookupmethods{\ct{}}{\classhint{1}}}
+                  \\
+                  \overrightarrow{\javatotcnil{\classhint{i}}{\t{i}}}
+                  \\
+             \overrightarrow{
+  \judgementtworewrite {\propenv{}} {\e{i}} {\t{i}} {\ep{i}}
+                  }
+                  \\
+                  \javatotcnil{\classhint{2}}{\t{}}
+             \\
+             \issubtypein{}{\s{}}{\Object{}}
+           }
+{ \judgementrewrite {\propenv{}} {\methodexp {\mth{}} {\e{}} {\overrightarrow{\e{i}}}}
+             {\t{}}
+             {\filterset {\topprop{}} {\topprop{}}}
+             {\emptyobject{}}
+             {\methodstaticexp {\classhint{1}} 
+                               {\overrightarrow {\classhint{i}}} 
+                               {\classhint{2}}
+                               {\mth{}} {\ep{}} {\overrightarrow{\ep{i}}}}
+           }
+         }
+
+\newcommand\TMethodStatic[0]{
+\infer [T-MethodStatic]
+{ 
+  \overrightarrow{\javatotc {\classhint{i}} {\t{i}}}
+             \\
+             \javatotc {\classhint{1}} {\s{}}
+             \\
+             \issubtypein{}{\s{}}{\Object{}}
+             \\
+             \javatotcnil {\classhint{2}} {\t{}}
+             \\
+  \judgementtworewrite {\propenv{}} {\e{}} {\s{}} {\ep{}}
+             \\
+             \overrightarrow{
+  \judgementtworewrite {\propenv{}} {\e{i}} {\t{i}} {\ep{i}}
+                  }
+           }
+{ \judgementrewrite {\propenv{}} {\methodstaticexp {\classhint{1}} 
+                                                            {\overrightarrow {\classhint{i}}} 
+                                                            {\classhint{2}}
+                                                            {\mth{}} {\e{}} {\overrightarrow{\e{i}}}}
+                                    {\t{}}
+             {\filterset {\topprop{}} {\topprop{}}}
+             {\emptyobject{}}
+             {\methodstaticexp {\classhint{1}} 
+                               {\overrightarrow {\classhint{i}}} 
+                               {\classhint{2}}
+                               {\mth{}} {\ep{}} {\overrightarrow{\ep{i}}}}
+           }
+         }
+
+\newcommand\TClass[0]{
+\infer [T-Class]
+{}
+{ \judgementselfrewrite {\propenv{}} {\class{}}{\ValueClass}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}}
+         }
+
+\newcommand\TDefMulti[0]{
+\infer [T-DefMulti]
+{ \s{} = {\ArrowOne {\x{}} {\t{}} {\tp{}}
+                          {\filterset {\thenprop {\prop{}}}
+                                      {\elseprop {\prop{}}}}
+                          {\object{}}}
+                          \\
+  \sp{} = {\ArrowOne {\x{}} {\t{}} {\tpp{}}
+                          {\filterset {\thenprop {\propp{}}}
+                                      {\elseprop {\propp{}}}}
+                          {\objectp{}}}
+                \\
+\judgementtworewrite {\propenv{}} {\e{}} {\sp{}} {\ep{}}
+}
+{
+  \judgementrewrite {\propenv{}}  
+      {\createmultiexp {\s{}}
+                                 {\e{}}} 
+                {\MultiFntype {\s{}} {\sp{}}}
+             {\filterset {\topprop{}} {\botprop{}}}
+             {\emptyobject{}}
+      {\createmultiexp {\s{}}
+                                 {\ep{}}} 
+}
+}
+
+\newcommand\TDefMethod[0]{
+\infer [T-DefMethod]
+{
+  \t{m} = {\ArrowOne {\x{}} {\t{}} {\s{}}
+                                    {\filterset {\thenprop {\prop{}}}
+                                                {\elseprop {\prop{}}}}
+                                    {\object{}}}
+\\
+\t{d} = {\ArrowOne {\x{}} {\t{}} {\sp{}}
+                   {\filterset {\thenprop {\propp{}}}
+                               {\elseprop {\propp{}}}}
+                   {\objectp{}}}
+             \\
+\judgementtworewrite {\propenv{}}
+                  {\e{m}} {\MultiFntype {\t{m}} {\t{d}}}
+                  {\ep{m}}
+\\\\
+\judgementtworewrite {\propenv{}}
+           {\e{v}} {\t{v}}
+           {\ep{v}}
+\\
+  \isacompare{\sp{}}{\objectp{}}{\t{v}}{\filterset {\thenprop {\proppp{}}} {\elseprop {\proppp{}}}}
+           \\
+\judgementrewrite {\propenv{}, {\isprop{\t{}} {\x{}}}, {\thenprop {\proppp{}}}}
+           {\e{b}} {\s{}}
+           {\filterset {\thenprop {\prop{}}}
+                       {\elseprop {\prop{}}}}
+           {\object{}}
+           {\ep{b}}
+           \\
+           {\ep{}} =
+             {\extendmultiexp {\ep{m}} {\ep{v}} 
+               {\abs {\x{}} {\t{}} {\ep{b}}}}
+}
+{ \judgementrewrite {\propenv{}} {\extendmultiexp {\e{m}} {\e{v}} 
+                                                            {\abs {\x{}} {\t{}} {\e{b}}}}
+                                           {\MultiFntype {\t{m}} {\t{d}}}
+             {\filterset {\topprop{}} {\botprop{}}}
+             {\emptyobject{}}{\ep{}}
+}
+}
+
+\newcommand\TIsA[0]{
+\infer [T-IsA]
+{
+  \judgementrewrite {\propenv{}} {\e{}} {\s{}}
+             {\filterset {\thenprop {\propp{}}}
+                         {\elseprop {\propp{}}}}
+                       {\object{}}
+                       {\e{1}}
+  \\
+  \judgementtworewrite {\propenv{}} {\ep{}} {\t{}}
+                       {\ep{1}}
+             \\
+  \isacompare{\s{}}{\object{}}{\t{}}{\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+}
+{ \judgementrewrite {\propenv{}} {\isaapp {\e{}} {\ep{}}}
+                                    {\Boolean{}}
+             {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+             {\emptyobject{}}
+             {\isaapp {\e{1}} {\ep{1}}}
+         }
+         }
+
+\newcommand\TAssoc[0]{
+\infer [T-AssocHMap]
+{ 
+  \judgementtworewrite {\propenv{}} {\e{}} {\HMapgeneric {\mandatory{}} {\absent}} {\assocexp {\ep{}} {\ep{k}} {\ep{v}}}
+  \ \ \ %\\
+  \judgementtworewrite {\propenv{}} {\e{k}} {\Value{\k{}}} {\ep{k}}
+  \ \ \ %\\
+  \judgementtworewrite {\propenv{}} {\e{v}} {\t{}} {\ep{v}}
+   \ \ \ %\\
+  {\k{}} \not\in {\absent{}}
+}
+{ \judgementrewrite {\propenv{}} 
+             {\assocexp {\e{}} {\e{k}} {\e{v}}}
+                       {\HMapgeneric {\extendmandatoryset {\mandatory{}}{\k{}}{\t{}}} {\absent}}
+             {\filterset {\topprop{}} {\botprop{}}}
+             {\emptyobject{}}
+             {\assocexp {\ep{}} {\ep{k}} {\ep{v}}}
+}
+         }
+
+\newcommand\TGetHMap[0]{
+\infer [T-GetHMap]
+{ \judgementrewrite {\propenv{}} 
+  {\e{}} {\Unionsplice {{\overrightarrow {\HMapgeneric {\mandatory{}} {\absent{}}}}^i}}
+  {\filterset {\thenprop{\prop{1}}}{\elseprop{\prop{1}}}}
+  {\object{}}
+  {\ep{}}
+  \ \ \ %\\
+  \judgementtworewrite {\propenv{}} {\e{k}} {\Value {k}} {\ep{k}}
+  \ \ \ %\\
+             {\overrightarrow{\inmandatory{\k{}}{\t{}}{\mandatory{}}}}^i
+       }
+{ \judgementrewrite {\propenv{}} {\getexp {\e{}} {\e{k}}} {\Unionsplice {{\overrightarrow {\t{}}}^i}}
+             {\filterset {\topprop{}} {\topprop{}}}
+             {\replacefor {\path {\keype{k}} {\x{}}}
+                          {\object{}}
+                          {\x{}}}
+                        {\getexp {\ep{}} {\ep{k}}}
+                                  }
+                                }
+
+\newcommand\TGetAbsent[0]{
+\infer [T-GetHMapAbsent]
+{ \judgementrewrite {\propenv{}} {\e{}} {\HMapgeneric {\mandatory{}} {\absent}}
+  {\filterset {\thenprop{\prop{1}}}{\elseprop{\prop{1}}}}
+  {\object{}}
+  {\ep{}}
+         \\
+  \judgementtworewrite {\propenv{}} {\e{k}} {\Value {k}} {\ep{k}}
+             \\
+             {\inabsent{\k{}}{\absent{}}}
+       }
+{ \judgementrewrite {\propenv{}} {\getexp {\e{}} {\e{k}}}
+                                    {\Nil{}}
+             {\filterset {\topprop{}} {\topprop{}}}
+             {\replacefor
+               {\path {\keype{k}} {\x{}}}
+                          {\object{}}
+                          {\x{}}}
+                        {\getexp {\ep{}} {\ep{k}}}
+                        }
+                      }
+
+\newcommand\TGetHMapPartialDefault[0]{
+\infer [T-GetHMapPartialDefault]
+{ \judgementrewrite {\propenv{}} {\e{}} {\HMapp {\mandatory{}} {\absent}}
+  {\filterset {\thenprop{\prop{1}}}{\elseprop{\prop{1}}}}
+  {\object{}}
+  {\ep{}}
+         \\
+  \judgementtworewrite {\propenv{}} {\e{k}} {\Value {k}} {\ep{k}}
+             \\
+             {\notinmandatory{\k{}}{\t{}}{\mandatory{}}}
+             \\
+             {\notinabsent{\k{}}{\absent{}}}
+       }
+{ \judgementrewrite {\propenv{}} {\getexp {\e{}} {\e{k}}}
+                                    {\Top{}}
+             {\filterset {\topprop{}} {\topprop{}}}
+             {\replacefor
+               {\path {\keype{k}} {\x{}}}
+                          {\object{}}
+                          {\x{}}}
+                        {\getexp {\ep{}} {\ep{k}}}
+                        }
+}
+
+\newcommand\TStr[0]{
+\infer [T-Str]
+{}
+{ \judgementselfrewrite {\propenv{}} 
+      {\str{}} {\String}
+      {\filterset {\topprop{}}{\botprop{}}}
+      {\emptyobject{}} 
+    }
+}
+
+\newcommand\TKw[0]{
+\infer [T-Kw]
+{}
+{ \judgementselfrewrite {\propenv{}} 
+      {\k{}} {\ValueKw}
+      {\filterset {\topprop{}}{\botprop{}}}
+      {\emptyobject{}} 
+    }
+}
+
+\newcommand\TError[0]{
+\infer [T-Error]
+{}
+{ \judgementrewrite {\propenv{}} {\errorvalv} {\Bot}
+            {\filterset {\botprop{}} {\botprop{}}}
+           {\emptyobject{}}
+         {\errorvalv}
+       }
+}
+
+\newcommand\pathelemsyntax[0]{
+  \pesyntax{}   &::=& \trdiff{\classpe{}} \alt \trdiff{\keype{\k{}}}
+                &\mbox{Path elements}
+}
+
+\newcommand\propenvsyntax[0]{
+  \propenv{}   &::=& \overrightarrow{\prop{}}
+               &\mbox{Proposition environments}
+             }
+
+% common Syntax
+\newcommand\occurrencetypingsyntax[0]{
+  \prop{}       &::=& {\isprop {\t{}} {\path {\pathelem{}} {\x{}}}}
+                      \alt {\notprop {\t{}} {\path {\pathelem{}} {\x{}}}}
+                      \alt {\impprop {\prop{}} {\prop{}}}
+                      \alt {\andprop {\prop{}} {\prop{}}}
+                      \alt {\orprop {\prop{}} {\prop{}}}
+                      \alt \topprop{}
+                      \alt \botprop{}
+                &\mbox{Propositions} \\
+
+  \object{}     &::=& {\path {\pathelem{}} {\x{}}}
+                      \alt \emptyobject{}
+                &\mbox{Objects} \\
+  \pathelem{}   &::=& \overrightarrow{\pesyntax{}}
+                &\mbox{Paths} \\
+  \pathelemsyntax\\
+              }
+
+\newcommand\classliteralallsyntax[0]{
+   \class{}      &::=& \Object{}
+                      \alt \Keyword{}
+                      %\alt \Number{}
+                      \alt \Class{}
+                      \alt \Boolean{}
+                      %\alt \File{}
+                      %\alt \String{}
+                      \alt \IFn{}
+                      \alt \PMulti{}
+                      \alt \HMapInstance{}
+                      \alt \Void{}
+                &\mbox{Class literals}
+              }
+
+\newcommand\TInstance[0]{
+\infer [T-Instance]
+{}
+{ \judgement {\propenv{}} {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}}{\class{}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}}
+}
+
+\newcommand\singletonallsyntax[0]{
+  \singletonmeta{}     &::=& \k{} 
+                             \alt {\trdiff{\class{}}}
+                             \alt {\trdiff{\nil}}
+                             \alt \bool{}
+                &\mbox{Value types}\\
+  \bool{}              &::=& 
+                             {\true} \alt {\false}
+                &\mbox{Boolean values}
+              }
+
+% common operational semantics
+
+\newcommand\BLocal[0]{
+\infer [B-Local]
+{ \inopenv {\openv{}} {\x{}} {\v{}} }
+{ \opsem {\openv{}} {\x{}} {\v{}} }
+}
+
+\newcommand\BDo[0]{
+\infer [B-Do]
+{ \opsem {\openv{}} {\e{1}} {\v{1}} 
+  \\\\
+  \opsem {\openv{}} {\e{}} {\v{}} 
+}
+{ \opsem {\openv{}} {\doexp{\e{1}}{\e{}}} {\v{}} }
+}
+
+
+\newcommand\BLet[0]{
+\infer [B-Let]
+{ \opsem {\openv{}} {\e{a}} {\v{a}}
+  \\\\
+  \opsem {\extendopenv{\openv{}}{\x{}}{\v{a}}}
+         {\e{}}
+         {\v{}}
+ }
+{ \opsem {\openv{}} 
+         {\letexp {\x{}} {\e{a}} {\e{}}}
+         {\v{}}}
+     }
+
+
+\newcommand\BVal[0]{
+\infer [B-Val]
+{}
+{ \opsem {\openv{}} {\v{}} {\v{}}}
+}
+
+\newcommand\BIfTrue[0]{
+\infer [B-IfTrue]
+{ \opsem {\openv{}} {\e{1}} {\v{1}}
+  \\
+  {\v{1}} \not= {\false{}}
+  \\\\
+  {\trdiff{{\v{1}} \not= {\nil{}}}}
+  \\
+  \opsem {\openv{}} {\e{2}} {\v{}}
+}
+{ \opsem {\openv{}}
+         {\ifexp {\e1} {\e2} {\e3}}
+         {\v{}}
+       }
+     }
+
+\newcommand\BIfFalse[0]{
+\infer [B-IfFalse]
+{  \opsem {\openv{}} {\e{1}} {\false{}}
+  \ \ \trdiff{\text{or}\ \ 
+  {\opsem {\openv{}} {\e{1}} {\nil{}}}}
+  \\\\
+  \opsem {\openv{}} {\e{3}} {\v{}}
+}
+{ \opsem {\openv{}}
+         {\ifexp {\e1} {\e2} {\e3}}
+         {\v{}}
+       }
+     }
+
+\newcommand\BAbs[0]{
+\infer [B-Abs]
+{}
+{ \opsem {\openv{}}
+         {\abs {\x{}} {\t{}} {\e{}}}
+         {\closure {\openv{}} {\abs {\x{}} {\t{}} {\e{}}}}}
+     }
+
+\newcommand\BIsA[0]{
+\infer [B-IsA]
+{ \opsem {\openv{}} {\e{1}} {\v{1}}
+  \\
+  \opsem {\openv{}} {\e{2}} {\v{2}}
+  \\
+  \isaopsem{\v{1}}{\v{2}} = {\v{}}
+}
+{\opsem {\openv{}} {\isaapp {\e{1}} {\e{2}}} {\v{}}}
+}
+
+\newcommand\BBetaClosure[0]{
+\infer [B-BetaClosure]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\closure {\openv{c}} {\abs {\x{}} {\t{}} {\e{b}}}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+         \\\\
+  \opsem {\extendopenv {\openv{c}} {\x{}} {\v{a}}}
+         {\e{b}}
+         {\v{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\v{}}
+       }
+     }
+
+\newcommand\BBetaMulti[0]{
+\infer [B-BetaMulti]
+{ \opsem {\openv{}}
+         {\e{}}
+         {\multi {\v{d}} {\disptable{}}}
+         \  \  \ 
+%         \\ 
+  \opsem {\openv{}}
+         {\ep{}}
+         {\vp{}}
+         \ \  \ 
+         %\\
+  \opsem {\openv{}}
+         {\appexp {\v{d}} {\vp{}}}
+         {\v{e}}
+         \ \  \ 
+         %\\
+  \getmethod {\disptable{}}
+             {\v{e}}
+             {\v{k}}
+             {\v{f}}
+             \ \ 
+         % \\
+  \opsem {\openv{}}
+         {\appexp {\v{f}} {\vp{}}}
+         {\v{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{}} {\ep{}}}
+         {\v{}}
+       }
+     }
+
+     \newcommand\getmethodfigure[0]{
+$$
+\begin{array}{ll}
+
+  \getmethod {\disptable{}}
+             {\v{e}}
+             {\v{v}}
+             {\v{f}}
+             &
+             \text{if } {\overrightarrow{\v{fs}}} = \{{\v{f}}\}
+             \text{ where } {\overrightarrow{\v{fs}}} = 
+                \{ \v{f} | 
+                    {\mapvalentry{\v{k}}{\v{f}}} \in \disptable{} 
+                  \text{ and } 
+                \isaopsem{\v{e}}{\v{k}} = {\true{}} \}
+             \\
+  \getmethoderr {\disptable{}}
+             {\v{e}}
+             {\mmerror{}} &\text{otherwise}
+
+\end{array}
+$$
+     }
+
+     \newcommand\BDefMulti[0]{
+\infer [B-DefMulti]
+{ \opsem {\openv{}} {\e{}} {\v{d}}
+  \\
+  \v{} = {\multi {\v{d}} {\emptydisptable}}
+}
+{\opsem {\openv{}}
+        {\createmultiexp {\t{}}
+                         {\e{}}}
+        {\v{}}
+}
+     }
+
+     \newcommand\BDefMethod[0]{
+\infer [B-DefMethod]
+{ \opsem {\openv{}}
+         {\e{}}
+         {\multi {\v{d}} {\disptable{}}}
+         \\
+  \opsem {\openv{}}
+         {\ep{}}
+         {\v{v}}
+         \\
+  \opsem {\openv{}}
+         {\e{f}}
+         {\v{f}}
+         \\
+         \v{} = 
+        {\multi {\v{d}} {\extenddisptable {\disptable{}} 
+                                {\v{v}}
+                                {\v{f}}}}
+}
+{\opsem {\openv{}}
+        {\extendmultiexp {\e{}} {\ep{}} {\e{f}}}
+        {\v{}}
+      }
+     }
+
+\newcommand\BDelta[0]{
+\infer [B-Delta]
+{ \opsem {\openv{}} {\e{}} {\const{}}
+  \\\\
+  \opsem {\openv{}} {\ep{}} {\v{}}
+  \\\\
+  \constantopsem{\const{}}{\v{}} = \vp{}
+}
+{ \opsem {\openv{}}
+         {\appexp {\e{}} {\ep{}}}
+         {\vp{}}
+       }
+     }
+
+\newcommand\BField[0]{
+\infer [B-Field]
+{ \opsem {\openv{}}
+         {\e{}}
+       {\v{}}
+         \\
+         \getfieldjava{\classhint{1}} {\v{1}} {\fld{}} {\classhint{2}} {\v{}}
+       }
+{ \opsem {\openv{}}
+         {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{}}}
+         {\v{}}
+   }
+}
+
+\newcommand\BMethod[0]{
+\infer [B-Method]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}}
+  \\
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+       }
+  \\
+  \invokejavamethod {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{a}}} {\overrightarrow{\v{a}}}
+                    {\classhint{2}}
+                    {\v{}}
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{a}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{a}}}}
+        {\v{}}
+      }
+}
+
+\newcommand\BNew[0]{
+\infer [B-New]
+{
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{i}}
+         {\v{i}}
+       }
+         \\
+         \newjava {\classhint{1}}
+                  {\overrightarrow{\classhint{i}}}
+                  {\overrightarrow{\v{i}}}
+                  {\v{}}
+       }
+{ \opsem {\openv{}}
+         {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{1}} 
+                        {\class{}} {\overrightarrow{\e{i}}}}
+         {\v{}}}
+}
+
+\newcommand\BAssoc[0]{
+\infer [B-Assoc]
+{\opsem {\openv{}}
+        {\e{}} {\mapval{}}
+        \\
+ \opsem {\openv{}} {\e{k}} {\k{}}
+ \\\\
+ \opsem {\openv{}} {\e{v}} {\v{v}}
+}
+{
+ \opsem {\openv{}}
+        {\assocexp {\e{}} {\e{k}} {\e{v}}} 
+        {\extendmap{\mapval{}}
+          {\k{}}{\v{v}}}
+                }
+              }
+
+
+\newcommand\BGet[0]{
+\infer [B-Get]
+{\opsem {\openv{}}
+        {\e{}} {\mapval{}}
+         \\
+ \opsem {\openv{}}
+        {\ep{}} {\k{}}
+        \\\\
+ \keyinmap{\k{}}{\mapval{}}
+}
+{
+ \opsem {\openv{}}
+        {\getexp {\e{}} {\ep{}}}
+        {\getmap{\mapval{}}
+          {\k{}}}
+}
+}
+
+\newcommand\BGetMissing[0]{
+\infer [B-GetMissing]
+{\opsem {\openv{}}
+        {\e{}} {\mapval{}}
+        \\\\
+ \opsem {\openv{}}
+        {\ep{}} {\k{}}
+        \\
+ \keynotinmap{\k{}}{\mapval{}}
+}
+{
+ \opsem {\openv{}}
+        {\getexp {\e{}} {\ep{}}}
+        {\nil{}}
+}
+}
+
+
+\newcommand\objectsub[0]{
+  \begin{array}{l}
+\infer [SO-Refl]
+{}
+{ \issubobjin {} {\object{}} {\object{}}}\\\\
+
+\infer [SO-Top]
+{}
+{ \issubobjin {} {\object{}} {\emptyobject{}}}
+  \end{array}
+}
+
+\newcommand\SRefl[0]{
+\infer [S-Refl]
+{}
+{ \issubtypein {} {\t{}} {\t{}}}
+}
+
+\newcommand\SPMultiFn[0]{
+\infer [S-PMultiFn]
+{ \issubtypein {}
+  {\s{t}}
+  {\ArrowOne {\x{}} {\s{}} {\t{}}
+                                  {\filterset {\thenprop {\prop{}}}
+                                              {\elseprop {\prop{}}}}
+                                      {\object{}}}
+                                      \\
+  \issubtypein {}
+  {\s{d}}
+  {\ArrowOne {\x{}} {\s{}} {\tp{}}
+                                  {\filterset {\thenprop {\propp{}}}
+                                              {\elseprop {\propp{}}}}
+                                      {\objectp{}}}
+}
+{ \issubtypein {} {\MultiFntype{\s{t}}{\s{d}}}
+                  {\ArrowOne {\x{}} {\s{}} {\t{}}
+                             {\filterset {\thenprop {\prop{}}}
+                                         {\elseprop {\prop{}}}}
+                             {\object{}}}}
+}
+
+\newcommand\STop[0]{
+\infer [S-Top]
+{}
+{ \issubtypein {} {\t{}} {\Top{}}}
+}
+
+% FIXME fix overrightarrow caption
+\newcommand\SUnionSuper[0]{
+\infer [S-UnionSuper]
+{ \exists i.\ {\issubtypein {} {\t{}} {\s{i}}}}
+{ \issubtypein {} {\t{}} {\Unionsplice{{\overrightarrow{\s{}}}^{i}}}}
+}
+
+\newcommand\SUnionSub[0]{
+\infer [S-UnionSub]
+{ {\overrightarrow {\issubtypein {} {\t{i}} {\s{}}}}^{i}}
+{ \issubtypein {} {\Unionsplice{\overrightarrow{\t{}}^{i}}} {\s{}}}
+}
+
+\newcommand\SFunMono[0]{
+\infer [S-FunMono]
+{}
+{\issubtypein {}
+  {\ArrowOne {\x{}} {\s{}}
+             {\t{}}
+             {\filterset {\thenprop{\prop{}}}
+                         {\elseprop{\prop{}}}}
+             {\object{}}}
+  {\IFn{}}}
+}
+
+\newcommand\SObject[0]{
+\infer [S-Object]
+{}
+{\issubtypein {}
+  {\class{}}
+  {\Object{}}}
+}
+
+\newcommand\SClass[0]{
+\infer [S-SClass]
+{}
+{\issubtypein {}
+  {\ValueClass}
+  {\Class{}}}
+}
+
+\newcommand\SSStr[0]{
+\infer [S-SStr]
+{}
+{\issubtypein {}
+  {\ValueStr}
+  {\String{}}}
+}
+
+
+\newcommand\SSBool[0]{
+\infer [S-SBool]
+{}
+{\issubtypein {}
+  {\ValueBool}
+  {\Boolean{}}}
+}
+
+\newcommand\SSKw[0]{
+\infer [S-SKw]
+{}
+{\issubtypein {}
+  {\ValueKw}
+  {\Keyword}}
+}
+
+\newcommand\SFun[0]{
+\infer [S-Fun]
+{ \issubtypein {} {\sp{}} {\s{}}
+  \\
+  \issubtypein {} {\t{}} {\tp{}}
+  \\
+  \inpropenv {\thenprop {\prop{}}} {\thenprop {\propp{}}}
+  \\
+  \inpropenv {\elseprop {\prop{}}} {\elseprop {\propp{}}}
+  \\
+  \issubobjin{} {\object{}} {\objectp{}}
+}
+{ \issubtypein {}
+    {\ArrowOne {\x{}} {\s{}}
+              {\t{}}
+              {\filterset {\thenprop {\prop{}}}
+                          {\elseprop {\prop{}}}}
+              {\object{}}}
+    {\ArrowOne {\x{}} {\sp{}}
+              {\tp{}}
+              {\filterset {\thenprop {\propp{}}}
+                          {\elseprop {\propp{}}}}
+              {\objectp{}}}}
+        }
+
+% subtyping syntax
+\newcommand\standardsubtyping[0]{
+
+  \begin{array}{l}
+    \SRefl{}\\\\
+    \STop
+
+  \end{array}
+
+\SUnionSuper{}
+\SUnionSub{}
+\SFunMono
+\begin{array}{l}
+\SObject\\\\
+
+\SClass{}
+\end{array}
+
+\begin{array}{l}
+%\SSStr{}\\\\ % no string singletons
+\SSBool{}\\\\
+\SSKw{}
+\end{array}
+
+\SFun{}
+
+
+}
+
+\newcommand\SHMapP[0]{
+\infer [S-HMapP]
+{ \forall i.\ {\inmandatory{\k{i}}{\s{i}}{\mandatory{}}} \text{ and } \issubtypein {} {\s{i{}}} {\t{i{}}}
+}
+{\issubtypein {} 
+  {\HMapcwithabsent {\mandatory{}}{\absentp{}}}
+  {\HMapp {{\mandatorysetoverright{\k{}}{\t{}}}^i} {\absent{}}}
+               }
+}
+
+\newcommand\SHMap[0]{
+\infer [S-HMap]
+{ \forall i.\ {\inmandatory{\k{i}}{\s{i}}{\mandatory{}}} \text{ and } \issubtypein {} {\s{i{}}} {\t{i{}}}
+  \\
+  {\absent{1}} \supseteq {\absent{2}}
+}
+{\issubtypein {} {\HMapgeneric {\mandatory{}} {\absent{1}}}
+  {\HMapgeneric {{\mandatorysetoverright{\k{}}{\t{}}}^i} {\absent{2}}}
+               }
+             }
+
+\newcommand\SHMapMono[0]{
+\infer [S-HMapMono]
+{}
+{\issubtypein {} 
+  {\HMapgeneric {\mandatory{}} {\absent{}}}
+  {\HMapInstance{}}}
+}
+
+\newcommand\HMapsubtyping[0]{
+  {\SHMapP}
+
+  {\SHMap}
+
+  {\SHMapMono}
+}
+
+\newcommand\Multisubtyping[0]{
+\infer [S-PMultiFn]
+{ \issubtypein {}
+  {\s{t}}
+  {\ArrowOne {\x{}} {\s{}} {\t{}}
+                                  {\filterset {\thenprop {\prop{}}}
+                                              {\elseprop {\prop{}}}}
+                                      {\object{}}}
+                                      \\
+  \issubtypein {}
+  {\s{d}}
+  {\ArrowOne {\x{}} {\s{}} {\tp{}}
+                                  {\filterset {\thenprop {\propp{}}}
+                                              {\elseprop {\propp{}}}}
+                                      {\objectp{}}}
+}
+{ \issubtypein {} {\MultiFntype{\s{t}}{\s{d}}}
+                  {\ArrowOne {\x{}} {\s{}} {\t{}}
+                             {\filterset {\thenprop {\prop{}}}
+                                         {\elseprop {\prop{}}}}
+                             {\object{}}}}
+
+\infer [S-PMulti]
+{ \issubtypein {} {\s{}} {\sp{}}
+  \\
+  \issubtypein {} {\t{}} {\tp{}}}
+{ \issubtypein {} {\MultiFntype {\s{}} {\t{}}}{\MultiFntype {\sp{}} {\tp{}}}}
+
+\infer [S-MultiMono]
+{}
+{\issubtypein {}
+  {\MultiFntype {\ArrowOne {\x{}} {\s{}} {\t{}}
+                          {\filterset {\thenprop{\prop{}}}
+                                      {\elseprop{\prop{}}}}
+                          {\object{}}}
+                {\ArrowOne {\x{}} {\s{}} {\tp{}}
+                          {\filterset {\thenprop{\propp{}}}
+                                      {\elseprop{\propp{}}}}
+                          {\objectp{}}}
+                }
+  {\PMulti{}}
+}
+                       }
+
+% isa? operational semantics
+
+\newcommand\isaopsemfigure[0]{
+  \ma{
+\begin{array}{lllr}
+  \isaopsem{\v{}}{\v{}} &=& {\true{}} & \v{} \notequal {\class{}} \\
+  \isaopsem{\class{}}{\classp{}} &=& {\true{}} & \issubtypein{}{\class{}}{\classp{}}\\
+  \isaopsem{\v{}}{\vp{}} &=& {\false{}} & \text{otherwise}
+\end{array}
+  }
+}
+
+\newcommand\isapropsfigure[0]{
+  \ma{
+\begin{array}{llll}
+  \isacomparealign{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+             {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
+                        {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}
+                        \\
+  \isacomparealign{\s{}}{\object{}}{\Value{\singletonmeta{}}}
+             {\replacefor
+               {\filtersetparen{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                   {\notprop{\Value{\singletonmeta{}}}{\x{}}}}
+                   {\object{}}
+                   {\x{}}}
+                   & \text{if}\ {\singletonmeta{}} \not= \class{}
+               \\
+  \isacomparealign{\s{}}{\object{}}{\t{}}
+                  {\filterset{\topprop{}}
+                             {\topprop{}}}
+                           &\text{otherwise}
+\end{array}
+  }
+}
+
+% multimethod syntax
+
+\newcommand\disptablesyntax[0]{
+ \disptable{}   &::=& \{ \overrightarrow{\v{} \mapsto \v{}} \}
+               &\mbox{Dispatch tables}
+             }
+             % NOTE copied into multimethod syntax figure
+\newcommand\multimethodexpsyntax[0]{
+  {\createmultiexp {\t{}} {\e{}}}
+                      \alt {\extendmultiexp {\e{}} {\e{}} {\e{}}}
+                      \alt {\isaapp {\e{}} {\e{}}}
+              }
+
+% HMap syntax auxiliary 
+\newcommand\auxhmapsyntax[0]{
+  \mandatory{} &::=& \mandatorysetoverright{\k{}}{\t{}}
+                &\mbox{HMap mandatory entries} \\
+  \absent{} &::=& \absentoverright{\k{}}
+                &\mbox{HMap absent entries} \\
+  \completenessmeta{} &::=& {\complete{}} \alt {\partial{}}
+                &\mbox{HMap completeness tags}
+              }
+
+\newcommand\hmapexpressionsyntax[0]{
+                      {\getexp {\e{}} {\e{}}}
+                      \alt {\assocexp {\e{}}{\e{}}{\e{}}}
+                    }
+
+% reflective Java interop syntax
+\newcommand\reflectiveexpsyntax[0]{
+                      {\fieldexp {\fld{}} {\e{}}}
+                      \alt {\methodexp {\mth{}} {\e{}} {\overrightarrow{\e{}}}}
+                      \alt {\newexp {\class{}} {\overrightarrow{\e{}}}}
+}
+
+\newcommand\fieldexpsyntax[0]{
+                      {\fieldstaticexp {\classhint{}} {\classhint{}} {\fld{}} {\e{}}}
+}
+
+\newcommand\methodexpsyntax[0]{
+  {\methodstaticexp {\classhint{}} {\overrightarrow{\classhint{}}} {\classhint{}} {\mth{}} {\e{}} {\overrightarrow{\e{}}}}
+}
+
+\newcommand\newexpsyntax[0]{
+  {\newstaticexp {\overrightarrow {\classhint{}}} {\classhint{}} {\class{}} {\overrightarrow{\e{}}}}
+}
+
+% nonreflective Java interop syntax
+\newcommand\nonreflectiveexpsyntax[0]{
+  \fieldexpsyntax{}
+  \alt \methodexpsyntax{}
+  \alt \newexpsyntax{}
+}
+
+% small figure for nonreflective Java interop syntax
+\newcommand\mininonreflectiveexpsyntax[0]{
+  \methodexpsyntax{} 
+  &\mbox{Non-reflective Expressions}\\
+  &\alt& 
+  \fieldexpsyntax{} 
+  \alt 
+  \newexpsyntax{}
+}
+
+\newcommand\lethintsyntax[0]{
+  {\letexp {\hinted {\classhint{}} {\x{}}} {\e{}} {\e{}}}
+}
+
+\newcommand\localhintsyntax[0]{
+  \hinted{\classhint{}} {\x{}}
+}
+
+\newcommand\typehintedexpsyntax[0]{
+  \localhintsyntax{}
+  \alt \lethintsyntax{}
+}
+
+\newcommand\classvaluesyntax[0]{
+  {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}}
+}
+
+\newcommand\openvsyntax[0]{
+  \openv{}     &::=& \{\overrightarrow{\x{} \mapsto \v{}}\}
+                &\mbox{Value environments}
+}
+
+\newcommand\tatypesyntax[0]{
+  \tatype{}     &::=& \unknownhint{} \alt \classhint{}
+                &\mbox{Type Hints}
+              }
+
+\newcommand\typehintenvsyntax[0]{
+  \taenv{}    &::=& \{ \overrightarrow{ \hastype{\x{}} {\tatype{}}} \}
+               &\mbox{Type Hint Environment}
+             }
+
+\newcommand\classtableallsyntax[0]{
+  \ctentrymeta{} &::=& 
+  \{ \ctmethodsliteral \mapsto 
+  \set{\overrightarrow{\ctmthentry{\mth{}}{\overrightarrow{\classhint{}}}{\classhint{}}}},
+  \ctfieldsliteral \mapsto \{ \overrightarrow{\ctfldentry{\fld{}}{\classhint{}}} \},
+  \ctconstructorsliteral \mapsto \{ \ctctorentry{\overrightarrow{\classhint{}}} \}
+                          \}
+  &\mbox{Class descriptors} \\
+  \ct{}   &::=& \{ \overrightarrow{\classhint{} \mapsto \ctentrymeta{}} \}
+               &\mbox{Class Table}
+             }
+
+\newcommand\classvaluesyntaxentry[0]{
+  \classvaluemeta{} 
+          &::=& \classvaluesyntax{}
+               &\mbox{Class Values}
+}
+
+% reflection resolution rewrite 
+
+\newcommand\RLocal[0]{
+\infer [R-Local]
+{}
+{ \rewrite {\taenv{}}
+           {\x{}}
+           {\x{}}
+         }
+       }
+
+\newcommand\RNewElimRefl[0]{
+\infer [R-NewElimRefl]
+{ \overrightarrow{
+    \rewrite {\taenv{}}
+           {\e{i}}
+           {\e{j}}}
+  \\
+  \overrightarrow{
+  \tajudgement {\taenv{}}
+               {\hastype {\e{j}} {\classhint{j}}}
+             }
+               \\\\
+  \ctorparams {\ct{}}{\classhint{}}{\overrightarrow{\classhint{k}}}
+             }
+{ \rewrite {\taenv{}}
+           {\newexp {\class{}} {\overrightarrow {\e{i}}}}
+           {\newstaticexp {\overrightarrow {\classhint{k}}} {\classhint{}} {\class{}} {\overrightarrow {\e{j}}}}
+}
+
+       }
+
+\newcommand\RLet[0]{
+\infer [R-Let]
+{ \rewrite {\taenv{}}
+           {\e{1}}
+           {\ep{1}}
+           \\
+  \tajudgement {\taenv{}} {\hastype {\ep{1}} {\tatype{}}}
+           \\\\
+  \rewrite {\taenv{}, {\hastype {\x{}} {\tatype{}}}}
+           {\e{}}
+           {\ep{}}
+         }
+{ \rewrite {\taenv{}}
+           {\letexp {\x{}}
+                    {\e{1}}
+                    {\e{}}}
+           {\letexp {\x{}}
+                    {\ep{1}}
+                    {\ep{}}}
+}
+       }
+
+\newcommand\RLetHint[0]{
+\infer [R-LetHint]
+{ \rewrite {\taenv{}}
+           {\e{1}}
+           {\ep{1}}
+           \\
+  \rewrite {\taenv{}, {\hastype {\x{}} {\classhint{}}}}
+           {\e{}}
+           {\ep{}}
+         }
+{ \rewrite {\taenv{}}
+           {\letexp {\hinted {\classhint{}} {\x{}}}
+                    {\e{1}}
+                    {\e{}}}
+           {\letexp {\hinted {\classhint{}} {\x{}}}
+                    {\ep{1}}
+                    {\ep{}}}
+}
+}
+
+\newcommand\RFieldElimRefl[0]{
+\infer [R-FieldElimRefl]
+{ \rewrite {\taenv{}}
+           {\e{}}
+           {\ep{}}
+           \\
+  \tajudgement {\taenv{}}
+               {\hastype {\ep{}} {\classhint{}}}
+               \\\\
+               \fieldtype {\ct{}} {\classhint{}} {\fld{}} {\classhint{f}}
+         }
+{ \rewrite {\taenv{}}
+           {\fieldexp {\fld{}} {\e{}}}
+           {\fieldstaticexp {\classhint{t}} {\classhint{f}} {\fld{}} {\ep{}}}
+         }
+       }
+
+\newcommand\RMethodElimRefl[0]{
+\infer [R-MethodElimRefl]
+{ \rewrite {\taenv{}}
+           {\e{}}
+           {\ep{}}
+           \\
+  \tajudgement {\taenv{}}
+               {\hastype {\ep{}} {\classhint{}}}
+           \\\\
+           \overrightarrow{
+  \rewrite {\taenv{}}
+           {\e{i}}
+           {\e{j}}}
+           \\
+           \overrightarrow{
+  \tajudgement {\taenv{}}
+               {\hastype {\e{j}} {\classhint{j}}}
+             }
+               \\\\
+  \methodtype {\ct{}}{\classhint{}} {\mth{}} {\overrightarrow{\classhint{p}}}{\classhint{r}}
+         }
+{ \rewrite {\taenv{}}
+           {\methodexp {\mth} {\e{}} {\overrightarrow {\e{i}}}}
+           {\methodstaticexp {\classhint{t}} {\overrightarrow {\classhint{p}}} {\classhint{r}} {\mth{}} {\ep{}} {\overrightarrow {\e{j}}}}
+  }
+}
+
+\newcommand\RAbs[0]{
+\infer [R-Abs]
+{ \rewrite {\taenv{}, {\hastype {\x{}} {\unknownhint{}}}}
+           {\e{}}
+           {\ep{}}
+}
+{ \rewrite {\taenv{}}
+           {\abs {\x{}} {\t{}} {\e{}}}
+           {\abs {\x{}} {\t{}} {\ep{}}}
+         }
+       }
+
+% type hint propagation
+
+\newcommand\TALocal[0]{
+\infer [TA-Local]
+{ \intaenv {\taenv{}} {\x{}} {\tatype{}}
+}
+{ \tajudgement {\taenv{}} {\hastype {\x{}} {\tatype{}}}
+}
+}
+
+\newcommand\TANil[0]{
+\infer [TA-Nil]
+{}
+{ \tajudgement {\taenv{}} {\hastype {\nil{}} {\unknownhint{}}}
+}
+}
+
+\newcommand\TANewStatic[0]{
+\infer [TA-NewStatic]
+{}
+{ \tajudgement {\taenv{}}
+  {\hastype {\newstaticexp {\overrightarrow {\classhint{i}}} {\classhint{}} {\class{}} {\overrightarrow {\e{}}}}
+                           {\classhint{}}}
+}
+}
+
+\newcommand\TALetHint[0]{
+\infer [TA-LetHint]
+{ \tajudgement {\taenv{}, {\hastype {\x{}} {\classhint{}}}}
+               {\hastype {\e{}} {\tatype{}}}
+}
+{ \tajudgement {\taenv{}}
+      {\hastype {\letexp {\hinted{\classhint{}}{\x{}}}
+                                  {\e{1}}
+                                  {\e{}}}
+                         {\tatype{}}}
+}
+}
+
+\newcommand\TALet[0]{
+\infer [TA-Let]
+{ \tajudgement {\taenv{}} 
+               {\hastype {\e{1}} {\tatype{1}}}
+               \\\\
+  \tajudgement {\taenv{}, {\hastype {\x{}} {\tatype{1}}}}
+               {\hastype {\e{}} {\tatype{}}}
+}
+{ \tajudgement {\taenv{}}
+               {\hastype {\letexp {\x{}}
+                                  {\e{1}}
+                                  {\e{}}}
+                         {\tatype{}}}
+}
+}
+
+\newcommand\javanewassumption[1]{
+\begin{assumption}[\newjavaliteral] \label{#1:assumption:new}
+  If\ $\forall i.\ {\v{i}} = {\classvalue{\classhint{i}}{\overrightarrow{\classfieldpair{\fld{j}} {\v{j}}}}}\ or\ {\v{i}}= {\nil}$
+  and {\v{i}} is consistent with {\openv{}}
+  then either
+  \begin{itemize}
+  \item $\newjava {\classhint{}}
+                {\overrightarrow{\classhint{i}}}
+                {\overrightarrow{\v{i}}}
+                {\classvalue{\classhint{}}{\overrightarrow {\classfieldpair{\fld{k}} {\v{k}}}}}$
+                which is consistent with {\openv{}},
+  \item 
+        $\newjava {\classhint{}}
+                {\overrightarrow{\classhint{i}}}
+                {\overrightarrow{\v{i}}}
+                {\errorval{\v{e}}}$, or
+  \item $\newjavanoeq {\classhint{}}
+                {\overrightarrow{\classhint{i}}}
+                {\overrightarrow{\v{i}}}$
+                is undefined.
+  \end{itemize}
+\end{assumption}
+}
+
+
+% java assumptions
+\newcommand\javaassumptionsall[1]{
+\javanewassumption{#1}
+
+\begin{assumption}[\getfieldliteral] \label{#1:assumption:field}
+  If\ {\v{1}} = ${\classvalue{\classhint{1}}{{\classfieldpair{\fld{}}{\v{f}}, {\overrightarrow{\classfieldpair{\fld{l}} {\v{l}}}}}}}$,
+  then either
+  \begin{itemize}
+    \item
+      \getfieldjava{\classhint{1}} {\v{1}} {\fld{}} {\classhint{2}}{\v{f}},
+                  and either
+                  \begin{itemize}
+                    \item
+                  \v{f} = ${\classvalue{\classhint{2}}{\overrightarrow{\classfieldpair{\fld{m}} {\v{m}}}}}$
+                   or 
+                    \item
+                  \v{f} = \nil, or
+                  \end{itemize}
+    \item
+      \getfieldjava{\classhint{1}} {\v{1}} {\fld{}} {\classhint{2}} {\errorval{\v{e}}}.
+  \end{itemize}
+\end{assumption}
+
+\begin{assumption}[\invokejavamethodliteral] \label{#1:assumption:method}
+  If\ {\v{1}} = {\classvalue{\classhint{1}}{\overrightarrow{\classfieldpair{\fld{l}} {\v{l}}}}},
+  $\forall i.\ {\v{i}}={\classvalue{\classhint{i}}{\overrightarrow{\classfieldpair{\fld{j}} {\v{j}}}}}\ or\ {\v{i}}={\nil}$
+         then either
+         \begin{itemize}
+           \item
+  \invokejavamethod {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{i}}} {\overrightarrow{\v{i}}}
+                    {\classhint{2}}
+                    {\v{}}
+                  and either
+                  \begin{itemize}
+                    \item
+                  \v{} = ${\classvalue{\classhint{2}}{\overrightarrow{\classfieldpair{\fld{m}} {\v{m}}}}}$
+                  or\ 
+                  \v{} = \nil, or
+                  \end{itemize}
+          \item
+  \invokejavamethod {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{i}}} {\overrightarrow{\v{i}}}
+                    {\classhint{2}}
+                    {\errorval{\v{e}}}, or
+          \item 
+  \invokejavamethodnoeq {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{i}}} {\overrightarrow{\v{i}}}
+                    {\classhint{2}}
+                    is undefined.
+        \end{itemize}
+\end{assumption}
+}
+
+\newcommand\istruefalsedefinitions[1]{
+\begin{definition} \label{#1:definition:istrueval}
+  \istrueval{\v{}} iff {\v{}} $\not=$ \false\ and {\v{}} $\not=$ \nil.
+
+\end{definition}
+
+\begin{definition} \label{#1:definition:isfalseval}
+  \isfalseval{\v{}} iff {\v{}} $=$ \false\ or {\v{}} $=$ \nil.
+
+\end{definition}
+}
+
+\newcommand\soundnesslemmahypothesis[0]{
+If \judgementrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}},
+\satisfies{\openv{}}{\propenv{}}, 
+\isconsistent{\openv{}},
+and \opsem {\openv{}} {\e{}} {\a{}} 
+then either
+\begin{itemize}
+  \item
+    \opsem {\openv{}} {\e{}} {\v{}} 
+and all of the following hold:
+\begin{enumerate}
+  \item either \object{} = \emptyobject{} or \inopenv {\openv{}} {\object{}} {\v{}},
+  \item either {\istrueval{\v{}}} and {\satisfies{\openv{}}{\thenprop{\prop{}}}} or 
+               {\isfalseval{\v{}}} and {\satisfies{\openv{}}{\elseprop{\prop{}}}},
+  \item \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\propp{}}}}{\objectp{}}{\v{}}
+        for some \thenprop{\propp{}}, \elseprop{\propp{}} and {\objectp{}}, and
+  \item \consistentwith{\v{}}{\openv{}}, or
+\end{enumerate}
+
+  \item
+\opsem {\openv{}} {\e{}} {\errorvalv{}}.
+\end{itemize}
+}
+
+\newcommand\soundnesstheorembody[1]{
+If \judgementrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}}
+and \opsem {\openv{}} {\e{}} {\v{}} 
+then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\propp{}}}}{\objectp{}}{\v{}}
+        for some \thenprop{\propp{}}, \elseprop{\propp{}} and {\objectp{}}.
+      }
+
+\newcommand\soundnesstheoremnoproof[1]{
+\begin{theorem}[Type soundness] \label{#1:theorem:soundnessnoproof}
+\soundnesstheorembody{#1}
+
+\end{theorem}
+
+}
+
+\newcommand\soundnesstheorem[1]{
+\begin{theorem}[Type soundness] \label{#1:theorem:soundness}
+\soundnesstheorembody{#1}
+\begin{proof}
+  Corollary of lemma \ref{#1:lemma:soundness}.
+\end{proof}
+
+\end{theorem}
+
+}
+
+\newcommand\wrongtheorembody[1]{
+  If {\judgementrewrite {} {\ep{}} {\t{}} {\filterset {\thenprop{\prop{}}}{\elseprop{\prop{}}}} {\object{}}{\e{}}}
+  then \notopsem{}{\e{}}{\wrong{}}.
+}
+
+\newcommand\wrongtheoremnoproof[1]{
+\begin{theorem}[Well-typed programs don't go wrong] \label{#1:theorem:wrongnoproof}
+  \ 
+
+\wrongtheorembody{#1}
+\end{theorem}
+}
+
+\newcommand\wrongtheorem[1]{
+\begin{theorem}[Well-typed programs don't go wrong] \label{#1:theorem:wrong}
+\wrongtheorembody{#1}
+
+\begin{proof}
+  Corollary of lemma~\ref{#1:lemma:soundness}, since by lemma~\ref{#1:lemma:soundness}
+  when {\judgementrewrite {} {\ep{}} {\t{}} {\filterset {\thenprop{\prop{}}}{\elseprop{\prop{}}}} {\object{}}{\e{}}}, 
+ either
+    \opsem {} {\e{}} {\v{}} or
+    \opsem {} {\e{}} {\errorvalv{}}, therefore \notopsem{}{\e{}}{\wrong{}}.
+\end{proof}
+\end{theorem}
+}
+
+\newcommand\nilinvoketheorembody[1]{
+  If \judgement{\propenv{}}{\e{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}} then \e{} is not
+  \appexp{\nil{}}{\ep{}}, 
+  \fieldexp{\fld{}}{\nil{}}, or
+  $\methodexp{\mth{}}{\nil{}}{\overrightarrow{\ep{}}}$.
+}
+
+\newcommand\nilinvoketheoremnoproof[1]{
+\begin{corollary}[\nil{} invocation is disallowed in typed code] \label{#1:theorem:nilinvokenoproof}
+  \nilinvoketheorembody{#1}
+
+\end{corollary}
+}
+
+\newcommand\nilinvoketheorem[1]{
+\begin{theorem}[\nil{} invocation is disallowed in typed code] \label{#1:theorem:nilinvoke}
+  \nilinvoketheorembody{#1}
+
+\begin{proof}
+  Corollary of lemma \ref{#1:lemma:soundness}.
+\end{proof}
+
+\end{theorem}
+}
+
+\newcommand\consistentwithonlydef[1]{
+\begin{definition} \label{#1:definition:consistentwith}
+  \consistentwith{\v{}}{\openv{}}
+  iff $\forall$ \closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}} in \v{},
+  if \judgementselfrewrite{}{\closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}}}{\t{}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
+  and $\forall$ \objectp{} in \t{}, either 
+  \objectp{} = \emptyobject{}, or 
+  \objectp{} = {\path{\pathelemp{}}{\x{}}},
+  or 
+\inopenvnoeq{\openv{}}{\objectp{}} = {\inopenvnoeq{\openv{1}}{\objectp{}}}.
+
+% In code like
+% (let [x true]
+%   ((let [x 1]
+%      (fn [a] x))
+%    2))
+% this property guarantees that the x's don't get confused.
+\end{definition}
+}
+
+\newcommand\consistentwithdefinition[1]{
+\consistentwithonlydef{#1}
+
+\begin{definition} \label{#1:definition:isconsistent}
+  \isconsistent{\openv{}}
+  iff
+
+  $\forall \v{} \in rng(\openv{})$, \consistentwith{\v{}}{\openv{}}.
+\end{definition}
+}
+
+\newcommand\classtablelookupsyntax[0]{
+$$
+\begin{array}{lcll}
+
+  \fieldtypealign 
+  {\ct{}}
+  {\classhint{}}
+  {\fld{}}
+  {\classhint{f}}
+  & \text{if}\ \ctfldentry{\fld{}}{\classhint{f}} \in {\ctlookupfields{\ct{}}{\classhint{}}}
+      \\
+  \ctorparamsalign 
+      {\ct{}}
+      {\classhint{}}
+      {\overrightarrow{\class{p}}}
+  & \text{if}\ \ctctorentry{\overrightarrow{\class{p}}} \in {\ctlookupctors{\ct{}}{\classhint{}}}
+  \\
+  \methodtypealign
+  {\ct{}}
+  {\classhint{}}
+  {\mth{}}
+  {\overrightarrow{\classhint{p}}}
+  {\classhint{r}}
+  & \text{if}\ \ctmthentry{\mth{}}{\overrightarrow{\classhint{p}}}{\classhint{r}} \in {\ctlookupmethods{\ct{}}{\classhint{}}}
+
+\end{array}
+$$
+}
+
+% class table lookup
+\newcommand\classtablelookupfigure[0]{
+\begin{figure*}
+ \classtablelookupsyntax{}
+\caption{Class table lookup}
+\end{figure*}
+}
+
+\newcommand\convertjavatypenonnil[0]{
+\javatotcalign {\Void{}} {\Nil}
+\\
+\javatotcalign {\class{}} \class{}
+}
+
+\newcommand\convertjavatypenil[0]{
+\javatotcalignnil {\Void{}} {\Nil}
+\\
+\javatotcalignnil {\class{}} {\Union {\Nil} {\class{}}}
+}
+
+\newcommand\converttctype[0]{
+\tctojavaalign {\t{}} {\class{}}
+& \text{if}\ {\issubtypein{}{\t{}}{\javatotcnilexp{\class{}}}}
+}
+
+% convert Java types
+\newcommand\convertjavatypegrammar[0]{
+$$
+\begin{altgrammar}
+  \convertjavatypenonnil{}\\
+  \convertjavatypenil{}
+\end{altgrammar}
+$$
+}
+
+\newcommand\convertjavatypefigure[2]{
+\begin{#1}
+#2
+\convertjavatypegrammar{}
+\caption{Java Type Conversion}
+\end{#1}
+}
+
+% constants syntax
+\newcommand\constantssyntax[0]{
+  {\const{}}           &::=& \classconst \alt \numberhuh
+
+                &\mbox{Constants}
+              }
+
+\newcommand\updatefigure[0]{
+\update{\Unionsplice{\overr{\t{}}}}{\propisnotmeta{}}{\pathelem{}}
+&=&
+\Unionsplice{{\overrightarrow{\update{\t{}}{\propisnotmeta{}}{\pathelem{}}}}}
+\\
+% ClassPE
+\update{\t{}}{\Value{\class{}}}{\destructpath{\pathelem{}}{\classpe{}}}
+&=& \update{\t{}}{\class{}}{\pathelem{}}
+
+% handles updating the else branch in (if (isa? (class x) C) ...), don't need it
+%\\
+%\update{\t{}}{\nottype{\Value{\class{}}}}{\destructpath{\pathelem{}}{\classpe{}}}
+%&=& \update{\t{}}{\nottype{\class{}}}{\pathelem{}}
+%& \text{if}\ \not\exists \classp{}.\ {\issubtypein{}{\classp{}}{\class{}}}\ \text{and}\ {\classp{}} \not= \class{}
+
+% These 4 cases are fun but not necessary, handle using `class` to test for nullability
+%\\
+%\update{\t{}}{\s{}}{\destructpath{\pathelem{}}{\classpe{}}}
+%&=& \update{\t{}}{\Object}{\pathelem{}}
+%& \text{if}\ \issubtypein{}{\s{}}{\Object{}}
+%\\
+%\update{\t{}}{\nottype{\s{}}}{\destructpath{\pathelem{}}{\classpe{}}}
+%&=& \update{\t{}}{\Nil{}}{\pathelem{}}
+%& \text{if}\ \issubtypein{}{\Object{}}{\s{}}
+%\\
+%\update{\t{}}{\s{}}{\destructpath{\pathelem{}}{\classpe{}}}
+%&=& \update{\t{}}{\Nil}{\pathelem{}}
+%& \text{if}\ \issubtypein{}{\s{}}{\Nil{}}
+%\\
+%\update{\t{}}{\nottype{\s{}}}{\destructpath{\pathelem{}}{\classpe{}}}
+%&=& \update{\t{}}{\Object}{\pathelem{}}
+%& \text{if}\ \issubtypein{}{\Nil{}}{\s{}}
+
+% What if \s{} is a union of class singletons?
+% this just seems wrong
+%\\
+%\update{\t{}}{\s{}}{\classpe{}}
+%&=& \restrict{\t{}}{\s{}}
+%
+%\\
+%\update{\t{}}{\nottype{\s{}}}{\classpe{}}
+%&=& \remove{\t{}}{\s{}}
+
+% Don't need base case covers \Top
+\\
+\update{\t{}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\classpe{}}}
+&=& {\t{}}
+
+% keype
+\\
+\update{\HMapgeneric {\mandatory{}} {\absent{}}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+&=&
+{\HMapgeneric {\extendmandatoryset{\mandatory{}}{\k{}}{\update{\t{}}{\propisnotmeta{}}{\pathelem{}}}}{\absent{}}}
+\\
+&& \text{if}\ {\inmandatory{\k{}}{\t{}}{\mandatory{}}}
+%& Present Key
+
+\\
+\update{\HMapgeneric {\mandatory{}} {\absent{}}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+&=&
+{\Bottom{}}
+\ \ \text{if}\ {\notsubtypein {} {\Nil{}} {\propisnotmeta{}}}\ \text{and}\ {\inabsent{\k{}}{\absent{}}}
+
+% both these cases are summarised by the above, which uses negation subtyping
+%\\
+%\update{\HMapgeneric {\mandatory{}} {\absent{}}}{\t{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+%&=&
+%{\Bottom{}}
+%& \text{if}\ {\notsubtypein {} {\Nil{}} {\t{}}}\ \text{and}\ {\inabsent{\k{}}{\absent{}}}
+%%& Bad absent +
+%\\
+%\update{\HMapgeneric {\mandatory{}} {\absent{}}}{\nottype{\t{}}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+%&=&
+%{\Bottom{}}
+%& \text{if}\ {\issubtypein {} {\Nil{}} {\t{}}}\ \text{and}\ {\inabsent{\k{}}{\absent{}}}
+%%& Bad absent -
+
+% this rule doesn't do much, turned into default rule
+%\\
+%\update{\HMapgeneric {\mandatory{}} {\absent{}}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+%&=&
+%{\HMapgeneric {\mandatory{}} {\absent{}}}
+%& \text{if}\ {\inabsent{\k{}}{\absent{}}}
+%%& Consistent absent
+
+\\
+\update{\HMapp {\mandatory{}} {\absent{}}}{\t{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+&=&
+(\cup\ {\HMapp {\extendmandatoryset {\mandatory{}} {\k{}}
+                                     {\t{}}}
+                {\absent{}}}
+          \\&&\ \ \ \ \, \,
+        {\HMapp {\mandatory{}} {\extendabsentset{\absent{}}{\k{}}}})
+        \\
+&& \text{if}\ {\issubtypein {} {\Nil{}} {\t{}}},\ {\notinmandatory{\k{}}{\s{}}{\mandatory{}}}\ \text{and}\ {\notinabsent{\k{}}{\absent{}}}
+\\
+\update{\HMapp {\mandatory{}} {\absent{}}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+&=&
+{\HMapp {\extendmandatoryset {\mandatory{}} {\k{}}{\update{\Top}{\propisnotmeta{}}{\pathelem{}}}} {\absent{}}}
+\\
+&& 
+\text{if}\ {\notsubtypein {} {\Nil{}} {\propisnotmeta{}}},\ {\notinmandatory{\k{}}{\s{}}{\mandatory{}}}\ \text{and}\ {\notinabsent{\k{}}{\absent{}}}
+
+%\\
+%\update{\HMapp {\mandatory{}} {\absent{}}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+%&=&
+%{\HMapp {\extendmandatoryset {\mandatory{}} {\k{}}{\update{\Top}{\propisnotmeta{}}{\pathelem{}}}} {\absent{}}}
+\\
+\update{\t{}}{\propisnotmeta{}}{\destructpath {\pathelem{}} {\keype{\k{}}}}
+&=&
+{\t{}}
+%& Consistent absent
+
+
+\\
+\update{\t{}}{\s{}}{\emptypath{}}
+&=&
+\restrict{\t{}}{\s{}}
+\\
+\update{\t{}}{\nottype{\s{}}}{\emptypath{}}
+&=&
+\remove{\t{}}{\s{}}
+
+              }
+
+\newcommand\restrictfigure[0]{
+\restrict{\t{}} {\s{}} &=& \Bot{} &
+                       \text{if} \not\exists \v{}.\  
+                          {\judgement {} {\v{}} {\t{}} {\prop{}}{\object{}}}
+                          \ \text{and}\ 
+                          {\judgement {} {\v{}} {\s{}} {\propp{}}{\objectp{}}}
+                          %handled by update
+%                          \\
+%\restrict{\Unionsplice{\overrightarrow{{\t{}}}}}{\s{}} &=& 
+%\Unionsplice{\overrightarrow{\restrict{{\t{}}}{\s{}}}}
+\\
+\restrict{\t{}}{\s{}} &=& {\t{}} & \text{if}\ {\issubtypein {} {\t{}} {\s{}}}
+\\
+\restrict{\t{}}{\s{}} &=& {\s{}} & \text{otherwise}
+}
+
+\newcommand\removefigure[0]{
+\remove{\t{}}{\s{}} &=& {\Bot{}} & \text{if}\ {\issubtypein {} {\t{}} {\s{}}}
+% handled by update
+%\\
+%\remove{\Unionsplice{\overrightarrow{{\t{}}}}}{\s{}} &=& 
+%\Unionsplice{\overrightarrow{\remove{{\t{}}}{\s{}}}}
+\\
+\remove{\t{}}{\s{}} &=& {\t{}} & \text{otherwise}
+}
+
+\newcommand\restrictremovefigure[0]{
+  \restrictfigure{}
+\\\\
+  \removefigure{}
+}
+
+\newcommand\constanttypefigure[0]{
+\begin{array}{lllr}
+  \constanttype{\classconst} &=& {\ArrowOne {\x{}} {\Top{}}
+                                      {\Union{\nil{}}{\Class{}}}
+                                      {\filterset {\topprop{}}
+                                                  {\topprop{}}}
+                                      {\path {\classpe{}} {\x{}}}}\\
+  \constanttype{\numberhuh} &=& {\ArrowOne {\x{}} {\Top{}}
+                                      {\Boolean{}}
+                                      {\filterset {\isprop{\Number{}}{\x{}}}
+                                                  {\notprop{\Number{}}{\x{}}}}
+                                      {\emptyobject{}}}
+%                                      \\
+%
+%  \constanttype{\throwconst} &=& {\ArrowOne {\x{}} {\Top{}}
+%                                      {\Bot{}}
+%                                      {\filterset {\botprop{}}
+%                                                  {\botprop{}}}
+%                                      {\emptyobject{}}}
+%
+\end{array}
+}
+
+\newcommand\constantsemfigure[1]{
+\begin{figure}
+\begin{mathpar}
+
+\begin{array}{lllr}
+\constantopsem{\classconst}{\classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}} &=& \class{}\\
+\constantopsem{\classconst}{\class{}} &=& \Class{}\\
+\constantopsem{\classconst}{\closure {\openv{}} {\abs {\x{}} {\t{}} {\e{}}}} &=& \IFn{}\\
+\constantopsem{\classconst}{\multi {\v{d}} {\disptable{}}} &=& \PMulti{}\\
+\constantopsem{\classconst}{\mapval{}} &=& \HMapInstance{}\\
+\constantopsem{\classconst}{\k{}} &=& \Keyword{}\\
+\constantopsem{\classconst}{\num{}} &=& \Number{}
+\end{array}
+\begin{array}{lllr}
+\constantopsem{\classconst}{\true{}} &=& \Boolean{}\\
+\constantopsem{\classconst}{\false{}} &=& \Boolean{}\\
+\constantopsem{\classconst}{\nil{}} &=& \nil{}
+% never is wrong
+  %\constantopsem{\classconst}{\v{}} &=& \wrong{} & otherwise\\
+  \\\\
+\constantopsem{\numberhuh}{\num{}} &=& \true{}\\
+\constantopsem{\numberhuh}{\e{}} &=& \false{} \\
+\ \ \ \ otherwise\\
+%  \\\\
+\end{array}
+\end{mathpar}
+\caption{Primitives}
+\label{#1:figure:primitivesem}
+\end{figure}
+}
+
+% proof system
+\newcommand\LUpdate[0]{
+\infer [L-Update]
+{ \inpropenv {\propenv{}} {\isprop {\t{}} {\path {\pathelemp{}} {\x{}}}}
+\\
+  \inpropenv {\propenv{}} {\isprop {\propisnotmeta{}} {{\pathelem{}}({\path {\pathelemp{}} {\x{}}})}}}
+{ \inpropenv {\propenv{}} {\isprop {\update {\t{}} {\propisnotmeta{}} {\pathelem{}}} {\path {\pathelemp{}} {\x{}}}}}
+}
+
+\newcommand\LUpdatePos[0]{
+\infer [L-UpdatePos]
+{ \inpropenv {\propenv{}} {\isprop {\t{}} {\path {\pathelemp{}} {\x{}}}}
+\\
+  \inpropenv {\propenv{}} {\isprop {\s{}} {{\pathelem{}}({\path {\pathelemp{}} {\x{}}})}}}
+{ \inpropenv {\propenv{}} {\isprop {\update {\t{}} {\s{}} {\pathelem{}}} {\path {\pathelemp{}} {\x{}}}}}
+}
+
+\newcommand\TConst[0]{
+\infer [T-Const]
+{}
+{ \judgementselfrewrite {\propenv{}} 
+             {\const{}} {\constanttype{\const{}}}
+             {\filterset {\topprop{}}{\botprop{}}}
+             {\emptyobject{}}
+                   }
+                 }

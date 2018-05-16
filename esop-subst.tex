@@ -1,0 +1,214 @@
+\begin{figure*}
+$$
+\begin{array}{lclr}
+
+{\withpolarity
+  {\replacefor
+    {\filterset {\thenprop {\prop{}}}{\elseprop {\prop{}}}}
+    {\object{}}
+    {\x{}}}
+  {\polaritymeta{}}}
+  &=&
+{\filterset 
+  {\withpolarity
+    {\replacefor
+      {\thenprop {\prop{}}}
+      {\object{}}
+      {\x{}}}
+    {\polaritymeta{}}}
+  {\withpolarity
+    {\replacefor
+      {\elseprop {\prop{}}}
+      {\object{}}
+      {\x{}}}
+    {\polaritymeta{}}}}
+\\\\
+{\withpolarity
+  {\replacefor
+    {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+    {\path {\pathelemp{}} {\y{}}}
+    {\x{}}}
+  {\polaritymeta{}}}
+&=&
+  {\isprop {({\withpolarity
+              {\replacefor
+               {\propisnotmeta{}}
+               {\path {\pathelemp{}} {\y{}}}
+               {\x{}}}
+              {\polaritymeta{}}})}
+           {{\pathelem{}}({\path {\pathelemp{}} {\y{}}})}}
+           \\
+
+{\pluspolarity
+{\replacefor
+  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\emptyobject{}}
+  {\x{}}}
+}
+&=&
+{\topprop{}}
+\\
+{\minuspolarity
+{\replacefor
+  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\emptyobject{}}
+  {\x{}}}
+}
+&=&
+{\botprop{}}
+
+\\
+{\withpolarity
+{\replacefor
+  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\object{}}
+  {\z{}}}
+{\polaritymeta{}}}
+&=&
+  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  & \x{} \not= \z{}\ \text{and}\ \z{} \not\in {\fv {\propisnotmeta{}}}
+
+\\
+{\pluspolarity
+{\replacefor
+  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\object{}}
+  {\z{}}}
+}
+&=&
+{\topprop{}}
+  & \x{} \not= \z{}\ \text{and}\ \z{} \in {\fv {\propisnotmeta{}}}
+\\
+{\minuspolarity
+{\replacefor
+  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\object{}}
+  {\z{}}}
+}
+&=&
+{\botprop{}}
+  & \x{} \not= \z{}\ \text{and}\ \z{} \in {\fv {\propisnotmeta{}}}
+
+\\
+{\withpolarity
+{\replacefor
+  {\topprop{}}
+  {\object{}}
+  {\x{}}}
+{\polaritymeta{}}}
+&=&
+  {\topprop{}}
+
+\\
+{\withpolarity
+{\replacefor
+  {\botprop{}}
+  {\object{}}
+  {\x{}}}
+{\polaritymeta{}}}
+&=&
+  {\botprop{}}
+
+\\
+{\pluspolarity
+{\replacefor
+  {({\impprop {\prop{1}} {\prop{2}}})}
+  {\object{}}
+  {\x{}}}
+}
+&=&
+{\impprop 
+  {\minuspolarity {\replacefor {\prop{1}} {\object{}} {\x{}}}}
+  {\pluspolarity {\replacefor {\prop{2}} {\object{}} {\x{}}}}}
+\\
+{\minuspolarity
+{\replacefor
+  {({\impprop {\prop{1}} {\prop{2}}})}
+  {\object{}}
+  {\x{}}}
+}
+&=&
+{\impprop 
+  {\pluspolarity {\replacefor {\prop{1}} {\object{}} {\x{}}}}
+  {\minuspolarity {\replacefor {\prop{2}} {\object{}} {\x{}}}}}
+\\
+{\withpolarity
+{\replacefor
+  {({\orprop {\prop{1}} {\prop{2}}})}
+  {\object{}}
+  {\x{}}}
+{\polaritymeta{}}}
+&=&
+{\orprop 
+  {\withpolarity
+    {\replacefor {\prop{1}} {\object{}} {\x{}}}
+    {\polaritymeta{}}}
+  {\withpolarity
+    {\replacefor {\prop{2}} {\object{}} {\x{}}}
+    {\polaritymeta{}}}}
+\\
+{\withpolarity
+{\replacefor
+  {({\andprop {\prop{1}} {\prop{2}}})}
+  {\object{}}
+  {\x{}}}
+{\polaritymeta{}}}
+&=&
+{\andprop 
+{\withpolarity
+  {\replacefor {\prop{1}} {\object{}} {\x{}}}
+  {\polaritymeta{}}}
+{\withpolarity
+  {\replacefor {\prop{2}} {\object{}} {\x{}}}
+  {\polaritymeta{}}}}
+
+    \\\\
+
+{\withpolarity
+{\replacefor
+  {\path {\pathelem{}} {\x{}}}
+  {\path {\pathelemp{}} {\y{}}}
+  {\x{}}}
+{\polaritymeta{}}}
+           &=&
+{\path{\pathelem{}}{\path {\pathelemp{}} {\y{}}}}
+
+    \\
+
+{\withpolarity
+{\replacefor
+  {\path {\pathelem{}} {\x{}}}
+  {\emptyobject{}}
+  {\x{}}}
+{\polaritymeta{}}}
+           &=&
+{\emptyobject{}}
+
+    \\
+
+{\withpolarity
+{\replacefor
+  {\path {\pathelem{}} {\x{}}}
+  {\object{}}
+  {\z{}}}
+{\polaritymeta{}}}
+           &=&
+{\path {\pathelem{}} {\x{}}}
+
+& \x{} \not= \z{}
+    \\
+
+{\withpolarity
+{\replacefor
+  {\emptyobject{}}
+  {\object{}}
+  {\x{}}}
+{\polaritymeta{}}}
+           &=&
+{\emptyobject{}}
+
+\end{array}
+$$
+\center{\text{Substitution on types is capture-avoiding structural recursion.}}
+\caption{Substitution}
+\end{figure*}

@@ -1,0 +1,2386 @@
+\section{Soundness for Typed Clojure}
+
+{\javaassumptionsall{appendix}}
+
+\begin{lemma} \label{appendix:lemma:envagree}
+  If \openv{} and \openvp{} agree on \fv{\prop{}}
+  and \satisfies{\openv{}}{\prop{}}
+  then \satisfies{\openvp{}}{\prop{}}.
+\begin{proof}
+  Since the relevant parts of \openv{} and \openvp{} agree, the proof follows trivially.
+\end{proof}
+\end{lemma}
+
+\begin{lemma} \label{appendix:lemma:substfilter}
+  If 
+  \begin{itemize}
+    \item \prop{1} = {\replacefor {\prop{2}} {\object{}} {\x{}}},
+    \item
+  {\satisfies{\openv{2}}{\prop{2}}},
+    \item
+  $\forall v \in \fv{\prop{2}} - \x{}$.
+                              {\inopenvnoeq{\openv{1}}{v}} = {\inopenvnoeq {\openv{2}}{v}},
+    \item
+  and {\inopenvnoeq{\openv{2}}{\x{}}} = {\inopenvnoeq{\openv{1}}{\object{}}}
+  \end{itemize}
+  then \satisfies{\openv{1}}{\prop{1}}.
+
+  \begin{proof}
+    By induction on the derivation of the model judgement.
+  \end{proof}
+\end{lemma}
+
+\begin{lemma} \label{appendix:lemma:satisfies}
+  If \satisfies{\openv{}}{\propenv{}} and \inpropenv{\propenv{}}{\prop{}} then \satisfies{\openv{}}{\prop{}}.
+
+  \begin{proof}
+    By structural induction on \inpropenv{\propenv{}}{\prop{}}.
+%    \begin{itemize}
+%      \item[]
+%        \begin{case}[L-True]
+%
+%          Holds by M-Top.
+%        \end{case}
+%      \item[]
+%        \begin{case}[L-False]
+%          {\inpropenv{\propenv{}}{\botprop{}}}
+%
+%          ??? TODO
+%        \end{case}
+%      \item[]
+%        \begin{case}[L-AndI]
+%          \inpropenv{\propenv{}}{\andprop{\prop{1}}{\prop{2}}}, \satisfies{\openv{}}{\propenv{}}
+%
+%          By inversion on the proof system we know \inpropenv{\propenv{}}{\prop{1}}
+%          and
+%          \inpropenv{\propenv{}}{\prop{2}}.
+%
+%          By the induction hypothesis we know \satisfies{\openv{}}{\prop{1}}
+%          and
+%          \satisfies{\openv{}}{\prop{2}}.
+%
+%          By M-And we know \satisfies{\openv{}}{\andprop{\prop{1}}{\prop{2}}}
+%          and we are done.
+%        \end{case}
+%      \item[]
+%        \begin{case}[L-AndE]
+%          \inpropenv{\propenv{},{\andprop{\prop{1}}{\prop{2}}}}{\prop{}}, \satisfies{\openv{}}{\propenv{},{\andprop{\prop{1}}{\prop{2}}}}
+%
+%
+%          By inversion on the proof system we know  either
+%          \inpropenv{\propenv{},{\prop{1}}}{\prop{}}
+%          or
+%          \inpropenv{\propenv{},{\prop{2}}}{\prop{}}.
+%
+%          %TODO
+%         % By the induction hypothesis we know 
+%         % either
+%         % \satisfies{\openv{}}{\prop{1}}
+%         % and
+%         % \satisfies{\openv{}}{\prop{2}}.
+%        \end{case}
+%    \end{itemize}
+  \end{proof}
+\end{lemma}
+
+\begin{lemma} \label{appendix:lemma:goodobjects+ve}
+  If \inpropenv{\propenv{}}{\isprop{\t{}}{\path{\pathelem{}}{\x{}}}},
+  \satisfies{\openv{}}{\propenv{}}
+  and \inopenv{\openv{}}{\path{\pathelem{}}{\x{}}}{\v{}}
+  then
+  \judgementselfrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\propp{}}}}{\objectp{}}
+  for some {\thenprop{\propp{}}}, {\elseprop{\propp{}}} and {\objectp{}}.
+  \begin{proof}
+    Corollary of lemma~\ref{appendix:lemma:satisfies}.
+  \end{proof}
+\end{lemma}
+
+\begin{lemma}[Paths are independent] \label{appendix:lemma:pathindependent}
+  If \inopenvnoeq{\openv{}}{\object{}} = \inopenvnoeq{\openv{1}}{\objectp{}}
+  then \inopenvnoeq{\openv{}}{\path{\pathelem{}}{\object{}}} =
+       \inopenvnoeq{\openv{1}}{\path{\pathelem{}}{\objectp{}}}
+ \begin{proof}
+   By induction on \pathelem{}.
+   % FIXME
+%   \begin{case}[\pathelem{} = \emptypath{}]
+%     \inopenvnoeq{\openv{}}{\object{}} = {\inopenvnoeq{\openv{}}{\objectp{}}}
+%
+%     As 
+%     \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\object{}}} = \inopenvnoeq{\openv{}}{\object{}}
+%     and
+%     \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\objectp{}}} = \inopenvnoeq{\openv{}}{\objectp{}}
+%     we can conclude 
+%     \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\object{}}} = \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\objectp{}}}.
+%   \end{case}
+%   \begin{case}[\pathelem{} = {\destructpath{\pesyntax{}}{\pathelem{1}}}]
+%     \inopenvnoeq{\openv{}}{\object{}} = {\inopenvnoeq{\openv{}}{\objectp{}}}
+%
+%     By cases on \pesyntax{}.
+%
+%     \begin{itemize}
+%       \item[]
+%   \begin{subcase}[\pesyntax{} = {\keype{\k{}}}] 
+%
+%%     TODO
+%     By the induction hypothesis on {\pathelem{1}}
+%     we know {\inopenvnoeq{\openv{}}{\path{\pathelem{1}}{\object{}}}} =
+%             {\inopenvnoeq{\openv{1}}{\path{\pathelem{1}}{\objectp{}}}}.
+%             By the definition of path translation 
+%             {\inopenvnoeq{\openv{}}{\path{\pathelem{1}}{\object{}}}} = {\getexp {{\openv{}}(\object{})}{\k{}}}
+%             and 
+%             {\inopenvnoeq{\openv{}}{\path{\pathelem{1}}{\objectp{}}}} = {\getexp {{\openv{}}(\objectp{})}{\k{}}}
+%   \end{subcase} 
+%     \end{itemize}
+%%     TODO
+%   \end{case}
+ \end{proof}
+\end{lemma}
+
+\begin{lemma}[\classconst]\label{appendix:lemma:classconst}
+  If
+  {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\class{}}} then
+  {\satisfies{\openv{}}{\isprop{\class{}}{\path{\pathelem{}}{\x{}}}}}.
+
+  \begin{proof}
+    Induction on the definition of {\classconst{}}.
+  \end{proof}
+\end{lemma}
+
+{\consistentwithdefinition{appendix}}
+
+{\istruefalsedefinitions{appendix}}
+
+%\begin{lemma}[Path substitution] \label{appendix:lemma:pathsubustitution}
+%  If \satisfies{\openv{}}{\prop{}} and 
+%  \openv(\object{}) = \openv(\objectp{})
+%  then \satisfies{\openv{}}{\replacefor{\prop{}}{\object{}}{\objectp{}}}.
+%  \begin{proof}
+%    By straightforward induction on \prop{}.
+%  \end{proof}
+%\end{lemma}
+%
+
+\begin{lemma}[isa? has correct propositions] \label{appendix:lemma:isa}
+  If
+  \begin{itemize}
+    \item
+  \judgementrewrite {\propenv{}} {\v{1}} {\t{1}}
+             {\filterset {\thenprop {\prop{1}}}
+                         {\elseprop {\prop{1}}}}
+                       {\object{1}}
+                       {\v{1}},
+    \item
+  \judgementrewrite {\propenv{}} {\v{2}} {\t{2}}
+             {\filterset {\thenprop {\prop{2}}}
+                         {\elseprop {\prop{2}}}}
+                       {\object{2}}
+                       {\v{2}},
+    \item
+        \isaopsem{\v{1}}{\v{2}} = {\v{}}, 
+    \item
+        \satisfies{\openv{}}{\propenv{}},
+    \item
+  \isacompare{\t{1}}{\object{1}}{\t{2}}{\filterset {\thenprop {\propp{}}} {\elseprop {\propp{}}}},
+    \item
+        \inpropenv{\thenprop{\propp{}}}{\thenprop{\prop{}}}, and
+    \item
+        \inpropenv{\elseprop{\propp{}}}{\elseprop{\prop{}}},
+    \end{itemize}
+  then either
+\begin{itemize}
+  \item
+        if
+        \istrueval{\v{}}
+        then {\satisfies{\openv{}}{\thenprop{\prop{}}}}, or
+  \item
+        if
+        \isfalseval{\v{}}
+        then {\satisfies{\openv{}}{\elseprop{\prop{}}}}.
+\end{itemize}
+\begin{proof}
+        By cases on the definition of \isaopsemliteral
+        and subcases on \isaopsemliteral.
+
+        \begin{itemize} % isaopsem
+          \item[]
+            \begin{subcase}[\isaopsem{\v{1}}{\v{1}} = {\true{}}, \text{if} \v{1} \notequal\ {\class{}}]
+              \ 
+
+              \v{1} = \v{2}, \v{1} \notequal\ {\class{}}, \v{2} \notequal\ {\class{}}, \istrueval{\v{}}
+              
+              Since \istrueval{\v{}} we prove {\satisfies{\openv{}}{\thenprop{\prop{}}}}
+              by cases on the definition of \isacompareliteral{}:
+              \begin{itemize} % isacompare
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+                                 {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
+                                            {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}]
+                    \ 
+
+
+                    \object{1} = {\path{\classpe{}}{\path{\pathelem{}}{\x{}}}},
+                    \t{2} = {\Value{\class{}}},
+                    \inpropenv{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}}
+
+                    Unreachable by inversion on the typing relation, since \t{2} = {\Value{\class{}}},
+                    yet \v{2} \notequal\ {\class{}}.
+
+%                    By inversion on the typing relation, since \classpe{} is the last path element of \object{1}
+%                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\v{1}}.
+%
+%                    Since {\v{1}} = {\v{2}} then {\t{1}} = {\t{2}}, and because {\t{2}} = {\Value{\class{}}}
+%                    then {\t{1}} = {\Value{\class{}}}.
+%
+%                    By inversion {\v{1}} = {\class{}}, via T-Class.
+%
+%                    Since {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\class{}}}
+%                    we conclude by lemma~\ref{appendix:lemma:classconst}
+%                    with {\satisfies{\openv{}}{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}}.
+
+                  \end{subcase}
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\object{}}{\Value{\singletonmeta{}}}
+                    {\replacefor
+                      {\filtersetparen{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                        {\notprop{\Value{\singletonmeta{}}}{\x{}}}}
+                      {\object{}}
+                      {\x{}}}\ 
+                    \text{if}\ {\singletonmeta{}} \notequal \class{}]
+                    \ 
+
+                    \t{2} = {\Value{\singletonmeta{}}}, 
+                    {\singletonmeta{}} \notequal \class{},
+                    \inpropenv{\replacefor{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                                           {\object{1}}
+                                           {\x{}}}{\thenprop{\prop{}}}
+                    %\elseprop{\prop{}} = {\replacefor{\notprop{\Value{\singletonmeta{}}} {\x{}}}
+                    %                       {\object{1}}
+                    %                       {\x{}}}
+
+                    Since \t{2} = {\Value{\singletonmeta{}}} where {\singletonmeta{}} \notequal \class{},
+                    by inversion on the typing judgement 
+                    {\v{2}} is either \true{}, \false{}, \nil{} or \k{}
+                    by T-True, T-False, T-Nil or T-Kw.
+
+                    Since \v{1} = {\v{2}} then \t{1} = \t{2}, and since \t{2} = {\Value{\singletonmeta{}}}
+                      then \t{1} = {\Value{\singletonmeta{}}}, so
+                    \judgementtwo {} {\v{1}} {\Value{\singletonmeta{}}}
+
+                    If \object{1} = \emptyobject{} then \thenprop{\prop{}} = \topprop{} and
+                    we derive
+                    {\satisfies{\openv{}}{\topprop{}}} with M-Top.
+
+                    Otherwise \object{1} = \path{\pathelem{}}{\x{}} and 
+                    \inpropenv{\isprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}},
+                    and since
+                    \judgementtwo {} {\v{1}} {\Value{\singletonmeta{}}}
+                    then
+                    \judgementtwo {} {{\openv{}}(\path{\pathelem{}}{\x{}})} {\Value{\singletonmeta{}}},
+                    which we can use M-Type to derive
+                    {\satisfies{\openv{}}{\isprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}}.
+                  \end{subcase}
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\object{}}{\t{}} {\filterset{\topprop{}} {\topprop{}}}]
+                    \ 
+
+                    {\thenprop{\prop{}}} = {\topprop{}}
+
+                    {\satisfies{\openv{}}{\topprop{}}} holds by M-Top.
+
+                  \end{subcase}
+              \end{itemize}
+            \end{subcase}
+          \item[]
+            \begin{subcase}[\isaopsem{\class{1}}{\class{2}} = {\true{}}, \text{if}\ \issubtypein{}{\class{1}}{\class{2}}]
+              \ 
+
+              \v{1} = \class{1}, \v{2} = \class{2},
+              \issubtypein{}{\class{1}}{\class{2}},
+              \istrueval{\v{}}
+              
+              Since \istrueval{\v{}} we prove {\satisfies{\openv{}}{\thenprop{\prop{}}}}
+              by cases on the definition of \isacompareliteral{}:
+              \begin{itemize} % isacompare
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+                                 {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
+                                            {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}]
+                    \ 
+
+
+                    \object{1} = {\path{\classpe{}}{\path{\pathelem{}}{\x{}}}},
+                    \t{2} = {\Value{\class{2}}},
+                    \inpropenv{\isprop{\class{2}} {\path{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}}
+
+                    By inversion on the typing relation, since \classpe{} is the last path element of \object{1}
+                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\v{1}}.
+
+                    Since {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\class{1}}},
+                    as {\v{1}} = {\class{1}},
+                    we can derive from lemma~\ref{appendix:lemma:classconst}
+                    {\satisfies{\openv{}}{\isprop{\class{1}} {\path{\pathelem{}}{\x{}}}}}.
+
+                    By the induction hypothesis we can derive 
+                    {\inpropenv{\propenv{}}{\isprop{\class{1}} {\path{\pathelem{}}{\x{}}}}},
+                    and with the fact {\issubtypein{}{\class{1}}{\class{2}}}
+                    we can use L-Sub to conclude 
+                    {\inpropenv{\propenv{}}{\isprop{\class{2}} {\path{\pathelem{}}{\x{}}}}},
+                    and finally by lemma~\ref{appendix:lemma:satisfies}
+                    we derive
+                    {\satisfies{\openv{}}{\isprop{\class{2}} {\path{\pathelem{}}{\x{}}}}}.
+
+                  \end{subcase}
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\object{}}{\Value{\singletonmeta{}}}
+                    {\replacefor
+                      {\filtersetparen{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                        {\notprop{\Value{\singletonmeta{}}}{\x{}}}}
+                      {\object{}}
+                      {\x{}}}\ 
+                    \text{if}\ {\singletonmeta{}} \notequal \class{}]
+                    \ 
+
+                    \t{2} = {\Value{\singletonmeta{}}}, 
+                    {\singletonmeta{}} \notequal \class{},
+                    \inpropenv{\replacefor{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                                           {\object{1}}
+                                           {\x{}}}{\thenprop{\prop{}}}
+
+                    Unreachable case since 
+                    \t{2} = {\Value{\singletonmeta{}}} where 
+                    {\singletonmeta{}} \notequal \class{},
+                    but \v{2} = \class{2}.
+                  \end{subcase}
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\object{}}{\t{}} {\filterset{\topprop{}} {\topprop{}}}]
+                    \ 
+
+                    {\thenprop{\prop{}}} = {\topprop{}}
+
+                    {\satisfies{\openv{}}{\topprop{}}} holds by M-Top.
+
+                  \end{subcase}
+              \end{itemize}
+            \end{subcase}
+          \item[]
+            \begin{subcase}[\isaopsem{\v{1}}{\v{2}} = {\false{}}, otherwise]
+              \ 
+
+              \v{1} \notequal\ \v{2},
+              \isfalseval{\v{}}
+              
+              Since \isfalseval{\v{}} we prove {\satisfies{\openv{}}{\elseprop{\prop{}}}}
+              by cases on the definition of \isacompareliteral{}:
+              \begin{itemize} % isacompare
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+                                 {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
+                                            {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}]
+                    \ 
+
+
+                    \object{1} = {\path{\classpe{}}{\path{\pathelem{}}{\x{}}}},
+                    \t{2} = {\Value{\class{}}},
+                    \inpropenv{\notprop{\class{}} {\path{\pathelem{}}{\x{}}}}{\elseprop{\prop{}}}
+
+                    By inversion on the typing relation, since \classpe{} is the last path element of \object{1}
+                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\v{1}}.
+                    
+                    By the definition of {\classconst{}} either {\v{1}} = {\class{}} or {\v{1}} = \nil{}.
+
+                    If {\v{1}} = \nil{}, then we know from the definition of \isaopsemliteral that 
+                    {\openv{}({\path{\pathelem{}}{\x{}}})} = \nil{}.
+
+                    Since \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\Nil},
+                    and there is no \v{1} such that both \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\class} and
+                    \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\Nil{}},
+                    we use M-NotType to derive 
+                    \satisfies{\openv{}}{\notprop{\class{}} {\path{\pathelem{}}{\x{}}}}.
+
+                    Similarly if {\v{1}} = \class{1}, by the definition of \isacompareliteral
+                    we know {\notsubtypein{}{\class{1}}{\class{}}} and 
+                    {\openv{}({\path{\pathelem{}}{\x{}}})} = \class{1}.
+
+                    Since \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\class{1}},
+                    and there is no \v{1} such that both 
+                    \judgementtwo{}{\v{1}}{\class{}} and
+                    \judgementtwo{}{\v{1}}{\class{1}},
+                    we use M-NotType to derive 
+                    \satisfies{\openv{}}{\notprop{\class{}} {\path{\pathelem{}}{\x{}}}}.
+
+
+                  \end{subcase}
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\object{}}{\Value{\singletonmeta{}}}
+                    {\replacefor
+                      {\filtersetparen{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                        {\notprop{\Value{\singletonmeta{}}}{\x{}}}}
+                      {\object{}}
+                      {\x{}}}\ 
+                    \text{if}\ {\singletonmeta{}} \notequal \class{}]
+                    \ 
+
+                    \t{2} = {\Value{\singletonmeta{}}}, 
+                    {\singletonmeta{}} \notequal \class{},
+                    %\thenprop{\prop{}} = {\replacefor{\isprop{\Value{\singletonmeta{}}} {\x{}}}
+                    %                       {\object{1}}
+                    %                       {\x{}}}
+                    \inpropenv{\replacefor{\notprop{\Value{\singletonmeta{}}} {\x{}}}
+                                           {\object{1}}
+                                           {\x{}}}{\elseprop{\prop{}}}
+
+                    Since \t{2} = {\Value{\singletonmeta{}}} where {\singletonmeta{}} \notequal \class{},
+                    by inversion on the typing judgement 
+                    {\v{2}} is either \true{}, \false{}, \nil{} or \k{}
+                    by T-True, T-False, T-Nil or T-Kw.
+
+                    If \object{1} = \emptyobject{} then \elseprop{\prop{}} = \topprop{} and
+                    we derive
+                    {\satisfies{\openv{}}{\topprop{}}} with M-Top.
+
+                    Otherwise \object{1} = \path{\pathelem{}}{\x{}} and 
+                    \inpropenv{\notprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}{\elseprop{\prop{}}}.
+                    Noting that \v{1} \notequal\ \v{2},
+                    we know \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\s{}}
+                    where \s{} \notequal\ {\Value{\singletonmeta{}}},
+                    and there is no \v{1} such that both 
+                    \judgementtwo{}{\v{1}}{\Value{\singletonmeta{}}} and
+                    \judgementtwo{}{\v{1}}{\s{}}
+                    so we can use M-NotType to derive
+                    {\satisfies{\openv{}}{\notprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}}.
+                  \end{subcase}
+                \item[]
+                  \begin{subcase}[\isacompare{\s{}}{\object{}}{\t{}} {\filterset{\topprop{}} {\topprop{}}}]
+                    \ 
+
+                    {\elseprop{\prop{}}} = {\topprop{}}
+
+                    {\satisfies{\openv{}}{\topprop{}}} holds by M-Top.
+
+                  \end{subcase}
+              \end{itemize}
+            \end{subcase}
+        \end{itemize}
+      \end{proof}
+\end{lemma}
+
+\begin{lemma} \label{appendix:lemma:soundness}
+{\soundnesslemmahypothesis}
+\begin{proof}
+By induction and cases on the derivation of \opsem {\openv{}} {\e{}} {\a{}},
+and subcases on the penultimate rule of the derivation of
+\judgementrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}}
+followed by T-Subsume as the final rule.
+
+% induction on the derivation of the evaluation semantics because we want to apply
+% the induction hypothesis to subderivations of the eval sem. If eg. used the typing
+% judgement, we couldn't use the induction hypothesis on applications of higher-order
+% functions, since the subderivation of T-Abs wouldn't be present.
+
+\begin{case}[B-Val]
+
+  \begin{itemize}
+    \item[] 
+      \begin{subcase}[T-True]
+        \v{} = \true{},
+  \ep{} = \true{},
+  \e{} = \true{}, \issubtypein{}{\True}{\t{}}, \inpropenv{\topprop{}}{\thenprop{\prop{}}}, 
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}}, \issubtypein{}{\emptyobject{}}{\object{}}
+
+        Proving part 1 is trivial: \object{} is a superobject of \emptyobject{}, which can only be \emptyobject{}.
+
+        To prove part 2, we note that \v{} = \true{}
+        and \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+        so \satisfies{\openv{}}{\thenprop{\prop{}}} by M-Top.
+
+        Part 3 holds as \e{} can only be reduced to itself via B-Val.
+
+        Part 4 holds vacuously.
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-HMap] \v{} = {\curlymapvaloverright{\v{k}}{\v{v}}},
+  \ep{} = {\curlymapvaloverright{\v{k}}{\v{v}}},
+  \e{} = {\curlymapvaloverright{\v{k}}{\v{v}}},
+  \issubtypein{}{\HMapc {\mandatory{}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubtypein{}{\emptyobject{}}{\object{}},
+  $\overrightarrow{\judgementtwo {} {\v{k}}{\Value \k{}}}$,
+  $\overrightarrow{\judgementtwo {} {\v{v}}{\t{v}}}$,
+  \mandatory{} = \mandatorysetoverright{\k{}}{\t{v}}
+
+        Similar to T-True.
+
+        Part 4 holds by the induction hypothese on {\overr{\v{k}}} and {\overr{\v{v}}}.
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-Kw] \v{} = {\k{}},
+  \ep{} = {\k{}},
+  \e{} = {\k{}},
+  \issubtypein{}{\Value{\k{}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubtypein{}{\emptyobject{}}{\object{}}
+
+        Similar to T-True.
+      \end{subcase}
+      \begin{subcase}[T-Str]
+        Similar to T-Kw.
+      \end{subcase}
+  \item[] 
+    \begin{subcase}[T-False]
+      \v{} = \false{},
+\ep{} = \false, 
+\e{} = \false, 
+\issubtypein{}{\False}{\t{}},
+\inpropenv{\botprop{}}{\thenprop{\prop{}}},
+\inpropenv{\topprop{}}{\elseprop{\prop{}}},
+\issubtypein{}{\emptyobject{}}{\object{}}
+
+Proving part 1 is trivial: \object{} is a superobject of \emptyobject{}, which must be \emptyobject{}. 
+
+To prove part 2, we note that \v{} = \false{}
+and \inpropenv{\topprop{}}{\elseprop{\prop{}}}, so \satisfies{\openv{}}{\elseprop{\prop{}}} by M-Top. 
+
+Part 3 holds as \e{} can only be reduced to itself via B-Val.
+
+Part 4 holds vacuously.
+\end{subcase}
+    \item[]
+      \begin{subcase}[T-Class] \v{} = {\class{}},
+  \ep{} = {\class{}},
+  \e{} = {\class{}},
+  \issubtypein{}{\Value{\class{}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubtypein{}{\emptyobject{}}{\object{}}
+
+        Similar to T-True.
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-Instance] \v{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}},
+  \ep{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}},
+  \e{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}},
+  \issubtypein{}{\class{}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubtypein{}{\emptyobject{}}{\object{}}
+
+
+        Similar to T-True.
+
+        Part 4 holds by the induction hypotheses on ${\overrightarrow{\v{i}}}$.
+      \end{subcase}
+  \item[] 
+    \begin{subcase}[T-Nil] 
+      \v{} = \nil{},
+\ep{} = \nil, 
+\e{} = \nil, 
+\issubtypein{}{\Nil}{\t{}},
+\inpropenv{\botprop{}}{\thenprop{\prop{}}},
+\inpropenv{\topprop{}}{\elseprop{\prop{}}},
+\issubtypein{}{\emptyobject{}}{\object{}}
+
+      Similar to T-False.
+\end{subcase}
+\item[]
+\begin{subcase}[T-Multi] 
+  \v{} = {\multi {\v{1}} {\curlymapvaloverright{\v{k}}{\v{v}}}}
+  \ep{} = {\multi {\v{1}} {\curlymapvaloverright{\v{k}}{\v{v}}}},
+  \judgementtworewrite {} {\v{1}} {\t{1}}{\v{1}},
+  \overr{\judgementtworewrite{}{\v{k}}{\Top{}}{\v{k}}},
+  \overr{\judgementtworewrite{}{\v{v}}{\s{}}{\v{v}}},
+  \e{} = {\multi {\v{1}} {\curlymapvaloverright{\v{k}}{\v{v}}}},
+  \issubtypein{}{\MultiFntype {\s{}} {\t{1}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubtypein{}{\emptyobject{}}{\object{}}
+
+        Similar to T-True.
+\end{subcase}
+\item[]
+\begin{subcase}[T-Const]
+  \e{} = {\const{}},
+  \issubtypein{}{\constanttype{\const{}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubobjin{}{\emptyobject{}}{\object{}}
+
+        Parts 1, 2 and 3 hold for the same reasons as T-True. 
+\end{subcase}
+
+
+  \end{itemize}
+\end{case}
+
+
+
+\begin{case}[B-Local]
+{ \inopenv {\openv{}} {\x{}} {\v{}} },
+{ \opsem {\openv{}} {\x{}} {\v{}} }
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-Local]
+  \ep{} = \x{}, 
+  \e{} = \x{}, 
+  \inpropenv{\notprop {\falsy{}} {\x{}}}{\thenprop{\prop{}}},
+  \inpropenv{\isprop {\falsy{}} {\x{}}}{\elseprop{\prop{}}},
+\issubtypein{}{\x{}}{\object{}},
+\inpropenv{\propenv{}}{\isprop{\t{}}{\x{}}}
+
+Part 1 follows from \inopenv{\openv{}}{\object{}} {\v{}}, since either {\object{}} = \x{}
+and \inopenv{\openv{}}{\x{}} {\v{}} is a premise of B-Local, or {\object{}} = {\emptyobject{}} which also
+satisfies the goal.
+
+Part 2 considers two cases: if \istrueval{\v{}}, then 
+\satisfies{\openv{}}{\notprop{\falsy}{\x{}}} holds by M-NotType; if \isfalseval{\v{}}, then 
+\satisfies{\openv{}}{\isprop{\falsy}{\x{}}} holds by M-Type.
+
+We prove part 3 by observing
+\inpropenv{\propenv{}}{\isprop{\t{}}{\x{}}},
+\satisfies{\openv{}}{\propenv{}},
+and
+\inopenv {\openv{}} {\x{}} {\v{}}
+(by B-Local)
+which gives us the desired result.
+
+Part 4 holds vacuously.
+\end{subcase}
+\end{itemize}
+
+\end{case}
+
+\begin{case}[B-Do]
+  \opsem {\openv{}} {\e{1}} {\v{1}},
+  \opsem {\openv{}} {\e{2}} {\v{}}
+
+\begin{itemize}
+  \item[] \begin{subcase}[T-Do]
+\ep{} = {\doexp {\ep1} {\ep2}},
+  \judgementrewrite {\propenv{}} 
+             {\ep1} {\t1}
+             {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop1}}} 
+             {\object{1}}
+             {\e1},
+\judgementrewrite {\propenv{}, {\orprop {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}}
+           {\ep{}} {\t{}}
+           {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}} 
+           {\object{}}
+           {\e{}},
+\e{} = {\doexp {\e1} {\e2}}
+
+For all parts we note 
+    since {\e{1}} can be either a true or false value
+    then
+    {\satisfies{\openv{}}{{\propenv{}},{\orprop {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}}}
+    by M-Or,
+    which together with 
+\judgement {\propenv{}, {\orprop {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}}
+           {\e{2}} {\t{}}
+           {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}} 
+           {\object{}},
+    and
+  \opsem {\openv{}} {\e{2}} {\v{}}
+    allows us to apply the induction hypothesis on \e{2}.
+
+To prove part 1 we use the induction hypothesis on \e{2}
+to show either \object{} = \emptyobject{} 
+or \inopenv {\openv{}} {\object{}} {\v{}}, since \e{} always
+evaluates to the result of \e{2}.
+
+For part 2 we use the induction hypothesis on \e{2}
+to show if \istrueval{\v{}} then
+        {\satisfies{\openv{}}{\thenprop{\prop{}}}}
+        or
+  if \isfalseval{\v{}} then
+        {\satisfies{\openv{}}{\elseprop{\prop{}}}}.
+
+Parts 3 and 4 follow from the induction hypothesis on \e{2}.
+    \end{subcase}
+\end{itemize}
+\end{case}
+
+\begin{case}[BE-Do1]
+  \opsem {\openv{}} {\e{1}} {\errorval{\v{e}}},
+  \opsem {\openv{}} {\e{}} {\errorval{\v{}}}
+
+        Trivially reduces to an error.
+\end{case}
+
+\begin{case}[BE-Do2]
+  \opsem {\openv{}} {\e{1}} {\v{1}},
+  \opsem {\openv{}} {\e{2}} {\errorvalv{}},
+  \opsem {\openv{}} {\e{}} {\errorvalv{}}
+
+        As above.
+\end{case}
+
+\begin{case}[B-New]
+  $
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{i}}
+         {\v{i}}
+       }$,
+         $\newjava {\classhint{1}}
+                  {\overrightarrow{\classhint{i}}}
+                  {\overrightarrow{\v{i}}}
+                  {\v{}}$
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-New]
+  \ep{} = {\newexp {\class{}} {\overrightarrow{\ep{i}}}},
+  \inct{\ctctorentry{\overr{\class{i}}}}{\ctlookupctors{\ct{}}{\classhint{}}},
+  \overr{\javatotcnil{\classhint{i}}{\t{i}}},
+  \overr{
+  \judgementtworewrite {\propenv{}}
+                    {\ep{i}} {\t{i}}
+                    {\e{i}}
+                  },
+  \e{} = {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{}} 
+                                                          {\class{}} {\overrightarrow{\e{i}}}},
+  \issubtypein{}{\javatotcexp{\classhint{}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubobjin{}{\emptyobject{}}{\object{}}
+
+Part 1 follows \object{} = \emptyobject{}.
+
+Part 2 requires some explanation. The two false values in Typed Clojure
+cannot be constructed with \newliteral{}, so the only case is \v{} $\not=$ \false\ (or \nil)
+where \thenprop{\prop{}} = \topprop{} so \satisfies{\openv{}}{\thenprop{\prop{}}}.
+\Void{} also lacks a constructor.
+
+Part 3 holds as B-New reduces to a \emph{non-nilable}
+instance of \class{} via \newjavaliteral (by assumption~\ref{appendix:assumption:new}), 
+and {\t{}} is a supertype of \javatotcexp{\classhint{}}.
+
+\end{subcase}
+\item[]
+\begin{subcase}[T-NewStatic]
+  {\ep{}} = {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{}}
+                                                          {\class{}} {\overrightarrow{\e{i}}}}
+
+  Non-reflective constructors cannot be written directly by the user, so we can assume
+  the class information attached to the syntax corresponds to an actual constructor by inversion
+  from T-New.
+
+  The rest of this case progresses like T-New.
+\end{subcase}
+\end{itemize}
+\end{case}
+
+\begin{case}[BE-New1] $\overrightarrow{
+  \opsem {\openv{}}
+         {\e{i-1}}
+         {\v{i-1}}
+       }$,
+  \opsem {\openv{}}
+         {\e{i}}
+         {\errorvalv{}},
+  \opsem {\openv{}} {\e{}} {\errorvalv{}}
+
+        Trivially reduces to an error.
+
+\end{case}
+
+\begin{case}[BE-New2] 
+  $\overrightarrow{
+  \opsem {\openv{}}
+         {\e{i}}
+         {\v{i}}
+       }$,
+         \newjava {\classhint{1}}
+                  {\overrightarrow{\classhint{i}}}
+                  {\overrightarrow{\v{i}}}
+                  {\errorvalv{}},
+        \opsem {\openv{}} {\e{}} {\errorvalv{}}
+
+        As above.
+
+\end{case}
+
+\begin{case}[B-Field]
+  \opsem {\openv{}}
+         {\e{1}} 
+         {\classvalue{\classhint{1}} {\classfieldpair{\fld{}} {\v{}}}}
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-Field]
+  \ep{} = {\fieldexp {\fld{}} {\ep{1}}},
+  \judgementtworewrite {\propenv{}} {\ep{}} {\s{}} {\e{}},
+  \issubtypein{}{\s{}}{\Object{}},
+  \tctojava{\s{}}{\classhint{1}},
+  \inct{\ctfldentry{\fld{}}{\classhint{2}}}{\ctlookupfields{\ct{}}{\classhint{1}}},
+  \e{} = {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{1}}}
+  \issubtypein{}{\javatotcnilexp{\classhint{2}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\topprop{}}{\elseprop{\prop{}}},
+  \issubobjin{}{\emptyobject{}}{\object{}}
+
+
+Part 1 is trivial as \object{} is always \emptyobject{}.
+
+Part 2 holds trivially; \v{} can be either a true or false value
+and both {\thenprop{\prop{}}} and {\elseprop{\prop{}}}
+are \topprop{}.
+
+Part 3 relies on the semantics of \getfieldliteral (assumption~\ref{appendix:assumption:field})
+in B-Field, which returns a \emph{nilable} instance of \classhint{2},
+and \t{} is a supertype of \javatotcnilexp{\classhint{2}}.
+Notice \issubtypein{}{\s{}}{\Object{}} is required to guard from dereferencing \nil{},
+as {\classhint{1}} erases occurrences of \Nil{} in \s{} via  \tctojava{\s{}}{\classhint{1}}.
+\end{subcase}
+  \item[]
+
+\begin{subcase}[T-FieldStatic]
+  {\ep{}} = {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{1}}}
+
+  Non-reflective field lookups cannot be written directly by the user, so we can assume
+  the class information attached to the syntax corresponds to an actual field by inversion
+  from T-Field.
+
+  The rest of this case progresses like T-Field.
+\end{subcase}
+
+\end{itemize}
+\end{case}
+
+\begin{case}[BE-Field]
+  \opsem {\openv{}}
+         {\e{1}} 
+         {\errorvalv{}},
+  \opsem {\openv{}}
+         {\e{}}
+         {\errorvalv{}}
+
+         Trivially reduces to an error.
+
+\end{case}
+
+\begin{case}[B-Method]
+  \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}},
+  $\overrightarrow{
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}}$,
+  \invokejavamethod {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{a}}} {\overrightarrow{\v{a}}}
+                    {\classhint{2}}
+                    {\v{}}
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-Method]
+  \judgementtworewrite {\propenv{}} {\ep{}} {\s{}} {\e{}},
+             \issubtypein{}{\s{}}{\Object{}},
+  \tctojava{\s{}}{\classhint{1}},
+                  \inct{\ctmthentry{\mth{}}{\overrightarrow{\classhint{i}}}{\classhint{2}}}{\ctlookupmethods{\ct{}}{\classhint{1}}},
+                  \overr{\javatotcnil{\classhint{i}}{\t{i}}},
+             \overr{
+  \judgementtworewrite {\propenv{}} {\ep{i}} {\t{i}} {\e{i}}
+                  },
+  \e{} = {\methodstaticexp {\classhint{1}} 
+                          {\overr {\classhint{i}}} 
+                          {\classhint{2}}
+                          {\mth{}} {\e{m}} {\overr{\e{a}}}},
+                        \issubtypein{}{\javatotcnilexp{\classhint{2}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\topprop{}}{\elseprop{\prop{}}},
+  \issubobjin{}{\emptyobject{}}{\object{}}
+
+
+Part 1 is trivial as \object{} is always \emptyobject{}.
+
+Part 2 holds trivially, \v{} can be either a true or false value
+and both {\thenprop{\prop{}}} and {\elseprop{\prop{}}}
+are \topprop{}.
+
+Part 3 relies on the semantics of \invokejavamethodliteral (assumption~\ref{appendix:assumption:method})
+in B-Method, which returns a \emph{nilable} instance of \classhint{2},
+and \t{} is a supertype of \javatotcnil{\classhint{2}}.
+Notice \issubtypein{}{\s{}}{\Object{}} is required to guard from dereferencing \nil{},
+as {\classhint{1}} erases occurrences of \Nil{} in \s{} via  \tctojava{\s{}}{\classhint{1}}.
+\end{subcase}
+\item[]
+\begin{subcase}[T-MethodStatic]
+  \ep{} = 
+  {\methodstaticexp {\classhint{1}} 
+        {\overrightarrow {\classhint{i}}} 
+        {\classhint{2}}
+        {\mth{}} {\e{1}} {\overrightarrow{\e{i}}}}
+
+  Non-reflective method invocations cannot be written directly by the user, so we can assume
+  the class information attached to the syntax corresponds to an actual method by inversion
+  from T-Method.
+
+  The rest of this case progresses like T-Method.
+\end{subcase}
+
+
+\end{itemize}
+
+\end{case}
+
+\begin{case}[BE-Method1]
+  \opsem {\openv{}}
+         {\e{m}}
+         {\errorval{\v{}}},
+  \opsem {\openv{}}
+         {\e{}}
+         {\errorval{\v{}}}
+
+         Trivially reduces to an error.
+\end{case}
+\begin{case}[BE-Method2]
+  \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}},
+ $\overrightarrow{
+  \opsem {\openv{}}
+         {\e{n-1}}
+         {\v{n-1}}
+       }$,
+  \opsem {\openv{}}
+         {\e{n}}
+         {\errorval{\v{}}},
+  \opsem {\openv{}}
+         {\e{}}
+         {\errorval{\v{}}}
+
+  As above.
+\end{case}
+\begin{case}[BE-Method3]
+  \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}},
+  $\overrightarrow{
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+       }$,
+  \invokejavamethod {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{a}}} {\overrightarrow{\v{a}}}
+                    {\classhint{2}}
+                    {\errorvalv{}},
+  \opsem {\openv{}} {\e{}} {\errorvalv{}}
+
+  As above.
+
+\end{case}
+
+\begin{case}[B-DefMulti]
+  \v{} = {\multi {\v{d}} {\emptydisptable}},
+  \opsem {\openv{}} {\e{d}} {\v{d}}
+
+
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-DefMulti]
+  \ep{} = {\createmultiexp {\s{}} {\ep{d}}},
+  \s{} = {\ArrowOne {\x{}} {\t{1}} {\t{2}}
+                          {\filterset {\thenprop {\prop{1}}}
+                                      {\elseprop {\prop{1}}}}
+                          {\object{1}}},
+  \t{d} = {\ArrowOne {\x{}} {\t{1}} {\t{3}}
+                          {\filterset {\thenprop {\prop{2}}}
+                                      {\elseprop {\prop{2}}}}
+                          {\object{2}}},
+\judgementtworewrite {\propenv{}} {\ep{}} {\sp{}} {\e{}},
+  \e{} = {\createmultiexp {\s{}} {\e{d}}},
+  \issubtypein{}{\MultiFntype {\s{}} {\t{d}}}{\t{}},
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+  \issubobjin{}{\emptyobject{}}{\object{}}
+
+
+Part 1 and 2 hold for the same reasons as T-True.
+For part 3 we show \judgementtwo{}{\multi {\v{d}} {\emptydisptable}}{\MultiFntype {\s{}} {\t{d}}}
+by T-Multi, since \judgementtwo {} {\v{d}} {\t{d}} by the inductive hypothesis on {\e{d}}
+and {\emptydisptable} vacuously satisfies the other premises of T-Multi, so we are done.
+
+\end{subcase}
+\end{itemize}
+\end{case}
+
+\begin{case}[BE-DefMulti] \opsem {\openv{}} {\e{d}} {\errorvalv{}},
+        \opsem {\openv{}} {\e{}} {\errorvalv{}}
+
+        Trivially reduces to an error.
+
+\end{case}
+
+\begin{case}[B-DefMethod]
+
+        \ 
+
+        \begin{enumerate}
+          \item
+       \v{} = {\multi {\v{d}} {\disptablep{}}},
+          \item
+        \opsem {\openv{}}
+               {\e{m}}
+               {\multi {\v{d}} {\disptable{}}},
+          \item
+  \opsem {\openv{}}
+         {\e{v}}
+         {\v{v}},
+          \item
+  \opsem {\openv{}}
+         {\e{f}}
+         {\v{f}},
+          \item
+         \disptablep{} = {\extenddisptable {\disptable{}} 
+                                {\v{v}}
+                                {\v{f}}}
+        \end{enumerate}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-DefMethod]
+        \ 
+        
+        \begin{enumerate}[resume]
+
+          \item
+  \ep{} = {\extendmultiexp {\ep{m}} {\ep{v}} {\ep{f}}},
+          \item
+  \t{m} = {\ArrowOne {\x{}} {\t{1}} {\s{}}
+                     {\filterset {\thenprop {\prop{m}}}
+                                 {\elseprop {\prop{m}}}}
+                     {\object{m}}},
+          \item
+  \t{d} = {\ArrowOne {\x{}} {\t{1}} {\sp{}}
+                     {\filterset {\thenprop {\prop{d}}}
+                                 {\elseprop {\prop{d}}}}
+                     {\object{d}}},
+          \item
+\judgementtworewrite {\propenv{}}
+                  {\ep{m}} {\MultiFntype {\t{m}} {\t{d}}}
+                  {\e{m}}
+          \item
+  \isacompare{\sp{}}{\object{d}}{\t{v}}{\filterset {\thenprop {\prop{i}}} {\elseprop {\prop{i}}}},
+          \item
+\judgementtworewrite {\propenv{}}
+           {\e{v}} {\t{v}}
+           {\e{v}}
+          \item
+  \judgementrewrite {\propenv{}, {\isprop{\t{1}} {\x{}}}, {\thenprop {\prop{i}}}}
+           {\ep{f}} {\s{}}
+           {\filterset {\thenprop {\prop{m}}}
+                       {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{f}}
+          \item
+  \e{} = {\extendmultiexp {\e{m}} {\e{v}} {\e{f}}},
+          \item
+  \e{f} = {\abs {\x{}} {\t{1}} {\e{b}}},
+\item
+  \issubtypein{}{\MultiFntype {\t{m}} {\t{d}}}{\t{}},
+\item
+  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+\item
+  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+\item
+  \issubobjin{}{\emptyobject{}}{\object{}}
+        \end{enumerate}
+
+                                Part 1 and 2 hold for the same reasons as T-True, noting that the propositions
+                                and object agree with T-Multi.
+
+For part 3 we show
+\judgementtwo{}{\multi {\v{d}} {\extenddisptable {\disptable{}}{\v{v}}{\v{f}}}}{\MultiFntype {\t{m}} {\t{d}}}
+by noting \judgementtwo {} {\v{d}} {\t{d}},
+  \judgementtwo{}{\v{v}}{\Top{}}
+  and
+  \judgementtwo{}{\v{f}}{\t{m}}, and since \disptable{} is in the correct form by the inductive
+  hypothesis on {\e{m}} we can satisfy all premises of T-Multi, so we are done.
+
+
+      \end{subcase}
+
+  \end{itemize}
+\end{case}
+
+      \begin{case}[BE-DefMethod1]
+        \opsem {\openv{}}
+               {\e{m}}
+               {\errorval{\v{}}},
+        \opsem {\openv{}}
+                  {\e{}}
+                {\errorval{\v{}}}
+
+                Trivially reduces to an error.
+
+      \end{case}
+      \begin{case}[BE-DefMethod2]
+        \opsem {\openv{}}
+         {\e{m}}
+         {\multi {\v{d}} {\disptable{}}},
+  \opsem {\openv{}}
+         {\e{v}}
+         {\errorval{\v{}}},
+        \opsem {\openv{}}
+                  {\e{}}
+                {\errorval{\v{}}}
+
+                Trivially reduces to an error.
+      \end{case}
+      \begin{case}[BE-DefMethod3]
+        \opsem {\openv{}}
+         {\e{m}}
+         {\multi {\v{d}} {\disptable{}}},
+  \opsem {\openv{}}
+         {\e{v}}
+         {\v{v}},
+  \opsem {\openv{}}
+         {\e{f}}
+         {\errorval{\v{}}},
+        \opsem {\openv{}}
+                  {\e{}}
+                {\errorval{\v{}}}
+
+                Trivially reduces to an error.
+
+      \end{case}
+
+\begin{case}[B-BetaClosure]
+  \ 
+
+  \begin{itemize}
+    \item
+  \opsem{\openv{}}{\e{}}{\v{}},
+    \item
+  \opsem {\openv{}}
+         {\e{1}}
+         {\closure {\openv{c}} {\abs {\x{}} {\s{}} {\e{b}}}},
+    \item
+  \opsem {\openv{}}
+         {\e{2}}
+         {\v{2}},
+    \item
+  \opsem {\extendopenv {\openv{c}} {\x{}} {\v{2}}}
+         {\e{b}}
+         {\v{}}
+     \end{itemize}
+
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-App]
+  \ 
+
+  \begin{itemize}
+    \item
+  \ep{} = {\appexp {\ep{1}} {\ep{2}}},
+    \item
+  \judgementrewrite {\propenv{}} {\ep{1}} {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{f}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}}
+                {\filterset {\thenprop {\prop{1}}}
+                            {\elseprop {\prop{1}}}}
+                {\object{1}}
+                {\e{1}},
+    \item
+  \judgementrewrite {\propenv{}}
+                 {\ep{2}} {\s{}}
+                 {\filterset {\thenprop {\prop{2}}}
+                             {\elseprop {\prop{2}}}}
+                 {\object{2}}
+                 {\e{2}},
+    \item
+  \e{} = {\appexp {\e{1}} {\e{2}}},
+    \item
+      \issubtypein{}  {\replacefor {\t{f}} {\object{2}} {\x{}}}{\t{}},
+    \item
+      \inpropenv{\replacefor {\thenprop {\prop{f}}} {\object{2}} {\x{}}} {\thenprop {\prop{}}},
+    \item
+      \inpropenv{\replacefor {\elseprop {\prop{f}}} {\object{2}} {\x{}}} {\elseprop {\prop{}}},
+    \item
+      \issubobjin{}{\replacefor {\object{f}} {\object{2}} {\x{}}} {\object{}}
+  \end{itemize}
+
+         By inversion on \e{1} from T-Clos
+         there is some environment {\propenvc{}} such that
+         \begin{itemize}
+           \item
+              \satisfies{\openv{c}}{\propenvc{}} and
+            \item
+  \judgement {\propenvc{}} {\abs {\x{}} {\s{}} {\e{b}}} {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{f}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}}
+                {\filterset {\thenprop {\prop{1}}}
+                            {\elseprop {\prop{1}}}}
+                {\object{1}},
+         \end{itemize}
+         and also by inversion on \e{1} from T-Abs
+         \begin{itemize}
+           \item
+  { \judgementrewrite {\propenvc{}, {\isprop {\s{}} {\x{}}}}
+              {\ep{b}} {\t{f}}
+               {\filterset {\thenprop {\prop{f}}}
+                           {\elseprop {\prop{f}}}}
+               {\object{f}}
+               {\e{b}}}.
+         \end{itemize}
+
+          From 
+          \begin{itemize}
+            \item
+              \satisfies{\openv{c}}{\propenvc{}},
+            \item
+  \judgementrewrite {\propenv{}}
+                 {\ep{2}} {\s{}}
+                 {\filterset {\thenprop {\prop{2}}}
+                             {\elseprop {\prop{2}}}}
+                 {\object{2}}
+                 {\e{2}} and 
+            \item
+  \opsem {\openv{}}
+         {\e{2}}
+         {\v{2}},
+     \end{itemize}
+              we know (by substitution)
+              \satisfies{\extendopenv {\openv{c}} {\x{}} {\v{2}}}{\propenvc{},{\isprop{\s{}}{\x{}}}}.
+
+              We want to prove
+        \judgementrewrite {\propenvc{}}
+                          {\replacefor{\ep{b}}{\v{2}}{\x{}}}
+                          {\replacefor{\t{f}}{\object{2}}{\x{}}}
+               {\replacefor{\filterset {\thenprop {\prop{f}}}
+                                       {\elseprop {\prop{f}}}}{\object{2}}{\x{}}}
+                          {\replacefor{\object{f}}{\object{2}}{\x{}}}
+                          {\replacefor{\e{b}}{\v{2}}{\x{}}}, 
+                          which can be justified by noting 
+          \begin{itemize}
+            \item
+  \judgementtworewrite {\propenvc{},{\isprop{\s{}}{\x{}}}}{\ep{b}}{\t{f}}{\e{b}},
+            \item
+  \judgementrewrite {\propenv{}}
+                 {\ep{2}} {\s{}}
+                 {\filterset {\thenprop {\prop{2}}}
+                             {\elseprop {\prop{2}}}}
+                 {\object{2}}
+                 {\e{2}} and 
+            \item
+  \opsem {\openv{}}
+         {\e{2}}
+         {\v{2}}.
+     \end{itemize}
+
+     From the previous fact and \satisfies{\openv{c}}{\propenvc{}},
+              we know
+  \opsem {\openv{c}}
+         {\replacefor{\e{b}}{\v{2}}{\x{}}}
+         {\v{}}.
+
+                    Noting that 
+      \issubtypein{}  {\replacefor {\t{f}} {\object{2}} {\x{}}}{\t{}},
+      \inpropenv{\replacefor {\thenprop {\prop{f}}} {\object{2}} {\x{}}} {\thenprop {\prop{}}},
+      \inpropenv{\replacefor {\elseprop {\prop{f}}} {\object{2}} {\x{}}} {\elseprop {\prop{}}}
+      and
+      \issubobjin{}{\replacefor {\object{f}} {\object{2}} {\x{}}} {\object{}},
+                    we can use
+         \begin{itemize}
+           \item
+        \judgementrewrite {\propenvc{}}
+                          {\replacefor{\ep{b}}{\v{2}}{\x{}}}
+                          {\replacefor{\t{f}}{\object{2}}{\x{}}}
+               {\replacefor{\filterset {\thenprop {\prop{f}}}
+                                       {\elseprop {\prop{f}}}}{\object{2}}{\x{}}}
+                          {\replacefor{\object{f}}{\object{2}}{\x{}}}
+                          {\replacefor{\e{b}}{\v{2}}{\x{}}}, 
+           \item
+              \satisfies{\openv{c}}{\propenvc{}},
+           \item
+\isconsistent{\openv{c}} (via induction hypothesis on {\ep{1}}), and
+           \item 
+  \opsem {\openv{c}}
+         {\replacefor{\e{b}}{\v{2}}{\x{}}}
+         {\v{}}.
+         \end{itemize}
+         to apply the induction hypothesis on {\replacefor{\ep{b}}{\v{2}}{\x{}}} and satisfy
+         all conditions.
+
+\end{subcase}
+\end{itemize}
+\end{case}
+
+\begin{case}[B-Delta]
+  \opsem {\openv{}} {\e{1}} {\const{}},
+  \opsem {\openv{}} {\e{2}} {\v{2}},
+  \constantopsem{\const{}}{\v{2}} = \v{}
+
+\begin{itemize}
+  \item[]
+\begin{subcase}[T-App]
+  \ 
+
+  \begin{itemize}
+    \item
+  \ep{} = {\appexp {\ep{1}} {\ep{2}}},
+    \item
+  \judgementrewrite {\propenv{}} {\ep{1}} {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{f}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}}
+                {\filterset {\thenprop {\prop{1}}}
+                            {\elseprop {\prop{1}}}}
+                {\object{1}}
+                {\e{1}},
+    \item
+  \judgementrewrite {\propenv{}}
+                 {\ep{2}} {\s{}}
+                 {\filterset {\thenprop {\prop{2}}}
+                             {\elseprop {\prop{2}}}}
+                 {\object{2}}
+                 {\e{2}},
+    \item
+  \e{} = {\appexp {\e{1}} {\e{2}}},
+    \item
+      \issubtypein{}  {\replacefor {\t{f}} {\object{2}} {\x{}}}{\t{}},
+    \item
+      \inpropenv{\replacefor {\thenprop {\prop{f}}} {\object{2}} {\x{}}} {\thenprop {\prop{}}},
+    \item
+      \inpropenv{\replacefor {\elseprop {\prop{f}}} {\object{2}} {\x{}}} {\elseprop {\prop{}}},
+    \item
+      \issubobjin{}{\replacefor {\object{f}} {\object{2}} {\x{}}} {\object{}}
+  \end{itemize}
+
+  % TODO do I need to prove anything about the argument in the definition
+  % of the constant being under \s{}?
+
+  Prove by cases on \const{}.
+  \begin{itemize}
+    \item[] \begin{subcase}[\const{} = \classconst]
+        \issubtypein{}
+  {\ArrowOne {\x{}} {\Top{}}
+                                      {\Union{\Nil}{\Class}}
+                                      {\filterset {\topprop{}}
+                                                  {\topprop{}}}
+                                      {\path {\classpe{}} {\x{}}}}
+    {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{f}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}}
+
+    Prove by cases on \v{2}.
+
+        \begin{itemize}
+          \item[] \begin{subcase}[\v{2} = \classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}]
+                    \v{} = \class{}
+
+                    To prove part 1,
+                    note
+                    \issubobjin{}{\replacefor {\object{f}} {\object{2}} {\x{}}} {\object{}},
+                    and \issubobjin{}{\path {\classpe{}} {\x{}}}{\object{f}}.
+                    Then either \object{} = \emptyobject{} and we are done,
+                    or \object{} = {\path {\classpe{}}{\object{2}}} and
+                    by the induction hypothesis on \e{2} we know \inopenv {\openv{}} {\object{2}} {\v{2}}
+                    and by the definition of path translation we know
+                    {\openv{}}({\path {\classpe{}} {\object{2}}}) = {\appexp {\classconst{}} {{\openv{}}(\object{2})}},
+                    which evaluates to \v{}.
+
+                    Part 2 is trivial since both propositions can only be \topprop{}.
+                    
+                    Part 3 holds because 
+                    \v{} = \class{},
+                    \issubtypein{}{\Union{\Nil}{\Class}}{\replacefor {\t{f}} {\object{2}} {\x{}}}
+                    and
+                    \issubtypein{}{\replacefor {\t{f}} {\object{2}} {\x{}}}{\t{}},
+                    so
+                    {\judgementtwo{}{\v{}}{\t{}}}
+                    since
+                    {\judgementtwo{}{\class{}}{\Union{\Nil}{\Class}}}.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = \class{}] \v{} = \Class{}
+
+              As above.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = \true{}] \v{} = \Boolean{}
+
+              As above.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = \false{}] \v{} = \Boolean{}
+
+
+              As above.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = {\closure {\openv{}} {\abs {\x{}} {\t{}} {\e{}}}}] \v{} = \IFn{}
+
+
+              As above.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = {\multi {\v{d}} {\disptable{}}}] \v{} = \HMapInstance{}
+
+
+              As above.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = {\curlymapvaloverright{\v{1}}{\v{2}}}] \v{} = \Keyword{}
+
+
+              As above.
+                  \end{subcase}
+          \item[] \begin{subcase}[\v{2} = {\nil{}}] \v{} = \nil{}
+
+             Parts 1 and 2 as above.
+                    Part 3 holds because \v{} = \nil{}
+                    and {\judgementtwo{}{\nil{}}{\Union{\Nil}{\Class}}}.
+                  \end{subcase}
+        \end{itemize}
+      \end{subcase}
+    %\item[]
+    %  \begin{subcase}[\const{} = \throwconst]
+    %    {\ArrowOne {\x{}} {\s{}}
+    %                                                   {\t{f}}
+    %                                                   {\filterset {\thenprop {\prop{f}}}
+    %                                                               {\elseprop {\prop{f}}}}
+    %                                                   {\object{f}}}
+    %                                                   =
+    %    {\ArrowOne {\x{}} {\Top{}}
+    %                                  {\Bot{}}
+    %                                  {\filterset {\botprop{}}
+    %                                              {\botprop{}}}
+    %                                  {\emptyobject{}}}
+
+    %                                  Part 1 is trivial since \object{} = \emptyobject{} after substitution.
+    %                                  Part 2 holds vacuously as both propositions are \botprop{} after substitution.
+    %                                  Finally part 3 holds since {\judgementtwo{}{\hastype{\errorval{\v{2}}}{\Bot{}}}}.
+
+    %  \end{subcase}
+  \end{itemize}
+
+\end{subcase}
+\end{itemize}
+\end{case}
+
+\begin{case}[B-BetaMulti]
+  \ 
+
+  \begin{itemize}
+    \item
+  \opsem {\openv{}}
+         {\e{1}}
+         {\multi {\v{d}} {\disptable{}}},
+    \item
+  \opsem {\openv{}}
+         {\e{2}}
+         {\v{2}},
+    \item
+  \opsem {\openv{}}
+         {\appexp {\v{d}} {\v{2}}}
+         {\v{e}},
+    \item
+  \getmethod {\disptable{}}
+             {\v{e}}
+             {\v{l}}
+             {\v{g}},
+    \item
+  \opsem {\openv{}}
+         {\appexp {\v{g}} {\v{2}}}
+         {\v{}},
+       \item {\disptable{}} = {\curlymapvaloverright{\v{k}}{\v{v}}}
+     \end{itemize}
+     \begin{itemize}
+       \item[]
+\begin{subcase}[T-App]
+  \ 
+
+  \begin{itemize}
+    \item
+  \ep{} = {\appexp {\ep{1}} {\ep{2}}},
+    \item
+  \judgementrewrite {\propenv{}} {\ep{1}} {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{f}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}}
+                {\filterset {\thenprop {\prop{1}}}
+                            {\elseprop {\prop{1}}}}
+                {\object{1}}
+                {\e{1}},
+    \item
+  \judgementrewrite {\propenv{}}
+                 {\ep{2}} {\s{}}
+                 {\filterset {\thenprop {\prop{2}}}
+                             {\elseprop {\prop{2}}}}
+                 {\object{2}}
+                 {\e{2}},
+    \item
+  \e{} = {\appexp {\e{1}} {\e{2}}},
+    \item
+      \issubtypein{}  {\replacefor {\t{f}} {\object{2}} {\x{}}}{\t{}},
+    \item
+      \inpropenv{\replacefor {\thenprop {\prop{f}}} {\object{2}} {\x{}}} {\thenprop {\prop{}}},
+    \item
+      \inpropenv{\replacefor {\elseprop {\prop{f}}} {\object{2}} {\x{}}} {\elseprop {\prop{}}},
+    \item
+      \issubobjin{}{\replacefor {\object{f}} {\object{2}} {\x{}}} {\object{}},
+  \end{itemize}
+
+     By inversion on \e{1} via T-Multi we know 
+     \begin{itemize}
+       \item
+         \judgementrewrite{\propenv{}}{\ep{1}}{\MultiFntype{\s{t}}{\s{d}}}
+                {\filterset {\thenprop {\prop{1}}}
+                            {\elseprop {\prop{1}}}}
+                {\object{1}}{\e{1}},
+           
+         \item \s{t} = {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{f}}
+                                                       {\filterset {\thenprop {\prop{f}}}
+                                                                   {\elseprop {\prop{f}}}}
+                                                       {\object{f}}},
+         \item \s{d} = {\ArrowOne {\x{}} {\s{}}
+                                                       {\t{d}}
+                                                       {\filterset {\thenprop {\prop{d}}}
+                                                                   {\elseprop {\prop{d}}}}
+                                                       {\object{d}}},
+       \item
+         \judgementtwo{}{\v{d}}{\s{d}}
+              \item
+  $\overrightarrow{\judgementtwo{}{\v{k}}{\Top{}}}$, and 
+\item
+  $\overrightarrow{\judgementtwo{}{\v{v}}{\s{t}}}$.
+  \end{itemize}
+
+  % FIXME do we really know this? seems obvious but the IH says something subtly different, might need
+  % a lemma to bridge this. Same problem in T-IsA case.
+  By the inductive hypothesis on 
+  \opsem {\openv{}}
+         {\e{2}}
+         {\v{2}}
+  we know 
+  \judgementrewrite {\propenv{}} {\v{2}} {\s{}}
+             {\filterset {\thenprop {\prop{2}}}
+                         {\elseprop {\prop{2}}}}
+                       {\object{2}}
+                       {\v{2}}.
+
+We then consider applying the evaluated argument to the dispatch function:
+  \opsem {\openv{}}
+         {\appexp {\v{d}} {\v{2}}}
+         {\v{e}}.
+
+         Since we can satisfy T-App with
+       \begin{itemize}
+         \item
+         \judgementtwo{}{\v{d}}{\ArrowOne {\x{}} {\s{}}
+                                                       {\t{d}}
+                                                       {\filterset {\thenprop {\prop{d}}}
+                                                                   {\elseprop {\prop{d}}}}
+                                                       {\object{d}}}, and
+         \item
+  \judgementrewrite {\propenv{}} {\v{2}} {\s{}}
+             {\filterset {\thenprop {\prop{2}}}
+                         {\elseprop {\prop{2}}}}
+                       {\object{2}}
+                       {\v{2}}.
+       \end{itemize}
+       we can then apply the inductive hypothesis
+       to derive
+  \judgementrewrite {\propenv{}} {\v{e}} 
+  {\replacefor{\t{d}}
+              {\object{2}}
+              {\x{}}}
+             {\replacefor{\filterset {\thenprop {\prop{d}}}
+                                     {\elseprop {\prop{d}}}}
+                         {\object{2}}
+                         {\x{}}}
+                       {\replacefor
+                         {\object{d}}
+                         {\object{2}}
+                         {\x{}}}
+                       {\v{e}}.
+
+ Now we consider how we choose which method to dispatch to.
+
+ As 
+  \getmethod {\disptable{}}
+             {\v{e}}
+             {\v{l}}
+             {\v{g}}, by inversion on \getmethodliteral
+             we know
+   there exists exactly one \v{k} such that 
+   \entryinmap{\mapvalentry{\v{k}}{\v{g}}}{\disptable{}} and \isaopsem{\v{e}}{\v{k}} = {\true{}}.
+
+   By inversion we know T-DefMethod must have extended \disptable{} 
+   with the well-typed dispatch value \v{k},
+   thus {\judgementtwo{}{\v{k}}{\t{k}}}, and
+   the well-typed method \v{g},
+   so {\judgementtwo{}{\v{g}}{\s{t}}}.
+
+  We can also prove that given
+        \begin{itemize}
+          \item
+  \judgementrewrite {\propenv{}} {\v{e}} 
+  {\replacefor{\t{d}}
+              {\object{2}}
+              {\x{}}}
+             {\replacefor{\filterset {\thenprop {\prop{d}}}
+                                     {\elseprop {\prop{d}}}}
+                         {\object{2}}
+                         {\x{}}}
+                       {\replacefor
+                         {\object{d}}
+                         {\object{2}}
+                         {\x{}}}
+                       {\v{e}}.
+    \item
+  \judgementtwo {\propenv{}} {\v{k}} {\t{k}},
+                     \item
+        \isaopsem{\v{e}}{\v{k}} = {\true{}}, 
+      \item
+        \satisfies{\openv{}}{\propenv{}},
+    \item
+  \isacompare{\t{d}}
+                       {\replacefor
+                         {\object{d}}
+                         {\object{2}}
+                         {\x{}}}
+  {\t{k}}{\filterset {\thenprop {\propp{}}} {\elseprop {\propp{}}}},
+          \item
+        \inpropenv{\thenprop{\propp{}}}{\thenprop{\propp{}}}, and
+    \item
+        \inpropenv{\elseprop{\propp{}}}{\elseprop{\propp{}}}.
+        \end{itemize}
+  we can apply \lemref{appendix:lemma:isa} to derive
+  then {\satisfies{\openv{}}{\thenprop{\propp{}}}}.
+
+   Now we consider applying the evaluated argument to the chosen method:
+  \opsem {\openv{}}
+         {\appexp {\v{g}} {\v{2}}}
+         {\v{}}.
+
+  By inversion via B-DefMethod we can assume {\v{g}} = {\abs{\x{}}{\s{}}{\e{b}}}, 
+  ie. that we have chosen a method to dispatch to that is a closure.
+
+  Because 
+  \opsem {\openv{}}
+         {\appexp {\v{g}} {\v{2}}}
+         {\v{}}
+         and
+    \judgementtwo{\propenv{}}{\v{2}}{\s{}},
+  by inversion via B-BetaClosure we know {\v{}} = {\replacefor{\e{b}}{\v{2}}{\x{}}}.
+
+  With the following premises:
+\begin{itemize}
+  \item
+{\judgementrewrite{{\propenv{}},{\thenprop{\propp{}}}}
+                  {\replacefor{\ep{b}}{\v{2}}{\x{}}}
+                  {\replacefor{\t{f}} {\object{2}}{\x{}}}
+                  {\replacefor
+                   {\filterset {\thenprop {\prop{f}}}
+                               {\elseprop {\prop{f}}}}
+                             {\object{2}}
+                             {\x{}}}
+                  {\replacefor
+                          {\object{f}}
+                             {\object{2}}
+                             {\x{}}}
+                  {\replacefor{\e{b}}{\v{2}}{\x{}}}
+                        },
+    \begin{itemize}
+      \item From
+{\judgementrewrite{{\propenv{}},{\isprop{\s{}}{\x{}}}}
+                  {\e{b}}
+                  {\t{f}}
+               {\filterset {\thenprop {\prop{f}}}
+                                       {\elseprop {\prop{f}}}}
+                          {\object{f}}
+                          {\e{b}}}
+          via the inductive hypothesis on 
+  \opsem {\openv{}}
+         {\appexp {\abs{\x{}}{\s{}}{\e{b}}} {\v{2}}}
+         {\v{}},
+      \item then we can derive
+{\judgementrewrite{{\propenv{}}}
+                  {\replacefor{\ep{b}}{\v{2}}{\x{}}}
+                  {\replacefor{\t{f}} {\object{2}}{\x{}}}
+                  {\replacefor
+                   {\filterset {\thenprop {\prop{f}}}
+                               {\elseprop {\prop{f}}}}
+                             {\object{2}}
+                             {\x{}}}
+                  {\replacefor
+                          {\object{f}}
+                             {\object{2}}
+                             {\x{}}}
+                  {\replacefor{\e{b}}{\v{2}}{\x{}}}
+                        } via substitution and the fact that {\x{}} is fresh 
+                        therefore \x{} $\not\in$ \fv{\propenv{}} so we do not need to substitution for \x{} in \propenv{}. %TODO lemma for this
+                        
+      \item 
+        \satisfies{\openv{}}{\propenv{}, {\thenprop{\propp{}}}}
+        because
+        \satisfies{\openv{}}{\propenv{}} and {\satisfies{\openv{}}{\thenprop{\propp{}}}} via M-And.
+    \end{itemize}
+  \item
+              \satisfies{\openv{}}{{\propenv{}},{\thenprop{\propp{}}}},
+    \begin{itemize}
+      \item From \satisfies{\openv{}}{\propenv{}} and \item {\satisfies{\openv{}}{\thenprop{\propp{}}}}  via M-And.
+    \end{itemize}
+           \item
+\isconsistent{\openv{}}, and
+           \item 
+  \opsem {\openv{}}
+         {\replacefor{\e{b}}{\v{2}}{\x{}}}
+         {\v{}}.
+\end{itemize}
+
+we can apply the inductive hypothesis to satisfy our overall goal for this subcase.
+\end{subcase}
+     \end{itemize}
+\end{case}
+
+\begin{case}[BE-Beta1]
+  \ 
+
+  Reduces to an error.
+\end{case}
+\begin{case}[BE-Beta2]
+  \ 
+
+  Reduces to an error.
+\end{case}
+\begin{case}[BE-BetaClosure]
+  \ 
+
+  Reduces to an error.
+\end{case}
+\begin{case}[BE-BetaMulti1]
+  \ 
+
+  Reduces to an error.
+\end{case}
+\begin{case}[BE-BetaMulti2]
+  \ 
+
+  Reduces to an error.
+\end{case}
+\begin{case}[BE-Delta]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[B-IsA]
+        \opsem {\openv{}} {\e{1}} {\v{1}},
+        \opsem {\openv{}} {\e{2}} {\v{2}},
+        \isaopsem{\v{1}}{\v{2}} = {\v{}}
+
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-IsA]
+  \ep{} = {\isaapp {\ep{1}} {\ep{2}}},
+  \judgementrewrite {\propenv{}} {\ep{1}} {\t{1}}
+             {\filterset {\thenprop {\prop{1}}}
+                         {\elseprop {\prop{1}}}}
+                       {\object{1}}
+                       {\e{1}},
+  \judgementrewrite {\propenv{}} {\ep{2}} {\t{2}}
+             {\filterset {\thenprop {\prop{2}}}
+                         {\elseprop {\prop{2}}}}
+                       {\object{2}}
+                       {\e{2}},
+  \e{} = {\isaapp {\e{1}} {\e{2}}},
+  \issubtypein{}{\Boolean}{\t{}},
+  \isacompare{\t{1}}{\object{1}}{\t{2}}{\filterset {\thenprop {\propp{}}} {\elseprop {\propp{}}}},
+  \inpropenv{\thenprop {\propp{}}}{\thenprop {\prop{}}},
+  \inpropenv{\elseprop {\propp{}}}{\elseprop {\prop{}}},
+  \issubobjin{}{\emptyobject{}}{\object{}}
+
+        Part 1 holds trivially with \object{} = \emptyobject{}.
+
+        For part 2, by the induction hypothesis on \e{1} and \e{2}
+        we know
+  \judgementrewrite {\propenv{}} {\v{1}} {\t{1}}
+             {\filterset {\thenprop {\prop{1}}}
+                         {\elseprop {\prop{1}}}}
+                       {\object{1}}
+                       {\v{1}} and
+  \judgementrewrite {\propenv{}} {\v{2}} {\t{2}}
+             {\filterset {\thenprop {\prop{2}}}
+                         {\elseprop {\prop{2}}}}
+                       {\object{2}}
+                       {\v{2}},
+                       so we can then apply
+        \lemref{appendix:lemma:isa}
+        to reach our goal.
+
+        Part 3 holds because by the definition of \isaopsemliteral
+        \v{} can only be \true\ or \false, 
+        and since \judgementtwo{\propenv{}}{\true}{\t{}}
+        and
+        \judgementtwo{\propenv{}}{\false}{\t{}}
+        we are done.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+      \begin{case}[BE-IsA1]
+        \opsem {\openv{}} {\e{1}} {\errorvalv{}}
+
+        Trivially reduces to an error.
+      \end{case}
+      \begin{case}[BE-IsA2]
+       \opsem {\openv{}} {\e{1}} {\v{1}},
+       \opsem {\openv{}} {\e{2}} {\errorvalv{}}
+
+        Trivially reduces to an error.
+      \end{case}
+
+\begin{case}[B-Get]
+      $\opsem {\openv{}} {\e{m}}{\v{m}}$,
+        $\v{m} = {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}$,
+         \opsem {\openv{}} {\e{k}} {\k{}},
+         $\keyinmap{\k{}}{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}$,
+         \getmap{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}} {\k{}} = {\v{}}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-GetHMap]
+  \ep{} = {\getexp {\ep{m}} {\ep{k}}},
+  \judgementrewrite {\propenv{}} {\ep{m}} {\Unionsplice {\overrightarrow {\HMapgeneric {\mandatory{}} {\absent{}}}}}
+           {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{m}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}}{\e{k}},
+  \overr{\inmandatory{\k{}}{\t{i}}{\mandatory{}},}
+  \e{} = {\getexp {\e{m}} {\e{k}}},
+  \issubtypein{}{\Unionsplice {\overrightarrow {\t{i}}}}{\t{}} ,
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\topprop{}},
+  \issubobjin{}{\replacefor {\path {\keype{k}} {\x{}}}
+                          {\object{m}}
+                          {\x{}}}
+                        {\object{}}
+
+
+         To prove part 1 we consider two cases on the form of \object{m}: 
+         \begin{itemize}
+           \item
+         if {\object{m}} = \emptyobject{}
+         then \object{} = \emptyobject{} by substitution, which gives the desired result;
+           \item
+         if \object{m} = {\path {\pathelem{m}} {\x{m}}}
+         then \issubobjin{}{\path {\keype{k}} {\object{m}}}{\object{}} by substitution.
+         We note by the definition of path translation
+         {\openv{}}({\path {\keype{k}} {\object{m}}}) =
+         {\getexp {{\openv{}}(\object{m})}{\k{}}}
+         and by the induction hypothesis on \e{m}
+         {{\openv{}}(\object{m})} = {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}},
+         which together imply 
+         \inopenv {\openv{}} {\object{}} {\getexp {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}} {\k{}}}.
+         Since this is the same form as B-Get, we can apply the premise
+         \getmap{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}} {\k{}} = {\v{}}
+         to derive \inopenv {\openv{}} {\object{}} {\v{}}.
+         \end{itemize}
+         
+         Part 2 holds trivially as \thenprop{\prop{}} = {\topprop{}}
+         and \elseprop{\prop{}} = {\topprop{}}.
+
+         To prove part 3 we note that (by the induction hypothesis on \e{m})
+         $\judgementtwo{}{\v{m}}{\Unionsplice{\overrightarrow {\HMapgeneric {\mandatory{}} {\absent{}}}}}$,
+         where $\overrightarrow{\inmandatory{\k{}}{\t{i}}{\mandatory{}}}$, and 
+         both
+         $\keyinmap{\k{}}{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}$
+         and
+         \getmap{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}} {\k{}} = {\v{}}
+         imply \judgementtwo{}{\v{}}{\Unionsplice {\overrightarrow {\t{i}}}}.
+
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-GetHMapAbsent]
+  \ep{} = {\getexp {\ep{m}} {\ep{k}}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}} {\e{k}},
+  \judgementrewrite {\propenv{}} {\ep{m}} {\HMapgeneric {\mandatory{}} {\absent}}
+           {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{m}},
+  {\inabsent{\k{}}{\absent{}}},
+  \e{} = {\getexp {\e{m}} {\e{k}}},
+  \issubtypein{}{\Nil}{\t{}},
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\topprop{}},
+  \issubobjin{}{\replacefor
+               {\path {\keype{k}} {\x{}}}
+                          {\object{m}}
+                          {\x{}}}
+                        {\object{}}
+
+       Unreachable subcase because 
+         $\keyinmap{\k{}}{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}$,
+         contradicts
+                {\inabsent{\k{}}{\absent{}}}.
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-GetHMapPartialDefault]
+  \ep{} = {\getexp {\ep{m}} {\ep{k}}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}}{\e{k}},
+ \judgementrewrite {\propenv{}} {\ep{m}} {\HMapp {\mandatory{}} {\absent}}
+           {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{m}},
+             {\notinmandatory{\k{}}{\t{}}{\mandatory{}}},
+             {\notinabsent{\k{}}{\absent{}}},
+  \e{} = {\getexp {\e{m}} {\e{k}}},
+  \t{} = \Top,
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\topprop{}},
+  \issubobjin{}{\replacefor
+               {\path {\keype{k}} {\x{}}}
+                          {\object{m}}
+                          {\x{}}}{\object{}}
+
+         Parts 1 and 2 are the same as the B-Get subcase.
+         Part 3 is trivial as \t{} = \Top.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[B-GetMissing]
+        \v{} = \nil,
+        $\opsem {\openv{}}
+        {\e{m}} {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}$,
+       \opsem {\openv{}} {\e{k}} {\k{}},
+       \keynotinmap{\k{}}{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-GetHMap]
+  \ep{} = {\getexp {\ep{m}} {\ep{k}}},
+  \judgementrewrite {\propenv{}} {\ep{m}} {\Unionsplice {\overrightarrow {\HMapgeneric {\mandatory{}} {\absent{}}}}}
+           {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{m}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}}{\e{k}},
+  \overr{\inmandatory{\k{}}{\t{i}}{\mandatory{}},}
+  \e{} = {\getexp {\e{m}} {\e{k}}},
+  \issubtypein{}{\Unionsplice {\overrightarrow {\t{i}}}}{\t{}},
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\topprop{}},
+  \issubobjin{}{\replacefor {\path {\keype{k}} {\x{}}}
+                          {\object{m}}
+                          {\x{}}}{\object{}}
+
+       Unreachable subcase because 
+       \keynotinmap{\k{}}{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+       contradicts ${\inmandatory{\k{}}{\t{}}{\mandatory{}}}$.
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-GetHMapAbsent]
+  \ep{} = {\getexp {\ep{m}} {\ep{k}}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}} {\e{k}},
+  \judgementrewrite {\propenv{}} {\ep{m}} {\HMapgeneric {\mandatory{}} {\absent}}
+           {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{m}},
+  {\inabsent{\k{}}{\absent{}}},
+  \e{} = {\getexp {\e{m}} {\e{k}}},
+  \issubtypein{}{\Nil}{\t{}},
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\topprop{}},
+  \issubobjin{}{\replacefor
+               {\path {\keype{k}} {\x{}}}
+                          {\object{m}}
+                          {\x{}}}{\object{}}
+
+         To prove part 1 we consider two cases on the form of \object{m}: 
+         \begin{itemize}
+           \item
+         if {\object{m}} = \emptyobject{}
+         then \object{} = \emptyobject{} by substitution, which gives the desired result;
+           \item
+         if \object{m} = {\path {\pathelem{m}} {\x{m}}}
+         then \issubobjin{}{\path {\keype{k}} {\object{m}}}{\object{}} by substitution.
+         We note by the definition of path translation
+         {\openv{}}({\path {\keype{k}} {\object{m}}}) =
+         {\getexp {{\openv{}}(\object{m})}{\k{}}}
+         and by the induction hypothesis on \e{m}
+         {{\openv{}}(\object{m})} = {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}},
+         which together imply 
+         \inopenv {\openv{}} {\object{}} {\getexp {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}} {\k{}}}.
+         Since this is the same form as B-GetMissing, we can apply the premise
+        \v{} = \nil\ 
+         to derive \inopenv {\openv{}} {\object{}} {\v{}}.
+         \end{itemize}
+         
+         Part 2 holds trivially as \thenprop{\prop{}} = {\topprop{}}
+         and \elseprop{\prop{}} = {\topprop{}}.
+
+         To prove part 3 we note that \e{m} has type {\HMapgeneric {\mandatory{}} {\absent{}}}
+         where {\inabsent{\k{}}{\absent{}}}, and
+         the premises of B-GetMissing
+         \keynotinmap{\k{}}{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+         and
+          \v{} = \nil\ 
+         tell us {\v{}} must be of type {\t{}}.
+      \end{subcase}
+    \item[]
+      \begin{subcase}[T-GetHMapPartialDefault]
+  \ep{} = {\getexp {\ep{m}} {\ep{k}}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}}{\e{k}},
+ \judgementrewrite {\propenv{}} {\ep{m}} {\HMapp {\mandatory{}} {\absent}}
+           {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
+           {\object{m}}
+           {\e{m}},
+             {\notinmandatory{\k{}}{\t{}}{\mandatory{}}},
+             {\notinabsent{\k{}}{\absent{}}},
+  \e{} = {\getexp {\e{m}} {\e{k}}},
+  \t{} = \Top,
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\topprop{}},
+  \issubobjin{}{\replacefor
+               {\path {\keype{k}} {\x{}}}
+                          {\object{m}}
+                          {\x{}}}{\object{}}
+
+         Parts 1 and 2 are the same as the B-GetMissing subcase of T-GetHMapAbsent.
+         Part 3 is trivial as \t{} = \Top.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[BE-Get1]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[BE-Get2]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[B-Assoc]
+        \v{} = 
+        {\extendmap{\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+                {\k{}}{\v{v}}},
+        \opsem {\openv{}}
+        {\e{m}} {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}},
+        \opsem {\openv{}} {\e{k}} {\k{}},
+        \opsem {\openv{}} {\e{v}} {\v{v}}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-AssocHMap]
+  \judgementtworewrite {\propenv{}} {\ep{m}} {\HMapgeneric {\mandatory{}} {\absent}} {\e{m}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value{\k{}}}{\e{k}},
+  \judgementtworewrite {\propenv{}} {\ep{v}} {\t{}}{\e{v}},
+  {\k{}} $\not\in$ {\absent{}},
+  \ep{} = {\assocexp {\ep{m}} {\ep{k}} {\ep{v}}},
+  \e{} = {\assocexp {\e{m}} {\e{k}} {\e{v}}},
+  \issubtypein{}{\HMapgeneric {\extendmandatoryset {\mandatory{}}{\k{}}{\t{}}} {\absent}}{\t{}},
+  \thenprop{\prop{}} = {\topprop{}},
+  \elseprop{\prop{}} = {\botprop{}},
+  \object{} = \emptyobject{}
+
+        Parts 1 and 2 hold for the same reasons as T-True.
+        %TODO part 3
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[BE-Assoc1]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[BE-Assoc2]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[BE-Assoc3]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[B-IfFalse]
+        \opsem {\openv{}} {\e{1}} {\false}
+        \ \ \text{or}\ \ 
+        \opsem {\openv{}} {\e{1}} {\nil},
+        \opsem {\openv{}} {\e{3}} {\v{}}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-If]
+  \ep{} = {\ifexp {\ep1} {\ep2} {\ep3}},
+  \judgementrewrite {\propenv{}} {\ep1} {\t{1}} {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}
+                 {\object{1}}
+                 {\e1},
+  \judgementrewrite {\propenv{}, {\thenprop {\prop{1}}}}
+                 {\ep2} {\t{}} {\filterset {\thenprop {\prop{2}}} {\elseprop {\prop{2}}}}
+                 {\object{}}
+                 {\e2},
+  \judgementrewrite {\propenv{}, {\elseprop {\prop{1}}}}
+                 {\ep3} {\t{}} {\filterset {\thenprop {\prop{3}}} {\elseprop {\prop{3}}}}
+                 {\object{}}
+                 {\e3},
+  \e{} = {\ifexp {\e1} {\e2} {\e3}},
+  \inpropenv{\orprop {\thenprop {\prop{2}}} {\thenprop {\prop{3}}}}{\thenprop{\prop{}}},
+  \inpropenv{\orprop {\elseprop {\prop{2}}} {\elseprop {\prop{3}}}}{\elseprop{\prop{}}}
+
+              For part 1, either \object{} = \emptyobject{}, or \e{} evaluates to the
+              result of \e{3}.
+
+              To prove part 2, we consider two cases:
+              \begin{itemize}
+                \item if \isfalseval{\v{}}
+                  then \e{3} evaluates to a false value so {\satisfies{\openv{}}{\elseprop {\prop{3}}}}, and thus
+                  {\satisfies{\openv{}}{\orprop {\elseprop {\prop{2}}} {\elseprop {\prop{3}}}}} by M-Or, 
+                \item otherwise
+                  \istrueval{\v{}},
+                  so \e{3} evaluates to a true value so {\satisfies{\openv{}}{\thenprop {\prop{3}}}}, and thus
+                  {\satisfies{\openv{}}{\orprop {\thenprop {\prop{2}}} {\thenprop {\prop{3}}}}} by M-Or.
+              \end{itemize}
+
+              Part 3 is trivial as
+              \opsem {\openv{}} {\e{3}} {\v{}}
+              and {\judgementtwo{}{\v{}}{\t{}}} by the induction hypothesis on {\e{3}}.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[B-IfTrue]
+        \opsem {\openv{}} {\e{1}} {\v{1}},
+              ${\v{1}} \not= {\false}$,
+              ${\v{1}} \not= {\nil}$,
+              \opsem {\openv{}} {\e{2}} {\v{}}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-If]
+  \ep{} = {\ifexp {\ep1} {\ep2} {\ep3}},
+  \judgementrewrite {\propenv{}} {\ep1} {\t{1}} {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}
+                 {\object{1}}
+                 {\e1},
+  \judgementrewrite {\propenv{}, {\thenprop {\prop{1}}}}
+                 {\ep2} {\t{}} {\filterset {\thenprop {\prop{2}}} {\elseprop {\prop{2}}}}
+                 {\object{}}
+                 {\e2},
+  \judgementrewrite {\propenv{}, {\elseprop {\prop{1}}}}
+                 {\ep3} {\t{}} {\filterset {\thenprop {\prop{3}}} {\elseprop {\prop{3}}}}
+                 {\object{}}
+                 {\e3},
+  \e{} = {\ifexp {\e1} {\e2} {\e3}},
+  \inpropenv{\orprop {\thenprop {\prop{2}}} {\thenprop {\prop{3}}}}{\thenprop{\prop{}}},
+  \inpropenv{\orprop {\elseprop {\prop{2}}} {\elseprop {\prop{3}}}}{\elseprop{\prop{}}}
+
+              For part 1, either \object{} = \emptyobject{}, or \e{} evaluates to the
+              result of \e{2}.
+
+              To prove part 2, we consider two cases:
+              \begin{itemize}
+                \item if \isfalseval{\v{}}
+                  then \e{2} evaluates to a false value so {\satisfies{\openv{}}{\elseprop {\prop{2}}}}, and thus
+                  {\satisfies{\openv{}}{\orprop {\elseprop {\prop{2}}} {\elseprop {\prop{3}}}}} by M-Or, 
+                \item otherwise
+                  \istrueval{\v{}},
+                  so \e{2} evaluates to a true value so {\satisfies{\openv{}}{\thenprop {\prop{2}}}}, and thus
+                  {\satisfies{\openv{}}{\orprop {\thenprop {\prop{2}}} {\thenprop {\prop{3}}}}} by M-Or.
+              \end{itemize}
+
+              Part 3 is trivial as
+              \opsem {\openv{}} {\e{2}} {\v{}}
+              and {\judgementtwo{}{\v{}}{\t{}}} by the induction hypothesis on {\e{2}}.
+
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[BE-If]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[BE-IfFalse]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[BE-IfTrue]
+  \ 
+
+  Reduces to an error.
+\end{case}
+
+\begin{case}[B-Let]
+  \e{} = {\letexp {\x{}} {\e{1}} {\e{2}}},
+        \opsem {\openv{}} {\e{1}} {\v{1}},
+        \opsem {\extendopenv{\openv{}}{\x{}}{\v{1}}} {\e{2}} {\v{}}
+
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-Let]
+  \ep{} = {\letexp {\x{}} {\ep{1}} {\ep{2}}},
+  \judgementrewrite {\propenv{}} {\ep{1}} {\s{}} {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}
+             {\object{1}}
+             {\ep{1}},
+             \propp{} = {\impprop {\notprop {\falsy{}} {\x{}}} {\thenprop {\prop{1}}}},
+             \proppp{} = {\impprop {\isprop {\falsy{}} {\x{}}} {\elseprop {\prop{1}}}},
+  \judgementrewrite
+       {\propenv{}, {\isprop {\s{}} {\x{}}},
+         {\propp{}},
+         {\proppp{}}}
+             {\ep{2}} {\t{}} {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+             {\object{}} 
+             {\e{2}}
+
+        For all the following cases (with a reminder that \x{} is fresh)
+        we apply the induction hypothesis on \e{2}. We justify this by noting
+        that occurrences of \x{} inside \e{2} have the same type as \e{1} and 
+        simulate the propositions of \e{1}
+        because 
+        \begin{itemize}
+          \item
+  \judgementrewrite
+       {\propenv{}, {\isprop {\s{}} {\x{}}},
+         {\propp{}},
+         {\proppp{}}}
+             {\ep{2}} {\t{}} {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
+             {\object{}} 
+             {\e{2}},
+           \item
+        \satisfies{\extendopenv{\openv{}}{\x{}}{\v{1}}}{\propenv{}, {\isprop {\s{}} {\x{}}}, \propp{}, \proppp{}},
+           \item
+        {\isconsistent{\extendopenv{\openv{}}{\x{}}{\v{1}}}},
+        and
+           \item
+        \opsem {\extendopenv{\openv{}}{\x{}}{\v{1}}} {\e{2}} {\v{}}.
+    \end{itemize}
+
+        We prove parts 1, 2 and 3 by directly using the induction hypothesis on \e{2}.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[BE-Let]
+  \ 
+  
+  Reduces to an error.
+\end{case}
+
+\begin{case}[B-Abs] 
+        \v{} = {\closure {\openv{}} {\abs {\x{}} {\s{}} {\e{1}}}}
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-Clos]
+  \ep{} = {\closure {\openv{}} {\abs {\x{}} {\s{}} {\e{1}}}},
+  $\exists {\propenvp{}}. \satisfies{\openv{}}{\propenvp{}}$
+  \ \text{and}\ 
+\judgementrewrite {\propenvp{}} {\abs {\x{}} {\s{}} {\e{1}}} {\t{}}
+                 {\filterset {\thenprop {\prop{f}}}
+                             {\elseprop {\prop{f}}}}
+                 {\object{f}}
+                 {\abs {\x{}} {\s{}} {\e{1}}},
+  \e{} = {\closure {\openv{}} {\abs {\x{}} {\s{}} {\e{1}}}},
+                 {\thenprop{\prop{}}} = \topprop{},
+                 {\elseprop{\prop{}}} = \botprop{},
+                 {\object{}} = \emptyobject{}
+
+        We assume some \propenvp{}, such that
+        \begin{itemize}
+          \item \satisfies{\openv{}}{\propenvp{}}
+          \item \judgement {\propenvp{}} {\abs {\x{}} {\s{}} {\e{1}}} {\t{}}
+                           {\filterset {\thenprop {\prop{}}}
+                                       {\elseprop {\prop{}}}}
+                           {\object{}}.
+       \end{itemize}
+       Note the last rule in the derivation of
+          \judgement {\propenvp{}} {\abs {\x{}} {\s{}} {\e{1}}} {\t{}}
+                           {\filterset {\thenprop {\prop{}}}
+                                       {\elseprop {\prop{}}}}
+                           {\object{}}
+                           must be T-Abs, so 
+                           {\thenprop {\prop{}}} = {\topprop{}},
+                           {\elseprop {\prop{}}} = {\botprop{}}
+                           and {\object{}} = {\emptyobject{}}.
+         Thus parts 1 and 2 hold for the same reasons as T-True.
+         Part 3 holds as \v{} has the same type as {\abs {\x{}} {\s{}} {\e{1}}}
+         under \propenvp{}.
+
+      \end{subcase} 
+  \end{itemize}
+\end{case}
+
+\begin{case}[B-Abs]
+        \v{} = ${\closure {\openv{}} {\abs {\x{}} {\s{}} {\e{1}}}}$,
+          { \opsem {\openv{}}
+                   {\abs {\x{}} {\t{}} {\e{1}}}
+                   {\closure {\openv{}} {\abs {\x{}} {\s{}} {\e{1}}}}}
+
+  \begin{itemize}
+    \item[]
+      %TODO
+      \begin{subcase}[T-Abs]
+  \ep{} = {\abs {\x{}} {\s{}} {\ep{1}}},
+{ \judgementrewrite {\propenv{}, {\isprop {\s{}} {\x{}}}}
+            {\ep{1}} {\t{}}
+             {\filterset {\thenprop {\prop{1}}}
+                         {\elseprop {\prop{1}}}}
+             {\object{1}}
+             {\e{1}}},
+           \issubtypein{}
+           {\ArrowOne {\x{}} {\s{}}
+                      {\t{1}}
+                      {\filterset {\thenprop {\prop{1}}}
+                                  {\elseprop {\prop{1}}}}
+                      {\object{1}}}
+          {\t{}},
+          \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+          \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+          {\object{}} = {\emptyobject{}}
+
+        Parts 1 and 2 hold for the same reasons as T-True.
+        Part 3 holds directly via T-Clos, since \v{} must be a closure.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\begin{case}[BE-Error]
+        \opsem {\openv{}} {\e{}} {\errorval{\v{1}}}
+
+
+  \begin{itemize}
+    \item[]
+      \begin{subcase}[T-Error] 
+  \ep{} = \errorval{\v{1}},
+  \e{} = \errorval{\v{1}},
+  \t{} = \Bot,
+  \thenprop{\prop{}} = \botprop{}, \elseprop{\prop{}} = \botprop{}, \object{} = \emptyobject{}
+
+        Trivially reduces to an error.
+      \end{subcase}
+  \end{itemize}
+\end{case}
+
+\end{proof}
+
+\end{lemma}
+
+{\wrongtheorem{appendix}}
+
+{\soundnesstheorem{appendix}}

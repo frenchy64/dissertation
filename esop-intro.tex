@@ -1,0 +1,172 @@
+\section{Clojure with static typing}
+
+% current situation 
+
+The popularity of dynamically-typed languages in software
+development, combined with a recognition that types often improve
+programmer productivity, software reliability, and performance, has
+led to the recent development of a wide variety of optional and
+gradual type systems aimed at checking existing programs written in
+existing languages.  These include  TypeScript~\cite{typescript} and Flow~\cite{flow} for
+JavaScript, Hack~\cite{hack} for PHP, and mypy~\cite{mypy}
+for Python among the optional systems, and Typed Racket~\cite{TF08}, Reticulated
+Python~\cite{Vitousek14}, and GradualTalk~\cite{gradualtalk} among gradually-typed systems.\footnote{We
+  use ``gradual typing'' for systems like Typed Racket with sound
+  interoperation between typed and untyped code; Typed Clojure or
+ TypeScript which don't
+  enforce type invariants we describe as ``optionally typed''.}
+
+One key lesson of these systems, indeed a lesson known to early
+developers of optional type systems such as StrongTalk, is that type
+systems for existing languages must be designed to work with the
+features and idioms of the target language. Often this takes the form
+of a core language, be it of functions or classes and objects,
+together with extensions to handle distinctive language features.
+
+
+We synthesize these lessons to present \emph{Typed Clojure}, an
+optional type system for Clojure. 
+%
+Clojure is a dynamically
+typed language in the Lisp family---built on the Java Virtual
+Machine (JVM)---which has recently gained popularity as an alternative
+JVM language.  It offers the flexibility of a Lisp dialect, including
+macros, emphasizes a functional style via
+immutable data structures, and provides
+interoperability with existing Java code, allowing programmers to use
+existing Java libraries without leaving Clojure.
+%
+Since its initial release in 2007, Clojure has been widely adopted for
+``backend'' development in places where its support for parallelism,
+functional programming, and Lisp-influenced abstraction is desired on
+the JVM. As a result, there is an extensive base of existing untyped
+programs whose developers can benefit from Typed Clojure,
+an experience we discuss in this paper.
+
+Since Clojure is a language in the
+Lisp family, we apply the lessons of Typed Racket, an existing gradual type
+system for Racket, to the core of Typed Clojure, consisting of an extended
+$\lambda$-calculus over a variety of base types shared between all Lisp systems.
+%
+Furthermore, Typed Racket's \emph{occurrence typing} has proved
+necessary for type checking realistic Clojure programs.
+
+\begin{figure*}[t!]
+  \normalsize
+\begin{lstlisting}
+(*typed ann pname [(U File String) -> (U nil String)] typed*)
+(defmulti pname class)  ; multimethod dispatching on class of argument
+(defmethod pname String [s] (*invoke pname (*interop new File s interop*) invoke*)) ; String case 
+(defmethod pname File [f] (*interop .getName f interop*)) ; File case, static null check
+(*invoke pname "STAINS/JELLY" invoke*) ;=> "JELLY" :- (U nil Str)
+\end{lstlisting}
+\caption{A simple Typed Clojure program (delimiters: {\color{interop}Java interoperation (green)}, 
+  {\color{types}type annotation (blue)},
+  {\color{invoke}function invocation (black)}, {\color{red}collection literal (red)}, {\color{mygray}other (gray)})}
+\label{fig:ex1}
+\end{figure*}
+
+
+However, Clojure goes beyond Racket in many ways, requiring several
+new type system features which we detail in this paper.
+%
+Most significantly, Clojure supports, and Clojure developers use,
+\textbf{multimethods} to structure their code in extensible
+fashion. Furthermore, since Clojure is an untyped language, dispatch
+within multimethods is determined by application of dynamic predicates
+to argument values. 
+%
+Fortunately, the dynamic dispatch used by multimethods has surprising
+symmetry with the conditional dispatch handled by occurrence
+typing. Typed Clojure is therefore able to effectively handle complex
+and highly dynamic dispatch as present in existing Clojure programs. 
+
+But multimethods are not the only Clojure feature crucial to type
+checking existing programs. As a language built on the Java Virtual
+Machine, Clojure provides flexible and transparent access to existing
+Java libraries, and \textbf{Clojure/Java interoperation} is found in almost
+every significant Clojure code base. Typed Clojure therefore builds in
+an understanding of the Java type system and handles interoperation
+appropriately. Notably, \texttt{null} is a distinct type in Typed Clojure,
+designed to automatically rule out null-pointer exceptions.
+
+An example of these features is given in
+\figref{fig:ex1}. Here, the \clj{pname} multimethod dispatches
+on the \clj{class} of the argument---for \clj{String}s,
+the first method implementation is called, for \clj{File}s, the
+second. The \clj{String} method calls
+a \clj{File} constructor, returning a non-nil \clj{File} instance---the 
+\clj{getName} method 
+on \clj{File} requires a non-nil target, returning a nilable
+type.  
+%Typed Clojure offers an opt-in mode that
+%resolves JVM overloading, avoiding expensive runtime reflective calls.
+
+Finally, flexible, high-performance immutable dictionaries
+are the most common Clojure data structure.
+Simply treating them as uniformly-typed
+key-value mappings would be insufficient for existing
+programs and programming styles. Instead, Typed Clojure provides a
+flexible \textbf{heterogenous map} type, in which specific entries can be specified. 
+
+While these features may seem disparate, they are unified in important
+ways. First, they leverage the type system mechanisms
+inherited from Typed Racket---multimethods when using 
+dispatch via predicates, Java interoperation for handling
+\texttt{null} tests, and heterogenous maps using union types and
+reasoning about subcomponents of data. Second,
+they are crucial features for handling Clojure code in
+practice. Typed Clojure's use in real Clojure deployments would not be
+possible without effective handling of these three Clojure features. 
+
+%\subsection{Contributions}
+
+Our main contributions are as follows:
+
+\begin{enumerate}
+  \item We motivate and describe  Typed Clojure, an optional
+    type system for Clojure that understands existing Clojure idioms.
+  \item We present a sound formal model for three crucial type
+    system features: multi-methods, Java
+    interoperability, and heterogenous maps.
+  \item We evaluate the use of Typed Clojure features on existing
+    Typed Clojure code, including both open source and in-house systems.
+\end{enumerate}
+
+
+
+%% \begin{figure}
+%% \inputminted[firstline=5]{clojure}{code/demo/src/demo/parent2.clj}
+%% \caption{A simple Typed Clojure program}
+%% \label{fig:ex1}
+%% \end{figure}
+
+%% Figure~\ref{fig:ex1} presents a simple program demonstrating many
+%% aspects of our system, from simple type annotations to explicit
+%% handling of Java's \java{null} (written \clj{nil}) in interoperation, as well as an
+%% extended form of occurrence typing and method resolution of
+%% Java interoperability based on static type information.
+
+%% The \clj{parent} function has the type 
+%% $$
+%% \clj{['{:file (U nil File)} -> (U nil Str)]}
+%% $$
+%% which means that it takes a hash table whose \clj{:file} key maps to either
+%% \clj{nil} or a \clj{File}, and it produces either \clj{nil} or a
+%% \clj{String}. The \clj{parent} function uses the \clj{:file} keyword
+%% as an accessor to get the file, checks that it isn't \clj{nil}, and
+%% then obtains the parent by making a Java method call.
+
+\noindent
+ The remainder of this paper begins with an example-driven
+ presentation of the main type system features in
+ \secref{sec:overview}. We then incrementally present a core calculus
+ for Typed Clojure covering all of these features together in
+ \secref{sec:formal} and prove type soundness
+ (\secref{sec:metatheory}). We then 
+ %discuss the full implementation of
+ %Typed Clojure, \coretyped{}, which extends the formal model in many ways, 
+ present an empirical analysis of significant code bases written
+ in \coretyped{}---the full implementation of Typed Clojure---in \secref{sec:experience}. 
+ Finally, we discuss related work and conclude.
+

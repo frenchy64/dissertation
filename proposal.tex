@@ -1,0 +1,54 @@
+\documentclass{article}
+
+\usepackage{esop-common}
+
+\title{Thesis Proposal: Typed Clojure in Theory and Practice}
+\author{Ambrose Bonnaire-Sergeant}
+
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{bibliography.bib}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The Clojure programming language has existing tooling runtime and compile-time
+verification.
+
+This thesis argues Typed Clojure is sound and practical,
+that we can improve usability with automatic annotations based on runtime observations,
+and by repurposing this annotation technology to generate clojure.spec,
+we can answer broad questions about how Clojure is used.
+
+I will first present Typed Clojure, an optional type system for Clojure.
+I will show a formal model of Typed Clojure that includes
+key features like hash-maps, multimethods, Java interoperability, and occurrence typing,
+and prove the model type sound.
+Then, I will demonstrate that Typed Clojure's design is useful and corresponds to actual usage patterns
+with an emperical study of real-world Typed Clojure usage in over 19,000 lines of code.
+
+Next, I will present a tool that automatically generates Typed Clojure annotations based on observed
+program behavior.
+First, I will show a formal model of the tool, including its runtime instrumentation phase that
+collects samples from a running program, and type reconstruction phase
+that creates useful annotations from these samples.
+%TODO
+%Then, I will synthesize these ideas into a practical implementation that
+\end{abstract}
+
+\input{esop-intro}
+\input{esop-overview}
+\input{esop-formal-model}
+\input{esop-metatheory}
+\input{esop-experience}
+\input{esop-related-work}
+\input{esop-conclusion}
+
+\newpage
+
+\printbibliography
+
+\input{esop-appendix}
+
+\end{document}

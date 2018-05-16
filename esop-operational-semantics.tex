@@ -1,0 +1,652 @@
+\begin{figure*}
+\begin{mathpar}
+
+\BLocal{}
+
+\BDo{}
+
+\BLet{}
+
+\BVal{}
+
+\BIfTrue{}
+
+\BIfFalse{}
+
+\BAbs{}
+
+\BBetaClosure{}
+
+\BDelta{}
+
+\BBetaMulti{}
+
+\BField{}
+
+\BMethod{}
+
+\BNew{}
+
+       \BDefMulti{}
+
+       \BDefMethod{}
+
+       \BIsA{}
+
+       {\BAssoc}
+
+       {\BGet}
+
+       {\BGetMissing}
+\end{mathpar}
+\caption{Operational Semantics}
+\label{appendix:figure:opsem}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+
+\infer [BS-MethodRefl]
+{}
+{\opsem {\openv{}} {\methodexp {mth} {\e{}} {\overrightarrow{\e{}}}}
+        {\wrong{}}}
+
+\infer [BS-FieldRefl]
+{}
+{\opsem {\openv{}} {\fieldexp {\fld{}} {\e{}}}
+        {\wrong{}}}
+
+\infer [BS-NewRefl]
+{}
+{\opsem {\openv{}} {\fieldexp {\fld{}} {\e{}}}
+        {\wrong{}}}
+
+
+\infer [BS-Beta]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\v{}}
+         \\\\
+  {\v{}} \not= {\const{}}
+  \\
+  {\v{}} \not= {\multi {\v{d}} {\disptable{}}}
+  \\\\
+  {\v{}} \not= {\closure {\openv{c}} {\abs {\x{}} {\t{}} {\e{b}}}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\wrong{}}
+       }
+
+\infer [BS-BetaMulti]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\multi {\v{}} {\disptable{}}}
+         \\\\
+  {\v{}} \not= {\const{}}
+  \\
+  {\v{}} \not= {\multi {\v{d}} {\disptable{}}}
+  \\\\
+  {\v{}} \not= {\closure {\openv{c}} {\abs {\x{}} {\t{}} {\e{b}}}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\wrong{}}
+       }
+
+\infer [BS-FieldTarget]
+{ \opsem {\openv{}}
+         {\e{}} 
+       {\v{1}}
+         \\\\
+         {\v{}} \not= {\classvalue{\classhint{1}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}}
+       }
+{ \opsem {\openv{}}
+         {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{}}}
+         {\wrong{}}
+   }
+
+\infer [BS-FieldMissing]
+{ \opsem {\openv{}}
+         {\e{}} 
+       {\classvalue{\classhint{1}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}}
+       \\
+       \fld{} \not\in \{\overrightarrow{\fld{i}}\}
+       }
+{ \opsem {\openv{}}
+         {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{}}}
+         {\wrong{}}
+   }
+
+
+\infer [BS-MethodTarget]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\v{}}
+  \\
+         {\v{}} \not= {\classvalue{\classhint{1}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}}
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{a}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{a}}}}
+        {\wrong{}}
+      }
+
+\infer [BS-MethodArity]
+{ i \not= a
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{i}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{a}}}}
+        {\wrong{}}
+      }
+
+\infer [BS-MethodArg]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}}
+  \\
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+       }
+       \\\\
+  \exists a.\ 
+    \v{a} \not=\ {\classvalue{\classhint{a}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}}\ or\ \v{a} \not= \nil{}
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{a}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{a}}}}
+        {\wrong{}}
+      }
+
+\infer [BS-NewArg]
+{ \overrightarrow{
+  \opsem {\openv{}}
+         {\e{i}}
+         {\v{i}}
+     }
+       \\\\
+  \exists i.\ 
+    \v{i} \not=\ {\classvalue{\classhint{i}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}}\ or\ \v{i} \not= \nil{}
+}
+{\opsem {\openv{}}
+        {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{1}} 
+                       {\class{}} {\overrightarrow{\e{i}}}}
+        {\wrong{}}
+      }
+
+\infer [BS-NewArity]
+{ i \not= a
+}
+{\opsem {\openv{}}
+        {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{1}} 
+                       {\class{}} {\overrightarrow{\e{a}}}}
+        {\wrong{}}
+      }
+
+\infer [BS-AssocMap]
+{\opsem {\openv{}}
+        {\e{m}} {\v{}}
+        \\
+        \v{} \not= {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+}
+{
+ \opsem {\openv{}}
+        {\assocexp {\e{m}} {\e{k}} {\e{v}}} 
+        {\wrong{}}
+                }
+
+\infer [BS-AssocKey]
+{\opsem {\openv{}}
+        {\e{m}} {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+        \\
+ \opsem {\openv{}} {\e{k}} {\v{k}}
+ \\\\
+ {\v{k}} \not= \k{}
+}
+{
+ \opsem {\openv{}}
+        {\assocexp {\e{m}} {\e{k}} {\e{v}}} 
+        {\wrong{}}
+                }
+
+\infer [BS-GetMap]
+{ \opsem {\openv{}}
+         {\e{m}} {\v{}}
+        \\
+        \v{} \not= {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+}
+{\opsem {\openv{}}
+        {\getexp {\e{m}} {\e{k}}}
+        {\wrong{}}
+}
+
+\infer [BS-GetKey]
+{ \opsem {\openv{}}
+         {\e{m}} {\v{}}
+        \\
+ \opsem {\openv{}}
+        {\e{k}} {\v{k}}
+        \\\\
+      \v{} \not= {\k{}}
+}
+{\opsem {\openv{}}
+        {\getexp {\e{m}} {\e{k}}}
+        {\wrong{}}
+}
+
+\infer [BS-Local]
+{ \notinopenv {\openv{}} {\x{}}}
+{ \opsem {\openv{}} {\x{}} {\wrong{}} }
+
+\infer [BS-DefMethod]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}}
+         \\
+         \v{m} \not= {\multi {\v{d}} {\disptable{}}}
+}
+{\opsem {\openv{}}
+        {\extendmultiexp {\e{m}} {\e{v}} {\e{f}}}
+        {\wrong{}}
+      }
+
+\end{mathpar}
+\caption{Stuck programs}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+\infer [BE-ErrorWrong]
+{}
+{ \opsem {\openv{}} 
+         {\wrongorerror{}}
+         {\wrongorerror{}}}
+
+\infer [BE-Let]
+{ \opsem {\openv{}} {\e{a}} {\wrongorerror{}}
+ }
+{ \opsem {\openv{}} 
+         {\letexp {\x{}} {\e{a}} {\e{}}}
+       {\wrongorerror{}}}
+
+\infer [BE-Do1]
+{ \opsem {\openv{}} {\e{1}} {\wrongorerror{}} }
+{ \opsem {\openv{}} {\doexp{\e{1}}{\e{}}} {\wrongorerror{}}}
+
+\infer [BE-Do2]
+{ \opsem {\openv{}} {\e{1}} {\v{1}} 
+  \\\\
+  \opsem {\openv{}} {\e{}}  {\wrongorerror{}}
+}
+{ \opsem {\openv{}} {\doexp{\e{1}}{\e{}}} {\wrongorerror{}} }
+
+\infer [BE-If]
+{  \opsem {\openv{}} {\e{1}} {\wrongorerror{}}
+}
+{ \opsem {\openv{}}
+         {\ifexp {\e1} {\e2} {\e3}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-IfTrue]
+{ \opsem {\openv{}} {\e{1}} {\v{1}}
+  \\\\
+  {\v{1}} \not= {\false{}}
+  \\
+  {\v{1}} \not= {\nil{}}
+  \\\\
+  \opsem {\openv{}} {\e{2}} {\wrongorerror{}}
+}
+{ \opsem {\openv{}}
+         {\ifexp {\e1} {\e2} {\e3}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-IfFalse]
+{  \opsem {\openv{}} {\e{1}} {\false{}}
+  \ \ \text{or}\ \ 
+  \opsem {\openv{}} {\e{1}} {\nil{}}
+  \\\\
+  \opsem {\openv{}} {\e{3}} {\wrongorerror{}}
+}
+{ \opsem {\openv{}}
+         {\ifexp {\e1} {\e2} {\e3}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-Beta1]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\wrongorerror{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-Beta2]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\v{f}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{a}}
+         {\wrongorerror{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-BetaClosure]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\closure {\openv{c}} {\abs {\x{}} {\t{}} {\e{b}}}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+         \\\\
+  \opsem {\extendopenv {\openv{c}} {\x{}} {\v{a}}}
+         {\e{b}}
+         {\wrongorerror{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-BetaMulti1]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\multi {\v{d}} {m}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+         \\\\
+  \opsem {\openv{}}
+         {\appexp {\v{d}} {\v{a}}}
+         {\wrongorerror{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-BetaMulti2]
+{ \opsem {\openv{}}
+         {\e{f}}
+         {\multi {\v{d}} {m}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+         \\\\
+  \opsem {\openv{}}
+         {\appexp {\v{d}} {\v{a}}}
+         {\v{e}}
+         \\\\
+  \getmethoderr {\disptable{}}
+             {\v{e}}
+             {\errorvalv{}}
+       }
+{ \opsem {\openv{}}
+         {\appexp {\e{f}} {\e{a}}}
+         {\errorvalv{}}
+       }
+
+\infer [BE-Delta]
+{ \opsem {\openv{}} {\e{}} {\const{}}
+  \\\\
+  \opsem {\openv{}} {\ep{}} {\v{}}
+  \\\\
+  \constantopsem{\const{}}{\v{}} = \wrongorerror{}
+}
+{ \opsem {\openv{}}
+         {\appexp {\e{}} {\ep{}}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-Field]
+{ \opsem {\openv{}}
+         {\e{}} 
+         {\wrongorerror{}}
+       }
+{ \opsem {\openv{}}
+         {\fieldstaticexp {\classhint{1}} {\classhint{2}} {\fld{}} {\e{}}}
+         {\wrongorerror{}}
+   }
+
+\infer [BE-Method1]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\wrongorerror{}}
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{a}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{}}}}
+        {\wrongorerror{}}
+      }
+
+\infer [BE-Method2]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}}
+  \\\\
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{n-1}}
+         {\v{n-1}}
+       }
+         \\\\
+  \opsem {\openv{}}
+         {\e{n}}
+         {\wrongorerror{}}
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{a}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{}}}}
+        {\wrongorerror{}}
+      }
+
+\infer [BE-Method3]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\v{m}}
+  \\
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{a}}
+         {\v{a}}
+       }
+  \\\\
+  \invokejavamethod {\classhint{1}} {\v{m}} {mth}
+                    {\overrightarrow{\classhint{a}}} {\overrightarrow{\v{a}}}
+                    {\classhint{2}}
+                    {\errorvalv{}}
+}
+{\opsem {\openv{}}
+        {\methodstaticexp {\classhint{1}} {\overrightarrow{\classhint{a}}} {\classhint{2}} {mth} {\e{m}} {\overrightarrow{\e{a}}}}
+        {\errorvalv{}}
+      }
+
+\infer [BE-New1]
+{ \overrightarrow{
+  \opsem {\openv{}}
+         {\e{n-1}}
+         {\v{n-1}}
+       }
+       \\\\
+  \opsem {\openv{}}
+         {\e{n}}
+         {\wrongorerror{}}
+       }
+{ \opsem {\openv{}}
+         {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{1}} 
+                        {\class{}} {\overrightarrow{\e{}}}}
+         {\wrongorerror{}}
+       }
+
+\infer [BE-New2]
+{ 
+  \overrightarrow{
+  \opsem {\openv{}}
+         {\e{i}}
+         {\v{i}}
+       }
+         \\\\
+         \newjava {\classhint{1}}
+                  {\overrightarrow{\classhint{i}}}
+                  {\overrightarrow{\v{i}}}
+                  {\errorvalv{}}
+       }
+{ \opsem {\openv{}}
+         {\newstaticexp {\overrightarrow{\classhint{i}}} {\classhint{1}} 
+                        {\class{}} {\overrightarrow{\e{i}}}}
+         {\errorvalv{}}}
+
+\infer [BE-DefMulti]
+{ \opsem {\openv{}} {\e{d}} {\wrongorerror{}}
+}
+{\opsem {\openv{}}
+        {\createmultiexp {\t{}}
+                         {\e{d}}}
+        {\wrongorerror{}}
+}
+
+\infer [BE-DefMethod1]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\wrongorerror{}}
+}
+{\opsem {\openv{}}
+        {\extendmultiexp {\e{m}} {\e{v}} {\e{f}}}
+        {\wrongorerror{}}
+      }
+
+\infer [BE-DefMethod2]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\multi {\v{d}} {\disptable{}}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{v}}
+         {\wrongorerror{}}
+}
+{\opsem {\openv{}}
+        {\extendmultiexp {\e{m}} {\e{v}} {\e{f}}}
+        {\wrongorerror{}}
+      }
+
+\infer [BE-DefMethod3]
+{ \opsem {\openv{}}
+         {\e{m}}
+         {\multi {\v{d}} {\disptable{}}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{v}}
+         {\v{v}}
+         \\\\
+  \opsem {\openv{}}
+         {\e{f}}
+         {\wrongorerror{}}
+}
+{\opsem {\openv{}}
+        {\extendmultiexp {\e{m}} {\e{v}} {\e{f}}}
+         {\wrongorerror{}}
+      }
+
+\infer [BE-IsA1]
+{ \opsem {\openv{}} {\e{1}} {\wrongorerror{}}
+}
+{\opsem {\openv{}} {\isaapp {\e{1}} {\e{2}}} {\wrongorerror{}}}
+
+\infer [BE-IsA2]
+{ \opsem {\openv{}} {\e{1}} {\v{1}}
+  \\\\
+  \opsem {\openv{}} {\e{2}} {\wrongorerror{}}
+}
+{\opsem {\openv{}} {\isaapp {\e{1}} {\e{2}}} {\wrongorerror{}}}
+
+\infer [BE-Assoc1]
+{\opsem {\openv{}}
+        {\e{m}}{\wrongorerror{}} 
+}
+{
+ \opsem {\openv{}}
+        {\assocexp {\e{m}} {\e{k}} {\e{v}}} 
+        {\wrongorerror{}}
+                }
+
+\infer [BE-Assoc2]
+{\opsem {\openv{}}
+        {\e{m}} {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+        \\
+ \opsem {\openv{}}
+        {\e{k}}{\wrongorerror{}}
+}
+{
+ \opsem {\openv{}}
+        {\assocexp {\e{m}} {\e{k}} {\e{v}}} 
+        {\wrongorerror{}}
+                }
+
+\infer [BE-Assoc3]
+{\opsem {\openv{}}
+        {\e{m}} {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+        \\
+ \opsem {\openv{}}
+        {\e{k}} {\v{k}}
+        \\
+ \opsem {\openv{}}
+        {\e{v}} {\wrongorerror{}}
+}
+{
+ \opsem {\openv{}}
+        {\assocexp {\e{m}} {\e{k}} {\e{v}}} 
+        {\wrongorerror{}}
+                }
+
+\infer [BE-Get1]
+{\opsem {\openv{}}
+        {\e{m}} {\wrongorerror{}}
+}
+{
+ \opsem {\openv{}}
+        {\getexp {\e{m}} {\e{k}}}
+        {\wrongorerror{}}
+}
+
+\infer [BE-Get2]
+{\opsem {\openv{}}
+        {\e{m}} {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}}
+        \\
+ \opsem {\openv{}}
+        {\e{k}} {\wrongorerror{}}
+}
+{
+ \opsem {\openv{}}
+        {\getexp {\e{m}} {\e{k}}}
+        {\wrongorerror{}}
+}
+\end{mathpar}
+\caption{Error and stuck propagation}
+\label{appendix:figure:errorstuck}
+\end{figure*}
+
+
+
+
+
+\begin{figure*}
+\begin{mathpar}
+
+\begin{array}{lllll}
+  \inopenvalign{\openv{}}{\x{}}{\v{} & {\roundpair{\x{}}{\v{}}} \in \openv{}}\\
+  \inopenvalign{\openv{}}{\path {\keype{k}} {\object{}}}{\getexp {{\openv{}}(\object{})}{\k{}}}\\
+  \inopenvalign{\openv{}}{\path {\classpe{}} {\object{}}}{\appexp {\classconst{}} {{\openv{}}(\object{})}}
+
+\end{array}
+
+\end{mathpar}
+\caption{Path translation}
+\end{figure*}
