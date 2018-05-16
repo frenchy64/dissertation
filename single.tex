@@ -3,7 +3,7 @@
 %% For single-blind review submission
 %\documentclass[acmlarge,review]{acmart}\settopmatter{printfolios=true}
 %% For final camera-ready submission
-\documentclass[acmlarge]{acmart}\settopmatter{}
+\documentclass[acmlarge]{acmart}%\settopmatter{printfolios=true}
 
 %% Note: Authors migrating a paper from PACMPL format to traditional
 %% SIGPLAN proceedings format should change 'acmlarge' to
@@ -159,26 +159,26 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 
 
 
-\makeatletter\if@ACM@journal\makeatother
-%% Journal information (used by PACMPL format)
-%% Supplied to authors by publisher for camera-ready submission
-\acmJournal{PACMPL}
-\acmVolume{1}
-\acmNumber{1}
-\acmArticle{1}
-\acmYear{2017}
-\acmMonth{1}
-\acmDOI{10.1145/nnnnnnn.nnnnnnn}
-\startPage{1}
-\else\makeatother
-%% Conference information (used by SIGPLAN proceedings format)
-%% Supplied to authors by publisher for camera-ready submission
-\acmConference[PL'17]{ACM SIGPLAN Conference on Programming Languages}{January 01--03, 2017}{New York, NY, USA}
-\acmYear{2017}
-\acmISBN{978-x-xxxx-xxxx-x/YY/MM}
-\acmDOI{10.1145/nnnnnnn.nnnnnnn}
-\startPage{1}
-\fi
+%\makeatletter\if@ACM@journal\makeatother
+%%% Journal information (used by PACMPL format)
+%%% Supplied to authors by publisher for camera-ready submission
+%\acmJournal{PACMPL}
+%\acmVolume{1}
+%\acmNumber{1}
+%\acmArticle{1}
+%\acmYear{2017}
+%\acmMonth{1}
+%\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+%\startPage{1}
+%\else\makeatother
+%%% Conference information (used by SIGPLAN proceedings format)
+%%% Supplied to authors by publisher for camera-ready submission
+%\acmConference[PL'17]{ACM SIGPLAN Conference on Programming Languages}{January 01--03, 2017}{New York, NY, USA}
+%\acmYear{2017}
+%\acmISBN{978-x-xxxx-xxxx-x/YY/MM}
+%\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+%\startPage{1}
+%\fi
 
 
 %% Copyright information
@@ -192,11 +192,12 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 
 
 %% Bibliography style
-\bibliographystyle{ACM-Reference-Format}
+%\bibliographystyle{splncs03}
+%\bibliographystyle{ACM-Reference-Format}
 %% Citation style
 %% Note: author/year citations are required for papers published as an
 %% issue of PACMPL.
-\citestyle{acmauthoryear}   %% For author/year citations
+%\citestyle{acmauthoryear}   %% For author/year citations
 
 
 
@@ -205,7 +206,8 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 %\title{Development and study of Verification Tools for Clojure}
 %\title{Typed Clojure in Practice}
 %\title{Theory and Practice of Verification Tools for Clojure}
-%\title{Studies in }
+%\title{Theory, Practice, and Study of }
+\title{Thesis Proposal: Theory, Practice, and Study of Clojure Verification Techniques for Clojure}
 
 %% Author with single affiliation.
 \author{Ambrose Bonnaire-Sergeant}
@@ -238,6 +240,28 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 %% Note: \begin{abstract}...\end{abstract} environment must come
 %% before \maketitle command
 \begin{abstract}
+The Clojure programming language has existing tooling runtime and compile-time
+verification.
+
+This thesis argues Typed Clojure is sound and practical,
+that we can improve usability with automatic annotations based on runtime observations,
+and by repurposing this annotation technology to generate clojure.spec,
+we can answer broad questions about how Clojure is used.
+
+I will first present Typed Clojure, an optional type system for Clojure.
+I will show a formal model of Typed Clojure that includes
+key features like hash-maps, multimethods, Java interoperability, and occurrence typing,
+and prove the model type sound.
+Then, I will demonstrate that Typed Clojure's design is useful and corresponds to actual usage patterns
+with an emperical study of real-world Typed Clojure usage in over 19,000 lines of code.
+
+Next, I will present a tool that automatically generates Typed Clojure annotations based on observed
+program behavior.
+First, I will show a formal model of the tool, including its runtime instrumentation phase that
+collects samples from a running program, and type reconstruction phase
+that creates useful annotations from these samples.
+Then, I will synthesize these ideas into a practical implementation that
+
 \end{abstract}
 
 
@@ -276,6 +300,7 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 
 \section{Introduction}
 
+
 \subsection{Typed Clojure}
 
 \subsection{Automatic Type Annotations}
@@ -287,28 +312,34 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 My thesis statement is:
 
 \begin{quotation}
-Typed Clojure is a well-founded and practical optional type system for Clojure
-whose useability can be improved by
-developing a tool to automatically generate type annotations,
-and, by repurposing this tool, we can study general Clojure idioms and practices across
-hundreds of projects by generating, running, and exercising clojure.spec runtime specifications.
+Typed Clojure is a sound and practical optional type system for Clojure whose annotation burden is partially-automatable, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
+%Typed Clojure is sound, practical, and its annotation burden is partially-automatable,
+%and we can repurpose this annotation technology to
+%answer broad questions about how Clojure is used.
+%Typed Clojure is a well-founded and practical optional type system for Clojure
+%whose useability can be improved by
+%developing a tool to automatically generate type annotations,
+%and, by repurposing this tool, we can study general Clojure idioms and practices across
+%hundreds of projects by generating, running, and exercising clojure.spec runtime specifications.
 \end{quotation}
 
 I will support this thesis statement with the following:
 
 \begin{itemize}
-  \item \emph{Typed Clojure is well-founded} We formalize Typed Clojure, including
+  \item \emph{Typed Clojure is sound} We formalize Typed Clojure, including
     its characteristic features like hash-maps, multimethods, and Java interoperability,
     and prove the model type sound.
   \item \emph{Typed Clojure is practical} We present an emperical study of real-world Typed Clojure usage
     over 19,000 lines of code, showing its features correspond to actual usage patterns.
-  \item \emph{Automatic Type Annotations} We formalize and implement a tool to generate
+  \item \emph{Typed Clojure's annotation burden is partially-automatable} We formalize and implement a tool to generate
     type annotations, and emperically study the manual changes needed for the generated annotations
     to pass type checking.
-  \item \emph{clojure.spec model and Automatic Annotations} We present a formal model of clojure.spec (an existing
-    and popular runtime verification tool for Clojure) and implement the model in Redex.
-    We then describe how to automatically generate clojure.spec annotations (``specs'') for existing programs.
-  \item \emph{clojure.spec Study} 
+  %\item \emph{clojure.spec model and Automatic Annotations} 
+  \item \emph{Repurpose automation technology}
+    We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs.
+    We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
+    and implement the model in Redex.
+  \item \emph{Further reveal how Clojure is used in real projects}
     We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
     across hundreds of projects, as well as justifying design choices in Typed Clojure's type system,
     clojure.spec's features, and our automatic annotation tool.
@@ -317,6 +348,154 @@ I will support this thesis statement with the following:
 \section{Technical Overview}
 
 \section{Related Work}
+
+% Cite a few of the early papers here.
+%http://www.cs.washington.edu/research/projects/cecil/www/pubs/
+\paragraph{Multimethods} 
+Millstein and collaborators present a sequence of
+systems~\cite{Chambers:1992:OMC,Chambers:1994:TMM,MS02} with statically-typed multimethods
+and modular type checking.  In contrast to Typed Clojure, in these
+system methods declare the types of arguments that they expect which
+corresponds to exclusively using \clj{class} as the dispatch function
+in Typed Clojure. However, Typed Clojure does not attempt to rule out
+failed dispatches.
+
+% one sentence
+% TC based on TR, already covered
+
+\paragraph{Occurrence Typing} 
+Occurrence typing~\cite{TF08,TF10} extends the type 
+system with a \emph{proposition environment} that represents 
+the information on the types of bindings down conditional branches.
+These propositions are then used to update the types associated
+with bindings in the \emph{type environment} down branches
+so binding occurrences are given different types 
+depending on the branches they appear in, and the conditionals
+that lead to that branch.
+
+% What's diff about TC from the related work
+% small summary for deisel....
+% - diesel supports x
+%- - calculus supports some subset of x
+% we support y, which covers most of x but also foo
+
+% eg. multiple dispatch
+%     nominal vs structural
+
+% eg. run abritrary metaprogramming over dispatch in CLOS
+%  more expressive
+
+% type systems for mm or rows
+% rows vs HMap
+% - no poly in HMap
+% - based on subtyping
+% - rows based on polymorphism
+
+\paragraph{Record Types} Row polymorphism~\cite{Wand89typeinference,CM91,HP91}, used
+in systems such as the OCaml object system, provides many of the
+features of HMap types, but defined using universally-quantified row
+variables. HMaps in Typed Clojure are instead designed to be used with
+subtyping, but nonetheless provide similar expressiveness, including
+the ability to require presence and absence of certain keys. 
+
+Dependent JavaScript~\cite{Chugh:2012:DTJ} can track similar
+invariants as HMaps with types for JS objects. They must deal with
+mutable objects, they feature refinement types and strong updates to
+the heap to track changes to objects.
+
+TeJaS~\cite{TeJaS}, another type system for JavaScript,
+also supports similar HMaps, with the ability to
+record the presence and absence of entries, but lacks a compositional
+flow-checking approach like occurrence typing.
+
+Typed Lua~\cite{Maidl:2014:TLO} has \emph{table types} which track
+entries in a mutable Lua table.  Typed Lua changes the dynamic
+semantics of Lua to accommodate mutability: Typed Lua raises a runtime
+error for lookups on missing keys---HMaps consider lookups on missing
+keys normal.
+
+\paragraph{Java Interoperability in Statically Typed Languages}
+Scala~\cite{OCD+} has nullable references for compatibility with Java.
+Programmers must manually check for
+\java{null} as in Java to avoid null-pointer exceptions. 
+
+
+\paragraph{Other optional and gradual type systems}
+%In addition to Typed Racket, 
+Several other gradual type
+systems have been developed for existing
+dynamically-typed languages.  Reticulated Python~\cite{Vitousek14} is
+an experimental gradually typed system for Python, implemented as a
+source-to-source translation that inserts dynamic checks at language
+boundaries and supporting Python's first-class object system. 
+Clojure's nominal classes avoids the need to support
+first-class object system in Typed Clojure, however HMaps offer an alternative to
+the structural objects offered by Reticulated. Similarly,
+Gradualtalk~\cite{gradualtalk} offers gradual typing for Smalltalk,
+with nominal classes.
+
+Optional types
+%, requiring less implementation effort and avoiding
+%runtime cost, 
+have been  adopted in industry, including Hack~\cite{hack}, and Flow~\cite{flow} and
+TypeScript~\cite{typescript}, two extensions of JavaScript. These
+systems  support  limited forms of occurrence typing,
+and do not include the other features we
+present.
+
+%  \item GradualTalk
+%  \item Flow
+%\end{itemize}
+
+\paragraph{Automatic annotations}
+There are two common implementation strategies for such tools. The first
+strategy, ``ruling-out'' (for invariant detection), assumes all invariants are true 
+and then use runtime analysis results to rule out
+impossible invariants. The second ``building-up'' strategy (for dynamic type inference)
+assumes nothing and then uses runtime analysis results to build up invariant/type knowledge.
+
+Examples of invariant detection tools include Daikon \cite{Ernst06thedaikon},
+DIDUCE \cite{hangal2002tracking}, and Carrot \cite{pytlik2003automated}, and
+typically enhance statically typed languages with more expressive types or contracts.
+Examples of dynamic type inference include Rubydust \cite{An10dynamicinference},
+JSTrace \cite{saftoiu2010jstrace}, and TypeDevil \cite{pradel2015typedevil},
+and typically target untyped languages.
+
+Both strategies have different space behavior with respect to representing
+the set of known invariants.
+The ruling-out strategy typically uses a lot of memory at the beginning,
+but then can free memory as it rules out invariants. For example, if
+\texttt{odd(x)} and \texttt{even(x)} are assumed, observing \texttt{x = 1}
+means we can delete and free the memory recording \texttt{even(x)}.
+Alternatively, the building-up strategy uses the least memory storing
+known invariants/types at the beginning, but increases memory usage
+as more the more samples are collected. For example, if we know
+\texttt{x : Bottom}, and we observe \texttt{x = "a"} and \texttt{x = 1}
+at different points in the program, we must use more memory to
+store the union \texttt{x : String $\cup$ Integer} in our set of known invariants.
+
+\paragraph{Daikon}
+Daikon can reason about very expressive relationships between variables
+using properties like ordering ($x < y$), linear relationships ($y = ax + b$),
+and containment ($x \in y$). It also supports reasoning with ``derived variables''
+like fields ($x.f$), and array accesses ($a[i]$).
+
+Typed Clojure's dynamic inference can record heterogeneous data structures
+like vectors and hash-maps, but otherwise cannot express relationships
+between variables.
+
+There are several reasons for this. The most prominent is that Daikon
+primarily targets Java-like languages, so inferring simple type information
+would be redundant with the explicit typing disciplines of these languages.
+On the other hand, the process of moving from Clojure to Typed Clojure
+mostly involves writing simple type signatures without dependencies
+between variables. Typed Clojure recovers relevant dependent information
+via occurrence typing, and gives the option to manually annotate necessary
+dependencies in function signatures when needed.
+
+% Inference and Evolution of TypeScript Declaration Files
+% - they submit pull requests from their tool's output
+% https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
 
 \section{Research Plan and Timeline}
 
