@@ -1,4 +1,4 @@
-\section{Clojure with static typing}
+\subsection{Background: Clojure with static typing}
 
 % current situation 
 
@@ -10,14 +10,14 @@ gradual type systems aimed at checking existing programs written in
 existing languages.  These include  TypeScript~\cite{typescript} and Flow~\cite{flow} for
 JavaScript, Hack~\cite{hack} for PHP, and mypy~\cite{mypy}
 for Python among the optional systems, and Typed Racket~\cite{TF08}, Reticulated
-Python~\cite{Vitousek14}, and GradualTalk~\cite{gradualtalk} among gradually-typed systems.\footnote{We
+Python~\cite{Vitousek14}, and Gradualtalk~\cite{gradualtalk} among gradually-typed systems.\footnote{We
   use ``gradual typing'' for systems like Typed Racket with sound
   interoperation between typed and untyped code; Typed Clojure or
  TypeScript which don't
   enforce type invariants we describe as ``optionally typed''.}
 
 One key lesson of these systems, indeed a lesson known to early
-developers of optional type systems such as StrongTalk, is that type
+developers of optional type systems such as Strongtalk, is that type
 systems for existing languages must be designed to work with the
 features and idioms of the target language. Often this takes the form
 of a core language, be it of functions or classes and objects,
@@ -50,22 +50,6 @@ $\lambda$-calculus over a variety of base types shared between all Lisp systems.
 %
 Furthermore, Typed Racket's \emph{occurrence typing} has proved
 necessary for type checking realistic Clojure programs.
-
-\begin{figure*}[t!]
-  \normalsize
-\begin{lstlisting}
-(*typed ann pname [(U File String) -> (U nil String)] typed*)
-(defmulti pname class)  ; multimethod dispatching on class of argument
-(defmethod pname String [s] (*invoke pname (*interop new File s interop*) invoke*)) ; String case 
-(defmethod pname File [f] (*interop .getName f interop*)) ; File case, static null check
-(*invoke pname "STAINS/JELLY" invoke*) ;=> "JELLY" :- (U nil Str)
-\end{lstlisting}
-\caption{A simple Typed Clojure program (delimiters: {\color{interop}Java interoperation (green)}, 
-  {\color{types}type annotation (blue)},
-  {\color{invoke}function invocation (black)}, {\color{red}collection literal (red)}, {\color{mygray}other (gray)})}
-\label{fig:ex1}
-\end{figure*}
-
 
 However, Clojure goes beyond Racket in many ways, requiring several
 new type system features which we detail in this paper.
@@ -119,54 +103,70 @@ they are crucial features for handling Clojure code in
 practice. Typed Clojure's use in real Clojure deployments would not be
 possible without effective handling of these three Clojure features. 
 
+\begin{figure*}[t!]
+  \normalsize
+\begin{lstlisting}
+(*typed ann pname [(U File String) -> (U nil String)] typed*)
+(defmulti pname class)  ; multimethod dispatching on class of argument
+(defmethod pname String [s] (*invoke pname (*interop new File s interop*) invoke*)) ; String case 
+(defmethod pname File [f] (*interop .getName f interop*)) ; File case, static null check
+(*invoke pname "STAINS/JELLY" invoke*) ;=> "JELLY" :- (U nil Str)
+\end{lstlisting}
+\caption{A simple Typed Clojure program (delimiters: {\color{interop}Java interoperation (green)}, 
+  {\color{types}type annotation (blue)},
+  {\color{invoke}function invocation (black)}, {\color{red}collection literal (red)}, {\color{mygray}other (gray)})}
+\label{fig:ex1}
+\end{figure*}
+
+
 %\subsection{Contributions}
 
-Our main contributions are as follows:
-
-\begin{enumerate}
-  \item We motivate and describe  Typed Clojure, an optional
-    type system for Clojure that understands existing Clojure idioms.
-  \item We present a sound formal model for three crucial type
-    system features: multi-methods, Java
-    interoperability, and heterogenous maps.
-  \item We evaluate the use of Typed Clojure features on existing
-    Typed Clojure code, including both open source and in-house systems.
-\end{enumerate}
-
-
-
-%% \begin{figure}
-%% \inputminted[firstline=5]{clojure}{code/demo/src/demo/parent2.clj}
-%% \caption{A simple Typed Clojure program}
-%% \label{fig:ex1}
-%% \end{figure}
-
-%% Figure~\ref{fig:ex1} presents a simple program demonstrating many
-%% aspects of our system, from simple type annotations to explicit
-%% handling of Java's \java{null} (written \clj{nil}) in interoperation, as well as an
-%% extended form of occurrence typing and method resolution of
-%% Java interoperability based on static type information.
-
-%% The \clj{parent} function has the type 
-%% $$
-%% \clj{['{:file (U nil File)} -> (U nil Str)]}
-%% $$
-%% which means that it takes a hash table whose \clj{:file} key maps to either
-%% \clj{nil} or a \clj{File}, and it produces either \clj{nil} or a
-%% \clj{String}. The \clj{parent} function uses the \clj{:file} keyword
-%% as an accessor to get the file, checks that it isn't \clj{nil}, and
-%% then obtains the parent by making a Java method call.
-
-\noindent
- The remainder of this paper begins with an example-driven
- presentation of the main type system features in
- \secref{sec:overview}. We then incrementally present a core calculus
- for Typed Clojure covering all of these features together in
- \secref{sec:formal} and prove type soundness
- (\secref{sec:metatheory}). We then 
- %discuss the full implementation of
- %Typed Clojure, \coretyped{}, which extends the formal model in many ways, 
- present an empirical analysis of significant code bases written
- in \coretyped{}---the full implementation of Typed Clojure---in \secref{sec:experience}. 
- Finally, we discuss related work and conclude.
-
+%Our main contributions are as follows:
+%
+%\begin{enumerate}
+%  \item We motivate and describe  Typed Clojure, an optional
+%    type system for Clojure that understands existing Clojure idioms.
+%  \item We present a sound formal model for three crucial type
+%    system features: multi-methods, Java
+%    interoperability, and heterogenous maps.
+%  \item We evaluate the use of Typed Clojure features on existing
+%    Typed Clojure code, including both open source and in-house systems.
+%\end{enumerate}
+%
+%
+%
+%%% \begin{figure}
+%%% \inputminted[firstline=5]{clojure}{code/demo/src/demo/parent2.clj}
+%%% \caption{A simple Typed Clojure program}
+%%% \label{fig:ex1}
+%%% \end{figure}
+%
+%%% Figure~\ref{fig:ex1} presents a simple program demonstrating many
+%%% aspects of our system, from simple type annotations to explicit
+%%% handling of Java's \java{null} (written \clj{nil}) in interoperation, as well as an
+%%% extended form of occurrence typing and method resolution of
+%%% Java interoperability based on static type information.
+%
+%%% The \clj{parent} function has the type 
+%%% $$
+%%% \clj{['{:file (U nil File)} -> (U nil Str)]}
+%%% $$
+%%% which means that it takes a hash table whose \clj{:file} key maps to either
+%%% \clj{nil} or a \clj{File}, and it produces either \clj{nil} or a
+%%% \clj{String}. The \clj{parent} function uses the \clj{:file} keyword
+%%% as an accessor to get the file, checks that it isn't \clj{nil}, and
+%%% then obtains the parent by making a Java method call.
+%
+%\noindent
+% The remainder of this paper begins with an example-driven
+% presentation of the main type system features in
+% \secref{sec:overview}. We then incrementally present a core calculus
+% for Typed Clojure covering all of these features together in
+% \secref{sec:formal} and prove type soundness
+% (\secref{sec:metatheory}). We then 
+% %discuss the full implementation of
+% %Typed Clojure, \coretyped{}, which extends the formal model in many ways, 
+% present an empirical analysis of significant code bases written
+% in \coretyped{}---the full implementation of Typed Clojure---in \secref{sec:experience}. 
+% Finally, we discuss related work and conclude.
+%
