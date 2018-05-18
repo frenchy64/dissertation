@@ -8,7 +8,7 @@
        &\mbox{Values} \\
    \exp{} &::=& \xvar{}
        \alt \val
-       \alt \trackE{\exp}{\pi{}}
+       \alt \trackE{\exp}{\inferpath{}}
        \alt \lambda \xvar{}. \exp{}
        \alt \{\overrightarrow{\exp\ \exp}\}
        \alt (\exp{}\ \exp{})
@@ -21,10 +21,10 @@
        \alt \rngpe{}
        \alt \inferkeype{\overrightarrow{\kw{}}}{\kw{}}
        &\mbox{Path Elements} \\
-     \pi &::=& \overrightarrow{\pth{}}
+   \inferpath{} &::=& \overrightarrow{\pth{}}
        &\mbox{Paths} \\
        \res{}
-      &::=& \{\overrightarrow{\path{} : \tau}\}
+      &::=& \{\overrightarrow{\inferpath{} : \tau}\}
       &\mbox{Inference results} \\
     \ty{}, \sigma
       &::=& \IntT{}
@@ -45,4 +45,6 @@
       &\mbox{Combined environments} \\
   \end{altgrammar}
   $$
+  \label{infer:grammar}
+  \caption{Grammar for the Automatic Annotation tool}
 \end{figure*}

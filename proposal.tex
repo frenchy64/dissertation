@@ -579,6 +579,34 @@ that uses \coretyped{} in production (\figref{experience:featuretable}).
 
 \subsection{Automatic Annotations}
 
+We provide a preliminary grammar for our formal treatment of automatic
+annotations, and a semantics for the instrumentation phase
+of our automatic annotator.
+The full thesis will describe the type reconstruction algorithm in
+detail.
+
+\figref{infer:grammar} presents the grammar. Similar to Typed Clojure's
+formalism, we use paths $\inferpath{}$ to represent a path through
+a value. Path elements consist of the domain of a function $\dompe{}$,
+the range of a function $\rngpe{}$, and the result of a map lookup 
+of key ${\kw2{}}$ on a map with key set ${\overrightarrow{\kw1{}}}$
+$\inferkeype{\overrightarrow{\kw1{}}}{\kw2{}}$.
+Inference results $\res{}$ are collected during execution, and
+associate a path $\inferpath{}$ with the type of value observed
+at that path $\tau$.
+
+\figref{infer:semantics} gives a semantics for the instrumentation
+phase of the automatic annotation tool.
+Most rules are standard, with B-Get and B-Assoc responsible for
+looking up and associating new entries onto maps.
+The B-Track rule is the entry point for tracking values,
+calling $\trackmeta{}$ (\figref{infer:track}), that
+rewrites a value $\val{}$ to $\val{}'$ and generates inference
+results $\res{}'$ based on the input that $\inferpath{}$
+is the path of $\val{}$.
+
+\input{infer-grammar}
+\input{infer-semantics}
 \input{infer-track}
 
 \section{Related Work}
@@ -733,38 +761,38 @@ dependencies in function signatures when needed.
 I have already made progress towards my thesis:
 
 \begin{itemize}
-	\item I have formalized Typed Clojure, including
-		its characteristic features like hash-maps, multimethods, and Java interoperability,
-		and prove the model type sound.
+  \item I have formalized Typed Clojure, including
+    its characteristic features like hash-maps, multimethods, and Java interoperability,
+    and prove the model type sound.
   \item I have conducted an emperical study of real-world Typed Clojure usage
     in over 19,000 lines of code, showing its features correspond to actual usage patterns.
   \item I have implemented and publicly released a tool that generates
     Typed Clojure and clojure.spec annotations, and started on a formalism.
-	\item I have started an emperical study the of manual changes needed for the generated annotations
+  \item I have started an emperical study the of manual changes needed for the generated annotations
     to pass type checking is in progress.
-	\item I have successfully run my clojure.spec annotation tool on several hundred open-source projects that
-		will be used to drive further studies.
+  \item I have successfully run my clojure.spec annotation tool on several hundred open-source projects that
+    will be used to drive further studies.
 \end{itemize}
 
 To complete my thesis, I plan to follow this timeline:
 
 \begin{itemize}
   \item \textbf{[June-July 2018]} Fix spec generation.
-		\begin{itemize}
+    \begin{itemize}
       \item devise and implement a one or more strategies to handle clojure.spec's
         heterogeneous map spec (and intelligently register global spec aliases)
       \item test out specs generation on candidate projects and improve the tool to fix obvious
         defects
-		\end{itemize}
+    \end{itemize}
   \item \textbf{[July-August 2018]} Finish formal model of annotation tool.
-		\begin{itemize}
-			\item update formal model for annotation tool to include latest
+    \begin{itemize}
+      \item update formal model for annotation tool to include latest
         optimizations and fixes in recursive type reconstruction.
-		\end{itemize}
+    \end{itemize}
   \item \textbf{[August-September 2018]} Devise and carry out automatic annotation experiments
-		\begin{itemize}
-			\item formulate and complete larger scale study on generation of specs for hundreds of projects.
-		\end{itemize}
+    \begin{itemize}
+      \item formulate and complete larger scale study on generation of specs for hundreds of projects.
+    \end{itemize}
   \item \textbf{[September-November 2018]} Write paper (PLDI submission)
   \item \textbf{[November 2018-May 2019]} Write dissertation
   \item \textbf{[June 2019]} Defend
@@ -779,10 +807,10 @@ I plan to publish the following papers:
     A paper that provides a formal model of Typed Clojure and presents an emperical
     study of usage patterns.
   \item \textbf{Spring 2018} \emph{Squash the work: Automatic annotations for Typed Clojure and clojure.spec}
-		A paper that presents a tool capable of generating Typed Clojure and clojure.spec
-		annotations based on runtime observations of the program.
-		We present a formal model of the tool, as well as several manual experiments in how
-		accurate our annotations are.
+    A paper that presents a tool capable of generating Typed Clojure and clojure.spec
+    annotations based on runtime observations of the program.
+    We present a formal model of the tool, as well as several manual experiments in how
+    accurate our annotations are.
     We conduct a larger study by sourcing several hundred projects and automatically
     generating types and specs, then using these annotations to answer various questions
     about how clojure.spec and Clojure is used.

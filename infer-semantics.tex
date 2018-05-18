@@ -1,0 +1,56 @@
+\begin{figure*}
+\begin{mathpar}
+%\infer [B-Var]
+%{ track(\rho(x), [x]) = v\ ; res }
+%{ \rho \vdash x \Downarrow v\ ; res}
+
+% track is inserted manually
+\infer [B-Var]
+{}
+{\bigstep{\rho}{\xvar{}}{\rho(\xvar{})}{\{\}}}
+
+\infer [B-Track]
+{ \bigstep{\rho}{\exp{}}{\val{}}{\res{}} \\
+  \trackmeta{}(\val{}, \inferpath{}) = \val{}'\ ; \res{}' }
+{ \bigstep{\rho}{\trackE{\exp{}}{\inferpath{}}}{\val{}'}{\res{} \sqcup \res{}'} }
+
+\infer [B-App]
+{ \bigstep{\rho}{\exp1}{[\lambda \xvar{}. \exp{}, \rho']}{\res1} \\\\
+  \bigstep{\rho}{\exp2}{\val{}}{\res2} \\\\
+  \bigstep{\rho', \xvar{} \mapsto \val{}}{\exp{}}{\val{}'}{\res3} \\
+}
+{ \bigstep{\rho}{(\exp1\ \exp2)}{\val{}'}{\res1 \sqcup \res2 \sqcup \res3}}
+
+\infer [B-Clos]
+{}
+{ \bigstep{\rho}{\lambda \xvar{}. \exp{}}{[\lambda \overrightarrow{\xvar{}} . \exp{}, \rho ]}{\{\}}}
+
+\infer [B-Val]
+{}
+{ \bigstep{\rho}{\val{}}{\val{}}{\{\}} }
+
+%\infer [B-Map]
+%{ \overrightarrow{\rho \vdash e_1 \Downarrow v_1\ ; res_1 \ \ 
+%  \rho \vdash e_2 \Downarrow v_2\ ; res_2} \\
+%}
+%{ \rho \vdash \{\overrightarrow{e_1\ e_2}\} \Downarrow \{\overrightarrow{v_1\ v_2}\}\ ; \overrightarrow{res_1} \sqcup \overrightarrow{res_2}}
+
+\infer [B-Get]
+{ \bigstep{\rho}{\exp1}{\{ \overrightarrow{\kw{}\ \val{}} \}}{\res1} \\
+  \bigstep{\rho}{\exp2}{\kw1}{\res2} \\
+}
+{ \bigstep{\rho}{(get\ \exp1\ \exp2)}{\{ \overrightarrow{\kw{}\ \val{}} \}[\kw1]}{\res1 \sqcup \res2}
+}
+
+\infer [B-Assoc]
+{ 
+  \bigstep{\rho}{\exp1}{\{ \overrightarrow{\kw{}\ \val{}}\}}{\res1} \\
+  \bigstep{\rho}{\exp2}{\kw1}{\res2} \\
+  \bigstep{\rho}{\exp3}{\val{}}{\res3} \\
+}
+{ \bigstep{\rho}{\assocE{\exp1}{\exp2}{\exp3}}{\{ \overrightarrow{\kw{}\ \val{}} \}[\kw1 \mapsto \val{}]}{\res1 \sqcup \res2 \sqcup \res3}
+}
+\end{mathpar}
+  \label{infer:semantics}
+  \caption{Runtime instrumentation semantics for the automatic annotation tool}
+\end{figure*}
