@@ -621,7 +621,7 @@ natural to dispatch on a known entry like \clj{:Meal}.
 The \clj{:combo} method is verified to only structurally recur
 on \clj{Order}s. This is achieved because we learn the argument \clj{o} must
 be of type
-\clj{'\{:Meal :combo\}}
+\clj{'\{:Meal ':combo\}}
 since
 \clj{(isa? (:Meal o) :combo)}
 is true. Combining this
@@ -686,7 +686,7 @@ must be true---which implies \clj{(*invoke class (*invoke :desserts o invoke*) i
 %
 Since lookups on missing keys return \clj{nil}, either
 \begin{itemize}
-  \item \clj{o} has a \clj{:desserts} entry to \clj{nil}, like \clj{{:desserts nil}}, or
+  \item \clj{o} maps the \clj{:desserts} entry to \clj{nil}, like the value \clj{\{:desserts nil\}}, or
   \item \clj{o} is missing a \clj{:desserts} entry.%, like \clj{{}}.
 \end{itemize}
 We can express this type with the \clj{:absent-keys} HMap option
@@ -710,7 +710,7 @@ is neither \clj{nil} or absent).
 Clojure multimethod dispatch, and Typed Clojure's handling of it, goes
 even further, supporting dispatch on multiple arguments via vectors.
 %
-Dispatch on multiple arguments is beyond the scope of this paper,
+Dispatch on multiple arguments is beyond the scope of this section,
 but the same intuition applies---adding support for multiple dispatch
 admits arbitrary combinations and nestings
 of it and previous dispatch rules.

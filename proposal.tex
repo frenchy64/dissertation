@@ -20,7 +20,7 @@ We present Typed Clojure, an optional type system for the Clojure programming la
 This thesis argues Typed Clojure is sound and practical,
 that we can improve its usability by automatically generating type annotations based on runtime observations,
 and then we can repurpose this annotation technology to generate clojure.spec runtime specifications
-and test its accuracy in hundreds of projects.
+and evaluate these annotations in hundreds of projects.
 %.
 %and answer broad questions about how Clojure is used.
 
@@ -93,7 +93,7 @@ Take \texttt{vertices} (below, written in Clojure)
 a function that returnes the number of vertices
 in a tree of tagged hash-maps.
 As is good style, it comes with a unit test.
-Our goal is to \textit{generate} Typed Clojure~\cite{bonnaire2016practical}
+Our goal is to \textit{automatically generate} semi-accurate Typed Clojure %~\cite{bonnaire2016practical}
 annotations
 for this function, relieving most of the annotation
 burden.
@@ -110,21 +110,24 @@ burden.
             :right {:op :leaf :val 24}})))
 \end{Verbatim}
 
-Our approach features several stages.
-First, we \textit{instrument} top-level functions,
-then run the unit tests and \textit{track}
-how they are used at runtime.
-At this point, we have a preliminary
-annotation:
+Our approach to automatic annotations features several stages.
+First, we \textit{instrument} top-level functions.
+Then, we \textit{exercise} the code by running its unit tests and \textit{observe}
+the runtime behavior of the program.
+If we pause at this point, we have collected enough data 
+to generate a preliminary annotation:
 %
 \begin{Verbatim}
 (ann vertices ['{:op ':node, :left '{:op ':leaf, :val Int}, :right '{:op ':leaf, :val Int}} -> Int]})
 \end{Verbatim}
 %
-This type is too specific---trees are recursively
-defined---we \textit{squash} types to be
-recursive from example unrollings:
-
+However, this type is too specific: trees are recursively defined
+and the argument type is difficult to read and maintain.
+To remedy this, we attempt to roll recursive-looking
+types to be recursive from their example unrollings.
+For example, below we have generalized the preliminary annotation's
+depth 2 tree to the recursive \texttt{NodeLeaf}.
+%
 \begin{Verbatim}
 (defalias NodeLeaf 
   (U '{:op ':node :left NodeLeaf :right NodeLeaf}
@@ -141,10 +144,11 @@ recursive from example unrollings:
 %(ann verbatim [NodeLeaf -> Int]})
 %\end{Verbatim}
 %
-If \texttt{NodeLeaf} is used in multiple positions
-in the program, local recursive types are redundant.
-In this thesis, we will name and \textit{merge} recursive
-types, reusing them in annotations. For example,
+Now, if \texttt{NodeLeaf} is used in multiple positions
+in the program, we don't want to repeat its definition multiple times.
+Our type inference algorithm attempts merge recursive
+types found throughout the program, reusing them in annotations.
+For example,
 if another function \texttt{sum-tree} accepts two
 trees, we want reuse \texttt{NodeLeaf} in both annotations
 like so:
@@ -156,7 +160,7 @@ like so:
 
 If minor variants of the recursive types occur
 across a program,
-we use \textit{optional} entries~\cite{bonnaire2016practical}
+we use optional \texttt{HMap} entries %~\cite{bonnaire2016practical}
 to reduce redundancy.
 %
 \begin{Verbatim}
@@ -168,13 +172,12 @@ to reduce redundancy.
 %
 After inserting these annotations, we can run the
 type checker over them to check their usefulness.
-We found annotations to be readable and minimize
-redundancy compared to hand-written annotations.
-
 Ideally, minimal changes will be needed to successfully type check
 functions with the generated annotations,
 mostly consisting of local function and loop annotations,
 and renaming of type aliases.
+Annotations should also be readable and minimize
+redundancy, even when compared to hand-written annotations.
 We will test this hypothesis with case studies
 (\secref{sec:casestudy}).
 %Generating and running \textit{tests} improved the quality
@@ -183,18 +186,17 @@ We will test this hypothesis with case studies
 
 \subsection{Automatic Annotation Approach}
 
-Now that we have introduced the problem,
-we can flesh out our philosophy and overall approach to automatic
-annotations.
+Now that we have introduced the problem of automatic annotations and some
+of its subtleties, we can flesh out our philosophy and overall approach.
 At a high level, there are three phases to
-generating types: instrumentation, runtime tracking, and type reconstruction.
+generating annotations: instrumentation, runtime tracking, and type reconstruction.
 
 The first phase, \textbf{instrumentation}, involves
 rewriting the code we wish to annotate such
 that we can record its runtime behavior.
-In this phase, we require the programmer to
+In this phase, we usually require the programmer to
 indicate which code we wish to generate types
-for, in advance.
+for in advance, with a file-level granuality.
 
 Once instrumented, we observe our running program
 via \textbf{runtime tracking}. To exercise our programs,
@@ -300,8 +302,10 @@ approximation of this type.
 
 \subsection{Overview of clojure.spec}
 
-Recently, Clojure added a runtime verification system to its core library called
-\texttt{clojure.spec}.
+This thesis claims that we can automatically generate annotations to other verification
+systems similar to Typed Clojure.
+We add a second usecase to strengthen our claim: generating annotations for \texttt{clojure.spec},
+a runtime verification library recently added to Clojure's core library.
 It resembles common approaches to runtime verification, such as Racket's contract
 system, but is different in several important ways.
 
@@ -406,12 +410,52 @@ yielding a value \texttt{(2 3 4)}. Instrumentation does not check return value s
 so \texttt{(s/coll-of int?)} is ignored, and the original return value is passed to the calling
 context.
 
+\subsection{Automatic Annotations for clojure.spec}
+
+Having introduced \texttt{clojure.spec}, we now give an overview
+of how to repurpose our automatic annotation technology to generate specs.
+At a glance, the problems of generating annotations for Typed Clojure
+and \texttt{clojure.spec} are similar, and indeed we can reuse much
+of the machinery from our approach to generating Typed Clojure annotations.
+The differences lie mostly in the finally type reconstruction phase.
+
+There are several important surprises in \texttt{clojure.spec}'s
+philosophy and design that complicate its annotation story.
+First, \texttt{clojure.spec} does not support local key-type pairs
+in its heterogeneous map specification--instead you are forced
+to globally define map entries as \emph{spec aliases}.
+
+For example, the Typed Clojure type \clj{'\{:a Int\}} must be
+written \clj{(s/keys :req-un [:my-ns/a])}, along with the following
+global definition of the spec alias \clj{:my-ns/a}.
+\begin{verbatim}
+(s/def :my-ns/a int?)
+\end{verbatim}
+When \clj{(s/keys :req-un [:my-ns/a])} is checked against a value,
+it first locates the spec under \clj{:my-ns/a}, and (because
+we have declared the key to be \clj{:req-un}, that is, required
+but unqualified), we use the located \clj{int?} spec
+to check against the \clj{:a} entry of the value.
+Furthermore, if the key was declared as \clj{:req} instead of \clj{:req-un},
+the fully qualified keyword entry \clj{:my-ns/a} would be checked
+against \clj{int?}.
+This means that there is \emph{exactly one} spec for each fully
+qualified keyword entry.
+
+This raises several interesting design issues related to reusing
+specs that are very different from the simpler problem of generating
+Typed Clojure \clj{HMap} types. 
+How do we decide which namespace to register unqualified map entries?
+Should we assume similar looking keyword entries are in fact the same, and register their specs under the same namespace?
+How do we handle fully qualified keyword entries?
+
 \section{Thesis Statement}
 
 My thesis statement is:
 
 \begin{quotation}
-Typed Clojure is a sound and practical optional type system for Clojure whose annotation burden is partially-automatable, and this automation technology can be repurposed to generate clojure.spec annotations and test its effectiveness in hundreds of projects.
+Typed Clojure is a sound and practical optional type system for Clojure, and we can relieve the annotation burden for such verification systems by automatically annotating programs based on their runtime behavior.
+%Typed Clojure is a sound and practical optional type system for Clojure whose annotation burden is partially-automatable, and this automation technology can be repurposed to generate clojure.spec annotations and test its effectiveness in hundreds of projects.
 % to study how Clojure is used in real projects.
 %Typed Clojure is sound, practical, and its annotation burden is partially-automatable,
 %and we can repurpose this annotation technology to
@@ -436,7 +480,8 @@ I will support this thesis statement with the following:
     to pass type checking.
   %\item \emph{clojure.spec model and Automatic Annotations} 
   %\item \emph{Repurpose automation technology}
-  \item \emph{Repurpose automation technology}
+  %\item \emph{Repurpose automation technology}
+  \item \emph{clojure.spec spec's annotation burden is partially-automatable}
     We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs.
     We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
     and implement the model in Redex.
