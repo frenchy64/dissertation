@@ -76,7 +76,6 @@ then motivates the idea of automatically generating Typed Clojure annotations,
 and finally describes clojure.spec along with some of its features.
 
 \input{esop-intro}
-\input{esop-overview}
 
 \subsection{Automatic Type Annotations}
 
@@ -236,7 +235,8 @@ can use to help learn about and specify their programs.
 In that spirit, annotations should meet several criteria.
 
 \paragraph{Good names}
-Typed Clojure and clojure.spec annotations are abundant
+Typed Clojure %and clojure.spec 
+annotations are abundant
 with useful names for types. A good name often increases
 readability.
 Good names can sometimes be reconstructed from the program source,
@@ -253,7 +253,8 @@ type check our programs.
 
 \paragraph{Recursive}
 Maps in Clojure are often heterogeneous, and recursively defined.
-Typed Clojure and clojure.spec supplies mechanisms for the most
+Typed Clojure %and clojure.spec 
+supplies mechanisms for the most
 common case: maps of known keyword entries.
 We strategically \textbf{squash} flat types to be recursive
 based on their unrolled shape.
@@ -300,161 +301,164 @@ approximation of this type.
 %(defn f [x] (inc x))
 %\end{Verbatim}
 
-\subsection{Overview of clojure.spec}
-
-This thesis claims that we can automatically generate annotations to other verification
-systems similar to Typed Clojure.
-We add a second usecase to strengthen our claim: generating annotations for \texttt{clojure.spec},
-a runtime verification library recently added to Clojure's core library.
-It resembles common approaches to runtime verification, such as Racket's contract
-system, but is different in several important ways.
-
-Firstly, \texttt{clojure.spec} is designed to treat most values as ``data at rest''. That is,
-at verification sites, values are eagerly traversed without waiting to see
-if or how the program actually uses them.
-When we consider that \texttt{clojure.spec} treats infinite streams
-and functions as data at rest, we begin to see the tradeoffs that have been
-made.
-
-Secondly, specifications (called ``specs'') are not enforced by default. Users must
-opt-in to enforcing specs via an explicit instrumentation phase.
-This is also different than most contract systems, many of which are enforced
-by default. There is no standard way to integrate spec enforcement into a
-test suite, so it is difficult to tell whether specific specs are primarily 
-unchecked documentation, or actually used for runtime verification.
-
-Since \texttt{clojure.spec} has a unique feature set amongst runtime verification
-libraries, it is interesting to consider how programmers use \texttt{clojure.spec}
-in practice. For example, do programmers find the semantics of treating functions
-as data at rest useful?
-
-%Unfortunately since specs are opt-in, it is difficult to
-%correlate someone writing a spec with that person \emph{using} the spec,
-%implying spec's semantics as being useful.
-%Nevertheless, in the following sections we attempt to draw conclusions about
-%spec's common usage based mostly on the frequency of spec annotations.
-
-\subsection{Function specifications in clojure.spec}
-
-We now give a brief introduction to what using clojure.spec is like,
-focussing on the semantics of the different kinds of function specifications
-it supports.
-
-(From here, we map the namespace prefix \texttt{s} to \texttt{clojure.spec.alpha},
-and \texttt{stest} to \texttt{clojure.spec.test.alpha}.)
-
-\begin{verbatim}
-(require '[clojure.spec.alpha :as s])
-(require '[clojure.spec.test.alpha :as stest])
-\end{verbatim}
-
-There are two kinds of function checking semantics in \texttt{clojure.spec}.
-We use \texttt{intmap}, a higher-order function that maps a function over 
-a collection of ints, to demonstrate both semantics.
-
-\begin{verbatim}
-(defn intmap
-  "Maps a collection of ints over a function."
-  [f c]
-  (map f c))
-\end{verbatim}
-
-If the programmer wants to write a higher-order function spec to
-verify \texttt{intmap}, they might write the following spec.
-
-\begin{verbatim}
-(s/fdef intmap
-  :args (s/cat :f (s/fspec :args (cat :x int?) :ret int?)
-               :c (s/coll-of int?))
-  :ret (s/coll-of int?))
-\end{verbatim}
-
-The \texttt{s/fdef} form signals we are annotating a top-level
-function, in this case \texttt{intmap}. Argument specs are
-provided with the \texttt{:args} keyword option
-in the form of the ``tagged'' heterogeneous collection spec
-\texttt{s/cat}---here 2 arguments are allowed, tagged as
-\texttt{:f} for the function and \texttt{:c} as the collection.
-
-The \texttt{s/fspec} spec is another kind of function spec,
-specifically for non-top-level functions (such as function arguments
-to top-level functions). It has a similar syntax to \texttt{s/fdef},
-but a function name is not provided.
-
-In a nutshell, \texttt{s/fdef} provides traditional proxy-based
-verification semantics while \texttt{s/fspec} uses eager \emph{generative testing}
-to exercise a function before letting it pass the spec boundary, bare (without a proxy).
-
-We will now demonstrate how the following call gets checked.
-
-\begin{verbatim}
-(intmap inc [1 2 3])
-;=> (2 3 4)
-\end{verbatim}
-
-First, the programmer instruments \texttt{intmap} with:
-
-\begin{verbatim}
-(stest/instrument `intmap)
-\end{verbatim}
-
-This mutates the top-level binding associated with \texttt{intmap}, wrapping a function
-proxy around the original value.
-
-Now, when checking \texttt{(intmap inc [1 2 3])}, the \texttt{inc} function is
-called several hundred times with generated values conforming to \texttt{int?},
-and checks each call returns an \texttt{int?}.
-Then, \texttt{[1 2 3]} is eagerly checked against \texttt{(s/coll-of int?)}.
-The original \texttt{intmap} function is then called with the original arguments,
-yielding a value \texttt{(2 3 4)}. Instrumentation does not check return value specs,
-so \texttt{(s/coll-of int?)} is ignored, and the original return value is passed to the calling
-context.
-
-\subsection{Automatic Annotations for clojure.spec}
-
-Having introduced \texttt{clojure.spec}, we now give an overview
-of how to repurpose our automatic annotation technology to generate specs.
-At a glance, the problems of generating annotations for Typed Clojure
-and \texttt{clojure.spec} are similar, and indeed we can reuse much
-of the machinery from our approach to generating Typed Clojure annotations.
-The differences lie mostly in the finally type reconstruction phase.
-
-There are several important surprises in \texttt{clojure.spec}'s
-philosophy and design that complicate its annotation story.
-First, \texttt{clojure.spec} does not support local key-type pairs
-in its heterogeneous map specification--instead you are forced
-to globally define map entries as \emph{spec aliases}.
-
-For example, the Typed Clojure type \clj{'\{:a Int\}} must be
-written \clj{(s/keys :req-un [:my-ns/a])}, along with the following
-global definition of the spec alias \clj{:my-ns/a}.
-\begin{verbatim}
-(s/def :my-ns/a int?)
-\end{verbatim}
-When \clj{(s/keys :req-un [:my-ns/a])} is checked against a value,
-it first locates the spec under \clj{:my-ns/a}, and (because
-we have declared the key to be \clj{:req-un}, that is, required
-but unqualified), we use the located \clj{int?} spec
-to check against the \clj{:a} entry of the value.
-Furthermore, if the key was declared as \clj{:req} instead of \clj{:req-un},
-the fully qualified keyword entry \clj{:my-ns/a} would be checked
-against \clj{int?}.
-This means that there is \emph{exactly one} spec for each fully
-qualified keyword entry.
-
-This raises several interesting design issues related to reusing
-specs that are very different from the simpler problem of generating
-Typed Clojure \clj{HMap} types. 
-How do we decide which namespace to register unqualified map entries?
-Should we assume similar looking keyword entries are in fact the same, and register their specs under the same namespace?
-How do we handle fully qualified keyword entries?
+%\subsection{Overview of clojure.spec}
+%
+%This thesis claims that we can automatically generate annotations to other verification
+%systems similar to Typed Clojure.
+%We add a second usecase to strengthen our claim: generating annotations for \texttt{clojure.spec},
+%a runtime verification library recently added to Clojure's core library.
+%It resembles common approaches to runtime verification, such as Racket's contract
+%system, but is different in several important ways.
+%
+%Firstly, \texttt{clojure.spec} is designed to treat most values as ``data at rest''. That is,
+%at verification sites, values are eagerly traversed without waiting to see
+%if or how the program actually uses them.
+%When we consider that \texttt{clojure.spec} treats infinite streams
+%and functions as data at rest, we begin to see the tradeoffs that have been
+%made.
+%
+%Secondly, specifications (called ``specs'') are not enforced by default. Users must
+%opt-in to enforcing specs via an explicit instrumentation phase.
+%This is also different than most contract systems, many of which are enforced
+%by default. There is no standard way to integrate spec enforcement into a
+%test suite, so it is difficult to tell whether specific specs are primarily 
+%unchecked documentation, or actually used for runtime verification.
+%
+%Since \texttt{clojure.spec} has a unique feature set amongst runtime verification
+%libraries, it is interesting to consider how programmers use \texttt{clojure.spec}
+%in practice. For example, do programmers find the semantics of treating functions
+%as data at rest useful?
+%
+%%Unfortunately since specs are opt-in, it is difficult to
+%%correlate someone writing a spec with that person \emph{using} the spec,
+%%implying spec's semantics as being useful.
+%%Nevertheless, in the following sections we attempt to draw conclusions about
+%%spec's common usage based mostly on the frequency of spec annotations.
+%
+%\subsection{Function specifications in clojure.spec}
+%
+%We now give a brief introduction to what using clojure.spec is like,
+%focussing on the semantics of the different kinds of function specifications
+%it supports.
+%
+%(From here, we map the namespace prefix \texttt{s} to \texttt{clojure.spec.alpha},
+%and \texttt{stest} to \texttt{clojure.spec.test.alpha}.)
+%
+%\begin{verbatim}
+%(require '[clojure.spec.alpha :as s])
+%(require '[clojure.spec.test.alpha :as stest])
+%\end{verbatim}
+%
+%There are two kinds of function checking semantics in \texttt{clojure.spec}.
+%We use \texttt{intmap}, a higher-order function that maps a function over 
+%a collection of ints, to demonstrate both semantics.
+%
+%\begin{verbatim}
+%(defn intmap
+%  "Maps a collection of ints over a function."
+%  [f c]
+%  (map f c))
+%\end{verbatim}
+%
+%If the programmer wants to write a higher-order function spec to
+%verify \texttt{intmap}, they might write the following spec.
+%
+%\begin{verbatim}
+%(s/fdef intmap
+%  :args (s/cat :f (s/fspec :args (cat :x int?) :ret int?)
+%               :c (s/coll-of int?))
+%  :ret (s/coll-of int?))
+%\end{verbatim}
+%
+%The \texttt{s/fdef} form signals we are annotating a top-level
+%function, in this case \texttt{intmap}. Argument specs are
+%provided with the \texttt{:args} keyword option
+%in the form of the ``tagged'' heterogeneous collection spec
+%\texttt{s/cat}---here 2 arguments are allowed, tagged as
+%\texttt{:f} for the function and \texttt{:c} as the collection.
+%
+%The \texttt{s/fspec} spec is another kind of function spec,
+%specifically for non-top-level functions (such as function arguments
+%to top-level functions). It has a similar syntax to \texttt{s/fdef},
+%but a function name is not provided.
+%
+%In a nutshell, \texttt{s/fdef} provides traditional proxy-based
+%verification semantics while \texttt{s/fspec} uses eager \emph{generative testing}
+%to exercise a function before letting it pass the spec boundary, bare (without a proxy).
+%
+%We will now demonstrate how the following call gets checked.
+%
+%\begin{verbatim}
+%(intmap inc [1 2 3])
+%;=> (2 3 4)
+%\end{verbatim}
+%
+%First, the programmer instruments \texttt{intmap} with:
+%
+%\begin{verbatim}
+%(stest/instrument `intmap)
+%\end{verbatim}
+%
+%This mutates the top-level binding associated with \texttt{intmap}, wrapping a function
+%proxy around the original value.
+%
+%Now, when checking \texttt{(intmap inc [1 2 3])}, the \texttt{inc} function is
+%called several hundred times with generated values conforming to \texttt{int?},
+%and checks each call returns an \texttt{int?}.
+%Then, \texttt{[1 2 3]} is eagerly checked against \texttt{(s/coll-of int?)}.
+%The original \texttt{intmap} function is then called with the original arguments,
+%yielding a value \texttt{(2 3 4)}. Instrumentation does not check return value specs,
+%so \texttt{(s/coll-of int?)} is ignored, and the original return value is passed to the calling
+%context.
+%
+%\subsection{Automatic Annotations for clojure.spec}
+%
+%Having introduced \texttt{clojure.spec}, we now give an overview
+%of how to repurpose our automatic annotation technology to generate specs.
+%At a glance, the problems of generating annotations for Typed Clojure
+%and \texttt{clojure.spec} are similar, and indeed we can reuse much
+%of the machinery from our approach to generating Typed Clojure annotations.
+%The differences lie mostly in the finally type reconstruction phase.
+%
+%There are several important components in \texttt{clojure.spec}'s
+%philosophy and design that complicate its annotation story.
+%First, \texttt{clojure.spec} does not support local key-type pairs
+%in its heterogeneous map specification--instead you are forced
+%to globally define map entries as \emph{spec aliases}.
+%
+%For example, the Typed Clojure type \clj{'\{:a Int\}} must be
+%written \clj{(s/keys :req-un [:my-ns/a])}, along with the following
+%global definition of the spec alias \clj{:my-ns/a}.
+%\begin{verbatim}
+%(s/def :my-ns/a int?)
+%\end{verbatim}
+%When \clj{(s/keys :req-un [:my-ns/a])} is checked against a value,
+%it first locates the spec under \clj{:my-ns/a}, and (because
+%we have declared the key to be \clj{:req-un}, that is, required
+%but unqualified), we use the located \clj{int?} spec
+%to check against the \clj{:a} entry of the value.
+%Furthermore, if the key was declared as \clj{:req} instead of \clj{:req-un},
+%the fully qualified keyword entry \clj{:my-ns/a} would be checked
+%against \clj{int?}.
+%This means that there is \emph{exactly one} spec for each fully
+%qualified keyword entry.
+%
+%This raises several interesting design issues related to reusing
+%specs that are very different from the simpler problem of generating
+%Typed Clojure \clj{HMap} types. 
+%How do we decide which namespace to register unqualified map entries?
+%Should we assume similar looking keyword entries are in fact the same, and register their specs under the same namespace?
+%How do we handle fully qualified keyword entries?
+%
+%The second component of
 
 \section{Thesis Statement}
 
 My thesis statement is:
 
-\begin{quotation}
-Typed Clojure is a sound and practical optional type system for Clojure, and we can relieve the annotation burden for such verification systems by automatically annotating programs based on their runtime behavior.
+\begin{quote}
+Typed Clojure is a sound and practical optional type system for Clojure and the process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
+%Typed Clojure is a sound and practical optional type system for Clojure, and we can relieve the annotation burden for such verification systems by automatically annotating programs based on their runtime behavior.
 %Typed Clojure is a sound and practical optional type system for Clojure whose annotation burden is partially-automatable, and this automation technology can be repurposed to generate clojure.spec annotations and test its effectiveness in hundreds of projects.
 % to study how Clojure is used in real projects.
 %Typed Clojure is sound, practical, and its annotation burden is partially-automatable,
@@ -465,7 +469,7 @@ Typed Clojure is a sound and practical optional type system for Clojure, and we 
 %developing a tool to automatically generate type annotations,
 %and, by repurposing this tool, we can study general Clojure idioms and practices across
 %hundreds of projects by generating, running, and exercising clojure.spec runtime specifications.
-\end{quotation}
+\end{quote}
 
 I will support this thesis statement with the following:
 
@@ -479,42 +483,38 @@ I will support this thesis statement with the following:
     type annotations, and emperically study the manual changes needed for the generated annotations
     to pass type checking.
   %\item \emph{clojure.spec model and Automatic Annotations} 
+  \item \emph{Repurpose automation technology}
   %\item \emph{Repurpose automation technology}
-  %\item \emph{Repurpose automation technology}
-  \item \emph{clojure.spec spec's annotation burden is partially-automatable}
-    We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs.
+  %\item \emph{clojure.spec spec's annotation burden is partially-automatable}
+    We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs by reusing
+    most of the the infrastructure for automatic Typed Clojure annotations.
     We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
     and implement the model in Redex.
-  %\item \emph{Study how Clojure is used in real projects}
-  %  We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
-  %  across hundreds of projects, as well as justifying design choices in Typed Clojure's type system,
-  %  clojure.spec's features, and our automatic annotation tool.
-  \item \emph{Test effectiveness of clojure.spec annotation generation}
-    We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
-    across hundreds of projects, as well as justifying design choices in Typed Clojure's type system and
-    clojure.spec's features.
+  \item \emph{Study how Clojure is used in real projects}
+    We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
+    across hundreds of projects, as well as analyzing design choices in Typed Clojure's type system,
+    clojure.spec's features, and our automatic annotation tool.
+  %\item \emph{Test effectiveness of clojure.spec annotation generation}
+  %  We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
+  %  across hundreds of projects, as well as analyze design choices in Typed Clojure's type system and
+  %  clojure.spec's features.
+
+
+    % our annotation approach can be repurposed to generate clojure.spec which can be \emph{run}.
+    % use results to explore both the quality of the tool and to explore what the inferred specs
+    % tell us about clj programs.
 \end{itemize}
 
 \section{Technical Overview}
 
+\input{esop-overview}
+
 \input{esop-formal-model}
+
+\input{esop-metatheory}
 
 \subsection{Typed Clojure Evaluation}
 \label{sec:casestudy}
-
-Throughout this thesis, we will focus on three interrelated type
-system features: heterogeneous maps, Java interoperability, and
-multimethods. Our hypothesis is that these features are widely used in
-existing Clojure programs in interconnecting ways, and that handling
-them as we have done is required to type check realistic Clojure
-programs.
-
-To evaluate this hypothesis, we analyzed two existing \coretyped{}
-code bases, one from the open-source community, and one from a company
-that uses \coretyped{} in production. For our data gathering, we
-instrumented the \coretyped{} type checker to record how often
-various features were used (summarized in 
-\figref{experience:featuretable}). 
 
 \begin{figure*}[t]
 
@@ -562,176 +562,20 @@ various features were used (summarized in
 \label{experience:featuretable}
 \end{figure*}
 
+Throughout this thesis, we will focus on three interrelated type
+system features: heterogeneous maps, Java interoperability, and
+multimethods. Our hypothesis is that these features are widely used in
+existing Clojure programs in interconnecting ways, and that handling
+them as we have done is required to type check realistic Clojure
+programs.
 
-\paragraph{feeds2imap}
-feeds2imap\footnote{\url{https://github.com/frenchy64/feeds2imap.clj}}
-is an open source library written in Typed Clojure. 
-It provides an RSS reader using the \emph{javax.mail} framework.
+To evaluate this hypothesis, we will present an analysis of two existing \coretyped{}
+code bases, one from the open-source community, and one from a company
+that uses \coretyped{} in production (\figref{experience:featuretable}).
+%For our data gathering, we
+%instrumented the \coretyped{} type checker to record how often
+%various features were used (summarized in \figref{experience:featuretable}).
 
-% static call (:check/:static-call) = 74
-% - user   5
-% - inlined (:check/static-call-clojure-lang-probably-inline) 69
-% static field = 13
-% - user 1
-% - inlined (:check/static-field-clojure-lang-probably-inline) 12
-% new (:check/:new) = 11
-% - user 6
-% - inlined (:check/new-clojure-lang-probably-inline) 5
-% instance call = 53
-% - body  20
-% - inlined (:check/instance-call-clojure-lang-probably-inline) 33
-% total 151
-% - user  32
-Of 11 typed namespaces containing 825 lines of code, there are 32 Java interactions.
-The majority are method calls, consisting of 20 (62\%) instance methods and 5 (16\%) static methods. 
-The rest consists of 1 (3\%) static field access, and 6 (19\%) constructor calls---there are no instance field accesses.
-
-%  from :check/find-val-type-with-hmap* numbers
-There are 27 lookup operations on HMap types, of which 20 (74\%) resolve to mandatory entries, 6 (22\%) to optional entries, and 1 (4\%) is an unresolved lookup. 
-No lookups involved fully specified maps.
-
-% :collect/:def     93
-% :check/checked-def 52
-From 93 \clj{def} expressions in typed code, 52 (56\%) are checked, with a rate of 1 Java interaction for 1.6 checked top-level definitions, and 1 HMap lookup to 1.9 checked top-level definitions.
-That leaves 41 (44\%) unchecked vars, mainly due to partially complete porting to Typed Clojure, but in some cases due to unannotated third-party libraries.
-
-No typed multimethods are defined or used. 
-% :collect/defalias-is-HMap      7
-% :invoke-special-collect/(quote clojure.core.typed/def-alias*)     18
-Of 18 total type aliases, 7 (39\%) contained one HMap type, and none contained unions of HMaps---on further inspection there was no HMap entry used to dictate control flow, often handled by multimethods.
-This is unusual in our experience, and is perhaps explained by feeds2imap mainly wrapping existing \emph{javax.mail} functionality.
-
-\paragraph{CircleCI}
-CircleCI~\cite{CircleCI}
-provides continuous integration services built with a mixture of open-
-and closed-source software.
-Typed Clojure was used at CircleCI in production systems for two years \cite{CircleCIUsesTC},
-maintaining
-87 namespaces and 19,000 lines of code,
-an experience we summarise in \secref{sec:limitations}.
-%
-%CircleCI provided the first author access to the main closed-source backend system written in Clojure
-%and Typed Clojure.
-%We conducted a study of the effectiveness of Typed Clojure in practice.
-%There is no clear metric for quantifying typed Clojure code, since untyped code
-%can be freely mixed and some seemingly typed namespaces are not checked
-%regularly. 
-%We manually type checked all namespaces that depend on \clj{clojure.core.typed}
-%and considered those with type errors as untyped.
-%We then searched the remaining typed code for unsafe Typed Clojure operations like
-%var annotations with \clj{:no-check} and the \clj{tc-ignore} macro,
-%which instruct Typed Clojure to ignore the specified code,
-%and also considered those untyped.
-%Furthermore, we manually collected and inspected all top-level annotations and
-%classified them.
-%
-%We determined that
-
-%% Out of 588 top-level var annotations, 270 (46\%) were checked annotations of
-%% functions defined in typed code,
-%% 129 (22\%) annotations assigned types to external libraries 
-%% and the remaining 189 (32\%) annotated `unchecked' user code.
-%Some of the type-annotated definitions were so annotated by the first
-%author and contributed back to CircleCI.
-%HMaps were a valuable feature, with 38 (59\%) out of 64 total type aliases
-%featuring them; see \egref{example:circleci} for an instance.
-%
-%Because of various shortcomings of \coretyped{}, all 57 \clj{defmethod}
-%expressions in typed namespaces were unchecked.
-%
-%811 top-level var annotations
-%
-%% Due to a lack of checked multimethods,
-%% the first author ported 11 previously-untyped multimethods to Typed Clojure, also checking 
-%% 89 methods.
-
-The CircleCI code base contains 11 checked multimethods.
- All 11 dispatch functions
-are on a HMap key containing a keyword, in a similar style to
-\egref{example:desserts-on-meal}.
-Correspondingly, all 89 methods are associated with a keyword dispatch value.
-The argument type was in all cases a single HMap type, however,
-rather than a union type.
-In our experience from porting other libraries, this is unusual.
-
-% 87 typed namespaces
-% :check/gen-analysis     87
-
-% :check/find-val-type-with-hmap    328
-% :check/find-val-type-with-hmap-present    208
-% :check/find-val-type-with-hmap-with-optional     70
-% :check/find-val-type-with-hmap-fall-through     30
-% :check/find-val-type-with-hmap-absent     20
-% :check/find-val-has-complete      2
-% :merge/complete-used-on-right      5
-
-Of 328 lookup operations on HMaps,
-208 (64\%) resolve to mandatory keys,
-70 (21\%) to optional keys,
-20 (6\%) to absent keys, and
-30 (9\%) lookups are unresolved.
-%
-% :collect/defalias-is-HMap     62
-% :invoke-special-collect/(quote clojure.core.typed/def-alias*)     95 
-Of 95 total type aliases defined with \clj{defalias},
-62 (65\%) involved one or more HMap types.
-%
-%% :new-special/(quote clojure.lang.MultiFn)     11
-%
-%% :check/:static-call    525
-%% :check/static-call-clojure-lang-probably-inline    499
-%% = 26 user
-%
-%% :check/:instance-call    510
-%% :check/instance-call-clojure-lang-probably-inline    474
-%% = 36 user
-%
-%% :check/:new    159
-%% :check/new-clojure-lang-probably-inline    121
-%% = 38
-%
-%% :check/:static-field     92
-%% :check/static-field-clojure-lang-probably-inline     87
-%% = 5
-%
-%% 26 + 36 + 38 + 5 = 105
-%
-%% :invoke-special-collect/(quote clojure.core.typed/non-nil-return*) 35
-%% :invoke-special-collect/(quote clojure.core.typed/nilable-param*)  1
-%
-Out of 105 Java interactions, 26 (25\%) are static methods, 36 (34\%)
-are instance methods, 38 (36\%) are constructors, and 5 (5\%) are static
-fields. 35 methods are overriden to return non-nil, and 1 method 
-overridden to accept nil---suggesting that
-\coretyped{} disallowing \clj{nil} as a method argument by default
-is justified.
-
-% :check/checked-def  407
-% :check/checked-MultiFn-addMethod 57
-% :instance-method-special/(quote clojure.lang.MultiFn/addMethod)     89
-% = 464 checked definitions
-Of 464 checked top-level definitions (which consists of
-57 \clj{defmethod} calls and 407 \clj{def} expressions),
-1 HMap lookup occurs per 1.4 top-level definitions,
-and 1 Java interaction occurs every 4.4 top-level definitions.
-
-% :check/def-not-checking-definition   1352
-% :check/checked-def  407
-% = 1759
-% :collect/:def   1834
-% = 1427 unchecked
-From 1834 \clj{def} expressions in typed code,
-%87 typed namespaces,
-only 407 (22\%) were checked.
-That leaves 1427 (78\%) which have unchecked definitions, either by an explicit \clj{:no-check} annotation
-or \clj{tc-ignore} to suppress type checking,
-or the \clj{warn-on-unannotated-vars} option, which skips \clj{def} expressions
-that lack expected types via \clj{ann}.
-From a brief investigation,
-reasons include unannotated third-party libraries,
-work-in-progress conversions to Typed Clojure,
-unsupported Clojure idioms, 
-and hard-to-check code.
 
 \subsection{Automatic Annotations}
 
@@ -833,10 +677,6 @@ systems  support  limited forms of occurrence typing,
 and do not include the other features we
 present.
 
-%  \item GradualTalk
-%  \item Flow
-%\end{itemize}
-
 \paragraph{Automatic annotations}
 There are two common implementation strategies for such tools. The first
 strategy, ``ruling-out'' (for invariant detection), assumes all invariants are true 
@@ -883,6 +723,7 @@ between variables. Typed Clojure recovers relevant dependent information
 via occurrence typing, and gives the option to manually annotate necessary
 dependencies in function signatures when needed.
 
+%TODO \paragraph{TypeScript Annotation Generation} ..
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
@@ -908,13 +749,21 @@ I have already made progress towards my thesis:
 To complete my thesis, I plan to follow this timeline:
 
 \begin{itemize}
-  \item \textbf{[June-September 2018]} Finish automatic annotation experiments, finish formal model of annotation tool, fix spec generation.
+  \item \textbf{[June-July 2018]} Fix spec generation.
 		\begin{itemize}
-			\item manually measure the difference between automatically generated annotations and
-				fully type-checked annotations.
-      \item fix clojure.spec annotation generation bugs
+      \item devise and implement a one or more strategies to handle clojure.spec's
+        heterogeneous map spec (and intelligently register global spec aliases)
+      \item test out specs generation on candidate projects and improve the tool to fix obvious
+        defects
+		\end{itemize}
+  \item \textbf{[July-August 2018]} Finish formal model of annotation tool.
+		\begin{itemize}
+			\item update formal model for annotation tool to include latest
+        optimizations and fixes in recursive type reconstruction.
+		\end{itemize}
+  \item \textbf{[August-September 2018]} Devise and carry out automatic annotation experiments
+		\begin{itemize}
 			\item formulate and complete larger scale study on generation of specs for hundreds of projects.
-			\item update formal model for annotation tool with latest changes.
 		\end{itemize}
   \item \textbf{[September-November 2018]} Write paper (PLDI submission)
   \item \textbf{[November 2018-May 2019]} Write dissertation

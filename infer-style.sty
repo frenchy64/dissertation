@@ -10,6 +10,7 @@
 \newcommand\trackE[2]{({\specialformfont{track}}\ #1\ #2)}
 \newcommand\trackpolyE[3]{({\specialformfont{trackPoly}}\ #1\ #2\ #3)}
 \newcommand\genE[0]{({\specialformfont{genInt}})}
+\newcommand\inferletliteral[0]{{\specialformfont{let}}}
 \newcommand\assocE[3]{({\specialformfont{assoc}}\ #1\ #2\ #3)}
 \newcommand\PairOfT[1]{{\mathsf{PairOf}}}
 \newcommand\NatT[1]{{\mathsf{N}}}
@@ -33,23 +34,24 @@
 \newmeta\atenv{\ma{\Delta}}
 
 % algorithm
-\newcommand\steptwo[0]{\metafnfont{squashLocal}}
-\newcommand\steptwohelper[0]{\metafnfont{squashLocal'}}
-\newcommand\stepthree[0]{\metafnfont{squashGlobal}}
+\newcommand\infermetafnfont[1]{\mathsf{#1}}
+\newcommand\steptwo[0]{\infermetafnfont{squashLocal}}
+\newcommand\steptwohelper[0]{\infermetafnfont{squashLocal'}}
+\newcommand\stepthree[0]{\infermetafnfont{squashGlobal}}
 \newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
 \newcommand\aliassinglehmap[0]{aliasSingleHMap}      %% TODO needs definition!
-\newcommand\inferanns[0]{\metafnfont{inferAnns}}
-\newcommand\generatetenv[0]{\metafnfont{gen{\Gamma}}}
-\newcommand\genupdate[0]{\metafnfont{genUpdate}}
-\newcommand\trackmeta[0]{\metafnfont{track}}
-\newcommand\trackpolymeta[0]{\metafnfont{trackPoly}}
-\newcommand\inferupdate[4]{\metafnfont{update}(#1, #2, #3, #4)}
+\newcommand\inferanns[0]{\infermetafnfont{inferAnns}}
+\newcommand\generatetenv[0]{\infermetafnfont{gen{\Gamma}}}
+\newcommand\genupdate[0]{\infermetafnfont{genUpdate}}
+\newcommand\trackmeta[0]{\infermetafnfont{track}}
+\newcommand\trackpolymeta[0]{\infermetafnfont{trackPoly}}
+\newcommand\inferupdate[4]{\infermetafnfont{update}(#1, #2, #3, #4)}
 \newcommand\inferupdatecommon[6]{\inferupdate{#1}{#2}{#3}{#4} #5 #6} % takes the = sign to allow extra alignment
 \newcommand\inferupdatenoalign[5]{\inferupdatecommon{#1}{#2}{#3}{#4}{=}{#5}}
 \newcommand\inferupdatealign[5]{\inferupdatecommon{#1}{#2}{#3}{#4}{&=&}{#5}}
-\newcommand\joinalign[4]{\metafnfont{join}(#1, #2, #3) &=& #4}
-\newcommand\joinnoalign[4]{\metafnfont{join}(#1, #2, #3) = #4}
-\newcommand\joinexpression[3]{\metafnfont{join}(#1, #2, #3)}
+\newcommand\joinalign[4]{\infermetafnfont{join}(#1, #2, #3) &=& #4}
+\newcommand\joinnoalign[4]{\infermetafnfont{join}(#1, #2, #3) = #4}
+\newcommand\joinexpression[3]{\infermetafnfont{join}(#1, #2, #3)}
 
 % aliases
 \newmeta\alias{a}
@@ -64,13 +66,13 @@
 
 % abstract syntax for pathelem
 \newmeta\pth{l}
-\newmeta\classpe{\ma{\pefont{class}}}
-\newcommand\inferkeype[2]{\ma{\pefont{key}_{#1}(#2)}}
-\newcommand\dompe[0]{\ma{\pefont{dom}}}
-\newcommand\rngpe[0]{\ma{\pefont{rng}}}
+\newcommand\inferpefont[1]{\textbf{#1}}
+\newcommand\inferkeype[2]{\ma{\inferpefont{key}_{#1}(#2)}}
+\newcommand\dompe[0]{\ma{\inferpefont{dom}}}
+\newcommand\rngpe[0]{\ma{\inferpefont{rng}}}
 
 % abstract syntax for paths
-\newmeta\path{\ma{\pi}}
+\newmeta\inferpath{\ma{\pi}}
 
 % inference results
 \newmeta\res{{\ma{r}}}

@@ -1,35 +1,38 @@
-\section{Metatheory}
+\subsection{Metatheory of Typed Clojure}
 \label{sec:metatheory}
 
-We prove type soundness following Tobin-Hochstadt and Felleisen~\cite{TF10}.  Our model is extended
+We will prove type soundness following Tobin-Hochstadt and Felleisen~\cite{TF10}. Our model is extended
 to include errors \errorvalv{} and a \wrong{} value, and we prove well-typed
 programs do not go wrong; this is therefore a stronger theorem than
 proved by Tobin-Hochstadt and Felleisen~\cite{TF10}. 
-Errors behave like Java exceptions---they can be thrown and propagate ``upwards'' in the evaluation rules
-(\errorvalv{} rules are deferred to the appendix).
+Errors behave like Java exceptions---they can be thrown and propagate ``upwards'' in the evaluation rules.
+%(\errorvalv{} rules are deferred to the appendix of~\cite{bonnaire2016practical}).
 
 Rather than modeling Java's dynamic semantics, a task of daunting
 complexity, we instead make our assumptions about Java explicit. We
 concede that method and constructor calls may diverge or error, but
 assume they can never go wrong
-(other assumptions given in the supplemental material).
+(other assumptions will be provided in the thesis).
+%given in the supplemental material of~\cite{bonnaire2016practical}).
 
-{\javanewassumption{main}}
+%{\javanewassumption{main}}
 
 %For readability we define logical truth in Clojure.
 
 %{\istruefalsedefinitions{main}}
 
-For the purposes of our soundness proof, we require that all values
-are \emph{consistent}.  Consistency (defined in the supplemental
-material) states that the types of closures are well-scoped---they do
-not claim propositions about variables hidden in their closures.
+%For the purposes of our soundness proof, we require that all values
+%are \emph{consistent}. Consistency 
+%%(defined in the supplemental material of~\cite{bonnaire2016practical})
+%states that the types of closures are well-scoped---they do
+%not claim propositions about variables hidden in their closures.
 
 %{\consistentwithonlydef{main}}
 
 We can now state our main lemma and soundness theorem.  The
 metavariable \definedreduction{} ranges over \v{}, \errorvalv{} and
-\wrong{}. Proofs are deferred to the supplemental material. %\ref{appendix:lemma:soundness}.
+\wrong{}. 
+%Proofs are deferred to the supplemental material of~\cite{bonnaire2016practical}. %\ref{appendix:lemma:soundness}.
 
 \begin{lemma}\label{main:lemma:soundness}
 
@@ -37,8 +40,10 @@ metavariable \definedreduction{} ranges over \v{}, \errorvalv{} and
 \end{lemma}
 
 
-
 {\soundnesstheoremnoproof{main}}
+
+The full thesis will provide a proof of \theoremref{main:theorem:soundnessnoproof}.
+
 
 %{\wrongtheoremnoproof{main}}
 %
