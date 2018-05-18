@@ -637,6 +637,41 @@ needed to amend generated annotations to actually type check.
 
 \subsection{clojure.spec Automatic Annotations}
 
+We will present a formal model of clojure.spec and repurpose our automatic annotation
+tool to generate clojure.spec runtime specifications.
+
+We will then conduct a larger scale investigation to evaluate the quality 
+of these annotations by generating clojure.spec annotations for several hundred
+projects we have sourced from the open source community.
+This investigation will also serve to further analyze the assumptions made 
+in designing Typed Clojure and clojure.spec.
+For example, Typed Clojure and clojure.spec are designed differently
+around qualified entries in maps, and by generating and enforcing specs
+we can investigate whether either are compatible with actual usage.
+
+We can emperically investigate which function spec checking semantics are 
+applicable in the majority of code. Since clojure.spec provides
+two distinct function checking semantics, including a surprising
+``generative testing'' semantics, we can measure the likelihood
+of tests still passing after generating each kind of function spec.
+
+Other interesting questions can be asked by using clojure.spec's generative
+testing features. After generating our own specs automatically for each project,
+we can test to see if our annotation algorithm feeds sufficient information
+to clojure.spec's value generators to create effective generative tests.
+We can also use the generative tests as a ``second pass'' over the functions,
+by re-instrumenting our functions and analyzing whether we get better
+test coverage than just running the provided unit tests.
+
+There is potential for other, more general, research questions
+to be answered about Clojure usage with our testing setup.
+Part of the unfinished work towards this thesis will be devising research questions,
+but, for now, we can imagine a spectrum of questions
+from simple measurements of the frequency of particular features like variable-arguments,
+keyword maps, or higher-order functions, to more ambitious questions
+like detecting breaking changes between project versions
+and quantifying the test coverage of unit tests versus generative tests.
+
 \section{Related Work}
 
 % Cite a few of the early papers here.
