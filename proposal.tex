@@ -609,6 +609,34 @@ is the path of $\val{}$.
 \input{infer-semantics}
 \input{infer-track}
 
+\subsection{Typed Clojure Automatic Annotations Evaluation}
+
+Along with a manual inspection of the generated Typed Clojure annotations,
+we will perform several other experiments to measure the quality of the
+generated annotations.
+
+For example, we measure the number of changes needed
+needed to amend generated annotations to actually type check.
+\figref{infer:amending} shows some preliminary results.
+
+\begin{figure*}
+\begin{tabular}{| l | l | l | l | l | l |}
+  Library            & Lines of types  & Local annotations & Manual Line +/- Diff \\
+  \hline
+  startrek-clojure   & 133             & 3                 & +70 -41 \\
+  math.combinatorics & 395             & 147               & +124 -120\\
+  fs                 & 157             & 1                 & +119 -86\\
+  data.json          & 168             & 9                 & +94 -125 \\
+  mini.occ           & 49              & 1                 & +46 -26\\
+  %data.xml           & \\
+  %clojurescript & \\
+\end{tabular}
+  \label{infer:amending}
+\caption{Amending automatically generated types to type check}
+\end{figure*}
+
+\subsection{clojure.spec Automatic Annotations}
+
 \section{Related Work}
 
 % Cite a few of the early papers here.
