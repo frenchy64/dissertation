@@ -578,7 +578,7 @@ approximation of this type.
 %(defn f [x] (inc x))
 %\end{Verbatim}
 
-\subsection{Automatic Annotations}
+\subsection{Automatic Annotations Formalism}
 
 We provide a preliminary grammar for our formal treatment of automatic
 annotations, and a semantics for the instrumentation phase
@@ -605,6 +605,21 @@ calling $\trackmeta{}$ (\figref{infer:track}), that
 rewrites a value $\val{}$ to $\val{}'$ and generates inference
 results $\res{}'$ based on the input that $\inferpath{}$
 is the path of $\val{}$.
+
+Several extensions to this model are possible.
+First, we will add \emph{space-efficient} runtime instrumentation,
+This ensures that stack space usage is efficient by collapsing
+directly stacked wrappers of the same kind. For example, wrapping
+a function twice takes the same stack space as wrapping once.
+The propagation of path information is then extended to support
+\emph{multiple} simultaneous paths for each value, which enables
+the optimization to not lose any tracking information.
+
+Second, we can infer \emph{polymorphic} types by tracking
+the pointer identity of objects. This information
+can be combined with the base tracking information to generate
+polymorphic type annotations that also feature concrete types
+when appropriate.
 
 \input{infer-grammar}
 \input{infer-semantics}
@@ -663,6 +678,8 @@ to clojure.spec's value generators to create effective generative tests.
 We can also use the generative tests as a ``second pass'' over the functions,
 by re-instrumenting our functions and analyzing whether we get better
 test coverage than just running the provided unit tests.
+
+\subsection{How Clojure is used}
 
 There is potential for other, more general, research questions
 to be answered about Clojure usage with our testing setup.
