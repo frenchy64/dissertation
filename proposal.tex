@@ -821,11 +821,45 @@ dependencies in function signatures when needed.
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
 
 \paragraph{How dynamic languages are used}
-\r \r {A}kerblom~\cite{Akerblom:2014:TDF:2597073.2597103} trace dynamic features in Python programs.
+Several languages have seen similar investigations
+into their idioms as I am proposing for Clojure.
 
+A popular motivation is to discover which type system features to support
+when retrofitting a type system.
+% FIXME the is \AAkerblom but there's an error.. also in the bibliography
+Akerblom et. al~\cite{Akerblom:2014:TDF:2597073.2597103} trace dynamic features in Python programs
+via instrumentation. They measured the prevalence of dynamic features in startup versus
+user code, and recorded usage frequencies for a set of dynamic features.
+They concluded dynamism is prevalent in Python, and thus should be supported
+in a retrofitted type system for Python.
+A study along similar lines is also applicable to Clojure, in particular analysing Typed
+Clojure's support for Clojure's dynamic features.
+
+Calla{\'u} et al. \cite{Callau2013} also conducted a large-scale study of
+dynamic Smalltalk idioms to inform future language extensions tooling support.
+Notably, they further perform a qualitative analysis aiming to identify
+the reasons why Smalltalk use these features in the first place, and
+whether they can be replaced with more predictable features. They also 
+measure which kinds of projects (e.g., testing frameworks, user-level libraries, or core system libraries) 
+use particular features more frequently.
+Due to the their prevalence in the open-source Clojure ecosystem,
+Typed Clojure has mainly been tested on user-level libraries.
+We could predict Typed Clojure's applicability to other kinds of projects
+by gathering similar data on how frequently different types of Clojure libraries use
+Clojure's various features.
+
+Andreasen et. al~\cite{Andreasen2016TraceTA} developed
+\emph{trace typing} to explore the design space of JavaScript type systems. 
+Using runtime observations, they studied which control flow techniques
+are used most often in JavaScript programs, and thus, which should
+be supported by an effective type system for JavaScript.
+Typed Clojure implements occurrence typing to reason about control
+flow in Clojure which seems to work well in practice, but a similar
+quantitative analysis could reveal further insights.
+
+%Runtime analysis \cite{Mastrangelo:2015:UYO:2814270.2814313}
 
 %\cite{Mastrangelo:2015:UYO:2814270.2814313} 
-Calla{\'u}S \cite{Callau2013}
 
 \section{Research Plan and Timeline}
 
