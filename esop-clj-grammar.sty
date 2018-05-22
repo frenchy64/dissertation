@@ -334,7 +334,9 @@
 \newcommand\judgement[5]{\ma{#1 \vdash {\hastype{#2}{#3}} \ ;\ #4\ ;\ #5}}
 % 6 place relation (w/ rewrite)
 \newcommand\judgementselfrewrite[5]{\ma{#1 \vdash {\hastype{#2}{#3}}\ ;\ #4\ ;\ #5}}
-\newcommand\judgementrewrite[6]{\ma{#1 \vdash {\hastype{\rewrites{#2}{#6}}{#3}}\ ;\ #4\ ;\ #5}}
+%DISABLE REWRITING
+%\newcommand\judgementrewrite[6]{\ma{#1 \vdash {\hastype{\rewrites{#2}{#6}}{#3}}\ ;\ #4\ ;\ #5}}
+\newcommand\judgementrewrite[6]{\ma{#1 \vdash {\hastype{#2}{#3}}\ ;\ #4\ ;\ #5}}
 %\newcommand\judgementsev[7]{\ma{#3 \vdash_{\scriptscriptstyle{\trdiff{\ct{}}}} #4\ ;\ #5\ ;\ #6}}
 % lookuping props in the env
 % 2 place relation (same as tt | tt; empty)
@@ -690,8 +692,8 @@
                  {\e3} {\t{}} {\filterset {\thenprop {\prop{}}} {\elseprop {\prop{}}}}
                  {\object{}}
                  {\ep3}
-                 \\\\
-                 \ep{} = {\ifexp {\ep1} {\ep2} {\ep3}}
+                 %\\\\
+                 %\ep{} = {\ifexp {\ep1} {\ep2} {\ep3}}
              }
 { \judgementrewrite {\propenv{}} {\ifexp {\e1} {\e2} {\e3}} {\t{}}
                  {\filterset {\thenprop {\prop{}}}
@@ -707,11 +709,11 @@
 { \judgementrewrite {\propenv{}} {\e{1}} {\s{}} {\filterset {\thenprop {\prop{1}}} {\elseprop {\prop{1}}}}
              {\object{1}}
              {\ep{1}}
-             \\
+             \\\\
              \propp{} = {\impprop {\notprop {\falsydiff{}} {\x{}}} {\thenprop {\prop{1}}}}
-             \\
+             \\\\
              \proppp{} = {\impprop {\isprop {\falsydiff{}} {\x{}}} {\elseprop {\prop{1}}}}
-  \\
+  \\\\
   \judgementrewrite
        {\propenv{}, {\isprop {\s{}} {\x{}}},
          {\propp{}},
@@ -777,15 +779,13 @@
                          {\elseprop {\prop{}}}}
              {\object{}}
              {\ep{}}
-             \\\\
-             \t{} = {\ArrowOne {\x{}} {\s{}}
+           }
+{ \judgementrewrite {\propenv{}} {\abs {\x{}} {\s{}} {\e{}}}
+  {\ArrowOne {\x{}} {\s{}}
                                                       {\sp{}}
                                                       {\filterset {\thenprop {\prop{}}}
                                                                   {\elseprop {\prop{}}}}
                                                       {\object{}}}
-           }
-{ \judgementrewrite {\propenv{}} {\abs {\x{}} {\s{}} {\e{}}}
-  {\t{}}
                 {\filterset {\topprop{}}
                             {\botprop{}}}
                 {\emptyobject{}}

@@ -289,29 +289,31 @@ that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition 
     %\end{array}
   \begin{mathpar}
         {\TLocal}
+
         {\TAbs}
+
         {\TIf}
-    \\
-    \begin{array}{c}
-    {\TKw}\\
-      {\TNum}\\
-    \end{array}
-    \begin{array}{c}
-      {\TNil}\\
-      {\TFalse}\\
-    {\TConst}
-    \end{array}
-    \begin{array}{c}
-    {\TStr}\\
-    {\TClass}\\
-    {\TTrue}
-  \end{array}
+    %\\
+    %\begin{array}{c}
+    %{\TKw}\\
+    %  {\TNum}\\
+    %\end{array}
+    %\begin{array}{c}
+    %  {\TNil}\\
+    %  {\TFalse}\\
+    %{\TConst}
+    %\end{array}
+    %\begin{array}{c}
+    %{\TStr}\\
+    %{\TClass}\\
+    %{\TTrue}
+    %\end{array}
         \\
 
-    {\TLet}
-    \\
+    %{\TLet}
 
-    {\TApp}\ \ 
+    {\TApp}
+
     {\TSubsume}
     \\
   \end{mathpar}
@@ -321,7 +323,7 @@ that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition 
     %  {\TNil}\\\\
     %  {\TFalse}
     %\end{array}
-  \caption{Core typing rules}
+  \caption{Select core typing rules}
   \label{main:figure:othertypingrules}
 \end{figure*}
 
@@ -329,37 +331,40 @@ that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition 
   %\footnotesize
   \begin{mathpar}
 
-\SUnionSuper{}\ \ \ 
-\SUnionSub{}\ \ \ 
-\SFunMono{}\ \ \ 
-\begin{array}{l}
-\SObject{}\\
-\SClass{}\\
-\SSBool{}
-\end{array}
+\SUnionSuper{} % \ \ \ 
+
+\SUnionSub{} %\ \ \ 
+%\SFunMono{}\ \ \ 
+%\begin{array}{l}
+%\SObject{}\\
+%\SClass{}\\
+%\SSBool{}
+%\end{array}
 
 \SFun{}
-\begin{array}{l}
-    \SRefl{}\ \ \ 
-    \STop{}\\
-\SSKw{}
-\end{array}
+%\begin{array}{l}
+
+    %\SRefl{} %\ \ \ 
+
+    %\STop{}\\
+%\SSKw{}
+%\end{array}
 
 
   \end{mathpar}
-  \caption{Core subtyping rules}
+  \caption{Select core subtyping rules}
   \label{main:figure:subtyping}
 \end{figure}
 
-\begin{figure}
-\begin{mathpar}
-    \BIfTrue{}
-
-    \BIfFalse{}
-\end{mathpar}
-  \caption{Select core semantics}
-\label{main:figure:coresemantics}
-\end{figure}
+%\begin{figure}
+%\begin{mathpar}
+%    \BIfTrue{}
+%
+%    \BIfFalse{}
+%\end{mathpar}
+%  \caption{Select core semantics}
+%\label{main:figure:coresemantics}
+%\end{figure}
 
 \paragraph{Typing judgment}
 
@@ -409,129 +414,154 @@ to
 
 \paragraph{Typing rules}
 
-The core typing rules are
-given as \figref{main:figure:othertypingrules}. We introduce
-the interesting rules with the complement number predicate
-as a running example.
-\begin{equation}
-\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}
-\end{equation}
-%, including
-%a subsumption rule T-Subsume and rules for the false values---T-Nil and T-False---encoded 
-%as impossible (\botprop{}) `then' propositions.
+A selection of core typing rules are
+given as \figref{main:figure:othertypingrules}. 
 
-The lambda rule T-Abs introduces \isprop{\s{}}{\x{}}} = \isprop{\Top}{\makelocal{d}}
-to check the body.
-With \propenv{} = \isprop{\Top}{\makelocal{d}},
-T-If first checks the test \e{1} = {\appexp{\numberhuh{}}{\makelocal{d}}}
-via the T-App rule, with three steps.
+The essense of occurrence typing is contained in the first three rules
+T-Local, T-Abs, and T-If.
+The first rule T-Local type checks local bindings, and defers to the proof system to infer its type.
+The propositions on a local binding say that if bound value
+is logically true (not \nil{} or \false{}), then so is its binding, and similar if the
+value is logically false (\nil{} or \false{}).
+The symbolic object of a local binding is itself.
 
-First, in T-App the operator \e{} = \numberhuh{} is checked with T-Const, which
-uses 
-\constanttypeliteral{} (\figref{main:figure:constanttyping}, dynamic semantics in the supplemental material
-of~\cite{bonnaire2016practical})
-to type constants.
-\numberhuh{} is a predicate over numbers, and
-\classconst{} returns its argument's class.
+The second rule T-Abs extends the type environment with information
+on the parameter's type to type check the body. It stores latent
+propositions and object in the resulting function type, which are
+used when the function is applied in T-App.
+Notice, T-App substitutes the actual argument object for the
+parameter's name in the resulting type, propositions, and object
+of an application.
 
-Resuming {\appexp{\numberhuh{}}{\makelocal{d}}},
-in T-App the operand \ep{} = \makelocal{d} is checked with
-T-Local as
-\begin{equation}
-\judgementselfrewrite{\propenv{}}
-                     {\makelocal{d}}
-                     {\Top}
-                     {\filterset{\notprop{\falsy}{\makelocal{d}}}
-                                {\isprop{\falsy}{\makelocal{d}}}}
-                     {\makelocal{d}}
-\end{equation}
-which encodes the type, proposition, and object information
-about variables. The proposition {\notprop{\falsy}{\makelocal{d}}}
-says ``it is not the case that variable {\makelocal{d}} is of type {\falsy}'';
-{\isprop{\falsy}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\falsy}''.
+The third rule T-If extends the type environment with information
+learnt from the test. For example, to check the then branch, the proposition
+environment is extended with the test's then proposition.
+The subsumption rule T-Subsume allows us to combine the resulting type, propositions,
+and object of both branches as the resulting type, propositions, and object
+of the entire expression.
 
-Finally, the T-App rule substitutes the operand's object \objectp{}
-for the parameter \x{} in the latent type, propositions, and object. The proposition
-{\isprop{\Number{}}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\Number{}}'';
-{\notprop{\Number{}}{\makelocal{d}}} says ``it is not the case that {\makelocal{d}}
-is of type {\Number{}}''. The object {\makelocal{d}} is the symbolic representation
-of what the expression {\makelocal{d}} evaluates to.
-\begin{equation}
-\judgementselfrewrite{\propenv{}}
-  {\appexp{\numberhuh{}}{\makelocal{d}}}
-  {\Boolean{}}
-  {\filterset{\isprop{\Number{}}{\makelocal{d}}}
-             {\notprop{\Number{}}{\makelocal{d}}}}
-  {\emptyobject{}}
-\end{equation}
-To demonstrate, the `then' proposition---in T-App {\replacefor {\thenprop{\prop{}}} {\objectp{}} {\x{}}}---substitutes
-the latent `then' proposition of \constanttype{\numberhuh{}} with 
-\makelocal{d}, giving
-{\replacefor {\isprop{\Number{}}{\x{}}} {\makelocal{d}} {\x{}}} =
-{\isprop{\Number{}}{\makelocal{d}}}.
-
-To check the branches of {\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}},
-T-If
-introduces \thenprop{\prop{1}} = \isprop{\Number{}}{\makelocal{d}}
-to check \e{2} = {\false{}},
-and \elseprop{\prop{1}} = \notprop{\Number{}}{\makelocal{d}}
-to check 
-\e{3} = \true{}.
+%We introduce
+%the interesting rules with the complement number predicate
+%as a running example.
+%\begin{equation}
+%\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}
+%\end{equation}
+%%, including
+%%a subsumption rule T-Subsume and rules for the false values---T-Nil and T-False---encoded 
+%%as impossible (\botprop{}) `then' propositions.
 %
-The branches are first checked with T-False and T-True respectively,
-the T-Subsume premises
-\inpropenv {\propenv{}, {\thenprop {\prop{}}}} {\thenprop {\propp{}}}
-and
-\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
-allow us to pick compatible propositions for both branches.
+%The lambda rule T-Abs introduces \isprop{\s{}}{\x{}}} = \isprop{\Top}{\makelocal{d}}
+%to check the body.
+%With \propenv{} = \isprop{\Top}{\makelocal{d}},
+%T-If first checks the test \e{1} = {\appexp{\numberhuh{}}{\makelocal{d}}}
+%via the T-App rule, with three steps.
+%
+%First, in T-App the operator \e{} = \numberhuh{} is checked with T-Const, which
+%uses 
+%\constanttypeliteral{} (\figref{main:figure:constanttyping}, dynamic semantics in the supplemental material
+%of~\cite{bonnaire2016practical})
+%to type constants.
+%\numberhuh{} is a predicate over numbers, and
+%\classconst{} returns its argument's class.
+%
+%Resuming {\appexp{\numberhuh{}}{\makelocal{d}}},
+%in T-App the operand \ep{} = \makelocal{d} is checked with
+%T-Local as
+%\begin{equation}
+%\judgementselfrewrite{\propenv{}}
+%                     {\makelocal{d}}
+%                     {\Top}
+%                     {\filterset{\notprop{\falsy}{\makelocal{d}}}
+%                                {\isprop{\falsy}{\makelocal{d}}}}
+%                     {\makelocal{d}}
+%\end{equation}
+%which encodes the type, proposition, and object information
+%about variables. The proposition {\notprop{\falsy}{\makelocal{d}}}
+%says ``it is not the case that variable {\makelocal{d}} is of type {\falsy}'';
+%{\isprop{\falsy}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\falsy}''.
+%
+%Finally, the T-App rule substitutes the operand's object \objectp{}
+%for the parameter \x{} in the latent type, propositions, and object. The proposition
+%{\isprop{\Number{}}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\Number{}}'';
+%{\notprop{\Number{}}{\makelocal{d}}} says ``it is not the case that {\makelocal{d}}
+%is of type {\Number{}}''. The object {\makelocal{d}} is the symbolic representation
+%of what the expression {\makelocal{d}} evaluates to.
+%\begin{equation}
+%\judgementselfrewrite{\propenv{}}
+%  {\appexp{\numberhuh{}}{\makelocal{d}}}
+%  {\Boolean{}}
+%  {\filterset{\isprop{\Number{}}{\makelocal{d}}}
+%             {\notprop{\Number{}}{\makelocal{d}}}}
+%  {\emptyobject{}}
+%\end{equation}
+%To demonstrate, the `then' proposition---in T-App {\replacefor {\thenprop{\prop{}}} {\objectp{}} {\x{}}}---substitutes
+%the latent `then' proposition of \constanttype{\numberhuh{}} with 
+%\makelocal{d}, giving
+%{\replacefor {\isprop{\Number{}}{\x{}}} {\makelocal{d}} {\x{}}} =
+%{\isprop{\Number{}}{\makelocal{d}}}.
+%
+%To check the branches of {\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}},
+%T-If
+%introduces \thenprop{\prop{1}} = \isprop{\Number{}}{\makelocal{d}}
+%to check \e{2} = {\false{}},
+%and \elseprop{\prop{1}} = \notprop{\Number{}}{\makelocal{d}}
+%to check 
+%\e{3} = \true{}.
+%%
+%The branches are first checked with T-False and T-True respectively,
+%the T-Subsume premises
+%\inpropenv {\propenv{}, {\thenprop {\prop{}}}} {\thenprop {\propp{}}}
+%and
+%\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
+%allow us to pick compatible propositions for both branches.
+%%$$
+%%\judgementselfrewrite{\propenv{},{\isprop{\Number{}}{\makelocal{d}}}}
+%%  {\false{}}
+%%  {\False{}}
+%%  {\filterset{\botprop{}}
+%%             {\topprop{}}}
+%%  {\emptyobject{}}
+%%$$
 %$$
+%\begin{array}{c}
 %\judgementselfrewrite{\propenv{},{\isprop{\Number{}}{\makelocal{d}}}}
 %  {\false{}}
-%  {\False{}}
-%  {\filterset{\botprop{}}
-%             {\topprop{}}}
+%  {\Boolean{}}
+%  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
+%             {\isprop{\Number{}}{\makelocal{d}}}}
 %  {\emptyobject{}}
+%  \\
+%\judgementselfrewrite{\propenv{},{\notprop{\Number{}}{\makelocal{d}}}}
+%  {\true{}}
+%  {\Boolean{}}
+%  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
+%             {\isprop{\Number{}}{\makelocal{d}}}}
+%  {\emptyobject{}}
+%\end{array}
 %$$
-$$
-\begin{array}{c}
-\judgementselfrewrite{\propenv{},{\isprop{\Number{}}{\makelocal{d}}}}
-  {\false{}}
-  {\Boolean{}}
-  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
-             {\isprop{\Number{}}{\makelocal{d}}}}
-  {\emptyobject{}}
-  \\
-\judgementselfrewrite{\propenv{},{\notprop{\Number{}}{\makelocal{d}}}}
-  {\true{}}
-  {\Boolean{}}
-  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
-             {\isprop{\Number{}}{\makelocal{d}}}}
-  {\emptyobject{}}
-\end{array}
-$$
-%to suit the T-If outputs \t{} = \Boolean{}, \thenprop{\prop{}}
-%= {\notprop{\Number{}}{\makelocal{d}}}, \elseprop{\prop{}} = {\isprop{\Number{}}{\makelocal{d}}},
-%and \object{} = {\emptyobject{}}.
+%%to suit the T-If outputs \t{} = \Boolean{}, \thenprop{\prop{}}
+%%= {\notprop{\Number{}}{\makelocal{d}}}, \elseprop{\prop{}} = {\isprop{\Number{}}{\makelocal{d}}},
+%%and \object{} = {\emptyobject{}}.
+%%
+%%In T-Subsume, we can upcast \t{} = \False{} to \tp{} = \Boolean{} via the premise 
+%%\issubtypein{}{\t{}}{\tp{}}.
+%%and 
+%%\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
+%%from 
+%%{\elseprop {\prop{}}} = \topprop{} to {\elseprop {\propp{}}} = {\isprop{\Number{}}{\makelocal{d}}}.
 %
-%In T-Subsume, we can upcast \t{} = \False{} to \tp{} = \Boolean{} via the premise 
-%\issubtypein{}{\t{}}{\tp{}}.
-%and 
-%\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
-%from 
-%{\elseprop {\prop{}}} = \topprop{} to {\elseprop {\propp{}}} = {\isprop{\Number{}}{\makelocal{d}}}.
-
-Finally T-Abs assigns a type to the overall function:
-$$
-{\judgementselfrewrite{}{\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}}
-                    {\ArrowOne {\makelocal{d}} {\Top{}}
-                                      {\Boolean{}}
-                                      {\filterset {\notprop{\Number{}}{\makelocal{d}}}
-                                                  {\isprop{\Number{}}{\makelocal{d}}}}
-                                      {\emptyobject{}}}
-                    {\filterset {\topprop{}}
-                                {\botprop{}}}
-                    {\emptyobject{}}}
-$$
+%Finally T-Abs assigns a type to the overall function:
+%$$
+%{\judgementselfrewrite{}{\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}}
+%                    {\ArrowOne {\makelocal{d}} {\Top{}}
+%                                      {\Boolean{}}
+%                                      {\filterset {\notprop{\Number{}}{\makelocal{d}}}
+%                                                  {\isprop{\Number{}}{\makelocal{d}}}}
+%                                      {\emptyobject{}}}
+%                    {\filterset {\topprop{}}
+%                                {\botprop{}}}
+%                    {\emptyobject{}}}
+%$$
 
 %The object \x{} over latent propositions \thenprop{\prop{}} and
 %\elseprop{\prop{}}, latent object \object{}, and latent type \t{}. The
@@ -696,17 +726,11 @@ $$
 %$$
 
 \paragraph{Subtyping}
-\figref{main:figure:subtyping} presents subtyping
-as a reflexive and transitive relation with top type \Top. 
-Singleton types are instances of their respective classes---boolean singleton types
-are of type \Boolean{}, class literals are instances of \Class{} and keywords are
-instances of \Keyword{}.
-Instances of classes \class{} are subtypes of \Object{}. Function types 
-are subtypes of \IFn{}. All types except for \Nil{} are subtypes of \Object{},
-so \Top{} is similar to {\Union{\Nil}{\Object}}.
+Subtyping is as a reflexive and transitive relation with top type \Top. 
+\figref{main:figure:subtyping} presents select rules.
+Subtyping for untagged unions is standard.
 Function subtyping is contravariant left of the arrow---latent propositions, object
 and result type are covariant.
-Subtyping for untagged unions is standard.
 
 \paragraph{Operational semantics} We define the dynamic semantics for \lambdatc{}
 in a big-step style using an environment, following~\cite{TF10}.
@@ -714,9 +738,9 @@ We include both errors and a \wrong{} value, which is provably ruled out by the
 type system.
 The main judgment is \opsem{\openv{}}{\e{}}{\definedreduction{}}
 which states that \e{} evaluates to answer \definedreduction{} in environment
-\openv{}. We chose to omit the core rules (included in supplemental material of~\cite{bonnaire2016practical})
-however a notable difference is \nil{} is a false value, which affects the
-semantics of \ifliteral{} (\figref{main:figure:coresemantics}).
+\openv{}. We omit the core rules (included in supplemental material of~\cite{bonnaire2016practical}).
+%however a notable difference is \nil{} is a false value, which affects the
+%semantics of \ifliteral{} (\figref{main:figure:coresemantics}).
 
 %The definition of \updateliteral{} supports various idioms relating to \classpe{}
 %which we introduce in \secref{sec:isaformal}.

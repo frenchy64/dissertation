@@ -29,7 +29,7 @@ I will develop a formal model of Typed Clojure that includes
 key features like hash-maps, multimethods, Java interoperability, and occurrence typing,
 and prove the model type sound.
 Then, I will demonstrate that Typed Clojure's design is useful and corresponds to actual usage patterns
-with an emperical study of real-world Typed Clojure usage in over 19,000 lines of code.
+with an empirical study of real-world Typed Clojure usage in over 19,000 lines of code.
 
 Second, we address a major usability flaw in Typed Clojure: users must \emph{manually}
 write annotations.
@@ -183,123 +183,6 @@ We will test this hypothesis with case studies
 %of type annotations by exercising more paths through the
 %program. %(Section \ref{experiment3})
 
-\subsection{Automatic Annotation Approach}
-
-Now that we have introduced the problem of automatic annotations and some
-of its subtleties, we can flesh out our philosophy and overall approach.
-At a high level, there are three phases to
-generating annotations: instrumentation, runtime tracking, and type reconstruction.
-
-The first phase, \textbf{instrumentation}, involves
-rewriting the code we wish to annotate such
-that we can record its runtime behavior.
-In this phase, we usually require the programmer to
-indicate which code we wish to generate types
-for in advance, with a file-level granuality.
-
-Once instrumented, we observe our running program
-via \textbf{runtime tracking}. To exercise our programs,
-we usually run their unit tests, generative tests,
-or just normally run the program (eg. to generate types for
-a game, we can simply play the game for a few minutes).
-We accumulate the results of tracking via \textbf{paths}.
-If we think of types as trees and supply a label
-for each branching path, our inference results
-specify the type down a particular path in this tree.
-
-Finally, the information collected during runtime tracking
-is combined into annotations by our \textbf{inference algorithm}.
-We first combine all inference result into a large tree of
-types. If we were to convert this tree into annotations directly,
-our annotations would be too specific---they would be too
-deep and fine-grained.
-Instead, our algorithm iterates over several passes to massage
-this tree, generating good names for the nodes, compacting similar
-types across the tree, and
-eventually converting the tree into a directed graph by reconstructing
-recursive types.
-
-%Let's demonstrate this pipeline, with our opening example.
-%
-%...
-%
-%\begin{verbatim}
-%
-%\end{verbatim}
-
-An important question to answer is ``how accurate are these annotations?''.
-Unlike some previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
-in our generated types.
-Our main contribution is a tool that Clojure programmers
-can use to help learn about and specify their programs.
-In that spirit, annotations should meet several criteria.
-
-\paragraph{Good names}
-Typed Clojure %and clojure.spec 
-annotations are abundant
-with useful names for types. A good name often increases
-readability.
-Good names can sometimes be reconstructed from the program source,
-like function or parameter names, and other times 
-we can use the shape of a type to summarize it.
-
-\paragraph{Compact}
-Idiomatic Clojure code rarely mixes certain types in the same position,
-unless the program is polymorphic. Using this knowledge---which we observed
-by the annotations and specs assigned to idiomatic Clojure 
-code---we can rule out certain combinations of types to compact our
-resulting output, without losing information that would help us
-type check our programs.
-
-\paragraph{Recursive}
-Maps in Clojure are often heterogeneous, and recursively defined.
-Typed Clojure %and clojure.spec 
-supplies mechanisms for the most
-common case: maps of known keyword entries.
-We strategically \textbf{squash} flat types to be recursive
-based on their unrolled shape.
-For example, a recursively defined union of maps almost always
-contains a known keyword ``tag'' mapped to a keyword.
-By identifying this tag, we can reconstruct a good recursive
-approximation of this type.
-
-%\subsection{Naming}
-%
-%For a type to be immediately useful to a programmer, it helps
-%to have a great name. We explored several avenues for
-%generating good names.
-%
-%For types that occured as function arguments, the name of
-%the argument often indicated its role in the program.
-%Names like \textbf{config} or \textbf{env} are often used
-%for an environment being functionally threaded through
-%the program.
-%
-%Similarly, types that occur as values in configuration
-%maps often have descriptive keys. In the Star Trek 
-%game, the configuration map maps \textbf{:stardate}
-%to a map that contains three number entries: 
-%\textbf{:start},
-%\textbf{:current}, and
-%\textbf{:end}.
-%
-%What if a type occurs in the return position of a function?
-%Sometimes these are named by \textbf{let} binding the result
-%of the computation.
-%
-%Failing these heuristics, we fall back of several approaches
-%to naming.
-%First, if we are naming a keyword map which is part of a tagged
-%union, we use the tag as the name. For example, if the tagged entry
-%maps \textbf{:op} to \textbf{:fn}, we name this map \textbf{FnOp}.
-%Failing that, for maps with less than three entries, we simply
-%enumerate its entries as the name.
-%Finally, for large keyword maps, we give an abbreviation
-%of its keyset as a name.
-%
-%\begin{Verbatim}
-%(defn f [x] (inc x))
-%\end{Verbatim}
 
 %\subsection{Overview of clojure.spec}
 %
@@ -477,10 +360,10 @@ I will support this thesis statement with the following:
   \item \emph{Typed Clojure is sound} We formalize Typed Clojure, including
     its characteristic features like hash-maps, multimethods, and Java interoperability,
     and proven the model type sound.
-  \item \emph{Typed Clojure is practical} We present an emperical study of real-world Typed Clojure usage
+  \item \emph{Typed Clojure is practical} We present an empirical study of real-world Typed Clojure usage
     in over 19,000 lines of code, showing its features correspond to actual usage patterns.
   \item \emph{Typed Clojure's annotation burden is partially-automatable} We formalize and implement a tool to generate
-    type annotations, and emperically study the manual changes needed for the generated annotations
+    type annotations, and empirically study the manual changes needed for the generated annotations
     to pass type checking.
   %\item \emph{clojure.spec model and Automatic Annotations} 
   \item \emph{Repurpose automation technology}
@@ -576,6 +459,122 @@ that uses \coretyped{} in production (\figref{experience:featuretable}).
 %instrumented the \coretyped{} type checker to record how often
 %various features were used (summarized in \figref{experience:featuretable}).
 
+\subsection{Automatic Annotation Approach}
+
+We now describe our philosophy and overall approach to automatic annotations for Typed Clojure.
+At a high level, there are three phases to
+generating annotations: instrumentation, runtime tracking, and type reconstruction.
+
+The first phase, \textbf{instrumentation}, involves
+rewriting the code we wish to annotate such
+that we can record its runtime behavior.
+In this phase, we usually require the programmer to
+indicate which code we wish to generate types
+for in advance, with a file-level granuality.
+
+Once instrumented, we observe our running program
+via \textbf{runtime tracking}. To exercise our programs,
+we usually run their unit tests, generative tests,
+or just normally run the program (eg. to generate types for
+a game, we can simply play the game for a few minutes).
+We accumulate the results of tracking via \textbf{paths}.
+If we think of types as trees and supply a label
+for each branching path, our inference results
+specify the type down a particular path in this tree.
+
+Finally, the information collected during runtime tracking
+is combined into annotations by our \textbf{inference algorithm}.
+We first combine all inference result into a large tree of
+types. If we were to convert this tree into annotations directly,
+our annotations would be too specific---they would be too
+deep and fine-grained.
+Instead, our algorithm iterates over several passes to massage
+this tree, generating good names for the nodes, compacting similar
+types across the tree, and
+eventually converting the tree into a directed graph by reconstructing
+recursive types.
+
+%Let's demonstrate this pipeline, with our opening example.
+%
+%...
+%
+%\begin{verbatim}
+%
+%\end{verbatim}
+
+An important question to answer is ``how accurate are these annotations?''.
+Unlike some previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
+in our generated types.
+Our main contribution is a tool that Clojure programmers
+can use to help learn about and specify their programs.
+In that spirit, annotations should meet several criteria.
+
+\paragraph{Good names}
+Typed Clojure %and clojure.spec 
+annotations are abundant
+with useful names for types. A good name often increases
+readability.
+Good names can sometimes be reconstructed from the program source,
+like function or parameter names, and other times 
+we can use the shape of a type to summarize it.
+
+\paragraph{Compact}
+Idiomatic Clojure code rarely mixes certain types in the same position,
+unless the program is polymorphic. Using this knowledge---which we observed
+by the annotations and specs assigned to idiomatic Clojure 
+code---we can rule out certain combinations of types to compact our
+resulting output, without losing information that would help us
+type check our programs.
+
+\paragraph{Recursive}
+Maps in Clojure are often heterogeneous, and recursively defined.
+Typed Clojure %and clojure.spec 
+supplies mechanisms for the most
+common case: maps of known keyword entries.
+We strategically \textbf{squash} flat types to be recursive
+based on their unrolled shape.
+For example, a recursively defined union of maps almost always
+contains a known keyword ``tag'' mapped to a keyword.
+By identifying this tag, we can reconstruct a good recursive
+approximation of this type.
+
+%\subsection{Naming}
+%
+%For a type to be immediately useful to a programmer, it helps
+%to have a great name. We explored several avenues for
+%generating good names.
+%
+%For types that occured as function arguments, the name of
+%the argument often indicated its role in the program.
+%Names like \textbf{config} or \textbf{env} are often used
+%for an environment being functionally threaded through
+%the program.
+%
+%Similarly, types that occur as values in configuration
+%maps often have descriptive keys. In the Star Trek 
+%game, the configuration map maps \textbf{:stardate}
+%to a map that contains three number entries: 
+%\textbf{:start},
+%\textbf{:current}, and
+%\textbf{:end}.
+%
+%What if a type occurs in the return position of a function?
+%Sometimes these are named by \textbf{let} binding the result
+%of the computation.
+%
+%Failing these heuristics, we fall back of several approaches
+%to naming.
+%First, if we are naming a keyword map which is part of a tagged
+%union, we use the tag as the name. For example, if the tagged entry
+%maps \textbf{:op} to \textbf{:fn}, we name this map \textbf{FnOp}.
+%Failing that, for maps with less than three entries, we simply
+%enumerate its entries as the name.
+%Finally, for large keyword maps, we give an abbreviation
+%of its keyset as a name.
+%
+%\begin{Verbatim}
+%(defn f [x] (inc x))
+%\end{Verbatim}
 
 \subsection{Automatic Annotations}
 
@@ -631,8 +630,8 @@ needed to amend generated annotations to actually type check.
   %data.xml           & \\
   %clojurescript & \\
 \end{tabular}
-  \label{infer:amending}
 \caption{Amending automatically generated types to type check}
+  \label{infer:amending}
 \end{figure*}
 
 \subsection{clojure.spec Automatic Annotations}
@@ -649,7 +648,7 @@ For example, Typed Clojure and clojure.spec are designed differently
 around qualified entries in maps, and by generating and enforcing specs
 we can investigate whether either are compatible with actual usage.
 
-We can emperically investigate which function spec checking semantics are 
+We can empirically investigate which function spec checking semantics are 
 applicable in the majority of code. Since clojure.spec provides
 two distinct function checking semantics, including a surprising
 ``generative testing'' semantics, we can measure the likelihood
@@ -827,11 +826,11 @@ I have already made progress towards my thesis:
   \item I have formalized Typed Clojure, including
     its characteristic features like hash-maps, multimethods, and Java interoperability,
     and prove the model type sound.
-  \item I have conducted an emperical study of real-world Typed Clojure usage
+  \item I have conducted an empirical study of real-world Typed Clojure usage
     in over 19,000 lines of code, showing its features correspond to actual usage patterns.
   \item I have implemented and publicly released a tool that generates
     Typed Clojure and clojure.spec annotations, and started on a formalism.
-  \item I have started an emperical study the of manual changes needed for the generated annotations
+  \item I have started an empirical study the of manual changes needed for the generated annotations
     to pass type checking is in progress.
   \item I have successfully run my clojure.spec annotation tool on several hundred open-source projects that
     will be used to drive further studies.
@@ -867,7 +866,7 @@ I plan to publish the following papers:
 
 \begin{itemize}
   \item \textbf{ESOP 2016 - Published} \emph{Practical Optional Types for Clojure}~\cite{bonnaire2016practical}.
-    A paper that provides a formal model of Typed Clojure and presents an emperical
+    A paper that provides a formal model of Typed Clojure and presents an empirical
     study of usage patterns.
   \item \textbf{Spring 2018} \emph{Squash the work: Automatic annotations for Typed Clojure and clojure.spec}
     A paper that presents a tool capable of generating Typed Clojure and clojure.spec

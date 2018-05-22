@@ -2,54 +2,54 @@
 \begin{mathpar}
 
   \begin{array}{lllll}
-    \trackmeta{}(\val{}, \path{}) = \val{}\ ;\ \res{}\\\\
+    \trackmeta{}(\val{}, \inferpath{}) = \val{}\ ;\ \res{}\\\\
 
-    \trackmeta{}(\num{}, \path{})
+    \trackmeta{}(\num{}, \inferpath{})
     &=&
-    n\ ; \{\path{} : \IntT{}\}
+    n\ ; \{\inferpath{} : \IntT{}\}
     \\
-    \trackmeta{}([\lambda \xvar{}. \exp{}, \rho], \path{})
+    \trackmeta{}([\lambda \xvar{}. \exp{}, \rho], \inferpath{})
     &=&
     [
     \lambda \yvar{}.
-      \trackE{((\lambda \xvar{}. \exp{}) \trackE{\yvar{}}{\appendone{\path{}}{\dompe{}}})}
-             {\appendone{\path{}}{\rngpe{}}}
+      \trackE{((\lambda \xvar{}. \exp{}) \trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}})}
+             {\appendone{\inferpath{}}{\rngpe{}}}
          , \rho]
-         \ ; \{\path{} : [\UnknownT{} \rightarrow \UnknownT{}] \}
+         \ ; \{\inferpath{} : [\UnknownT{} \rightarrow \UnknownT{}] \}
          \\
     &&
     \text{where}\ \yvar{} \text{ is fresh}
     \\
-    \trackmeta{}(\{\overrightarrow{\val1\ \val2}\}, \path{})
+    \trackmeta{}(\{\overrightarrow{\val1\ \val2}\}, \inferpath{})
     &=&
     \{\overrightarrow{\val1\ \val2{}'}\}
     \ ;\ \overrightarrow{\sqcup\ \res{}}
       \sqcup
-    \{\path{} : \{\overrightarrow{\val1\ \UnknownT{}}\} \}
+    \{\inferpath{} : \{\overrightarrow{\val1\ \UnknownT{}}\} \}
     \\
     &&
-    \text{where}\ \overrightarrow{\trackmeta{}(\val2, \appendone{\path{}}{\keype{\overrightarrow{\val1}}{\val1}}) = \val2{}'\ ;\ \res{}}
+    \text{where}\ \overrightarrow{\trackmeta{}(\val2, \appendone{\inferpath{}}{\inferkeype{\overrightarrow{\val1}}{\val1}}) = \val2{}'\ ;\ \res{}}
     \\
     \\
 
          
-%    \updatenoalign{\aenv{}}{\tenv{}}{\path{}}{\tau}{\atenv{}}
+%    \inferupdatenoalign{\aenv{}}{\tenv{}}{\inferpath{}}{\tau}{\atenv{}}
 %    \\\\
 %
-%    \updatealign{\aenv{}}{\tenv{}}{\appendone{\path{}}{\keype{\overrightarrow{\kw{}'}}{\kw{}}}}{\ty{}}
-%            {\update{\aenv{}}{\tenv{}}{\path{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \ty{} \}}}
+%    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\ty{}}
+%            {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \ty{} \}}}
 %    \\
-%    \updatealign{\aenv{}}{\tenv{}}{\appendone{\path{}}{\dompe{}}}{\ty{}}
-%                {\update{\aenv{}}{\tenv{}}{\path{}}{\arrow{\ty{}}{\UnknownT{}}}}
+%    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\ty{}}
+%                {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\arrow{\ty{}}{\UnknownT{}}}}
 %    \\
-%    \updatealign{\aenv{}}{\tenv{}}{\appendone{\path{}}{\rngpe{}}}{\ty{}}
-%                {\update{\aenv{}}{\tenv{}}{\path{}}{\arrow{\UnknownT{}}{\ty{}}}}
+%    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\ty{}}
+%                {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\ty{}}}}
 %    \\
-%    \updatealign{\aenv{}}{\tenv{}}{[x]}{\ty{}}{(\tenv{}[\sigma / \xvar{}] , \aenv{}')}
+%    \inferupdatealign{\aenv{}}{\tenv{}}{[x]}{\ty{}}{(\tenv{}[\sigma / \xvar{}] , \aenv{}')}
 %    \\
 %    && \text{where}\ \tenv{}(\xvar{}) = \ty{}', join(\aenv{}, \ty{}, \ty{}') = \sigma\ ;\ \aenv{}'
 %    \\
-%    \updatealign{\aenv{}}{\tenv{}}{[\xvar{}]}{\ty{}}{(\tenv{}[\ty{} / \xvar{}], \aenv{})}
+%    \inferupdatealign{\aenv{}}{\tenv{}}{[\xvar{}]}{\ty{}}{(\tenv{}[\ty{} / \xvar{}], \aenv{})}
 %    \\
 %    && \text{where}\ \xvar{} \not\in dom(\tenv{})
 %    \\
@@ -83,6 +83,6 @@
   \end{array}
 
 \end{mathpar}
-  \label{infer:track}
   \caption{Value tracking}
+  \label{infer:track}
 \end{figure*}
