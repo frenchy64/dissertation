@@ -679,6 +679,14 @@ We can also use the generative tests as a ``second pass'' over the functions,
 by re-instrumenting our functions and analyzing whether we get better
 test coverage than just running the provided unit tests.
 
+clojure.spec supports stubbing-out functions, useful for running unit
+tests that depend on side effecting functions. For example, we might
+stub-out functions that call a database that only exists in production.
+Using our generated specs, we could experimentally stub-out functions
+that consistently fail their specs under generative testing,
+and measure how useful the chosen stubs are by manually inspecting
+which functions were stubbed.
+
 \subsection{How Clojure is used}
 
 There is potential for other, more general, research questions
