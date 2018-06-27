@@ -1,0 +1,107 @@
+\subsection{Automatic Type Annotations}
+
+% - set the scene for inferring types
+%   - Typed Clojure
+%   - optional/gradual typing requires annotations
+
+We now shift gears from introducing Typed Clojure to
+addressing a major usability flaw that many
+gradually and optionally typed languages share (including Typed Clojure):
+writing type annotations is a \emph{manual} process.
+%
+Take \texttt{vertices} (below, written in Clojure)
+a function that returnes the number of vertices
+in a tree of tagged hash-maps.
+As is good style, it comes with a unit test.
+Our goal is to \textit{automatically generate} semi-accurate Typed Clojure %~\cite{bonnaire2016practical}
+annotations
+for this function, relieving most of the annotation
+burden.
+
+\begin{Verbatim}
+(defn vertices [m]
+  (case (:op m)
+    :leaf 1
+    :node (+ 1 (:left m) (:right m))))
+
+(deftest test-vertices
+  (is (= 3 {:op :node
+            :left {:op :leaf :val 42} 
+            :right {:op :leaf :val 24}})))
+\end{Verbatim}
+
+Our approach to automatic annotations features several stages.
+First, we \textit{instrument} top-level functions.
+Then, we \textit{exercise} the code by running its unit tests and \textit{observe}
+the runtime behavior of the program.
+If we pause at this point, we have collected enough data 
+to generate a preliminary annotation:
+%
+\begin{Verbatim}
+(ann vertices ['{:op ':node, :left '{:op ':leaf, :val Int}, :right '{:op ':leaf, :val Int}} -> Int]})
+\end{Verbatim}
+%
+However, this type is too specific: trees are recursively defined
+and the argument type is difficult to read and maintain.
+To remedy this, we attempt to roll recursive-looking
+types to be recursive from their example unrollings.
+For example, below we have generalized the preliminary annotation's
+depth 2 tree to the recursive \texttt{NodeLeaf}.
+%
+\begin{Verbatim}
+(defalias NodeLeaf 
+  (U '{:op ':node :left NodeLeaf :right NodeLeaf}
+     '{:op ':leaf :val Int}))
+(ann vertices [NodeLeaf -> Int])
+\end{Verbatim}
+%
+%\begin{Verbatim}
+%(declare Node Leaf)
+%(defalias NodeLeaf (U Node Leaf))
+%(defalias Node 
+%  '{:op ':node :left NodeLeaf :right NodeLeaf})
+%(defalias Leaf '{:op ':leaf :val int})
+%(ann verbatim [NodeLeaf -> Int]})
+%\end{Verbatim}
+%
+Now, if \texttt{NodeLeaf} is used in multiple positions
+in the program, we don't want to repeat its definition multiple times.
+Our type inference algorithm attempts merge recursive
+types found throughout the program, reusing them in annotations.
+For example,
+if another function \texttt{sum-tree} accepts two
+trees, we want reuse \texttt{NodeLeaf} in both annotations
+like so:
+%
+\begin{Verbatim}
+(ann vertices [NodeLeaf -> Int])
+(ann sum-tree [NodeLeaf NodeLeaf -> NodeLeaf])
+\end{Verbatim}
+
+If minor variants of the recursive types occur
+across a program,
+we use optional \texttt{HMap} entries %~\cite{bonnaire2016practical}
+to reduce redundancy.
+%
+\begin{Verbatim}
+(defalias NodeLeaf 
+  (U '{:op ':node :left NodeLeaf :right NodeLeaf}
+     (HMap :mandatory {:op ':leaf :val Int}
+           :optional {:label Str})))
+\end{Verbatim}
+%
+After inserting these annotations, we can run the
+type checker over them to check their usefulness.
+Ideally, minimal changes will be needed to successfully type check
+functions with the generated annotations,
+mostly consisting of local function and loop annotations,
+and renaming of type aliases.
+Annotations should also be readable and minimize
+redundancy, even when compared to hand-written annotations.
+We will test this hypothesis with case studies
+(\secref{sec:casestudy}).
+%Generating and running \textit{tests} improved the quality
+%of type annotations by exercising more paths through the
+%program. %(Section \ref{experiment3})
+
+

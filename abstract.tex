@@ -1,0 +1,48 @@
+We present Typed Clojure, an optional type system for the Clojure programming language.
+This thesis argues Typed Clojure is sound and practical,
+that we can improve its usability by automatically generating type annotations based on runtime observations,
+and then we can repurpose this annotation technology to generate clojure.spec runtime specifications
+and evaluate these annotations in hundreds of projects.
+%.
+%and answer broad questions about how Clojure is used.
+
+First, I will present Typed Clojure, an optional type system for Clojure.
+I will develop a formal model of Typed Clojure that includes
+key features like hash-maps, multimethods, Java interoperability, and occurrence typing,
+and prove the model type sound.
+Then, I will demonstrate that Typed Clojure's design is useful and corresponds to actual usage patterns
+with an empirical study of real-world Typed Clojure usage in over 19,000 lines of code.
+
+Second, we address a major usability flaw in Typed Clojure: users must \emph{manually}
+write annotations.
+To remedy this, 
+I will present a tool that automatically generates Typed Clojure annotations based on observed
+program behavior, including
+a formal model of the tool, consisting of its runtime instrumentation phase that
+collects samples from a running program, and type reconstruction phase
+that creates useful annotations from these samples.
+Then, I will give an overview of a practical implementation that generates Typed Clojure annotations for
+real programs.
+Next, I will study the effectiveness, accuracy, and usability of these annotations
+by generating annotations for several projects, and then manually amending the annotations
+until they type check.
+
+Third, I will repurpose my automatic annotation tool to generate clojure.spec annotations (``specs'')
+and subsequently test their effectiveness over hundreds of open source Clojure projects.
+I will outline clojure.spec, the official runtime verification
+library bundled with Clojure, and present a formal model of clojure.spec that highlights its
+``generative testing'' function checking semantics.
+Next, I will discuss how to extend my annotation tool to generate specs.
+Finally, I will verify the effectiveness of generated specs in hundreds of open-source Clojure projects.
+%Third, I will conduct a larger scale investigation of Clojure usage patterns by
+%repurposing my automatic annotation tool to generate clojure.spec annotations (``specs'')
+%and subsequently use them to enforce.
+%I will outline clojure.spec, the official runtime verification
+%library bundled with Clojure, and present a formal model of clojure.spec that highlights its
+%``generative testing'' function checking semantics.
+%Next, I will discuss how to extend my annotation tool to generate specs.
+%Finally, I will automatically generate specs for hundreds of open-source Clojure projects,
+%and use this data to investigate general questions like the effectiveness of unit and generative testing,
+%the evolution of code over time, and the prevalence of idioms that Typed Clojure and clojure.spec
+%have been designed around.
+
