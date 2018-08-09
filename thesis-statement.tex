@@ -3,7 +3,8 @@
 My thesis statement is:
 
 \begin{quote}
-Typed Clojure is a sound and practical optional type system for Clojure and the process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
+Typed Clojure is a sound and practical optional type system for Clojure.
+%Typed Clojure is a sound and practical optional type system for Clojure and the process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
 %Typed Clojure is a sound and practical optional type system for Clojure, and we can relieve the annotation burden for such verification systems by automatically annotating programs based on their runtime behavior.
 %Typed Clojure is a sound and practical optional type system for Clojure whose annotation burden is partially-automatable, and this automation technology can be repurposed to generate clojure.spec annotations and test its effectiveness in hundreds of projects.
 % to study how Clojure is used in real projects.
@@ -22,32 +23,66 @@ I will support this thesis statement with the following:
 \begin{itemize}
   \item \emph{Typed Clojure is sound} We formalize Typed Clojure, including
     its characteristic features like hash-maps, multimethods, and Java interoperability,
-    and proven the model type sound.
-  \item \emph{Typed Clojure is practical} We present an empirical study of real-world Typed Clojure usage
-    in over 19,000 lines of code, showing its features correspond to actual usage patterns.
-  \item \emph{Typed Clojure's annotation burden is partially-automatable} We formalize and implement a tool to generate
-    type annotations, and empirically study the manual changes needed for the generated annotations
-    to pass type checking.
-  %\item \emph{clojure.spec model and Automatic Annotations} 
-  \item \emph{Repurpose automation technology}
-  %\item \emph{Repurpose automation technology}
-  %\item \emph{clojure.spec spec's annotation burden is partially-automatable}
-    We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs by reusing
-    most of the the infrastructure for automatic Typed Clojure annotations.
-    We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
-    and implement the model in Redex.
-  \item \emph{Study how Clojure is used in real projects}
-    We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
-    across hundreds of projects, as well as analyzing design choices in Typed Clojure's type system,
-    clojure.spec's features, and our automatic annotation tool.
-  %\item \emph{Test effectiveness of clojure.spec annotation generation}
-  %  We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
-  %  across hundreds of projects, as well as analyze design choices in Typed Clojure's type system and
-  %  clojure.spec's features.
-
-
+    and prove the model type sound.
+  \item \emph{Typed Clojure is practical} 
+    \begin{itemize}
+      \item We present an empirical study of real-world Typed Clojure usage
+        in over 19,000 lines of code, showing its features correspond to actual usage patterns.
+       \item %\emph{Top-level annotation burden}
+         To lower the annotation burden,
+          we formalize and implement a tool to automatically annotate types for top-level
+          user and library definitions, and empirically study the manual changes needed for the generated annotations
+          to pass type checking.
+    \end{itemize}
     % our annotation approach can be repurposed to generate clojure.spec which can be \emph{run}.
     % use results to explore both the quality of the tool and to explore what the inferred specs
     % tell us about clj programs.
 \end{itemize}
 
+I will augment this thesis statement with one of the following future research directions:
+
+\begin{enumerate}
+  \item The process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
+    \begin{itemize}
+      \item \emph{Repurpose automation technology}
+        We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs by reusing
+        most of the the infrastructure for automatic Typed Clojure annotations.
+        We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
+        and implement the model in Redex.
+      \item \emph{Study how Clojure is used in real projects}
+        We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
+        across hundreds of projects, as well as analyzing design choices in Typed Clojure's type system,
+        clojure.spec's features, and our automatic annotation tool.
+      \item \emph{Test effectiveness of clojure.spec annotation generation}
+        We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
+        across hundreds of projects, as well as analyze design choices in Typed Clojure's type system and
+        clojure.spec's features.
+    \end{itemize}
+  \item The number of programs that can be type checked can be improved by
+    interleaving type checking with macroexpansion to enable a combination of
+    symbolic execution with a system for defining custom type rules for usages of functions and macros.
+    \begin{itemize}
+      \item \emph{Type checking interleaved with expansion}
+        We describe how to convert Typed Clojure from a type system that only checks fully
+        expanded programs to one that incrementally
+        checks partially expanded programs, and present an implementation.
+      \item \emph{Custom type rules}
+        We describe and implement a system to define custom type rules
+        for usages of top-level functions and macros
+        and study how they improve the inference of core Clojure idioms.
+      \item \emph{Symbolic analysis}
+        We describe and implement symbolic rewriting strategies for Clojure
+        programs and study how many more (rewritten) programs can be checked.
+    \end{itemize}
+\end{enumerate}
+
+% Evan Chang (Boulder)
+% - symbolic exec + type checking
+% David Fisher (Olin Shivers)
+% - Lazy Delegation JSP paper
+% Matthew (STL talk)
+% - let's write a expander
+% - scope sets
+% add this as an alternative to clojure spec's research direction
+% - sell as: Programs hard to TC
+% use (comp (map inc) (map dec)) as an example

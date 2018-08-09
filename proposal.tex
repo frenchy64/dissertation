@@ -536,6 +536,25 @@ quantitative analysis could reveal further insights.
 
 %\cite{Mastrangelo:2015:UYO:2814270.2814313} 
 
+\paragraph{Interleaving Type Checking with Expansion, Extensible type systems and Symbolic Analysis}
+
+Turnstile~\cite{Chang2017TSM} repurposes the Racket macro system
+to simultaneously type check a program during its expansion to
+a target language.
+
+SugarJ~\cite{Erdweg2011SJ}
+adds syntactic language extensibility to Java, such as pair
+syntax, embedded XML, and closures.
+
+% this paper has a great related works section that differentiates
+% the strategies of several typed metaprogramming techniques
+SoundX~\cite{Lorenzen2016STS} presents a solution to a common
+dilemma in typed metaprogramming: whether to desugar before
+type checking, or vice-versa.
+%For example, Scala macros~\cite{Burmako2013SML} interleave type checking and
+%desugaring
+
+
 \section{Research Plan and Timeline}
 
 I have already made progress towards my thesis:
@@ -552,29 +571,49 @@ I have already made progress towards my thesis:
     to pass type checking is in progress.
   \item I have successfully run my clojure.spec annotation tool on several hundred open-source projects that
     will be used to drive further studies.
+  \item I have successfully prototyped an extensible typing rule system for Typed Clojure.
 \end{itemize}
 
 To complete my thesis, I plan to follow this timeline:
 
 \begin{itemize}
-  \item \textbf{[June-July 2018]} Fix spec generation.
+  \item \textbf{[June-July 2018 - Completed]} Fix spec generation.
     \begin{itemize}
       \item devise and implement a one or more strategies to handle clojure.spec's
         heterogeneous map spec (and intelligently register global spec aliases)
       \item test out specs generation on candidate projects and improve the tool to fix obvious
         defects
     \end{itemize}
-  \item \textbf{[July-August 2018]} Finish formal model of annotation tool.
+  \item \textbf{[July-August 2018 - Completed]} Proof-of-concept extensible typing rule system
+    \begin{itemize}
+      \item convert core.typed to control macroexpansion, rather than type-checking
+        fully-expanded code.
+      \item prototype interface for defining custom type rules for usages of top-level functions and macros.
+      \item complete proof-of-concept symbolic rewriting rules to aggressively move functions into
+        invocation target position, like lifting conditionals and beta reduction, with
+        na\"\i ve infinite loop detection.
+    \end{itemize}
+  \item \textbf{[August 2018]} Finish formal model of automatic annotation tool.
     \begin{itemize}
       \item update formal model for annotation tool to include latest
         optimizations and fixes in recursive type reconstruction.
     \end{itemize}
-  \item \textbf{[August-September 2018]} Devise and carry out automatic annotation experiments
+  \item \textbf{[September-October 2018]} Devise and carry out automatic annotation experiments
     \begin{itemize}
       \item formulate and complete larger scale study on generation of specs for hundreds of projects.
+      \item complete study that quantifies the changes needed to go from automatically annotated types
+        to checked code.
     \end{itemize}
-  \item \textbf{[September-November 2018]} Write paper (PLDI submission)
-  \item \textbf{[November 2018-May 2019]} Write dissertation
+  \item \textbf{[October-November 2018]} Write and submit automatic annotation paper (PLDI submission)
+  \item \textbf{[November-December 2019]} Improve extensible typing rule system
+    \begin{itemize}
+      \item provide tools to avoid double macroexpansion.
+      \item experiment with supporting core Clojure idioms using typing rules.
+    \end{itemize}
+  \item \textbf{[March-May 2019]} Write dissertation
+    \begin{itemize}
+      \item include ESOP 2016 paper, PLDI submission, and experience with extensible typing rules.
+    \end{itemize}
   \item \textbf{[June 2019]} Defend
 \end{itemize}
 
