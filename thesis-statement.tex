@@ -42,16 +42,16 @@ I will support this thesis statement with the following:
 I will augment this thesis statement with one of the following research directions:
 
 \begin{enumerate}
-  \item The number of programs that can be type checked can be improved by
-    interleaving type checking with macroexpansion to enable a combination of
-    symbolic execution with a system for defining custom type rules for usages of functions and macros.
+  \item More Clojure programs can be type checked by first interleaving
+    checking with macroexpansion, then combining
+    symbolic execution with extensible typing rules.
     \begin{itemize}
       \item \emph{Type checking interleaved with expansion}
-        We describe how to convert Typed Clojure from a type system that only checks fully
+        We motivate and describe how to convert Typed Clojure from a type system that only checks fully
         expanded programs to one that incrementally
         checks partially expanded programs, and present an implementation.
-      \item \emph{Custom type rules}
-        We describe and implement a system to define custom type rules
+      \item \emph{Extensible type rules}
+        We describe and implement an extensible system to define custom type rules
         for usages of top-level functions and macros
         and study how they improve the inference of core Clojure idioms.
       \item \emph{Symbolic analysis}

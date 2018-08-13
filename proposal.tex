@@ -305,7 +305,7 @@ several possible research areas for the final section of this
 dissertation.
 
 At least one of the following investigations will be included in the dissertation.
-The selection process will be informed by by the success of early prototypes
+The selection process will be informed by the success of early prototypes
 and preliminary investigations.
 
 \subsubsection{Option 1: Type check more Clojure programs}
@@ -324,16 +324,16 @@ has two competing forces: local type argument synthesis for polymorphic applicat
 the bidirectional propagation of anonymous function argument types.
 
 For example, consider mapping a collection over the identity function \texttt{(map (fn [x] x) [1 2 3])}.
-To infer the type variables of this invocation of \texttt{map}, we first type check the arguments.
+To infer \texttt{map}'s type variables, we first type check the arguments.
 Unfortunately, \texttt{(fn [x] x)} has no annotation, and so its type is \texttt{[Any -> Any]}, making
 the entire invocation type \texttt{(Seq Any)} (instead of the more desirable \texttt{(Seq Int)}).
 
-Even \texttt{(map identity [1 2 3])} has its own set of problems, namely that both
+Even \texttt{(map identity [1 2 3])} has its own set of problems: both
 \texttt{map} and \texttt{identity} are polymorphic, and thus cannot be inferred accurately by 
-systems based on Pierce and Turner's Local Type Inference~\cite{PierceLTI} like Typed Clojure and Typed Racket.
+many systems based on Pierce and Turner's Local Type Inference~\cite{PierceLTI} (like Typed Clojure and Typed Racket).
 This specific problem is addressed by later work in the realm of set-theoretic types~\cite{polyduce2},
-which also generates substitutions for the arguments of applications. However, even
-this work cannot simultaneously infer the type of the function argument of
+by generating substitutions for the arguments of applications. However, even
+there, it cannot simultaneously infer the type of the function argument of
 \texttt{(map (fn [x] x) [1 2 3])}.
 
 Anonymous functions are common in Clojure. For example, the ClojureScript compiler
@@ -341,7 +341,8 @@ uses around 40 anonymous functions in around 140 top-level definitions.
 Most of these functions would require extra annotations to type check, and
 over half of them are used as arguments to polymorphic higher-order functions.
 
-We will design and implement an approach to mitigate the issue of \emph{Hard
+To address excessive annotations and broaden the number of checkable programs,
+we will design and implement an approach to mitigate the issue of \emph{Hard
 to synthesize arguments} in common Clojure code, and report its the effectiveness
 in reducing the number of changes in the porting process from Clojure to
 Typed Clojure.
@@ -354,17 +355,17 @@ execution capabilities. For example
 %
 increments the \texttt{:a}
 entry of map \texttt{m}. A custom \texttt{update} rule
-could rewrite the check as \texttt{(assoc m :a ((fn [a] (inc a)) (get m :a)))},
+effectively inlines the call to \texttt{update} as \texttt{(assoc m :a ((fn [a] (inc a)) (get m :a)))},
 which allows parameter \texttt{a} to inherit the type of \texttt{(get m :a)}.
 
 A more complicated example uses Clojure transducers. The expression 
 \texttt{(comp (map (fn [a] (dec a))) (map (fn [a] (inc a))))} is a transducer that first
 decrements, then increments (transducers compose left-to-right).
 Since \texttt{comp}, and \texttt{map} are polymorphic higher-order
-functions, and we use an anonymous function, this is hard to type check.
-However, combining custom type rules for \texttt{comp}, and \texttt{map}
-with symbolic computations, we could simplify the original expression to
-\texttt{(fn [a] (inc (dec a)))}, which is much easier to check.
+functions, and we use anonymous functions, this is hard to type check.
+However, by combining custom type rules for \texttt{comp}, and \texttt{map}
+with symbolic computations and adequate type propagation, we could potentially distil the original expression to
+\texttt{(inc (dec input))}, which is much easier to check.
 
 \subsubsection{Option 2: clojure.spec Automatic Annotations}
 
@@ -620,11 +621,10 @@ quantitative analysis could reveal further insights.
 
 \paragraph{Interleaving Type Checking with Expansion, Extensible type systems and Symbolic Analysis}
 
-Turnstile~\cite{Chang2017TSM} repurposes the Racket macro system
-to simultaneously type check a program during its expansion to
-a target language. Turnstile provides a fully extensible framework
-for specifying building and combining core typing rules.
-Typed Clojure does not have the goal of allowing users to override
+Turnstile~\cite{Chang2017TSM} type checks a program during expansion
+by repurposing the Racket macro system. It provides a fully extensible framework
+for specifying and combining core typing rules.
+On the other hand, Typed Clojure does not have the goal of allowing users to override
 how language primitives type check. Instead, our goal is to provide
 a simple interface to write type rules for library functions and macros
 in a style that hides the necessary bookkeeping surrounding occurrence
@@ -634,9 +634,9 @@ SugarJ~\cite{Erdweg2011SJ}
 adds syntactic language extensibility to languages like Java, such as pair
 syntax, embedded XML, and closures.
 Desugarings are expressed as rewrite rules to plain Java.
-Other work adds extensible systems
-of \emph{type-specific languages}~\cite{omar2014safely}
-to existing languages, which enables definitions of specialized syntax literals.
+Similarly, work on \emph{type-specific languages}~\cite{omar2014safely}
+adds extensible systems for the definitions of specialized syntax literals
+to existing languages.
 The \emph{type} of an expression determines how it is parsed and elaborated.
 
 % this paper has a great related works section that differentiates
@@ -650,7 +650,7 @@ Programmers specify desugarings with a combination of typing and rewriting rules
 which are then connected to form a valid type derivation
 in a process called \emph{forwarding}.
 We will explore whether we can get the same effect in Typed Clojure
-without requiring the user to write typing rules.
+without requiring the user to understand typing rules.
 %For example, Scala macros~\cite{Burmako2013SML} interleave type checking and
 %desugaring
 
