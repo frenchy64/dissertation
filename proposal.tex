@@ -624,18 +624,33 @@ Turnstile~\cite{Chang2017TSM} repurposes the Racket macro system
 to simultaneously type check a program during its expansion to
 a target language. Turnstile provides a fully extensible framework
 for specifying building and combining core typing rules.
+Typed Clojure does not have the goal of allowing users to override
+how language primitives type check. Instead, our goal is to provide
+a simple interface to write type rules for library functions and macros
+in a style that hides the necessary bookkeeping surrounding occurrence
+typing and scope management.
 
-Several systems
 SugarJ~\cite{Erdweg2011SJ}
-adds syntactic language extensibility to Java, such as pair
+adds syntactic language extensibility to languages like Java, such as pair
 syntax, embedded XML, and closures.
+Desugarings are expressed as rewrite rules to plain Java.
+Other work adds extensible systems
+of \emph{type-specific languages}~\cite{omar2014safely}
+to existing languages, which enables definitions of specialized syntax literals.
+The \emph{type} of an expression determines how it is parsed and elaborated.
 
 % this paper has a great related works section that differentiates
 % the strategies of several typed metaprogramming techniques
 SoundX~\cite{Lorenzen2016STS} presents a solution to a common
 dilemma in typed metaprogramming: whether to desugar before
 type checking, or vice-versa.
-The authors
+The authors present a system where a form is type checked before 
+being desugared, with a guarantee that only well-typed code is generated.
+Programmers specify desugarings with a combination of typing and rewriting rules, 
+which are then connected to form a valid type derivation
+in a process called \emph{forwarding}.
+We will explore whether we can get the same effect in Typed Clojure
+without requiring the user to write typing rules.
 %For example, Scala macros~\cite{Burmako2013SML} interleave type checking and
 %desugaring
 
@@ -661,6 +676,15 @@ anonymous function if annotated, otherwise treats it symbolically.
 As the authors envision, this is akin to automatically inserting
 the mode of a code region based on its context, with a Mix-like language
 becoming the intermediate language.
+
+Type Tailoring~\cite{greenmanttailoring} is an approach to provide more information
+to a host type system than it might be capable of by itself.
+In particular, the authors use the host platform's metaprogramming functionality
+to refine the types of calls based on the program syntax alone, as well as improve
+error messages by incorporating surface syntax. Their experiments are based in Typed Racket, that fully expands
+syntax before checking it. Since Typed Clojure recently changed to interleave macroexpansion
+and type checking, we could extend this technique to also refine calls based on the
+types of their arguments (like SoundX).
 
 \section{Research Plan and Timeline}
 
