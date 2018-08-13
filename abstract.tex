@@ -27,13 +27,26 @@ Next, I will study the effectiveness, accuracy, and usability of these annotatio
 by generating annotations for several projects, and then manually amending the annotations
 until they type check.
 
-Third, I will repurpose my automatic annotation tool to generate clojure.spec annotations (``specs'')
-and subsequently test their effectiveness over hundreds of open source Clojure projects.
-I will outline clojure.spec, the official runtime verification
-library bundled with Clojure, and present a formal model of clojure.spec that highlights its
-``generative testing'' function checking semantics.
-Next, I will discuss how to extend my annotation tool to generate specs.
-Finally, I will verify the effectiveness of generated specs in hundreds of open-source Clojure projects.
+The final part of this thesis will either:
+\begin{itemize}
+  \item increase the number of type checkable Clojure programs, especially those
+    combining polymorphic higher-order and anonymous functions, by combining
+    an extensible typing rule system with symbolic execution, and study its effectiveness
+    in reducing the changes needed to port Clojure programs to Typed Clojure, or
+  \item repurpose the automatic annotation tool to generate clojure.spec annotations,
+    study its effectiveness in generating good specs over several
+    hundred open source projects, and use it to help answer more
+    general questions about Clojure usage.
+\end{itemize}
+
+%Third, I will repurpose my automatic annotation tool to generate clojure.spec annotations (``specs'')
+%and subsequently test their effectiveness over hundreds of open source Clojure projects.
+%I will outline clojure.spec, the official runtime verification
+%library bundled with Clojure, and present a formal model of clojure.spec that highlights its
+%``generative testing'' function checking semantics.
+%Next, I will discuss how to extend my annotation tool to generate specs.
+%Finally, I will verify the effectiveness of generated specs in hundreds of open-source Clojure projects.
+
 %Third, I will conduct a larger scale investigation of Clojure usage patterns by
 %repurposing my automatic annotation tool to generate clojure.spec annotations (``specs'')
 %and subsequently use them to enforce.
@@ -45,4 +58,3 @@ Finally, I will verify the effectiveness of generated specs in hundreds of open-
 %and use this data to investigate general questions like the effectiveness of unit and generative testing,
 %the evolution of code over time, and the prevalence of idioms that Typed Clojure and clojure.spec
 %have been designed around.
-

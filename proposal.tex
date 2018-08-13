@@ -298,9 +298,79 @@ needed to amend generated annotations to actually type check.
   \label{infer:amending}
 \end{figure*}
 
-\subsection{clojure.spec Automatic Annotations}
+\subsection{Two Areas of Further Study}
 
-We will present a formal model of clojure.spec and repurpose our automatic annotation
+The following two subsections describe
+several possible research areas for the final section of this
+dissertation.
+
+At least one of the following investigations will be included in the dissertation.
+The selection process will be informed by by the success of early prototypes
+and preliminary investigations.
+
+\subsubsection{Option 1: Type check more Clojure programs}
+
+A complaint from industrial users about Typed Clojure is that support for
+core Clojure functionality and idioms is limited.
+Furthermore, even if
+a set of functionality is supported, combining them in a helper function
+often give undesired results.
+
+CircleCI summarized their experience with Typed Clojure~\cite{CircleCIBlog}, citing
+several specific frustrations. One representative issue we will discuss
+is that Typed Clojure cannot reliably infer usages of polymorphic higher-order functions.
+The root of this problem is known as the \emph{Hard to synthesize arguments} problem~\cite{hosoya1999good}, and
+has two competing forces: local type argument synthesis for polymorphic applications and
+the bidirectional propagation of anonymous function argument types.
+
+For example, consider mapping a collection over the identity function \texttt{(map (fn [x] x) [1 2 3])}.
+To infer the type variables of this invocation of \texttt{map}, we first type check the arguments.
+Unfortunately, \texttt{(fn [x] x)} has no annotation, and so its type is \texttt{[Any -> Any]}, making
+the entire invocation type \texttt{(Seq Any)} (instead of the more desirable \texttt{(Seq Int)}).
+
+Even \texttt{(map identity [1 2 3])} has its own set of problems, namely that both
+\texttt{map} and \texttt{identity} are polymorphic, and thus cannot be inferred accurately by 
+systems based on Pierce and Turner's Local Type Inference~\cite{PierceLTI} like Typed Clojure and Typed Racket.
+This specific problem is addressed by later work in the realm of set-theoretic types~\cite{polyduce2},
+which also generates substitutions for the arguments of applications. However, even
+this work cannot simultaneously infer the type of the function argument of
+\texttt{(map (fn [x] x) [1 2 3])}.
+
+Anonymous functions are common in Clojure. For example, the ClojureScript compiler
+uses around 40 anonymous functions in around 140 top-level definitions.
+Most of these functions would require extra annotations to type check, and
+over half of them are used as arguments to polymorphic higher-order functions.
+
+We will design and implement an approach to mitigate the issue of \emph{Hard
+to synthesize arguments} in common Clojure code, and report its the effectiveness
+in reducing the number of changes in the porting process from Clojure to
+Typed Clojure.
+
+Some initial investigation in this direction has centered around building
+an extensible system for specifying type rules, and enhancing symbolic
+execution capabilities. For example, 
+
+
+
+%Typed Clojure was designed in 2012, and Clojure has seen several new runtime
+%features since then. One feature, transducers, is a function-based protocol
+%for efficiently running processing pipelines for data sources such as lazy
+%or eager sequences, and asynchronous channels.
+
+
+
+% - idioms
+% - every?
+% - lambdas
+% - polymorphism
+% - het types
+
+\subsubsection{Option 2: clojure.spec Automatic Annotations}
+
+Clojure.spec is popular runtime verification system for Clojure programs included
+in the core Clojure distribution.
+%We will present a formal model of clojure.spec and 
+We will repurpose our automatic annotation
 tool to generate clojure.spec runtime specifications.
 
 We will then conduct a larger scale investigation to evaluate the quality 
@@ -337,7 +407,7 @@ Similarly, we could experiment in stubbing out function arguments
 to higher-order functions to make instrumentation with \texttt{fspec}s
 more predictable.
 
-\subsection{How Clojure is used}
+%\subsubsection{Option 3: How Clojure is used}
 
 There is potential for other, more general, research questions
 to be answered about Clojure usage with our testing setup.
@@ -571,7 +641,7 @@ I have already made progress towards my thesis:
     to pass type checking is in progress.
   \item I have successfully run my clojure.spec annotation tool on several hundred open-source projects that
     will be used to drive further studies.
-  \item I have successfully prototyped an extensible typing rule system for Typed Clojure.
+  \item I have prototyped an extensible typing rule system for Typed Clojure.
 \end{itemize}
 
 To complete my thesis, I plan to follow this timeline:
@@ -589,9 +659,9 @@ To complete my thesis, I plan to follow this timeline:
       \item convert core.typed to control macroexpansion, rather than type-checking
         fully-expanded code.
       \item prototype interface for defining custom type rules for usages of top-level functions and macros.
-      \item complete proof-of-concept symbolic rewriting rules to aggressively move functions into
-        invocation target position, like lifting conditionals and beta reduction, with
-        na\"\i ve infinite loop detection.
+      %\item complete proof-of-concept symbolic rewriting rules to aggressively move functions into
+      %  invocation target position, like lifting conditionals and beta reduction, with
+      %  na\"\i ve infinite loop detection.
     \end{itemize}
   \item \textbf{[August 2018]} Finish formal model of automatic annotation tool.
     \begin{itemize}
@@ -607,8 +677,9 @@ To complete my thesis, I plan to follow this timeline:
   \item \textbf{[October-November 2018]} Write and submit automatic annotation paper (PLDI submission)
   \item \textbf{[November-December 2019]} Improve extensible typing rule system
     \begin{itemize}
-      \item provide tools to avoid double macroexpansion.
-      \item experiment with supporting core Clojure idioms using typing rules.
+      %\item provide tools to avoid double macroexpansion.
+      \item support more core Clojure idioms using typing rules.
+      \item revisit study quantifying manual type annotations using enhanced local inference
     \end{itemize}
   \item \textbf{[March-May 2019]} Write dissertation
     \begin{itemize}
