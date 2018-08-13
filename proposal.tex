@@ -622,8 +622,10 @@ quantitative analysis could reveal further insights.
 
 Turnstile~\cite{Chang2017TSM} repurposes the Racket macro system
 to simultaneously type check a program during its expansion to
-a target language.
+a target language. Turnstile provides a fully extensible framework
+for specifying building and combining core typing rules.
 
+Several systems
 SugarJ~\cite{Erdweg2011SJ}
 adds syntactic language extensibility to Java, such as pair
 syntax, embedded XML, and closures.
@@ -633,9 +635,32 @@ syntax, embedded XML, and closures.
 SoundX~\cite{Lorenzen2016STS} presents a solution to a common
 dilemma in typed metaprogramming: whether to desugar before
 type checking, or vice-versa.
+The authors
 %For example, Scala macros~\cite{Burmako2013SML} interleave type checking and
 %desugaring
 
+Ziggurat~\cite{Fisher06staticanalysis} allows programmers to define
+the static and dynamic semantics of macros separately. To demonstrate its
+broad applicability, they choose Scheme-like macros that generate assembly code
+for the dynamic semantics.
+They advocate building towers of static analyses, so
+macros can be statically checked in terms the static semantics of other macros, instead
+of just their assembly code expansions which would otherwise be too difficult to check.
+This idea resembles our prototypes in defining custom typing rules for functions and macros in Typed Clojure,
+where the dynamic semantics are defined by runtime Clojure constructs (\texttt{defn}
+and \texttt{defmacro}), and towers of static semantics are progressively specified in terms of the static
+analysis of other Clojure forms.
+
+Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
+in the same system, specifying a mode for (nested) regions of code.
+They argue this tradeoff keeps the predictability of type checking, while preserving enough
+symbolic execution to drive further checking.
+In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
+Our preliminary explorations in symbolic execution for Typed Clojure, for example, type checks an
+anonymous function if annotated, otherwise treats it symbolically.
+As the authors envision, this is akin to automatically inserting
+the mode of a code region based on its context, with a Mix-like language
+becoming the intermediate language.
 
 \section{Research Plan and Timeline}
 
