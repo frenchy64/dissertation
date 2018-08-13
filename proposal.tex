@@ -348,22 +348,23 @@ Typed Clojure.
 
 Some initial investigation in this direction has centered around building
 an extensible system for specifying type rules, and enhancing symbolic
-execution capabilities. For example, 
+execution capabilities. For example
+%
+\texttt{(update m :a (fn [a] (inc a)))}
+%
+increments the \texttt{:a}
+entry of map \texttt{m}. A custom \texttt{update} rule
+could rewrite the check as \texttt{(assoc m :a ((fn [a] (inc a)) (get m :a)))},
+which allows parameter \texttt{a} to inherit the type of \texttt{(get m :a)}.
 
-
-
-%Typed Clojure was designed in 2012, and Clojure has seen several new runtime
-%features since then. One feature, transducers, is a function-based protocol
-%for efficiently running processing pipelines for data sources such as lazy
-%or eager sequences, and asynchronous channels.
-
-
-
-% - idioms
-% - every?
-% - lambdas
-% - polymorphism
-% - het types
+A more complicated example uses Clojure transducers. The expression 
+\texttt{(comp (map (fn [a] (dec a))) (map (fn [a] (inc a))))} is a transducer that first
+decrements, then increments (transducers compose left-to-right).
+Since \texttt{comp}, and \texttt{map} are polymorphic higher-order
+functions, and we use an anonymous function, this is hard to type check.
+However, combining custom type rules for \texttt{comp}, and \texttt{map}
+with symbolic computations, we could simplify the original expression to
+\texttt{(fn [a] (inc (dec a)))}, which is much easier to check.
 
 \subsubsection{Option 2: clojure.spec Automatic Annotations}
 
@@ -445,9 +446,9 @@ depending on the branches they appear in, and the conditionals
 that lead to that branch.
 
 % What's diff about TC from the related work
-% small summary for deisel....
+% small summary for diesel....
 % - diesel supports x
-%- - calculus supports some subset of x
+%  - calculus supports some subset of x
 % we support y, which covers most of x but also foo
 
 % eg. multiple dispatch
@@ -560,10 +561,21 @@ between variables. Typed Clojure recovers relevant dependent information
 via occurrence typing, and gives the option to manually annotate necessary
 dependencies in function signatures when needed.
 
-%TODO \paragraph{TypeScript Annotation Generation} ..
+
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
+\paragraph{TypeScript Annotation Generation}
+Kristensen and M{\o}ller~\cite{kristensen2017inference}
+present TSInfer and TSEvolve that generate TypeScript annotation
+files using static analysis of JavaScript code. They
+submitted corrections back to libraries they found descrepancies in,
+which were accepted with little to no changes in the tool's output.
+
+NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
+is used, and automatically runs the tests of downstream projects to
+improve test coverage. Its concept of representing a program sample as
+a path paired with a type is very similar to Typed Clojure's approach.
 
 \paragraph{How dynamic languages are used}
 Several languages have seen similar investigations
@@ -641,7 +653,7 @@ I have already made progress towards my thesis:
     to pass type checking is in progress.
   \item I have successfully run my clojure.spec annotation tool on several hundred open-source projects that
     will be used to drive further studies.
-  \item I have prototyped an extensible typing rule system for Typed Clojure.
+  \item I have prototyped an extensible typing rule system and symbolic execution for Typed Clojure.
 \end{itemize}
 
 To complete my thesis, I plan to follow this timeline:
@@ -670,7 +682,7 @@ To complete my thesis, I plan to follow this timeline:
     \end{itemize}
   \item \textbf{[September-October 2018]} Devise and carry out automatic annotation experiments
     \begin{itemize}
-      \item formulate and complete larger scale study on generation of specs for hundreds of projects.
+      %\item formulate and complete larger scale study on generation of specs for hundreds of projects.
       \item complete study that quantifies the changes needed to go from automatically annotated types
         to checked code.
     \end{itemize}
@@ -681,10 +693,7 @@ To complete my thesis, I plan to follow this timeline:
       \item support more core Clojure idioms using typing rules.
       \item revisit study quantifying manual type annotations using enhanced local inference
     \end{itemize}
-  \item \textbf{[March-May 2019]} Write dissertation
-    \begin{itemize}
-      \item include ESOP 2016 paper, PLDI submission, and experience with extensible typing rules.
-    \end{itemize}
+  \item \textbf{[January-May 2019]} Write dissertation
   \item \textbf{[June 2019]} Defend
 \end{itemize}
 
@@ -696,7 +705,7 @@ I plan to publish the following papers:
   \item \textbf{ESOP 2016 - Published} \emph{Practical Optional Types for Clojure}~\cite{bonnaire2016practical}.
     A paper that provides a formal model of Typed Clojure and presents an empirical
     study of usage patterns.
-  \item \textbf{Spring 2018} \emph{Squash the work: Automatic annotations for Typed Clojure and clojure.spec}
+  \item \textbf{Fall 2018} \emph{Squash the work: Automatic annotations for Typed Clojure and clojure.spec}
     A paper that presents a tool capable of generating Typed Clojure and clojure.spec
     annotations based on runtime observations of the program.
     We present a formal model of the tool, as well as several manual experiments in how

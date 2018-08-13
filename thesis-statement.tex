@@ -39,9 +39,25 @@ I will support this thesis statement with the following:
     % tell us about clj programs.
 \end{itemize}
 
-I will augment this thesis statement with one of the following future research directions:
+I will augment this thesis statement with one of the following research directions:
 
 \begin{enumerate}
+  \item The number of programs that can be type checked can be improved by
+    interleaving type checking with macroexpansion to enable a combination of
+    symbolic execution with a system for defining custom type rules for usages of functions and macros.
+    \begin{itemize}
+      \item \emph{Type checking interleaved with expansion}
+        We describe how to convert Typed Clojure from a type system that only checks fully
+        expanded programs to one that incrementally
+        checks partially expanded programs, and present an implementation.
+      \item \emph{Custom type rules}
+        We describe and implement a system to define custom type rules
+        for usages of top-level functions and macros
+        and study how they improve the inference of core Clojure idioms.
+      \item \emph{Symbolic analysis}
+        We describe and implement symbolic rewriting strategies for Clojure
+        programs and study how many more programs can be checked.
+    \end{itemize}
   \item The process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
     \begin{itemize}
       \item \emph{Repurpose automation technology}
@@ -57,22 +73,6 @@ I will augment this thesis statement with one of the following future research d
         We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
         across hundreds of projects, as well as analyze design choices in Typed Clojure's type system and
         clojure.spec's features.
-    \end{itemize}
-  \item The number of programs that can be type checked can be improved by
-    interleaving type checking with macroexpansion to enable a combination of
-    symbolic execution with a system for defining custom type rules for usages of functions and macros.
-    \begin{itemize}
-      \item \emph{Type checking interleaved with expansion}
-        We describe how to convert Typed Clojure from a type system that only checks fully
-        expanded programs to one that incrementally
-        checks partially expanded programs, and present an implementation.
-      \item \emph{Custom type rules}
-        We describe and implement a system to define custom type rules
-        for usages of top-level functions and macros
-        and study how they improve the inference of core Clojure idioms.
-      \item \emph{Symbolic analysis}
-        We describe and implement symbolic rewriting strategies for Clojure
-        programs and study how many more (rewritten) programs can be checked.
     \end{itemize}
 \end{enumerate}
 
