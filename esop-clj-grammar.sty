@@ -197,6 +197,7 @@
 \newcommand\newliteral[0]{{\operatorfont{new}}}
 \newcommand\defmultiliteral[0]{{\operatorfont{defmulti}}}
 \newcommand\defmethodliteral[0]{{\operatorfont{defmethod}}}
+\newcommand\fnliteral[0]{{\operatorfont{fn}}}
 \newcommand\abs[3]{\ma{\l #1^{#2} . #3}}
 \newcommand\absoverright[3]{\ma{\l \overrightarrow{#1^{#2}} . #3}}
 \newcommand\curlymap[1]{\ma{\{#1\}}}
@@ -218,6 +219,8 @@
 \newcommand\ifexp[3]{\ma{(\ifliteral{}\ #1\ #2\ #3)}}
 \newcommand\doexp[2]{\ma{(\doliteral{}\ #1\ #2)}}
 \newcommand\letexp[3]{\ma{(\letliteral{}\ [\ma{#1\ #2}]\ #3)}}
+\newcommand\letexpmany[2]{\ma{(\letliteral{}\ [\ma{#1}]\ #2)}}
+\newcommand\fnexp[1]{\ma{(\fnliteral{}\ #1)}}
 \newcommand\appexp[2]{\ma{(#1\ #2)}}
 \newcommand\appexpone[1]{\ma{(#1)}}
 \newcommand\apptwoexp[3]{\ma{(#1\ #2\ #3)}}
@@ -286,6 +289,8 @@
 \newcommand\throwconst[0]{\emph{throw}}
 \newcommand\numberhuh[0]{\emph{n?}}
 \newcommand\inc[0]{\emph{inc}}
+\newcommand\mapconst[0]{\emph{map}}
+\newcommand\filterconst[0]{\emph{filter}}
 
 % differences from TR
 %\newcommand\trdiff[1]{\mathbin{\textcolor{blue}{#1}}}

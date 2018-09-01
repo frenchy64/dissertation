@@ -1,0 +1,75 @@
+\begin{figure*}
+\begin{mathpar}
+\infer [L-Atom]
+{ {\prop{}} \in {\propenv{}}}
+{ \inpropenv {\propenv{}} {\prop{}}
+}
+
+\infer [L-True]
+{}
+{ \inpropenv {\propenv{}} {\topprop{}}}
+
+\infer [L-False]
+{ \inpropenv {\propenv{}} {\botprop{}}}
+{ \inpropenv {\propenv{}} {\prop{}}}
+
+\infer [L-AndI]
+{ \inpropenv {\propenv{}} {\prop{1}}
+  \\\\
+  \inpropenv {\propenv{}} {\prop{2}}}
+{ \inpropenv {\propenv{}} {\andprop {\prop{1}}{\prop{2}}}}
+
+\infer [L-AndE]
+{ \inpropenv {\propenv{}, {\prop{1}}, {\prop{2}}} {\prop{}} }
+{ \inpropenv {\propenv{}, {\andprop {\prop{1}}{\prop{2}}}} {\prop{}}}
+
+\infer [L-ImplI]
+{ \inpropenv {\propenv{}, {\prop{1}}} {\prop{2}}}
+{ \inpropenv {\propenv{}} {\impprop {\prop{1}}{\prop{2}}}}
+
+\infer [L-ImplE]
+{ \inpropenv {\propenv{}} {\prop{1}}
+  \\\\
+  \inpropenv {\propenv{}} {\impprop {\prop{1}}{\prop{2}}}}
+{ \inpropenv {\propenv{}} {\prop{2}}}
+
+\infer [L-OrI]
+{ \inpropenv {\propenv{}} {\prop{1}}
+  \ \text{or}\ 
+  \inpropenv {\propenv{}} {\prop{2}}}
+{ \inpropenv {\propenv{}} {\orprop {\prop{1}}{\prop{2}}}}
+
+
+\infer [L-OrE]
+{ \inpropenv {\propenv{}, {\prop{1}}}{\prop{}}
+  \\\\
+  \inpropenv {\propenv{}, {\prop{2}}}{\prop{}}}
+{ \inpropenv {\propenv{}, {\orprop {\prop{1}}{\prop{2}}}}{\prop{}}}
+
+\infer [L-Sub]
+{ \inpropenv {\propenv{}} {\isprop {\t{}}{\path {\pathelem{}} {\x{}}}}
+  \\
+  \issubtypein {} {\t{}}{\s{}}
+}
+{ \inpropenv {\propenv{}} {\isprop {\s{}}{\path {\pathelem{}} {\x{}}}}}
+
+\infer [L-SubNot]
+{ \inpropenv {\propenv{}} {\notprop {\s{}}{\path {\pathelem{}} {\x{}}}}
+  \\
+  \issubtypein {} {\t{}}{\s{}}}
+{ \inpropenv {\propenv{}} {\notprop {\t{}}{\path {\pathelem{}} {\x{}}}}}
+
+\infer [L-Bot]
+{ \inpropenv {\propenv{}} {\isprop {\Bot} {\path {\pathelem{}} {\x{}}}}}
+{ \inpropenv {\propenv{}} {\prop{}}}
+
+{\LUpdate}
+
+\\
+
+\text{(The metavariable \propisnotmeta{} ranges over \t{} and \nottype{\t{}} (without variables).)}
+
+\end{mathpar}
+\caption{Proof System}
+\label{appendix:figure:proofsystem}
+\end{figure*}

@@ -1,0 +1,141 @@
+\documentclass[9pt]{extarticle}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{savesym}
+\savesymbol{r}
+\savesymbol{AA}
+\usepackage{esop-common}
+\usepackage{infer-common}
+
+\title{Symbolic execution in Typed Clojure}
+\author{Ambrose Bonnaire-Sergeant}
+
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{bibliography.bib}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\input{symb-proof-system}
+
+\begin{figure}[t!]
+  %\footnotesize
+$$
+\begin{array}{lrll}
+  \e{} &::=& \x{}
+                      \alt \v{} 
+                      \alt {\comb {\e{}} {\overrightarrow{\e{}}}}
+                      %\alt {\abs {\x{}} {\t{}} {\e{}}} 
+                      \alt {\ifexp {\e{}} {\e{}} {\e{}}}
+                      \alt {\doexp {\overrightarrow{\e{}}} {\e{}}}
+                      \alt {\letexpmany {\overrightarrow{\x{}\ {\e{}}}} {\e{}}}
+                      \\&\alt&
+                      {\fnexp {\overrightarrow{(a\ \e{})}}}
+                      \alt
+                      {\fnexp {a\ \e{})}}
+                      %\alt {\errorvalv{}}
+                      &\mbox{Expressions} \\
+  a &::=& [\overrightarrow{\x{}}]
+          \alt [\overrightarrow{\x{}}\ \&\ \x{}]
+                      &\mbox{Fn arguments} \\
+  \v{} &::=&          \singletonmeta{}
+                      \alt {\nat{}}
+                      \alt {\const{}}
+                      \alt {\str{}}
+                      \alt {\closure {\openv{}} {\e{}}}
+                &\mbox{Values} \\
+  {\const{}}           &::=& \classconst \alt \numberhuh \alt \mapconst \alt \filterconst
+                &\mbox{Constants}\\
+  \s{}, \t{}    &::=& \Top 
+                      \alt {\Unionsplice {\overrightarrow{\t{}}}}
+                      \alt
+                      {\ArrowOne {\x{}} {\t{}}
+                                   {\t{}}
+                                   {\filterset {\prop{}} {\prop{}}}
+                                   {\object{}}}
+                      \alt {\Value \singletonmeta{}} 
+                      \alt {\class{}}
+                &\mbox{Types} \\
+  \singletonallsyntax{}
+                \\ \\
+  \prop{}       &::=& {\isprop {\t{}} {\e{}}}
+                      \alt {\notprop {\t{}} {\e{}}}
+                      \alt {\impprop {\prop{}} {\prop{}}}
+                      \alt {\andprop {\prop{}} {\prop{}}}
+                      \alt {\orprop {\prop{}} {\prop{}}}
+                      \alt \topprop{}
+                      \alt \botprop{}
+                &\mbox{Propositions} \\
+  \object{}     &::=& {\e{}}
+                      \alt {\closure {\propenv{}} {\e{}}}
+                      \alt \emptyobject{}
+                &\mbox{Symbolic expressions} \\
+  \propenvsyntax{}\\
+  \openvsyntax{}
+  %\\
+  %\classliteralallsyntax{}
+\end{array}
+$$
+\caption{Syntax of Terms, Types, Propositions and Objects}
+\label{main:figure:termsyntax}
+\end{figure}
+
+\begin{figure*}[t]
+  \begin{mathpar}
+        {\TLocal}
+
+        {\TAbs}
+
+        {\TIf}
+    %\\
+    %\begin{array}{c}
+    %{\TKw}\\
+    %  {\TNum}\\
+    %\end{array}
+    %\begin{array}{c}
+    %  {\TNil}\\
+    %  {\TFalse}\\
+    %{\TConst}
+    %\end{array}
+    %\begin{array}{c}
+    %{\TStr}\\
+    %{\TClass}\\
+    %{\TTrue}
+    %\end{array}
+        \\
+
+    %{\TLet}
+
+    {\TApp}
+
+    {\TSubsume}
+    \\
+  \end{mathpar}
+    %\begin{array}{c}
+    %  {\TSubsume}\\\\
+    %  {\TStr}\\\\
+    %  {\TNil}\\\\
+    %  {\TFalse}
+    %\end{array}
+  \caption{Select core typing rules}
+  \label{main:figure:othertypingrules}
+\end{figure*}
+
+\section{Introduction}
+
+\section{Related Work}
+
+Xie and Oliveira~\cite{xie2018let} present a type system where
+argument type information flows to the function position in applications.
+Then, defining `let` as sugar propagates enough information to avoid
+a custom rule for `let`.
+No information is propagated from functions to applications, so the benefits
+of Colored Local Type Inference are negated.
+
+\printbibliography
+
+\end{document}
