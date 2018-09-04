@@ -1,0 +1,35 @@
+\usepackage{esop-common}
+\usepackage{esop-clj-grammar}
+
+\newmeta\ltivar{x}
+\newmeta\ltiE{E}
+\newmeta\ltiF{F}
+\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
+\newcommand\ltiufun[2]{\ma{\textbf{fun}(#1)#2}}
+\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
+\newcommand\ltiapp[2]{\ma{#1(#2)}}
+\newcommand\ltisel[2]{\ma{#1 . #2}}
+\newcommand\ltirec[1]{\ma{\{#1\}}}
+\newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
+\newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
+\newmeta\ltitvar{a}
+\newmeta\ltiC{C}
+\newmeta\ltiT{T}
+\newmeta\ltiS{S}
+\newmeta\ltiSp{S'}
+\newmeta\ltiR{R}
+\newmeta\ltiP{P}
+\newmeta\ltiPp{P'}
+\newmeta\ltiEnv{\ma{\Gamma}}
+\newbfop\ltiWild{?}
+\newbfop\ltiTop{\ma{\top}}
+\newbfop\ltiBot{\ma{\bot}}
+\newbfop\ltiBot{\ma{\bot}}
+\newcommand\ltiRec[1]{\ma{\{#1\}}}
+\newcommand\ltiArrow[3]{\ma{#1 \xrightarrow[]{#2} #3}}
+\newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
+\newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
+\newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
+\newcommand\ltigenconstraint[4]{\ma{\vdash_{#1} #2 \mathbin{<:} #3 \Rightarrow #4}}
+\newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
+\newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}

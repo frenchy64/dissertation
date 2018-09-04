@@ -1,13 +1,15 @@
 \documentclass[9pt]{extarticle}
 
 \usepackage[margin=1in]{geometry}
-\usepackage{savesym}
-\savesymbol{r}
-\savesymbol{AA}
-\usepackage{esop-common}
-\usepackage{infer-common}
+\usepackage{symb-common}
 
 \title{Symbolic execution in Typed Clojure}
+%\title{Local Type Inference for Optional Type Systems}
+%\title{Local Type Inference for Anonymous Functions in Higher-Order contexts}
+%\title{Local Type Inference for Higher-Order usages of Anonymous Functions}
+%\title{Delayed Local Type Inference with Free Theorems}
+%\title{Lazy Local Type Inference with Free Theorems}
+%\title{Free Theorems for Local Type Inference}
 \author{Ambrose Bonnaire-Sergeant}
 
 \usepackage[backend=bibtex]{biblatex}
@@ -18,112 +20,294 @@
 \maketitle
 
 \begin{abstract}
+Many type systems using local type inference do not reuse type information aggressively
+enough to elide annotations for local functions.
+Common solutions to checking an unannotated function is to try and
+immediately check it with the top type, or a dynamic type, or simply
+require annotations.
+
+  We present a variant of System $F_{<:}$ that delays type checking until
+the free theorems of a polymorphic type tells us there is enough information
+available that further delay would threaten type-soundness.
+
+We particularly target type systems for untyped languages, who require
+top-level annotations, but allow annotations to be elided from local functions.
+A key hypothesis we rely on is that re-checking the body of a local function
+is resonable and cheap.
 \end{abstract}
 
 \input{symb-proof-system}
 
-\begin{figure}[t!]
-  %\footnotesize
+\begin{figure}
 $$
 \begin{array}{lrll}
-  \e{} &::=& \x{}
-                      \alt \v{} 
-                      \alt {\comb {\e{}} {\overrightarrow{\e{}}}}
-                      %\alt {\abs {\x{}} {\t{}} {\e{}}} 
-                      \alt {\ifexp {\e{}} {\e{}} {\e{}}}
-                      \alt {\doexp {\overrightarrow{\e{}}} {\e{}}}
-                      \alt {\letexpmany {\overrightarrow{\x{}\ {\e{}}}} {\e{}}}
-                      \\&\alt&
-                      {\fnexp {\overrightarrow{(a\ \e{})}}}
-                      \alt
-                      {\fnexp {a\ \e{})}}
-                      %\alt {\errorvalv{}}
-                      &\mbox{Expressions} \\
-  a &::=& [\overrightarrow{\x{}}]
-          \alt [\overrightarrow{\x{}}\ \&\ \x{}]
-                      &\mbox{Fn arguments} \\
-  \v{} &::=&          \singletonmeta{}
-                      \alt {\nat{}}
-                      \alt {\const{}}
-                      \alt {\str{}}
-                      \alt {\closure {\openv{}} {\e{}}}
-                &\mbox{Values} \\
-  {\const{}}           &::=& \classconst \alt \numberhuh \alt \mapconst \alt \filterconst
-                &\mbox{Constants}\\
-  \s{}, \t{}    &::=& \Top 
-                      \alt {\Unionsplice {\overrightarrow{\t{}}}}
-                      \alt
-                      {\ArrowOne {\x{}} {\t{}}
-                                   {\t{}}
-                                   {\filterset {\prop{}} {\prop{}}}
-                                   {\object{}}}
-                      \alt {\Value \singletonmeta{}} 
-                      \alt {\class{}}
-                &\mbox{Types} \\
-  \singletonallsyntax{}
-                \\ \\
-  \prop{}       &::=& {\isprop {\t{}} {\e{}}}
-                      \alt {\notprop {\t{}} {\e{}}}
-                      \alt {\impprop {\prop{}} {\prop{}}}
-                      \alt {\andprop {\prop{}} {\prop{}}}
-                      \alt {\orprop {\prop{}} {\prop{}}}
-                      \alt \topprop{}
-                      \alt \botprop{}
-                &\mbox{Propositions} \\
-  \object{}     &::=& {\e{}}
-                      \alt {\closure {\propenv{}} {\e{}}}
-                      \alt \emptyobject{}
-                &\mbox{Symbolic expressions} \\
-  \propenvsyntax{}\\
-  \openvsyntax{}
-  %\\
-  %\classliteralallsyntax{}
+  \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
+                         \ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
+                         \ltiappinst{\ltiF{}}{\overline{\ltitvar{}}}{\ltiE{}} \alt
+                         \ltisel{\ltiE{}}{\ltivar{}} \alt
+                         \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
+                      &\mbox{Terms} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltivar{} \alt
+                         \ltiTop{} \alt
+                         \ltiBot{} \alt
+                         \ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}} \alt
+                         \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
+                      &\mbox{Types} \\
 \end{array}
 $$
-\caption{Syntax of Terms, Types, Propositions and Objects}
-\label{main:figure:termsyntax}
+\caption{Internal Language}
 \end{figure}
 
-\begin{figure*}[t]
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiE{}, \ltiF{} &::=& ... \alt
+                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
+                         \ltiapp{\ltiF{}}{\ltiE{}}
+                      &\mbox{Terms} \\
+\end{array}
+$$
+\caption{External Language}
+\end{figure}
+
+\begin{figure}
   \begin{mathpar}
-        {\TLocal}
+    \infer [(var)]
+    {}
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}{\ltivar{}}
+                 {\ltimatchsuper{\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}{\ltiP{}}}
+    }
 
-        {\TAbs}
+    \infer [($\text{abs}_{tp,?}$)]
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
 
-        {\TIf}
-    %\\
-    %\begin{array}{c}
-    %{\TKw}\\
-    %  {\TNum}\\
-    %\end{array}
-    %\begin{array}{c}
-    %  {\TNil}\\
-    %  {\TFalse}\\
-    %{\TConst}
-    %\end{array}
-    %\begin{array}{c}
-    %{\TStr}\\
-    %{\TClass}\\
-    %{\TTrue}
-    %\end{array}
-        \\
+    \infer [($\text{abs}_{tp}$)]
+    {
+    \ltijudgement{\ltiPp{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                                {\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}}
+    }
+    
+    \infer [($\text{abs}_{tp,\ltiTop}$)]
+    {
+    \ltijudgement{\ltiTop}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiTop}
+    }
+    
+    \infer [(abs)]
+    {
+    \ltijudgement{\ltiP}
+                 {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiP{}}}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
 
-    %{\TLet}
+    \infer [($\text{app}_{tp}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 \\
+    \ltijudgement{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                                {\ltiP{}}}
+    }
 
-    {\TApp}
+    \infer [($\text{app}_{tp,\ltiBot}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiBot}
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiBot{}}
+                                {\ltiP{}}}
+    }
 
-    {\TSubsume}
+    \infer [($\text{app}_{\ltiBot}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiBot}
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiBot{}}
+                                {\ltiP{}}}
+    }
+
+    \infer [(app)]
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 \\
+    \ltijudgement{\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiSp{}}
+                 \\\\
+                 \ltigenconstraint{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
+                 \\
+                 \ltigenconstraint{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
+    }
+
+    \infer [(sel)]
+    {
+    \ltijudgement{\ltiRec{\hastype{\ltivar{}}{\ltiP{}}}}{\ltiEnv{}}
+                 {\ltisel{\ltiF{}}{\ltivar{}}}
+                 {\ltiRec{\hastype{\ltivar{}}{\ltiT{}}}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltisel{\ltiF{}}{\ltivar{}}}
+                 {\ltiT{}}
+    }
+
+    \infer [($\text{rec}_{\ltiWild}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+    }
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+
+    \infer [($\text{rec}_{\ltiTop}$)]
+    {
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+    }
+    {
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+
+    \infer [(rec)]
+    {
+    (
+    \ltijudgement{\ltiP{1}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiP{m}}
+                 {\ltiEnv{}}
+                 {\ltiF{m}}
+                 {\ltiT{m}}
+                 )
     \\
+    (
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiF{m+1}}
+                 {\ltiT{m+1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+                 )
+    }
+    {
+    \ltijudgement{\ltiRec{\hastype{\ltivar{1}}{\ltiP{1}}, ..., \hastype{\ltivar{m}}{\ltiP{m}}}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
+    }
   \end{mathpar}
-    %\begin{array}{c}
-    %  {\TSubsume}\\\\
-    %  {\TStr}\\\\
-    %  {\TNil}\\\\
-    %  {\TFalse}
-    %\end{array}
-  \caption{Select core typing rules}
-  \label{main:figure:othertypingrules}
-\end{figure*}
+  \caption{Local type inference algorithmic rules
+  $\ltijudgement{\ltiP{}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+  }
+\end{figure}
 
 \section{Introduction}
 
