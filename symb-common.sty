@@ -1,5 +1,6 @@
 \usepackage{esop-common}
 \usepackage{esop-clj-grammar}
+\usepackage{color}
 
 \newmeta\ltivar{x}
 \newmeta\ltiE{E}
@@ -27,9 +28,15 @@
 \newbfop\ltiBot{\ma{\bot}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiArrow[3]{\ma{#1 \xrightarrow[]{#2} #3}}
+\newcommand\ltiClosure[2]{\ma{#1 @ #2}}
 \newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
 \newcommand\ltigenconstraint[4]{\ma{\vdash_{#1} #2 \mathbin{<:} #3 \Rightarrow #4}}
+\newcommand\ltigendconstraint[5]{\ma{\vdash_{#1} #2 \mathbin{<:} #3 \Rightarrow #4, #5}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
 \newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}
+
+\newcommand\ltiSyn[1]{{\color{blue}#1}}
+\newcommand\ltiChk[1]{{\color{red}#1}}
+\newcommand\ltiSynChk[1]{{\color{black}#1}}

@@ -36,7 +36,7 @@ A key hypothesis we rely on is that re-checking the body of a local function
 is resonable and cheap.
 \end{abstract}
 
-\input{symb-proof-system}
+%\input{symb-proof-system}
 
 \begin{figure}
 $$
@@ -66,6 +66,36 @@ $$
                          \ltiufun{\ltivar{}}{\ltiE{}} \alt
                          \ltiapp{\ltiF{}}{\ltiE{}}
                       &\mbox{Terms} \\
+  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
+                         \ltiSyn{\ltivar{}} \alt
+                         \ltiSyn{\ltiTop{}} \alt
+                         \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                      &\mbox{Synthesized types} \\
+  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
+                         \ltiChk{\ltivar{}} \alt
+                         \ltiChk{\ltiTop{}} \alt
+                         \ltiChk{\ltiBot{}} \alt
+                         \ltiChk{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                      &\mbox{Inherited types} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
+                         \ltiSyn{\ltivar{}} \alt
+                         \ltiSyn{\ltiTop{}} \alt
+                         \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
+                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                                    \\&\alt&
+                         \ltiChk{\ltivar{}} \alt
+                         \ltiChk{\ltiTop{}} \alt
+                         \ltiChk{\ltiBot{}} \alt
+                         \ltiChk{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}
+                         \alt
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
+                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                      &\mbox{General types} \\
 \end{array}
 $$
 \caption{External Language}
@@ -129,7 +159,7 @@ $$
     {
     \ltijudgement{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiP{}}}
                  {\ltiEnv{}}
-                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
     }
 
@@ -301,7 +331,61 @@ $$
                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
     }
   \end{mathpar}
-  \caption{Local type inference algorithmic rules
+  \caption{Colored Local type inference algorithmic rules
+  $\ltijudgement{\ltiP{}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+  }
+\end{figure}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt
+                        \ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+                        &\mbox{Synthesized types} \\
+%  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt
+%                        {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                        &\mbox{General types} \\
+\end{array}
+$$
+\caption{Extension Language}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [($\text{abs}_{\ltiWild}$)]
+    {}
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
+                 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+    }
+
+    \infer [(app)]
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 \\
+    \ltijudgement{\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiSp{}}
+                 \\\\
+     \ltigenconstraint{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
+                 \\
+     \ltigenconstraint{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
+    }
+
+  \end{mathpar}
+  \caption{Delayed checking Local type inference algorithmic rules
   $\ltijudgement{\ltiP{}}
                  {\ltiEnv{}}
                  {\ltiE{}}
