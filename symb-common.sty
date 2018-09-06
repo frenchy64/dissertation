@@ -1,6 +1,7 @@
 \usepackage{esop-common}
 \usepackage{esop-clj-grammar}
 \usepackage{color}
+\usepackage{amssymb}
 
 \newmeta\ltivar{x}
 \newmeta\ltiE{E}
@@ -14,13 +15,16 @@
 \newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
 \newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
 \newmeta\ltitvar{a}
+\newmeta\ltitvarp{a'}
 \newmeta\ltiC{C}
 \newmeta\ltiT{T}
+\newmeta\ltiTp{T'}
 \newmeta\ltiS{S}
 \newmeta\ltiSp{S'}
 \newmeta\ltiR{R}
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
+\newmeta\ltiV{V}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newbfop\ltiWild{?}
 \newbfop\ltiTop{\ma{\top}}
@@ -32,10 +36,19 @@
 \newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
-\newcommand\ltigenconstraint[4]{\ma{\vdash_{#1} #2 \mathbin{<:} #3 \Rightarrow #4}}
+\newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
+\newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
+\newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
 \newcommand\ltigendconstraint[5]{\ma{\vdash_{#1} #2 \mathbin{<:} #3 \Rightarrow #4, #5}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
+\newcommand\ltiCEmpty[0]{\ma{\varnothing}}
 \newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}
+\newcommand\ltipromote[3]{\ma{#1 \Uparrow^{#2} #3}}
+\newcommand\ltidemote[3]{\ma{#1 \Downarrow^{#2} #3}}
+\newcommand\ltitv[1]{\ma{\text{tv}(#1)}}
+\newcommand\ltiCSet[1]{\ma{\{#1\}}}
+\newcommand\ltiCEntry[3]{\ma{#1 \mathbin{<:} #2 \mathbin{<:} #3}}
+\newcommand\ltiCIntersect[2]{\ma{#1 \land #2}}
 
 \newcommand\ltiSyn[1]{{\color{blue}#1}}
 \newcommand\ltiChk[1]{{\color{red}#1}}
