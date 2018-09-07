@@ -17,6 +17,7 @@
 \newmeta\ltitvar{a}
 \newmeta\ltitvarp{a'}
 \newmeta\ltiC{C}
+\newmeta\ltiD{D}
 \newmeta\ltiT{T}
 \newmeta\ltiTp{T'}
 \newmeta\ltiS{S}
@@ -26,7 +27,7 @@
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
 \newmeta\ltiEnv{\ma{\Gamma}}
-\newbfop\ltiWild{?}
+\newmeta\ltiWild{?}
 \newbfop\ltiTop{\ma{\top}}
 \newbfop\ltiBot{\ma{\bot}}
 \newbfop\ltiBot{\ma{\bot}}
@@ -39,7 +40,7 @@
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
 \newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
-\newcommand\ltigendconstraint[5]{\ma{\vdash_{#1} #2 \mathbin{<:} #3 \Rightarrow #4, #5}}
+\newcommand\ltigendconstraint[6]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5, #6}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
 \newcommand\ltiCEmpty[0]{\ma{\varnothing}}
 \newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}
@@ -48,7 +49,10 @@
 \newcommand\ltitv[1]{\ma{\text{tv}(#1)}}
 \newcommand\ltiCSet[1]{\ma{\{#1\}}}
 \newcommand\ltiCEntry[3]{\ma{#1 \mathbin{<:} #2 \mathbin{<:} #3}}
+\newcommand\ltiDEntry[2]{\ma{#1 \mathbin{<:} #2}}
 \newcommand\ltiCIntersect[2]{\ma{#1 \land #2}}
+\newcommand\ltiaccessibletv[2]{\ma{\texttt{accessibletv}_{#1}(#2)}}
+\newcommand\lticheckorder[6]{\ma{\texttt{checkorder}(#1, #2, #3, #4, #5, #6)}}
 
 \newcommand\ltiSyn[1]{{\color{blue}#1}}
 \newcommand\ltiChk[1]{{\color{red}#1}}

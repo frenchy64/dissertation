@@ -58,306 +58,9 @@ $$
 \caption{Internal Language}
 \end{figure}
 
-
-\begin{figure}
-$$
-\begin{array}{lrll}
-  \ltiE{}, \ltiF{} &::=& ... \alt
-                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
-                         \ltiapp{\ltiF{}}{\ltiE{}}
-                      &\mbox{Terms} \\
-  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
-                         \ltiSyn{\ltivar{}} \alt
-                         \ltiSyn{\ltiTop{}} \alt
-                         \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-                      &\mbox{Synthesized types} \\
-  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
-                         \ltiChk{\ltivar{}} \alt
-                         \ltiChk{\ltiTop{}} \alt
-                         \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-                      &\mbox{Inherited types} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
-                         \ltiSyn{\ltivar{}} \alt
-                         \ltiSyn{\ltiTop{}} \alt
-                         \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
-                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
-                                    \\&\alt&
-                         \ltiChk{\ltivar{}} \alt
-                         \ltiChk{\ltiTop{}} \alt
-                         \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}
-                         \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
-                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
-                      &\mbox{General types} \\
-\end{array}
-$$
-\caption{External Language}
-\end{figure}
-
 \begin{figure}
   \begin{mathpar}
-    \infer [(var)]
-    {}
-    {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}{\ltivar{}}
-                 {\ltimatchsuper{\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}{\ltiP{}}}
-    }
-
-    \infer [($\text{abs}_{tp,?}$)]
-    {
-    \ltijudgement{\ltiWild{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltijudgement{\ltiWild{}}{\ltiEnv{}}
-                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    }
-
-    \infer [($\text{abs}_{tp}$)]
-    {
-    \ltijudgement{\ltiPp{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltijudgement{\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}
-                 {\ltiEnv{}}
-                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                 {\ltimatchsuper{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-                                {\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}}
-    }
-    
-    \infer [($\text{abs}_{tp,\ltiTop}$)]
-    {
-    \ltijudgement{\ltiTop}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltijudgement{\ltiTop}
-                 {\ltiEnv{}}
-                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                 {\ltiTop}
-    }
-    
-    \infer [(abs)]
-    {
-    \ltijudgement{\ltiP}
-                 {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltijudgement{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiP{}}}
-                 {\ltiEnv{}}
-                 {\ltiufun{\ltivar{}}{\ltiE{}}}
-                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    }
-
-    \infer [($\text{app}_{tp}$)]
-    {
-    \ltijudgement{\ltiWild{}}
-                 {\ltiEnv{}}
-                 {\ltiF{}}
-                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
-                 \\
-    \ltijudgement{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    }
-    {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                 {\ltimatchsuper{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
-                                {\ltiP{}}}
-    }
-
-    \infer [($\text{app}_{tp,\ltiBot}$)]
-    {
-    \ltijudgement{\ltiWild{}}
-                 {\ltiEnv{}}
-                 {\ltiF{}}
-                 {\ltiBot}
-                 \\
-    \ltijudgement{\ltiTop}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                 {\ltimatchsuper{\ltiBot{}}
-                                {\ltiP{}}}
-    }
-
-    \infer [($\text{app}_{\ltiBot}$)]
-    {
-    \ltijudgement{\ltiWild{}}
-                 {\ltiEnv{}}
-                 {\ltiF{}}
-                 {\ltiBot}
-                 \\
-    \ltijudgement{\ltiTop}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltiapp{\ltiF{}}{\ltiE{}}}
-                 {\ltimatchsuper{\ltiBot{}}
-                                {\ltiP{}}}
-    }
-
-    \infer [(app)]
-    {
-    \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
-                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
-                 \\
-    \ltijudgement{\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiSp{}}
-                 \\\\
-    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
-                 \\
-    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
-    }
-    {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltiapp{\ltiF{}}{\ltiE{}}}
-                 {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
-    }
-
-    \infer [(sel)]
-    {
-    \ltijudgement{\ltiRec{\hastype{\ltivar{}}{\ltiP{}}}}{\ltiEnv{}}
-                 {\ltiF{}}
-                 {\ltiRec{\hastype{\ltivar{}}{\ltiT{}}}}
-    }
-    {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltisel{\ltiF{}}{\ltivar{}}}
-                 {\ltiT{}}
-    }
-
-    \infer [($\text{rec}_{\ltiWild}$)]
-    {
-    \ltijudgement{\ltiWild{}}
-                 {\ltiEnv{}}
-                 {\ltiF{1}}
-                 {\ltiT{1}}
-                 \\
-                 ...
-                 \\
-    \ltijudgement{\ltiWild{}}
-                 {\ltiEnv{}}
-                 {\ltiF{n}}
-                 {\ltiT{n}}
-    }
-    {
-    \ltijudgement{\ltiWild{}}
-                 {\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-    }
-
-    \infer [($\text{rec}_{\ltiTop}$)]
-    {
-    \ltijudgement{\ltiTop{}}
-                 {\ltiEnv{}}
-                 {\ltiF{1}}
-                 {\ltiT{1}}
-                 \\
-                 ...
-                 \\
-    \ltijudgement{\ltiTop{}}
-                 {\ltiEnv{}}
-                 {\ltiF{n}}
-                 {\ltiT{n}}
-    }
-    {
-    \ltijudgement{\ltiTop{}}
-                 {\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-    }
-
-    \infer [(rec)]
-    {
-    (
-    \ltijudgement{\ltiP{1}}
-                 {\ltiEnv{}}
-                 {\ltiF{1}}
-                 {\ltiT{1}}
-                 \\
-                 ...
-                 \\
-    \ltijudgement{\ltiP{m}}
-                 {\ltiEnv{}}
-                 {\ltiF{m}}
-                 {\ltiT{m}}
-                 )
-    \\
-    (
-    \ltijudgement{\ltiTop}
-                 {\ltiEnv{}}
-                 {\ltiF{m+1}}
-                 {\ltiT{m+1}}
-                 \\
-                 ...
-                 \\
-    \ltijudgement{\ltiTop}
-                 {\ltiEnv{}}
-                 {\ltiF{n}}
-                 {\ltiT{n}}
-                 )
-    }
-    {
-    \ltijudgement{\ltiRec{\hastype{\ltivar{1}}{\ltiP{1}}, ..., \hastype{\ltivar{m}}{\ltiP{m}}}}
-                 {\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
-    }
-  \end{mathpar}
-  \caption{Colored Local type inference algorithmic rules
-  $\ltijudgement{\ltiP{}}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}}$
-  }
-\end{figure}
-
-\begin{figure}
-$$
-\begin{array}{lrll}
-  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
-                        ... \alt
-                        \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      &\mbox{Synthesized types} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
-                        ... \alt
-                        \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      &\mbox{General types} \\
-\end{array}
-$$
-\caption{Extension Language}
-\end{figure}
-
-\begin{figure}
-  \begin{mathpar}
-    \infer [(T-Var)]
+    \infer [(I-Var)]
     {}
     {
     \ltitjudgement{\ltiEnv{}}
@@ -365,7 +68,7 @@ $$
                   {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                  }
 
-    \infer [(T-Abs)]
+    \infer [(I-Abs)]
     { 
     \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
                  {\ltiE{}}
@@ -377,7 +80,7 @@ $$
                   {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
                  }
 
-    \infer [(T-App)]
+    \infer [(I-App)]
     {
     \ltitjudgement{\ltiEnv{}}{\ltiF{}}
                   {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
@@ -394,7 +97,7 @@ $$
                   {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
     }
 
-    \infer [($\text{T-App}_{\ltiBot}$)]
+    \infer [($\text{I-App}_{\ltiBot}$)]
     {
     \ltitjudgement{\ltiEnv{}}{\ltiF{}}
                   {\ltiBot}
@@ -409,7 +112,7 @@ $$
                   {\ltiBot}
     }
 
-    \infer [(T-Sel)]
+    \infer [(I-Sel)]
     {
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
@@ -421,7 +124,7 @@ $$
                   {\ltiT{i}}
     }
 
-    \infer [($\text{T-Sel}_{\ltiBot}$)]
+    \infer [($\text{I-Sel}_{\ltiBot}$)]
     {
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
@@ -433,7 +136,7 @@ $$
                   {\ltiBot}
     }
 
-    \infer [(T-Rec)]
+    \infer [(I-Rec)]
     {
     \ltitjudgement{\ltiEnv{}}
                  {\ltiF{1}}
@@ -497,9 +200,18 @@ $$
     \ltisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
                {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
     }
+  \end{mathpar}
+  \caption{Type system for internal language:
+  $\ltitjudgement{\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+                 and
+                 $\ltisubtype{\ltiT{}}{\ltiS{}}$.
+  }
+\end{figure}
 
-    \\
-
+\begin{figure}
+  \begin{mathpar}
     \infer [(CG-Top)]
     {}
     {
@@ -575,30 +287,322 @@ $$
                      {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
                      {\ltiCIntersect{\ltiC{1}}{\ltiC{2}}}
     }
-
   \end{mathpar}
-  \caption{Type system for internal language:
-  $\ltitjudgement{\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}}$
-                 and
-                 $\ltisubtype{\ltiT{}}{\ltiS{}}$.
-                 Also
-                 %$\ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiC{}}$
-                 %where $\ltiV{} \cap \ltitvar{} = \varnothing$.
+  \caption{Constraint generation system
+                 $\ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiC{}}$
+                 where $\ltiV{} \cap {\overline{\ltitvar{}}} = \varnothing$.
   }
 \end{figure}
 
 \begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiE{}, \ltiF{} &::=& ... \alt
+                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
+                         \ltiapp{\ltiF{}}{\ltiE{}}
+                      &\mbox{Terms} \\
+  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
+                         \ltiSyn{\ltivar{}} \alt
+                         \ltiSyn{\ltiTop{}} \alt
+                         \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                      &\mbox{Synthesized types} \\
+  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
+                         \ltiChk{\ltivar{}} \alt
+                         \ltiChk{\ltiTop{}} \alt
+                         \ltiChk{\ltiBot{}} \alt
+                         \ltiChk{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                      &\mbox{Inherited types} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
+                         \ltiSyn{\ltivar{}} \alt
+                         \ltiSyn{\ltiTop{}} \alt
+                         \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
+                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                                    \\&\alt&
+                         \ltiChk{\ltivar{}} \alt
+                         \ltiChk{\ltiTop{}} \alt
+                         \ltiChk{\ltiBot{}} \alt
+                         \ltiChk{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}
+                         \alt
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
+                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                      &\mbox{General types} \\
+  \ltiC{} &::=& {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiT{}}, ...,
+                          \ltiCEntry{\ltiT{}}{\ltitvar{n}}{\ltiT{}}}}
+                      &\mbox{Constraint sets} \\
+\end{array}
+$$
+\caption{External Language}
+\end{figure}
+
+\begin{figure}
   \begin{mathpar}
-    \infer [($\text{T-Uabs}$)]
+    \infer [(W-var)]
     {}
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiufun{\ltivar{}}{\ltiE{}}}
-                  {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}{\ltivar{}}
+                 {\ltimatchsuper{\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}{\ltiP{}}}
     }
 
+    \infer [($\text{W-abs}_{tp,?}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+
+    \infer [($\text{W-abs}_{tp}$)]
+    {
+    \ltijudgement{\ltiPp{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                                {\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}}
+    }
+    
+    \infer [($\text{W-abs}_{tp,\ltiTop}$)]
+    {
+    \ltijudgement{\ltiTop}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiTop}
+    }
+    
+    \infer [(W-abs)]
+    {
+    \ltijudgement{\ltiP}
+                 {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiP{}}}
+                 {\ltiEnv{}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
+                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+
+    \infer [($\text{W-app}_{tp}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 \\
+    \ltijudgement{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                                {\ltiP{}}}
+    }
+
+    \infer [($\text{W-app}_{tp,\ltiBot}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiBot}
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiBot{}}
+                                {\ltiP{}}}
+    }
+
+    \infer [($\text{W-app}_{\ltiBot}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiBot}
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiBot{}}
+                                {\ltiP{}}}
+    }
+
+    \infer [(W-app)]
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 \\
+    \ltijudgement{\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiSp{}}
+                 \\\\
+    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
+                 \\
+    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
+    }
+
+    \infer [(W-sel)]
+    {
+    \ltijudgement{\ltiRec{\hastype{\ltivar{}}{\ltiP{}}}}{\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiRec{\hastype{\ltivar{}}{\ltiT{}}}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltisel{\ltiF{}}{\ltivar{}}}
+                 {\ltiT{}}
+    }
+
+    \infer [($\text{W-rec}_{\ltiWild{}}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+    }
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+
+    \infer [($\text{W-rec}_{\ltiTop}$)]
+    {
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+    }
+    {
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+
+    \infer [(W-rec)]
+    {
+    (
+    \ltijudgement{\ltiP{1}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiP{m}}
+                 {\ltiEnv{}}
+                 {\ltiF{m}}
+                 {\ltiT{m}}
+                 )
+    \\
+    (
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiF{m+1}}
+                 {\ltiT{m+1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+                 )
+    }
+    {
+    \ltijudgement{\ltiRec{\hastype{\ltivar{1}}{\ltiP{1}}, ..., \hastype{\ltivar{m}}{\ltiP{m}}}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
+    }
+  \end{mathpar}
+  \caption{Colored Local type inference algorithmic rules
+  $\ltijudgement{\ltiP{}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+  }
+\end{figure}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
+                        ... \alt
+                        \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                      &\mbox{Synthesized types} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
+                        ... \alt
+                        \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                      &\mbox{General types} \\
+  \ltiD{} &::=& {\ltiCSet{\ltiCEntry{\ltiT{1}}{\ltitvar{1}}{\ltiTp{1}}, ...,
+                          \ltiCEntry{\ltiT{n}}{\ltitvar{n}}{\ltiTp{n}},
+                          \ltiDEntry{\ltiClosure{\ltiEnv{1}}{\ltiufun{\ltivar{1}}{\ltiE{1}}}}{\ltiT{}}
+                          , ...,
+                          \ltiDEntry{\ltiClosure{\ltiEnv{m}}{\ltiufun{\ltivar{m}}{\ltiE{m}}}}{\ltiT{m}}
+}}
+                      &\mbox{Constraint sets} \\
+\end{array}
+$$
+\caption{Extension Language}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
     \infer [(S-Closure)]
     {
     \ltitjudgement{\ltiEnv{}}
@@ -608,6 +612,17 @@ $$
     {
     \ltisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    }
+    \\
+    \infer [(CG-Closure)]
+    {}
+    {
+    \ltigenconstraint{\ltiV{}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+                     {\ltiCSet{\ltiDEntry{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                                         {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}}}
     }
   \end{mathpar}
   \caption{Extension Type system:
@@ -621,7 +636,31 @@ $$
 
 \begin{figure}
   \begin{mathpar}
-    \infer [($\text{abs}_{\ltiWild}$)]
+    \infer [($\text{W-abs}_{\ltiWild{}\rightarrow}$)]
+    {
+    \ltijudgement{\ltiPp{}}
+                 {\ltiEnv{},\overline{\ltitvar{}},
+                  \hastype{\ltivar{}}{\ltimatchsuper{\ltiBot}{{\ltiP{}}}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}
+                 {\ltiEnv{}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
+                 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+    }
+
+    \infer [($\text{W-abs}_{\ltiTop}$)]
+    {}
+    {
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
+                 {\ltiTop}
+    }
+
+    \infer [($\text{W-abs}_{\ltiWild{}}$)]
     {}
     {
     \ltijudgement{\ltiWild{}}
@@ -630,27 +669,86 @@ $$
                  {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
     }
 
-    \infer [(app)]
+    \infer [(W-appInaccessible)]
     {
     \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
                  \\
-    \ltijudgement{\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    \ltijudgement{\ltiWild{}}
                  {\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiSp{}}
+     \\\\
+    \overline{\ltitvar{}} \not= \varnothing
+    \\
+     \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiS{}} 
+     %\cup
+     %\ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{}} 
+     \subset \overline{\ltitvar{}}
                  \\\\
+     \lticheckorder{\overline{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiSp{}}{\ltiP{}}{\ltiTp{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}
+                 {\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltiTp{}}
+    }
+
+    \\\\
+
+    \infer [(CO-More)]
+    {
+     \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiS{}} 
+     \cup
+     \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{}} 
+     = \overline{\ltitvarp{}}
+     \\
+     \overline{\ltitvarp{}} \not= \varnothing
+     \\\\
      \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
                  \\
      \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
+     \\
+     \lticheckorder{\overline{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiSp{}}{\ltiP{}}{\ltiTp{}}
     }
     {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltiapp{\ltiF{}}{\ltiE{}}}
-                 {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
+    \lticheckorder{\overline{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiSp{}}{\ltiP{}}{\ltiTp{}}
     }
 
+    \infer [(CO-Done)]
+    {
+     \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiS{}} 
+     \cup
+     \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{}} 
+     = \varnothing
+     \\
+     \overline{\ltitvar{}} \not= \varnothing
+    }
+    {
+    \lticheckorder{\overline{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiSp{}}{\ltiP{}}{\ltiTp{}}
+    }
   \end{mathpar}
+
+  $$
+  \begin{array}{lllr}
+    \ltiaccessibletv{\overline{\ltitvar{}}}{\ltitvar{1}} &=&  \{\ltitvar{1}\} 
+         & \text{if } \ltitvar{1} \in \overline{\ltitvar{}} \\
+    \ltiaccessibletv{\overline{\ltitvar{}}}
+       {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+      &=& (\bigcup \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{1}}
+            ...
+            \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{n}})
+      \\
+    \ltiaccessibletv{\overline{\ltitvar{}}}
+       {\ltiArrow{\ltiT{}}{\overline{\ltitvarp{}}}{\ltiS{}}}
+      &=& \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiS{}}
+         & \text{if } \ltitv{\ltiT{}} \cap \overline{\ltitvar{}} = \varnothing \\
+
+      \\
+    \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{}} &=&  \varnothing & \text{otherwise}\\
+  \end{array}
+  $$
   \caption{Delayed checking Local type inference algorithmic rules
   $\ltijudgement{\ltiP{}}
                  {\ltiEnv{}}
