@@ -278,7 +278,7 @@ $$
                      {\ltiTp{2}}
                      {\ltiC{2}}
     \\
-    \overline{\ltitvar{}} \cap (\ltiV{} \cup \overline{\ltitvarp{}})
+    \overline{\ltitvar{}} \cap (\ltiV{} \cup \overline{\ltitvarp{}}) = \varnothing
     }
     {
     \ltigenconstraint{\ltiV{}}
@@ -603,27 +603,6 @@ $$
 
 \begin{figure}
   \begin{mathpar}
-    \infer [(S-Closure)]
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiufun{\ltivar{}}{\ltiE{}}}
-                  {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
-    }
-    {
-    \ltisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
-    }
-    \\
-    \infer [(CG-Closure)]
-    {}
-    {
-    \ltigenconstraint{\ltiV{}}
-                     {\overline{\ltitvarp{}}}
-                     {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
-                     {\ltiCSet{\ltiDEntry{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                         {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}}}
-    }
   \end{mathpar}
   \caption{Extension Type system:
   $\ltitjudgement{\ltiEnv{}}
@@ -636,6 +615,74 @@ $$
 
 \begin{figure}
   \begin{mathpar}
+    \infer [(S-Closure)]
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiufun{\ltivar{}}{\ltiE{}}}
+                  {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    }
+    {
+    \ltisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    }
+
+    \infer [(CG-Closure)]
+    {
+    \ltidemote{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiS{1}}
+    \\\\
+    \ltijudgement{\ltiArrow{\ltiS{1}}{\overline{\ltitvar{}}}
+                           {\ltireplace{\ltiWild{}}{\overline{\ltitvarp{}}}{\ltiTp{2}}}}
+                 {\ltiEnv{}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
+                 {\ltiArrow{\ltiS{1}}{\overline{\ltitvar{}}}{\ltiSp{2}}}
+    \\\\
+    \ltigenconstraint{\ltiV{} \cup {\overline{\ltitvar{}}}}
+                     {\overline{\ltitvarp{}}}{\ltiSp{2}}{\ltiTp{2}}
+                     {\ltiC{1}}
+    \\
+    \ltitv{\ltiT{1}} \cap \overline{\ltitvarp{}} = \overline{\ltitvarpp{}}
+    }
+    {
+    \ltigenconstraint{\ltiV{}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+                     {\ltiCDep{\overline{\ltitvarpp{}}}{\ltiC{1}}}
+                     %{\ltiCIntersect
+                     % {\ltiC{1}}
+                     % {\ltiCSet{\ltiDEntry{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                     %                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}}}
+                     %                     }
+    }
+    \\
+    \infer [(CG-Fun2)]
+    {
+    \ltitv{\ltiT{1}} \cap \overline{\ltitvarp{}} = \overline{\ltitvarpp{}}
+    \\
+    \ltidemote{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiS{1}}
+    \\
+    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
+                     {\overline{\ltitvarpp{}}}
+                     {\ltiT{1}}
+                     {\ltiTp{1}}
+                     {\ltiC{1}}
+    \\
+    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiT{2}}
+                     {\ltiTp{2}}
+                     {\ltiC{2}}
+    \\
+    \overline{\ltitvar{}} \cap (\ltiV{} \cup \overline{\ltitvarp{}}) = \varnothing
+    }
+    {
+    \ltigenconstraint{\ltiV{}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
+                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+                     {\ltiCIntersect{\ltiC{1}}{\ltiC{2}}}
+    }
+
     \infer [($\text{W-abs}_{\ltiWild{}\rightarrow}$)]
     {
     \ltijudgement{\ltiPp{}}
@@ -679,7 +726,9 @@ $$
                  {\ltiE{}}
                  {\ltiSp{}}
                  \\\\
-     %\ltigenconstraint{}{}
+    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
+                 \\
+    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
     }
     {
     \ltijudgement{\ltiP{}}

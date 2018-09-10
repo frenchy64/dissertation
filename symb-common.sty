@@ -2,6 +2,7 @@
 \usepackage{esop-clj-grammar}
 \usepackage{color}
 \usepackage{amssymb}
+\usepackage{mathtools}
 
 \newmeta\ltivar{x}
 \newmeta\ltiE{E}
@@ -16,6 +17,7 @@
 \newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
 \newmeta\ltitvar{a}
 \newmeta\ltitvarp{a'}
+\newmeta\ltitvarpp{a''}
 \newmeta\ltiC{C}
 \newmeta\ltiD{D}
 \newmeta\ltiT{T}
@@ -48,8 +50,9 @@
 \newcommand\ltidemote[3]{\ma{#1 \Downarrow^{#2} #3}}
 \newcommand\ltitv[1]{\ma{\text{tv}(#1)}}
 \newcommand\ltiCSet[1]{\ma{\{#1\}}}
+\newcommand\ltiCDep[2]{\ma{\texttt{dep}_{#1}(#2)}}
 \newcommand\ltiCEntry[3]{\ma{#1 \mathbin{<:} #2 \mathbin{<:} #3}}
-\newcommand\ltiDEntry[2]{\ma{#1 \mathbin{<:} #2}}
+\newcommand\ltiDEntry[2]{\ma{#1 \mathbin{<:}_d #2}}
 \newcommand\ltiCIntersect[2]{\ma{#1 \land #2}}
 \newcommand\ltiaccessibletv[2]{\ma{\texttt{accessibletv}_{#1}(#2)}}
 \newcommand\lticheckorder[6]{\ma{\texttt{checkorder}(#1, #2, #3, #4, #5, #6)}}
