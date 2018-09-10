@@ -672,21 +672,14 @@ $$
     \infer [(W-appInaccessible)]
     {
     \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
-                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 {\ltiT{}}
                  \\
     \ltijudgement{\ltiWild{}}
                  {\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiSp{}}
-     \\\\
-    \overline{\ltitvar{}} \not= \varnothing
-    \\
-     \ltiaccessibletv{\overline{\ltitvar{}}}{\ltiS{}} 
-     %\cup
-     %\ltiaccessibletv{\overline{\ltitvar{}}}{\ltiT{}} 
-     \subset \overline{\ltitvar{}}
                  \\\\
-     \lticheckorder{\overline{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiSp{}}{\ltiP{}}{\ltiTp{}}
+     %\ltigenconstraint{}{}
     }
     {
     \ltijudgement{\ltiP{}}
@@ -767,6 +760,17 @@ Then, defining `let` as sugar propagates enough information to avoid
 a custom rule for `let`.
 No information is propagated from functions to applications, so the benefits
 of Colored Local Type Inference are negated.
+
+% MLsub
+% https://www.cl.cam.ac.uk/~sd601/thesis.pdf
+% https://www.cl.cam.ac.uk/~sd601/papers/mlsub-preprint.pdf
+%
+% Polar type system (Jim)
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.123.8718&rep=rep1&type=pdf
+
+% survey
+% Expansion: the Crucial Mechanism for Type Inference with Intersection Types: A Survey and Explanation1
+% https://www.sciencedirect.com/science/article/pii/S1571066105050656
 
 \printbibliography
 
