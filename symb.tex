@@ -2,6 +2,7 @@
 
 \usepackage[margin=1in]{geometry}
 \usepackage{symb-common}
+\usepackage{pdflscape}
 
 \title{Symbolic execution in Typed Clojure}
 %\title{Local Type Inference for Optional Type Systems}
@@ -628,58 +629,59 @@ $$
 
     \infer [(CG-Closure)]
     {
-    \ltidemote{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiS{1}}
+    \ltidemote{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiS{1}}
     \\\\
-    \ltijudgement{\ltiArrow{\ltiS{1}}{\overline{\ltitvar{}}}
-                           {\ltireplace{\ltiWild{}}{\overline{\ltitvarp{}}}{\ltiTp{2}}}}
+    \ltijudgement{\ltiArrow{\ltiS{1}}{\overline{\ltitvarp{}}}
+                           {\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiT{2}}}}
                  {\ltiEnv{}}
                  {\ltiufun{\ltivar{}}{\ltiE{}}}
-                 {\ltiArrow{\ltiS{1}}{\overline{\ltitvar{}}}{\ltiSp{2}}}
+                 {\ltiArrow{\ltiS{1}}{\overline{\ltitvarp{}}}{\ltiS{2}}}
     \\\\
-    \ltigenconstraint{\ltiV{} \cup {\overline{\ltitvar{}}}}
-                     {\overline{\ltitvarp{}}}{\ltiSp{2}}{\ltiTp{2}}
-                     {\ltiC{1}}
-    \\
-    \ltitv{\ltiT{1}} \cap \overline{\ltitvarp{}} = \overline{\ltitvarpp{}}
+    \ltigenconstraint{\ltiV{} \cup {\overline{\ltitvarp{}}}}
+                     {\overline{\ltitvar{}}}{\ltiS{2}}{\ltiT{2}}
+                     {\ltiC{}}
+    \\\\
+                     \ltiCDep{\ltitv{\ltiT{1}} \cap \overline{\ltitvar{}}}
+                              {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+                              \mathbin{<:}
+                               \ltiArrow{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiT{2}}}
+                              {\ltiC{}}
+                              =
+                              {\ltiCp{}}
     }
     {
     \ltigenconstraint{\ltiV{}}
-                     {\overline{\ltitvarp{}}}
+                     {\overline{\ltitvar{}}}
                      {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
-                     {\ltiCDep{\overline{\ltitvarpp{}}}{\ltiC{1}}}
-                     %{\ltiCIntersect
-                     % {\ltiC{1}}
-                     % {\ltiCSet{\ltiDEntry{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                     %                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}}}
-                     %                     }
+                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiT{2}}}
+                     {\ltiCp{}}
     }
     \\
     \infer [(CG-Fun2)]
     {
-    \ltitv{\ltiT{1}} \cap \overline{\ltitvarp{}} = \overline{\ltitvarpp{}}
+    \ltitv{\ltiT{1}} \cap \overline{\ltitvar{}} = \overline{\ltitvarpp{}}
     \\
-    \ltidemote{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiS{1}}
-    \\
-    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
+    \ltidemote{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiS{1}}
+    \\\\
+    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvarp{}}}
                      {\overline{\ltitvarpp{}}}
                      {\ltiT{1}}
                      {\ltiTp{1}}
                      {\ltiC{1}}
-    \\
-    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
-                     {\overline{\ltitvarp{}}}
+    \\\\
+    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvarp{}}}
+                     {\overline{\ltitvar{}}}
                      {\ltiT{2}}
                      {\ltiTp{2}}
                      {\ltiC{2}}
     \\
-    \overline{\ltitvar{}} \cap (\ltiV{} \cup \overline{\ltitvarp{}}) = \varnothing
+    \overline{\ltitvarp{}} \cap (\ltiV{} \cup \overline{\ltitvar{}}) = \varnothing
     }
     {
     \ltigenconstraint{\ltiV{}}
-                     {\overline{\ltitvarp{}}}
-                     {\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
-                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+                     {\overline{\ltitvar{}}}
+                     {\ltiArrow{\ltiTp{1}}{\overline{\ltitvarp{}}}{\ltiT{2}}}
+                     {\ltiArrow{\ltiT{1}}{\overline{\ltitvarp{}}}{\ltiTp{2}}}
                      {\ltiCIntersect{\ltiC{1}}{\ltiC{2}}}
     }
 
@@ -716,25 +718,29 @@ $$
                  {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
     }
 
-    \infer [(W-appInaccessible)]
+    \infer [(W-app)]
     {
-    \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
+    \ltijudgement%{\ltiArrow{\ltiWild{}}{}{\ltiP{}}}
+                 {\ltiWild{}}
+                 {\ltiEnv{}}{\ltiF{}}
                  {\ltiT{}}
                  \\
     \ltijudgement{\ltiWild{}}
                  {\ltiEnv{}}
                  {\ltiE{}}
-                 {\ltiSp{}}
+                 {\ltiS{}}
                  \\\\
-    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
-                 \\
-    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
+    \ltigenconstraint{}
+                     {\{\ltitvar{}\}}
+                     {\ltiT{}}
+                     {\ltiArrow{\ltiS{}}{}{\ltitvar{}}}
+                     {\ltiC{}}
     }
     {
     \ltijudgement{\ltiP{}}
                  {\ltiEnv{}}
                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                 {\ltiTp{}}
+                 {\ltiSubst{\ltiC{}}{\ltiTop}{\ltitvar{}}}
     }
 
     \\\\
@@ -798,6 +804,103 @@ $$
                  {\ltiT{}}$
   }
 \end{figure}
+
+\newpage
+\begin{landscape}
+\begin{figure}
+  \small
+  \begin{mathpar}
+  \inferrule* [right=CG-RightPoly]
+  { 
+    {\inferrule*[right=CG-Delay,vdots=1.5em,leftskip=2em,rightskip=2em
+                 ]
+     { 
+       \ltidemote{a}{a,b}{\ltiBot}
+       \\\\
+       %\ltipromote{b}{a,b}{\ltiTop}
+       %\\\\
+       \ltigenconstraint{r,a,b}
+                        {x}
+                        {\ltiBot}
+                        {x}
+                        {\ltiCSet{\ltiCEntry{\ltiBot}{x}{\ltiTop}}}
+       \\
+       \ltiSubst{\ltiCSet{\ltiCEntry{\ltiBot}{x}{\ltiTop}}}
+                {x}
+                {x}
+                =
+                \ltiBot
+       \\\\
+       \ltigenconstraint{r}
+                        {a,b}
+                        {\ltiBot}
+                        {b}
+                        {\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}}
+     }
+     { \ltigenconstraint{r}
+                        {a,b}
+                        {\ltiArrow{x}{x}{x}}
+                        {\ltiArrow{a}{}{b}}
+                        {\textbf{delay}^{a}({\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}})}
+                        }
+    }
+    \\
+    {\inferrule*[right=CG-Seq]
+     {
+      \ltigenconstraint{r}
+                       {a,b}
+                       {\ltiInt}
+                       {a}
+                       {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}}}
+     }
+     {
+      \ltigenconstraint{r}
+                       {a,b}
+                       {\ltiSeqable{\ltiInt}}
+                       {\ltiSeqable{a}}
+                       {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}}}
+                       }
+    }
+    \\
+    {\inferrule*[]
+      {}
+      {
+       \ltigenconstraint{r}
+                        {a,b}
+                        {\ltiSeqable{b}}
+                        {r}
+                        {}
+                       }
+    }
+  }
+  { \ltigenconstraint{}
+                     {r}
+                     {\ltiArrow{(\ltiArrow{a}{}{b}, \ltiSeqable{a})}
+                               {a, b}
+                               {\ltiSeqable{b}}}
+                     {\ltiArrow{(\ltiArrow{x}{x}{x}, \ltiSeqable{\ltiInt})}
+                               {}
+                               {r}}
+                     {}}
+
+  %\inferrule* [left=Total]
+  %{\inferrule* [Left=Foo]
+  % {\inferrule* [Right=Bar, leftskip=2em,rightskip=2em,vdots=1.5em]
+  %  {a \\ a \\\\ bb \\ cc \\ dd}
+  %  {ee}
+  %  \\ ff \\ gg}
+  % {hh}
+  % \\
+  % \inferrule* [lab=XX]
+  % {uu \\ vv}
+  % {ww}}
+  %{(1)}
+  \end{mathpar}
+\caption{Derivation}
+\end{figure}
+\end{landscape}
+
+\newpage
 
 \section{Introduction}
 
