@@ -720,29 +720,23 @@ $$
 
     \infer [(W-app)]
     {
-    \ltijudgement%{\ltiArrow{\ltiWild{}}{}{\ltiP{}}}
-                 {\ltiWild{}}
-                 {\ltiEnv{}}{\ltiF{}}
-                 {\ltiT{}}
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
                  \\
-    \ltijudgement{\ltiWild{}}
+    \ltijudgement{\ltireplace{\ltiWild{}}{\overline{\ltitvar{}}}{\ltiS{}}}
                  {\ltiEnv{}}
                  {\ltiE{}}
-                 {\ltiS{}}
+                 {\ltiSp{}}
                  \\\\
-    \ltigenconstraint{}
-                     {\{\ltitvar{}\}}
-                     {\ltiT{}}
-                     {\ltiArrow{\ltiS{}}{}{\ltitvar{}}}
-                     {\ltiC{}}
+    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiSp{}}{\ltiS{}}{\ltiC{1}}
+                 \\
+    \ltigenconstraint{}{\overline{\ltitvar{}}}{\ltiT{}}{\ltimatchsub{\ltiTop}{\ltiP{}}}{\ltiC{2}}
     }
     {
-    \ltijudgement{\ltiP{}}
-                 {\ltiEnv{}}
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                 {\ltiSubst{\ltiC{}}{\ltiTop}{\ltitvar{}}}
+                 {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
     }
-
     \\\\
 
     \infer [(CO-More)]
@@ -810,93 +804,162 @@ $$
 \begin{figure}
   \small
   \begin{mathpar}
-  \inferrule* [right=CG-RightPoly]
-  { 
-    {\inferrule*[right=CG-Delay,vdots=1.5em,leftskip=2em,rightskip=2em
-                 ]
-     { 
-       \ltidemote{a}{a,b}{\ltiBot}
-       \\\\
-       %\ltipromote{b}{a,b}{\ltiTop}
-       %\\\\
-       \ltigenconstraint{r,a,b}
-                        {x}
-                        {\ltiBot}
-                        {x}
-                        {\ltiCSet{\ltiCEntry{\ltiBot}{x}{\ltiTop}}}
-       \\
-       \ltiSubst{\ltiCSet{\ltiCEntry{\ltiBot}{x}{\ltiTop}}}
-                {x}
-                {x}
-                =
-                \ltiBot
-       \\\\
+  \inferrule* [right=CG-LeftPoly]
+  {
+   \inferrule* [right=CG-Fn]
+   { 
+     {\inferrule*[right=CG-Delay,vdots=1.5em,leftskip=2em,rightskip=2em
+                  ]
+      { 
+        \ltidemote{a}{a,b}{\ltiBot}
+        \\\\
+        \ltigenconstraint{r,a,b}
+                         {x}
+                         {\ltiBot}
+                         {x}
+                         {\ltiCSet{\ltiCEntry{\ltiBot}{x}{\ltiTop}}}
+        \\\\
+        \ltiSubst{\ltiCSet{\ltiCEntry{\ltiBot}{x}{\ltiTop}}}
+                 {x}
+                 {x}
+                 =
+                 \ltiBot
+        \\\\
+        \ltigenconstraint{r}
+                         {a,b}
+                         {\ltiBot}
+                         {b}
+                         {\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}}
+      }
+      { \ltigenconstraint{r}
+                         {a,b}
+                         {\ltiArrow{x}{x}{x}}
+                         {\ltiArrow{a}{}{b}}
+                         {\textbf{delay}^{a}({\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}})}
+                         }
+     }
+     \\
+     {\inferrule*[right=CG-Seq]
+      {
        \ltigenconstraint{r}
                         {a,b}
-                        {\ltiBot}
-                        {b}
-                        {\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}}
-     }
-     { \ltigenconstraint{r}
+                        {\ltiInt}
+                        {a}
+                        {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}}}
+      }
+      {
+       \ltigenconstraint{r}
                         {a,b}
-                        {\ltiArrow{x}{x}{x}}
-                        {\ltiArrow{a}{}{b}}
-                        {\textbf{delay}^{a}({\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}})}
+                        {\ltiSeqable{\ltiInt}}
+                        {\ltiSeqable{a}}
+                        {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}}}
                         }
-    }
-    \\
-    {\inferrule*[right=CG-Seq]
-     {
-      \ltigenconstraint{r}
+     }
+     \\
+     {\inferrule*[]
+       {}
+       {
+        \ltigenconstraint{}
+                         {r}
+                         {\ltiSeqable{b}}
+                         {r}
+                         {\ltiCSet{\ltiCEntry{\ltiSeqable{b}}{r}{\ltiTop}}}
+                        }
+     }
+   }
+   { \ltigenconstraint{r}
+                      {a,b}
+                      {\ltiArrow{(\ltiArrow{a}{}{b}, \ltiSeqable{a})}
+                                {}
+                                {\ltiSeqable{b}}}
+                      {\ltiArrow{(\ltiArrow{x}{x}{x}, \ltiSeqable{\ltiInt})}
+                                {}
+                                {r}}
+                      {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}},
+                       \textbf{delay}^{a}({\ltiCSet{\ltiCEntry{\ltiBot}{b}{\ltiTop}}})}
+                      }
+  }
+  {  \ltigenconstraint{}
+                      {r}
+                      {\ltiArrow{(\ltiArrow{a}{}{b}, \ltiSeqable{a})}
+                                {a, b}
+                                {\ltiSeqable{b}}}
+                      {\ltiArrow{(\ltiArrow{x}{x}{x}, \ltiSeqable{\ltiInt})}
+                                {}
+                                {r}}
+                      {}
+  }
+
+  \end{mathpar}
+\caption{Derivation of \texttt{(map identity [1 2 3])}}
+\end{figure}
+
+\begin{figure}
+  \small
+  \begin{mathpar}
+   \inferrule* [right=CG-Fn]
+   { 
+     {\inferrule*[right=CG-Delay%,vdots=1.5em,leftskip=2em,rightskip=2em
+                  ]
+      {}
+      { \ltigenconstraint{}
+                         {a,b}
+                         {\ltiArrow{\ltiInt}{}{\ltiInt}}
+                         {\ltiArrow{a}{}{b}}
+                         {\texttt{delay}_{b}^{a}()}
+                         }
+     }
+     \\
+     {\ltigenconstraint{}
                        {a,b}
                        {\ltiInt}
                        {a}
                        {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}}}
      }
-     {
-      \ltigenconstraint{r}
-                       {a,b}
-                       {\ltiSeqable{\ltiInt}}
-                       {\ltiSeqable{a}}
-                       {\ltiCSet{\ltiCEntry{\ltiInt}{a}{\ltiTop}}}
-                       }
-    }
-    \\
-    {\inferrule*[]
-      {}
-      {
-       \ltigenconstraint{r}
-                        {a,b}
-                        {\ltiSeqable{b}}
-                        {r}
-                        {}
-                       }
-    }
-  }
-  { \ltigenconstraint{}
-                     {r}
-                     {\ltiArrow{(\ltiArrow{a}{}{b}, \ltiSeqable{a})}
-                               {a, b}
-                               {\ltiSeqable{b}}}
-                     {\ltiArrow{(\ltiArrow{x}{x}{x}, \ltiSeqable{\ltiInt})}
-                               {}
-                               {r}}
-                     {}}
+   }
+   { \ltigenconstraint{}
+                      {a,b}
+                      {(\ltiArrow{\ltiInt}{}{\ltiInt}, \ltiInt)}
+                      {(\ltiArrow{a}{}{b}, a)}
+                      {}
+                      }
 
-  %\inferrule* [left=Total]
-  %{\inferrule* [Left=Foo]
-  % {\inferrule* [Right=Bar, leftskip=2em,rightskip=2em,vdots=1.5em]
-  %  {a \\ a \\\\ bb \\ cc \\ dd}
-  %  {ee}
-  %  \\ ff \\ gg}
-  % {hh}
-  % \\
-  % \inferrule* [lab=XX]
-  % {uu \\ vv}
-  % {ww}}
-  %{(1)}
+
+  \infer [(W-app)]
+  {
+  \ltijudgement{\ltiWild{}}
+               {\ltiEnv{}}
+               {\texttt{app}}
+               {\ltiArrow{(\ltiArrow{a}{}{b}, a)}{a, b}{b}}
+               %{\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+               \\
+  \ltijudgement{(\ltiArrow{\ltiWild{}}{}{\ltiWild{}}, \ltiWild{})}
+               {\ltiEnv{}}
+               {(\texttt{inc}, \texttt{1})}
+               {(\ltiArrow{\ltiInt}{}{\ltiInt}, \ltiInt)}
+               %{\ltiSp{}}
+               \\\\
+  \ltigenconstraint{}{a,b}{(\ltiArrow{\ltiInt}{}{\ltiInt}, \ltiInt)}{(\ltiArrow{a}{}{b}, a)}{\ltiC{1}}
+               \\
+  \ltigenconstraint{}{a,b}{b}{\ltimatchsub{\ltiTop}{\ltiWild{}}}{\ltiC{2}}
+  }
+  {
+  \ltijudgement{\ltiWild{}}%{\ltiP{}}
+               {\ltiEnv{}}
+               {\ltiapp{\texttt{app}}{\texttt{inc}, \texttt{1}}}
+               {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{b}{\ltimatchsuper{b}{\ltiWild{}}}}
+  }
   \end{mathpar}
-\caption{Derivation}
+
+  $$
+  \begin{array}{l}
+    \hastype{\texttt{app}}{\ltiArrow{(\ltiArrow{a}{}{b}, a)}{a, b}{b}}\\
+    \hastype{\texttt{inc}}{\ltiArrow{\ltiInt}{}{\ltiInt}}\\
+    \hastype{\texttt{1}}{\ltiInt}
+  \end{array}
+  $$
+\caption{Derivation of \texttt{(app inc 1)}
+  }
 \end{figure}
 \end{landscape}
 
