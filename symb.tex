@@ -983,6 +983,9 @@ $$
 
 \newpage
 
+%helpful tikz references
+% https://tex.stackexchange.com/questions/204417/how-can-i-draw-arrows-within-a-listing-to-explain-positional-association
+
 \section{Introduction}
 
 We apply the area of constrained types to a type system with Local Type Inference.
@@ -1063,7 +1066,7 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
 
 \begin{lstlisting}
 (let [f (comp (map #(inc (*@\tikz[overlay,remember picture] \node [] (b) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (c) {};@*))
-              (map #(dec (*@\tikz[overlay,remember picture] \node [] (d) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (e) {};@*)))]
+              (map #(dec %(*@\tikz[overlay,remember picture] \node [] (d) {};@*))(*@\tikz[overlay,remember picture] \node [] (e) {};@*)))]
   (sequence f [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)1 2 3]))(*@\tikz[overlay,remember picture] \node [] (f) {};@*)
 \end{lstlisting}
 \begin{tikzpicture}[remember picture, overlay,
@@ -1074,8 +1077,8 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \coordinate (End2) at (d);
   \coordinate (Start3) at (e);
   \coordinate (End3) at (f);
-  \draw[->](Start1.north) to (End1.south);
-  \draw[->](Start2.north) to (End2.south);
+  \draw[->,in=180,  out=90](Start1.south) to (End1.east);
+  \draw[->](Start2.east) to (End2.north east);
   \draw[->](Start3.north) to (End3.south);
 \end{tikzpicture} 
 
@@ -1084,6 +1087,156 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
 %  (sequence f [1 2 3]))
 %\end{lstlisting}
 %
+
+\section{Types as control flow graphs}
+
+\begin{lstlisting}
+; Type of `map`
+
+(All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+\end{tikzpicture} 
+
+
+\begin{lstlisting}
+; Type of `comp`
+
+(All [a b c]
+  [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)b -> (*@\tikz[overlay,remember picture] \node [] (e) {};@*)c] [(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] -> [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (f) {};@*)c]])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start3) at (e);
+  \coordinate (End3) at (f);
+  \draw[->,bend right=-45](Start1.south) to (End1.east);
+  \draw[->,bend right=-45](Start2.east) to (End2.north east);
+  \draw[->,bend right=-45](Start3.east) to (End3.north east);
+\end{tikzpicture}
+
+\begin{lstlisting}
+; Type of the `map` transducer
+
+(All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] -> (All [r] [[r (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a -> r]])])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[blue,->,bend right=-20](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-20](Start2.east) to (End2.north east);
+\end{tikzpicture}
+
+\begin{lstlisting}
+; Type of the `sequence` transducing function
+
+(All [a b]
+  [(All [r] [[r (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> r]]) (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[red,->,bend right=-20](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-20](Start2.east) to (End2.north east);
+\end{tikzpicture}
+
+\begin{lstlisting}
+; Call (sequence (map #(inc %)) [1 2 3])
+(All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (e) {};@*)b] -> (All [r] [[r (*@\tikz[overlay,remember picture] \node [] (e) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (c) {};@*)a -> r]])])
+
+(All [a b]
+  [(All [r] [[r (*@\tikz[overlay,remember picture] \node [] (f) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> r]]) (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (g) {};@*)b)])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (A) at (a);
+  \coordinate (B) at (b);
+  \coordinate (C) at (c);
+  \coordinate (D) at (d);
+  \coordinate (E) at (e);
+  \coordinate (F) at (f);
+  \coordinate (G) at (g);
+  \draw[red,->,bend right=-20](A) to (B);
+  \draw[blue,->,bend right=-20](B) to (C);
+  \draw[blue,->,bend left=-20](C) to (D);
+  \draw[blue,->,bend left=-20](D) to (E);
+  \draw[blue,->,bend right=-20](E) to (F);
+  \draw[blue,->,bend left=-20](F) to (G);
+\end{tikzpicture}
+
+\begin{lstlisting}
+; Call (sequence (comp (map #(inc %)) (map #(dec %))) [1 2 3])
+
+;(map #(inc %))                            ;(map #(dec %))
+(All [a b]                                 (All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (f) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (g) {};@*)b] ->                                 [[(*@\tikz[overlay,remember picture] \node [] (l) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (m) {};@*)b] ->
+   (All [r] [[r (*@\tikz[overlay,remember picture] \node [] (h) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (e) {};@*)a -> r]])])        (All [r] [[r (*@\tikz[overlay,remember picture] \node [] (n) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (k) {};@*)a -> r]])])
+
+;(comp ..)
+(All [a b c]
+  [[(*@\tikz[overlay,remember picture] \node [] (i) {};@*)b -> (*@\tikz[overlay,remember picture] \node [] (d) {};@*)c] [(*@\tikz[overlay,remember picture] \node [] (o) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (j) {};@*)b] -> [(*@\tikz[overlay,remember picture] \node [] (p) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)c]])
+
+;(sequence ..)
+(All [a b]
+  [(All [r] [[r (*@\tikz[overlay,remember picture] \node [] (q) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> r]]) (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seqable (*@\tikz[overlay,remember picture] \node [] (r) {};@*)b)])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (A) at (a);
+  \coordinate (B) at (b);
+  \coordinate (C) at (c);
+  \coordinate (D) at (d);
+  \coordinate (E) at (e);
+  \coordinate (F) at (f);
+  \coordinate (G) at (g);
+  \coordinate (H) at (h);
+  \coordinate (I) at (i);
+  \coordinate (J) at (j);
+  \coordinate (K) at (k);
+  \coordinate (L) at (l);
+  \coordinate (M) at (m);
+  \coordinate (N) at (n);
+  \coordinate (O) at (o);
+  \coordinate (P) at (p);
+  \coordinate (Q) at (q);
+  \coordinate (R) at (r);
+  \draw[red,->,bend right=-20](A) to (B);
+  \draw[blue,->,bend left=-20](B) to (C);
+  \draw[blue,->,bend left=-20](C) to (D);
+  \draw[blue,->,bend right=-20](D) to (E);
+  \draw[blue,->,bend left=-60](E) to (F);
+  \draw[blue,->,bend left=-20](F) to (G);
+  \draw[blue,->,bend left=-20](G) to (H);
+  \draw[blue,->,bend left=-20](H) to (I);
+  \draw[blue,->,bend left=-20](I) to (J);
+  \draw[blue,->,bend left=-20](J) to (K);
+  \draw[blue,->,bend left=-20](K) to (L);
+  \draw[blue,->,bend left=-20](L) to (M);
+  \draw[blue,->,bend left=-20](M) to (N);
+  \draw[blue,->,bend left=-20](N) to (O);
+  \draw[blue,->,bend left=-20](O) to (P);
+  \draw[blue,->,bend left=-20](P) to (Q);
+  \draw[blue,->,bend left=-20](Q) to (R);
+\end{tikzpicture}
 
 \section{Improved Error Messages}
 
