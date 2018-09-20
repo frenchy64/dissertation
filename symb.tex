@@ -4,13 +4,15 @@
 \usepackage{symb-common}
 \usepackage{pdflscape}
 
-\title{Symbolic execution in Typed Clojure}
+%\title{Symbolic execution in Typed Clojure}
 %\title{Local Type Inference for Optional Type Systems}
 %\title{Local Type Inference for Anonymous Functions in Higher-Order contexts}
 %\title{Local Type Inference for Higher-Order usages of Anonymous Functions}
 %\title{Delayed Local Type Inference with Free Theorems}
 %\title{Lazy Local Type Inference with Free Theorems}
 %\title{Free Theorems for Local Type Inference}
+\title{Directed Local Type Inference for Typed Clojure}
+
 \author{Ambrose Bonnaire-Sergeant}
 
 \usepackage[backend=bibtex]{biblatex}
@@ -899,9 +901,23 @@ $$
   \begin{mathpar}
    \inferrule* [right=CG-Fn]
    { 
-     {\inferrule*[right=CG-Delay%,vdots=1.5em,leftskip=2em,rightskip=2em
+     {\inferrule*[%right=CG-Delay%,
+                  vdots=1.5em,leftskip=2em,rightskip=2em
                   ]
-      {}
+      { {\ltigenconstraint{}
+                          {a,b}
+                          {\ltiBot}
+                          {\ltiInt}
+                          {\ltiCEmpty{}}
+                         }
+        \\
+        {\ltigenconstraint{}
+                          {a,b}
+                          {\ltiInt}
+                          {\ltiTop}
+                          {\ltiCEmpty{}}
+                         }
+      }
       { \ltigenconstraint{}
                          {a,b}
                          {\ltiArrow{\ltiInt}{}{\ltiInt}}
@@ -967,6 +983,45 @@ $$
 
 \section{Introduction}
 
+We apply the area of constrained types to a type system with Local Type Inference.
+All top level functions are type-annotated, 
+
+\section{Examples}
+
+\begin{lstlisting}
+(let [f #(inc %)]
+  (f 1))
+\end{lstlisting}
+
+\begin{lstlisting}
+(map #(inc %) [1 2 3])
+\end{lstlisting}
+
+\begin{lstlisting}
+(let [f #(inc %)]
+  (map f [1 2 3]))
+\end{lstlisting}
+
+\begin{lstlisting}
+(let [f (comp #(dec %)
+              #(inc %))]
+  (map f [1 2 3]))
+\end{lstlisting}
+
+
+\begin{lstlisting}
+(let [f (map #(inc %))]
+  (sequence f [1 2 3]))
+\end{lstlisting}
+
+\begin{lstlisting}
+(let [f (comp (map #(inc %)
+              (map #(dec %)))]
+  (sequence f [1 2 3]))
+\end{lstlisting}
+
+\section{Improved Error Messages}
+
 \section{Related Work}
 
 Xie and Oliveira~\cite{xie2018let} present a type system where
@@ -986,6 +1041,15 @@ of Colored Local Type Inference are negated.
 % survey
 % Expansion: the Crucial Mechanism for Type Inference with Intersection Types: A Survey and Explanation1
 % https://www.sciencedirect.com/science/article/pii/S1571066105050656
+
+% ML_F
+% http://gallium.inria.fr/~remy/mlf/mlf-type-inference-long.pdf
+
+% Pottier
+% Simplifying Subtyping Constraints: A Theory
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.41.7032&rep=rep1&type=pdf
+% A Framework for Type Inference with Subtyping%
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.55.2364&rep=rep1&type=pdf
 
 \printbibliography
 
