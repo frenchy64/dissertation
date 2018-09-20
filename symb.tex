@@ -3,6 +3,8 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{symb-common}
 \usepackage{pdflscape}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
 
 %\title{Symbolic execution in Typed Clojure}
 %\title{Local Type Inference for Optional Type Systems}
@@ -984,41 +986,104 @@ $$
 \section{Introduction}
 
 We apply the area of constrained types to a type system with Local Type Inference.
-All top level functions are type-annotated, 
+All top level functions are type-annotated, and we are left to infer the types of
+unannotated anonymous functions and reconstruct the type arguments of polymorphic
+applications.
 
-\section{Examples}
+Often, Clojure programmers write anonymous functions that are not recursive, and
+are only used once. With that insight, we can start to design a local type inference
+algorithm that attempts to infer parameter types for lambdas.
+
+For example, take the following code. We draw an arrow to show how data flows
+through this expression.
+
+\begin{lstlisting}[escapeinside={(*@}{@*)}]
+(let [f #(inc (*@\tikz[overlay,remember picture] \node [] (b) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (c) {};@*)]
+  (f (*@\tikz[overlay,remember picture] \node [] (a) {};@*)1))(*@\tikz[overlay,remember picture] \node [] (d) {};@*)
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[->](Start1.north) to (End1.south);
+  \draw[->](Start2.north) to (End2.south);
+\end{tikzpicture} 
+
+Checking this code, intuitively, is a matter of delaying checking
+\clj{f} until it is called, and then using the type of the provided arguments
+to check the body of \clj{f}.
+
+In a higher order setting, this becomes slightly more complicated, as
+the control flow is not readily apparent.
 
 \begin{lstlisting}
-(let [f #(inc %)]
-  (f 1))
+(let [f #(inc (*@\tikz[overlay,remember picture] \node [] (b) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (c) {};@*)]
+  (map f [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)1 2 3]))(*@\tikz[overlay,remember picture] \node [] (d) {};@*)
 \end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[->](Start1.north) to (End1.south);
+  \draw[->](Start2.north) to (End2.south);
+\end{tikzpicture} 
+
+Composing two anonymous functions with \clj{comp} and mapping
+them over a collection has an even more interesting control flow.
 
 \begin{lstlisting}
-(map #(inc %) [1 2 3])
+(let [f (comp #(dec (*@\tikz[overlay,remember picture] \node [] (d) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (e) {};@*)
+              #(inc (*@\tikz[overlay,remember picture] \node [] (b) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (c) {};@*))]
+  (map f [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)1 2 3]))(*@\tikz[overlay,remember picture] \node [] (f) {};@*)
 \end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start3) at (e);
+  \coordinate (End3) at (f);
+  \draw[->](Start1.north) to (End1.south);
+  \draw[->](Start2.north) to (End2.south);
+  \draw[->](Start3.north) to (End3.south);
+\end{tikzpicture} 
+
+%\begin{lstlisting}
+%(let [f (map #(inc %))]
+%  (sequence f [1 2 3]))
+%\end{lstlisting}
+%
+
+Transducers compose ``left-to-right'', so their control flow is inverted.
 
 \begin{lstlisting}
-(let [f #(inc %)]
-  (map f [1 2 3]))
+(let [f (comp (map #(inc (*@\tikz[overlay,remember picture] \node [] (b) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (c) {};@*))
+              (map #(dec (*@\tikz[overlay,remember picture] \node [] (d) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (e) {};@*)))]
+  (sequence f [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)1 2 3]))(*@\tikz[overlay,remember picture] \node [] (f) {};@*)
 \end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start3) at (e);
+  \coordinate (End3) at (f);
+  \draw[->](Start1.north) to (End1.south);
+  \draw[->](Start2.north) to (End2.south);
+  \draw[->](Start3.north) to (End3.south);
+\end{tikzpicture} 
 
-\begin{lstlisting}
-(let [f (comp #(dec %)
-              #(inc %))]
-  (map f [1 2 3]))
-\end{lstlisting}
-
-
-\begin{lstlisting}
-(let [f (map #(inc %))]
-  (sequence f [1 2 3]))
-\end{lstlisting}
-
-\begin{lstlisting}
-(let [f (comp (map #(inc %)
-              (map #(dec %)))]
-  (sequence f [1 2 3]))
-\end{lstlisting}
+%\begin{lstlisting}
+%(let [f (map #(inc %))]
+%  (sequence f [1 2 3]))
+%\end{lstlisting}
+%
 
 \section{Improved Error Messages}
 
