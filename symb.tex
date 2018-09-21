@@ -1121,9 +1121,9 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \coordinate (End2) at (d);
   \coordinate (Start3) at (e);
   \coordinate (End3) at (f);
-  \draw[->,bend right=-45](Start1.south) to (End1.east);
-  \draw[->,bend right=-45](Start2.east) to (End2.north east);
-  \draw[->,bend right=-45](Start3.east) to (End3.north east);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+  \draw[blue,->,bend right=-45](Start3.east) to (End3.north east);
 \end{tikzpicture}
 
 \begin{lstlisting}
@@ -1138,7 +1138,7 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \coordinate (End1) at (b);
   \coordinate (Start2) at (c);
   \coordinate (End2) at (d);
-  \draw[blue,->,bend right=-20](Start1.south) to (End1.east);
+  \draw[red,->,bend right=-20](Start1.south) to (End1.east);
   \draw[blue,->,bend right=-20](Start2.east) to (End2.north east);
 \end{tikzpicture}
 
@@ -1160,8 +1160,11 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
 
 \begin{lstlisting}
 ; Call (sequence (map #(inc %)) [1 2 3])
+
+                  #(inc (*@\tikz[overlay,remember picture] \node [] (d1) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (d2) {};@*)
+
 (All [a b]
-  [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (e) {};@*)b] -> (All [r] [[r (*@\tikz[overlay,remember picture] \node [] (e) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (c) {};@*)a -> r]])])
+  [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (e1) {};@*)b] -> (All [r] [[r (*@\tikz[overlay,remember picture] \node [] (e2) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (c) {};@*)a -> r]])])
 
 (All [a b]
   [(All [r] [[r (*@\tikz[overlay,remember picture] \node [] (f) {};@*)b -> r] -> [r (*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> r]]) (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (g) {};@*)b)])
@@ -1172,19 +1175,27 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \coordinate (B) at (b);
   \coordinate (C) at (c);
   \coordinate (D) at (d);
-  \coordinate (E) at (e);
+  \coordinate (D1) at (d1);
+  \coordinate (D2) at (d2);
+  \coordinate (E1) at (e1);
+  \coordinate (E2) at (e2);
   \coordinate (F) at (f);
   \coordinate (G) at (g);
   \draw[red,->,bend right=-20](A) to (B);
   \draw[blue,->,bend right=-20](B) to (C);
   \draw[blue,->,bend left=-20](C) to (D);
-  \draw[blue,->,bend left=-20](D) to (E);
-  \draw[blue,->,bend right=-20](E) to (F);
+  \draw[blue,->,bend right=-20](D) to (D1);
+  \draw[blue,->,bend left=-20](D1) to (D2);
+  \draw[blue,->,bend left=-20](D2) to (E1);
+  \draw[blue,->,bend left=-20](E1) to (E2);
+  \draw[blue,->,bend right=-20](E2) to (F);
   \draw[blue,->,bend left=-20](F) to (G);
 \end{tikzpicture}
 
 \begin{lstlisting}
 ; Call (sequence (comp (map #(inc %)) (map #(dec %))) [1 2 3])
+
+                     #(inc (*@\tikz[overlay,remember picture] \node [] (f1) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (f2) {};@*)           #(dec (*@\tikz[overlay,remember picture] \node [] (l1) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (l2) {};@*)
 
 ;(map #(inc %))                            ;(map #(dec %))
 (All [a b]                                 (All [a b]
@@ -1207,12 +1218,16 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \coordinate (D) at (d);
   \coordinate (E) at (e);
   \coordinate (F) at (f);
+  \coordinate (F1) at (f1);
+  \coordinate (F2) at (f2);
   \coordinate (G) at (g);
   \coordinate (H) at (h);
   \coordinate (I) at (i);
   \coordinate (J) at (j);
   \coordinate (K) at (k);
   \coordinate (L) at (l);
+  \coordinate (L1) at (l1);
+  \coordinate (L2) at (l2);
   \coordinate (M) at (m);
   \coordinate (N) at (n);
   \coordinate (O) at (o);
@@ -1224,18 +1239,58 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \draw[blue,->,bend left=-20](C) to (D);
   \draw[blue,->,bend right=-20](D) to (E);
   \draw[blue,->,bend left=-60](E) to (F);
-  \draw[blue,->,bend left=-20](F) to (G);
+  \draw[red,->,bend left=-20](F) to (F1);
+  \draw[red,->,bend left=-20](F1) to (F2);
+  \draw[red,->,bend left=-20](F2) to (G);
   \draw[blue,->,bend left=-20](G) to (H);
   \draw[blue,->,bend left=-20](H) to (I);
   \draw[blue,->,bend left=-20](I) to (J);
   \draw[blue,->,bend left=-20](J) to (K);
   \draw[blue,->,bend left=-20](K) to (L);
-  \draw[blue,->,bend left=-20](L) to (M);
+  \draw[red,->,bend left=-20](L) to (L1);
+  \draw[red,->,bend left=-20](L1) to (L2);
+  \draw[red,->,bend left=-20](L2) to (M);
   \draw[blue,->,bend left=-20](M) to (N);
   \draw[blue,->,bend left=-20](N) to (O);
   \draw[blue,->,bend left=-20](O) to (P);
   \draw[blue,->,bend left=-20](P) to (Q);
   \draw[blue,->,bend left=-20](Q) to (R);
+\end{tikzpicture}
+
+\begin{lstlisting}
+(reduce + 0 [1 2 3])
+
+     (IFn [(*@\tikz[overlay,remember picture] \node [] (b11) {};@*)Long (*@\tikz[overlay,remember picture] \node [] (b21) {};@*)Long -> (*@\tikz[overlay,remember picture] \node [] (c0) {};@*)Long]
+          [Num Num -> Num])
+
+(All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (b1) {};@*)a (*@\tikz[overlay,remember picture] \node [] (b2) {};@*)b -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)a] (*@\tikz[overlay,remember picture] \node [] (a1) {};@*)a (Seqable (*@\tikz[overlay,remember picture] \node [] (a2) {};@*)b) -> (*@\tikz[overlay,remember picture] \node [] (d) {};@*)a])
+
+  (*@\tikz[overlay,remember picture] \node [] (init1) {};@*)Long             (Seqable (*@\tikz[overlay,remember picture] \node [] (init2) {};@*)Long)
+
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (INIT1) at (init1);
+  \coordinate (INIT2) at (init2);
+  \coordinate (A1) at (a1);
+  \coordinate (A2) at (a2);
+  \coordinate (B1) at (b1);
+  \coordinate (B11) at (b11);
+  \coordinate (B2) at (b2);
+  \coordinate (B21) at (b21);
+  \coordinate (C0) at (c0);
+  \coordinate (C) at (c);
+  \coordinate (D) at (d);
+  \draw[green,->,bend left=-20](INIT1) to (A1);
+  \draw[green,->,bend left=-20](INIT2) to (A2);
+  \draw[red,->,bend right=-20](A1) to (B1);
+  \draw[red,->,bend left=-20](A2) to (B2);
+  \draw[red,->,bend right=-20](B1) to (B11);
+  \draw[red,->,bend left=-20](B2) to (B21);
+  \draw[blue,->,bend left=-20](C0) to (C);
+  %\draw[blue,->,bend left=-20](C) to (B1);
+  \draw[blue,->,bend right=-20](C) to (D);
 \end{tikzpicture}
 
 \section{Improved Error Messages}
