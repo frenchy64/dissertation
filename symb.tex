@@ -4,6 +4,7 @@
 \usepackage{symb-common}
 \usepackage{pdflscape}
 \usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
 \usetikzlibrary{positioning,calc}
 
 %\title{Symbolic execution in Typed Clojure}
@@ -38,7 +39,7 @@ available that further delay would threaten type-soundness.
 We particularly target type systems for untyped languages, who require
 top-level annotations, but allow annotations to be elided from local functions.
 A key hypothesis we rely on is that re-checking the body of a local function
-is resonable and cheap.
+is reasonable and cheap.
 \end{abstract}
 
 %\input{symb-proof-system}
@@ -1023,15 +1024,17 @@ the control flow is not readily apparent.
 
 \begin{lstlisting}
 (let [f #(inc (*@\tikz[overlay,remember picture] \node [] (b) {};@*)%)(*@\tikz[overlay,remember picture] \node [] (c) {};@*)]
-  (map f [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)1 2 3]))(*@\tikz[overlay,remember picture] \node [] (d) {};@*)
+  (map f [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)1 2 3(*@\tikz[overlay,remember picture] \node [] (a1) {};@*)]))(*@\tikz[overlay,remember picture] \node [] (d) {};@*)
 \end{lstlisting}
 \begin{tikzpicture}[remember picture, overlay,
                   text width = 2.5cm ]
   \coordinate (Start1) at (a);
+  \coordinate (OtherEnd) at (a1);
   \coordinate (End1) at (b);
   \coordinate (Start2) at (c);
   \coordinate (End2) at (d);
-  \draw[->](Start1.north) to (End1.south);
+  \draw[decorate,decoration={brace,mirror,raise=2pt}](Start1.south) to coordinate [] (Mid) (OtherEnd.south) node {};
+  \draw[->,in=-45, out=-45](Mid) to (End1.south);
   \draw[->](Start2.north) to (End2.south);
 \end{tikzpicture} 
 
@@ -1088,7 +1091,35 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
 %\end{lstlisting}
 %
 
-\section{Types as control flow graphs}
+\section{Easy cases}
+
+In Clojure, many commonly used polymorphic higher-order functions satisfy
+the following criteria:
+
+\begin{itemize}
+  \item Some of the function's type variables are left of the main arrow, but
+        not under any other arrows.
+  \item These type variables also occur inside a parameter type, but to the left of exactly one more arrow.
+  \item The function's type variables can be topologically sorted.
+  \item The function's type variables do not occur under an arrow in the return type.
+\end{itemize}
+
+Perhaps equivalently:
+
+\begin{itemize}
+  \item If a type variable occurrence is in a contravariant position,
+        any other contravariant occurrences must occur in the same "position".
+\end{itemize}
+
+The following core functions satisfy this criteria: \texttt{
+map, filter, filterv, remove, take-while, drop-while, split-with, some, sorted-set-by,
+update, update-in, apply, sort, swap!, alter-var-root, commute, alter, every?, mapv,
+mapcat, pmap, map-indexed, keep-indexed, send-via, send, send-off, max-key, min-key}.
+
+\texttt{map} is a typical example of this kind of function. The type of \texttt{a} is immediately
+provided by the second argument, then \texttt{a} is expected as the input to the first argument.
+By the free theorems of \texttt{map}'s type, \texttt{a} can only be provided by the second argument, so
+its most precise instantiation is exactly the type of the second argument.
 
 \begin{lstlisting}
 ; Type of `map`
@@ -1106,12 +1137,88 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
 \end{tikzpicture} 
 
+Then, \texttt{a} does not occur in the output of the first argument, so we can topologically sort
+the instantiation order of \texttt{a} and \texttt{b}---since \texttt{a} is provided immediately, and
+\texttt{b} occurs to the right of an arrow with input \texttt{a}, then the instantiation
+order is \texttt{a} then \texttt{b}.
+
+\section{Types as control flow graphs}
+
+%\begin{lstlisting}
+%; Type of `map`
+%
+%(All [a b]
+%  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)])
+%\end{lstlisting}
+%\begin{tikzpicture}[remember picture, overlay,
+%                  text width = 2.5cm ]
+%  \coordinate (Start1) at (a);
+%  \coordinate (End1) at (b);
+%  \coordinate (Start2) at (c);
+%  \coordinate (End2) at (d);
+%  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+%  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+%\end{tikzpicture} 
+
+\begin{lstlisting}
+; Type of partial `map`
+
+(All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] -> [(Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)]])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+\end{tikzpicture} 
+
+\begin{lstlisting}
+; Type of expanded `comp`
+
+(All [a b c]
+  [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)b -> (*@\tikz[overlay,remember picture] \node [] (e) {};@*)c] [(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (f) {};@*)c])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start3) at (e);
+  \coordinate (End3) at (f);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+  \draw[blue,->,bend right=-45](Start3.east) to (End3.north east);
+\end{tikzpicture}
 
 \begin{lstlisting}
 ; Type of `comp`
 
 (All [a b c]
   [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)b -> (*@\tikz[overlay,remember picture] \node [] (e) {};@*)c] [(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] -> [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (f) {};@*)c]])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start3) at (e);
+  \coordinate (End3) at (f);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+  \draw[blue,->,bend right=-45](Start3.east) to (End3.north east);
+\end{tikzpicture}
+
+\begin{lstlisting}
+; Type of partial `comp`
+
+(All [a b c]
+  [[(*@\tikz[overlay,remember picture] \node [] (d) {};@*)b -> (*@\tikz[overlay,remember picture] \node [] (e) {};@*)c] -> [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] -> [(*@\tikz[overlay,remember picture] \node [] (a) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (f) {};@*)c]]])
 \end{lstlisting}
 \begin{tikzpicture}[remember picture, overlay,
                   text width = 2.5cm ]
@@ -1192,6 +1299,7 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \draw[blue,->,bend left=-20](F) to (G);
 \end{tikzpicture}
 
+\begin{figure}
 \begin{lstlisting}
 ; Call (sequence (comp (map #(inc %)) (map #(dec %))) [1 2 3])
 
@@ -1256,7 +1364,9 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   \draw[blue,->,bend left=-20](P) to (Q);
   \draw[blue,->,bend left=-20](Q) to (R);
 \end{tikzpicture}
+\end{figure}
 
+\begin{figure}
 \begin{lstlisting}
 (reduce + 0 [1 2 3])
 
@@ -1292,8 +1402,14 @@ Transducers compose ``left-to-right'', so their control flow is inverted.
   %\draw[blue,->,bend left=-20](C) to (B1);
   \draw[blue,->,bend right=-20](C) to (D);
 \end{tikzpicture}
+\end{figure}
 
 \section{Improved Error Messages}
+
+\section{Avoiding infinite loops}
+
+% syntactic restrictions
+% y combinator
 
 \section{Related Work}
 
