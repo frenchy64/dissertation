@@ -331,8 +331,8 @@
     \end{center}
     \egroup
     \vspace*{2em}
-    \begin{center}\large\adforn{19}\end{center}
-    \vspace*{2em}
+    %\begin{center}\large\adforn{19}\end{center}
+    %\vspace*{2em}
     \bgroup
     \Large
     \begin{center}
