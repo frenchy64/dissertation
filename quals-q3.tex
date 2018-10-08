@@ -1,0 +1,205 @@
+\section{Question 3}
+
+\begin{verbatim}
+Write a formal model of Clojure with core.spec, and implement it in
+PLT Redex. Formulate a consistency property between contracted and
+uncontracted execution, and test it in redex.
+\end{verbatim}
+
+\subsection{Formal model}
+
+%\input{syntax-figure-lambdac}
+
+We devise a base formal model for Clojure called \lambdac{}
+(syntax defined in Figure~\ref{clojure-grammar}).
+We extend \lambdac{} with clojure.spec with \texttt{fdef} but without 
+\texttt{fspec} specs, and call
+this model \lambdacs{}
+(syntax defined in Figure~\ref{clojurespec-grammar}).
+Then, we extend \lambdacs{} to support
+\texttt{fspec} function contracts, and call this final model \lambdacsf{}
+(syntax defined in Figure~\ref{clojurespechof-grammar}).
+
+We define the small-step reduction rules ($\rightarrow$) for each language, using contexts.
+Figure~\ref{arrowv} defines the reduction rules for 
+the base language \lambdac{}---it does not include any spec features.
+Figure~\ref{arrowvspec} defines the reduction rules for 
+\lambdacs{}, adding support for \texttt{fdef}.
+Finally, Figure~\ref{arrowvspec-hof} defines the reduction rules for 
+\lambdacsf{}, adding support for \texttt{fspec}.
+
+\subsection{Consistency property}
+
+Let $\rightarrow^{*}$ be the reflexive, transitive closure of $\rightarrow$,
+the single-step reduction relation for our respective languages.
+
+We formulate two consistency properties, one which we expect to hold, another
+which does not hold, and test them both using Redex.
+
+The first theorem (Theorem~\ref{th1}) states that any expression in \lambdac{}
+evaluates to the same value (or error) as checking that value against
+any spec in \lambdacs{}, or throws a spec value.
+For example, \texttt{1} in \lambdac{} evaluates to the same value (or error)
+as \texttt{(assert-spec 1 number?)}. Furthermore, \texttt{(assert-spec 1 zero?)} 
+evaluates to a spec error, and so is also consistent with \texttt{1}
+in \lambdac{}.
+
+\begin{theorem}[Consistency without fspec]
+\label{th1}
+For every expression \texttt{E} in \lambdac{}, 
+and every spec $\mathbb{S}$ in \lambdacs{}, 
+if \texttt{E} $\rightarrow^{*}$ $\texttt{V}_1^{e}$ and
+\texttt{(assert-spec E $\mathbb{S}$)} $\rightarrow^{*}$ $\texttt{V}_2^{e}$,
+then either:
+\begin{itemize}
+\item $\texttt{V}_1^{e} = \texttt{V}_2^{e}$, or
+\item $\texttt{V}_2^{e}$ is \texttt{(error spec-error ...)}.
+\end{itemize}
+\end{theorem}
+
+We formulated Theorem~\ref{th1} in Redex, and tested it for 1000 expressions,
+each with 1000 specs. We found no counter-examples, as expected.
+
+We expect to find a counter-example in Theorem~\ref{th2}, however.
+It is similar to Theorem~\ref{th1}, except we compare \lambdac{} with
+\lambdacsf{}, which includes \texttt{fspec}s (with generative testing semantics).
+
+\begin{theorem}[Consistency with fspec]
+\label{th2}
+For every expression \texttt{E} in \lambdac{}, 
+and every spec $\mathbb{S}$ in \lambdacsf{}, 
+if \texttt{E} $\rightarrow^{*}$ $\texttt{V}_1^{e}$ and
+\texttt{(assert-spec E $\mathbb{S}$)} $\rightarrow^{*}$ $\texttt{V}_2^{e}$,
+then either:
+\begin{itemize}
+\item $\texttt{V}_1^{e} = \texttt{V}_2^{e}$, or
+\item $\texttt{V}_2^{e}$ is \texttt{(error spec-error ...)}.
+\end{itemize}
+\end{theorem}
+
+Formulating Theorem~\ref{th2} in Redex finds many counter-examples
+involving \texttt{fspec}.
+For example, the following call that generates only 10 expressions each with 10
+random specs finds a ``stuck'' term from trying to generatively test a one-argument
+function \texttt{boolean?} as if it had zero-arguments (there is no way to know
+a function's arity in advance).
+
+\begin{verbatim}
+> (check-Clojure-ClojureSpecHOF-compat 10 10)
+ERROR:
+ClojureSpec evaluation did not fully reduce
+Original-form: (assert-spec boolean? (FSpec () zero? 0))
+Stuck-form: (assert-spec boolean? (FSpec () zero? 0))
+\end{verbatim}
+
+\subsection{Notes on Redex model}
+
+Caching was disabled for the Redex model because it interfered with generative testing.
+For example, the result of \texttt{(gen-spec number?)} was cached, so generative testing coverage
+was very poor.
+
+The model rendered in this paper can be found at:
+\begin{itemize}
+\item \texttt{https://github.com/frenchy64/quals/blob/master/redex/clj2.rkt}.
+\end{itemize}
+
+For experimentation, the same model, but based on the Eval-Apply-Continue machine
+can be found at:
+\begin{itemize}
+\item
+ \texttt{https://github.com/frenchy64/quals/blob/master/redex/clj.rkt}.
+\end{itemize}
+
+\begin{figure*}
+\fbox{
+  \includegraphics[]{redex/clojure-grammar.pdf}
+}
+\caption{Syntax of Terms in $\lambda c$.
+  Expressions \texttt{E} consist of (loosely named) ``constant'' expressions \texttt{C}
+  (numbers \texttt{N}, built-in functions \texttt{O}, booleans, nil, hash maps \texttt{H}, and errors
+\texttt{ERR}), 
+  functions \texttt{L} (non-recursive, and recursive), variables \texttt{X}, applications,
+  and conditionals.
+  The built-ins \texttt{assoc}, \texttt{dissoc}, and \texttt{get} perform the
+  hash map operations add, remove, and lookup, respectively.
+  Values are denoted \texttt{V}, and we use contexts $\mathbb{C}$ to define reduction rules.
+  }
+  \label{clojure-grammar}
+\end{figure*}
+
+%\input{syntax-figure-lambdacs}
+
+\begin{figure*}
+\fbox{
+  \includegraphics[]{redex/clojurespec-grammar.pdf}
+}
+\caption{Syntax of $\lambda c_s$ (extending $\lambda c$, Figure~\ref{clojure-grammar}).
+  We add the \texttt{assert-spec} form that takes an expression and a spec
+  and checks the expression evaluates to a value conforming to the spec.
+  We restrict specs to just predicates \texttt{P}.}
+  \label{clojurespec-grammar}
+\end{figure*}
+
+%\input{syntax-figure-lambdacsf}
+\begin{figure*}
+\fbox{
+  \includegraphics[]{redex/clojurespechof-grammar.pdf}
+}
+\caption{Syntax of $\lambda c_s^f$ (extending $\lambda c_s$, Figure~\ref{clojurespec-grammar}).
+  We add two forms of \texttt{fspec}s---the natural number represents how
+  many times to generatively test a function value.
+  }
+  \label{clojurespechof-grammar}
+\end{figure*}
+
+\begin{figure}
+\fbox{
+  \includegraphics[]{redex/arrowv.pdf}
+}
+\caption{Small-step reduction relation in $\lambda c$.
+  We define $\beta$ reduction rules for both types of functions.
+  Then branching rules for conditionals (\texttt{false} and \texttt{nil} are false values),
+  and constant functions ($\delta$, full definition omitted).
+  Finally several rules for throwing detailed runtime errors.
+  }
+  \label{arrowv}
+\end{figure}
+
+\begin{figure*}
+\fbox{
+  \includegraphics[]{redex/gen-spec*.pdf}
+}
+
+\fbox{
+  \includegraphics[]{redex/arrowvspec.pdf}
+}
+\caption{Small-step reduction relation in $\lambda c_s$ (extending $\lambda c$, Figure~\ref{arrowv}).
+  \texttt{gen-spec} takes a spec and generates a value conforming to that spec
+  via the \texttt{gen-spec*} metafunction.
+  We define \texttt{assert-spec} with support for 
+for \texttt{fdef} using traditional proxy checking semantics, and flat predicates.}
+  \label{arrowvspec}
+\end{figure*}
+
+\begin{figure*}
+\fbox{
+  \includegraphics[]{redex/gen-spec*-hof.pdf}
+}
+
+\fbox{
+  \includegraphics[]{redex/arrowvspec-hof.pdf}
+}
+  \caption{Small-step reduction relation for $\lambda c_{s}^{f}$ (extending $\lambda c_s$, Figure~\ref{arrowvspec})
+  \texttt{gen-spec} takes a spec and generates a value conforming to that spec
+  via the \texttt{gen-spec*-hof} metafunction (which extends \texttt{gen-spec*} in Figure~\ref{arrowvspec}).
+	Since we add \texttt{fspec}s, \texttt{gen-spec*-hof} can generate values conforming to \texttt{fspec}s
+(dummy functions that have the expected number of parameters, and generate their return values).
+\texttt{assert-fspec-init} initializes \texttt{FSpec} with an initial number of generations.
+\texttt{assert-fspec-gen}  and
+\texttt{assert-fspec-stop} handle the actual generative testing, with 
+\texttt{assert-rec-fspec-stop} supporting recursive functions.
+Finally, \texttt{assert-fspec-nonf} handles non-function values that are expected to
+conform to an \texttt{fspec}.
+  }
+  \label{arrowvspec-hof}
+\end{figure*}

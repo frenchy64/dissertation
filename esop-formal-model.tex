@@ -1,17 +1,13 @@
-%\section{A Formal Model of \lambdatc{}}
-\subsection{A Formal Model of Typed Clojure}
+\section{A Formal Model of \lambdatc{}}
+
 \label{sec:formal}
 
-In this section, we present a fragment of a formal model of
-Typed Clojure called \lambdatc{}, deferring any treatment
-of Java interoperability, multimethods, and heterogeneous maps
-to the thesis.
+After demonstrating the core features of Typed Clojure, 
+we link them together in a formal model called
+\lambdatc{}.
 %
-%After demonstrating the core features of Typed Clojure, 
-%we link them together in a formal model called
-%\lambdatc{}.
-%
-Our presentation will build on occurrence typing, then incrementally add each
+Building on occurrence typing,
+we incrementally add each
 novel feature of Typed Clojure to the formalism,
 interleaving presentation of syntax, typing rules, operational semantics,
 and subtyping.
@@ -91,68 +87,68 @@ We use two path elements---{\classpe{}} and {\keype{k}}---representing the resul
 of calling \classconst{} and looking up a keyword $k$, respectively.
 
 \paragraph{Propositions with a logical system}
-%In standard type systems, association lists often
-%track the types of variables, like in LC-Let and LC-Local.
-%\begin{mathpar}
-%\infer [LC-Let]
-%{ \judgementtwo {{\propenv{}}}
-%                {\e{1}} {\s{}}
-%  \\
-%  \judgementtwo {{\propenv{}},\x{} \mapsto {\s{}}}
-%                {\e{2}} {\t{}}
-%}
-%{ 
-%  \judgementtwo {\propenv{}} 
-%            {\letexp{\x{}}{\e{1}}{\e{2}}} {\t{}}
-%           }
-%
-%\infer [LC-Local]
-%{ {\propenv{}}(\x{}) = {\t{}}
-%}
-%{ \judgementtwo {\propenv{}} 
-%            {\x{}} {\t{}}
-%           }
-%\end{mathpar}
-%
-%Occurrence typing instead pairs \emph{logical formulas},
-%that can reason about arbitrary non-empty objects,
-%with a \emph{proof system}.
-%The logical statement {\isprop{\s{}}{\x{}}} says
-%variable $x$ is of type \s{}. 
-%%A \emph{logical system}
-%%must now \emph{prove}
-%%a variable's type.
-%\begin{mathpar}
-%\infer [T0-Let]
-%{ \judgementtwo {{\propenv{}}}
-%                {\e{1}} {\s{}}
-%  \\
-%  \judgementtwo {{\propenv{}},\isprop{\s{}}{\x{}}}
-%                {\e{2}} {\t{}}
-%}
-%{ 
-%  \judgementtwo {\propenv{}} 
-%            {\letexp{\x{}}{\e{1}}{\e{2}}}
-%            {\t{}}
-%           }
-%%\judgementtwo{\isprop{\Number{}}{\x{}}}{\appexp{\inc{}}{\x{}}}{\Number}
-%
-%\infer [T0-Local]
-%{ \inpropenv {\propenv{}} {\isprop {\t{}} {\x{}}}}
-%{ \judgementtwo {\propenv{}} 
-%            {\x{}} {\t{}}
-%           }
-%\end{mathpar}
-%In T0-Local, 
-%$
-%{ \inpropenv {\propenv{}} {\isprop {\t{}}{\x{}}}}
-%$
-%appeals to the proof system to solve for \t{}.
+In standard type systems, association lists often
+track the types of variables, like in LC-Let and LC-Local.
+\begin{mathpar}
+\infer [LC-Let]
+{ \judgementtwo {{\propenv{}}}
+                {\e{1}} {\s{}}
+  \\
+  \judgementtwo {{\propenv{}},\x{} \mapsto {\s{}}}
+                {\e{2}} {\t{}}
+}
+{ 
+  \judgementtwo {\propenv{}} 
+            {\letexp{\x{}}{\e{1}}{\e{2}}} {\t{}}
+           }
+
+\infer [LC-Local]
+{ {\propenv{}}(\x{}) = {\t{}}
+}
+{ \judgementtwo {\propenv{}} 
+            {\x{}} {\t{}}
+           }
+\end{mathpar}
+
+Occurrence typing instead pairs \emph{logical formulas},
+that can reason about arbitrary non-empty objects,
+with a \emph{proof system}.
+The logical statement {\isprop{\s{}}{\x{}}} says
+variable $x$ is of type \s{}. 
+%A \emph{logical system}
+%must now \emph{prove}
+%a variable's type.
+\begin{mathpar}
+\infer [T0-Let]
+{ \judgementtwo {{\propenv{}}}
+                {\e{1}} {\s{}}
+  \\
+  \judgementtwo {{\propenv{}},\isprop{\s{}}{\x{}}}
+                {\e{2}} {\t{}}
+}
+{ 
+  \judgementtwo {\propenv{}} 
+            {\letexp{\x{}}{\e{1}}{\e{2}}}
+            {\t{}}
+           }
+%\judgementtwo{\isprop{\Number{}}{\x{}}}{\appexp{\inc{}}{\x{}}}{\Number}
+
+\infer [T0-Local]
+{ \inpropenv {\propenv{}} {\isprop {\t{}} {\x{}}}}
+{ \judgementtwo {\propenv{}} 
+            {\x{}} {\t{}}
+           }
+\end{mathpar}
+In T0-Local, 
+$
+{ \inpropenv {\propenv{}} {\isprop {\t{}}{\x{}}}}
+$
+appeals to the proof system to solve for \t{}.
 %says under logical assumptions {\propenv{}}, object {\path{\pathelem{}}{\x{}}} is of type \t{}.
 %We later define the more general T-Local.
 
 \begin{figure}[t!]
-  %\footnotesize
+  \footnotesize
 $$
 \begin{array}{lrll}
   \e{} &::=& \x{}
@@ -194,11 +190,6 @@ $$
 \label{main:figure:termsyntax}
 \end{figure}
 
-Occurrence typing pairs \emph{logical formulas},
-that can reason about arbitrary non-empty objects,
-with a \emph{proof system}.
-The logical statement {\isprop{\s{}}{\x{}}} says
-variable $x$ is of type \s{}. 
 We further extend logical statements to \emph{propositional logic}.
 \figref{main:figure:termsyntax} describes the syntax
 for propositions \prop{},
@@ -224,37 +215,37 @@ For example, in \ifexp{\makelocal{o}}{\e{2}}{\e{3}}
 we learn variable {\makelocal{o}} is true in \e{2} via {\makelocal{o}}'s `then' proposition $\notprop{\falsy{}}{\makelocal{o}}$, and 
 that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition $\isprop{\falsy{}}{\makelocal{o}}$.
 
-%To illustrate, recall \egref{example:desserts-on-meal}.
-%The parameter \makelocal{o} is of type $\Order$,
-%%by the annotation on $desserts$
-%written
-%{\isprop{\Order}{\makelocal{o}}}
-%as a proposition.
-%%
-%In the ${\makekw{combo}}$ method, we know
-%${\appexp{\makekw{Meal}}{\makelocal{o}}}$ is ${\makekw{combo}}$,
-%based on multimethod dispatch rules. This is written
-%  {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}},
-%pronounced ``the ${\makekw{Meal}}$ path of variable \makelocal{o} is of type
-%{\Value{\makekw{combo}}}''.
+To illustrate, recall \egref{example:desserts-on-meal}.
+The parameter \makelocal{o} is of type $\Order$,
+%by the annotation on $desserts$
+written
+{\isprop{\Order}{\makelocal{o}}}
+as a proposition.
 %
-%%\paragraph{Logical system in action} 
-%To attain the type of \makelocal{o}, 
-%we must solve for \t{} in
-%$
-%{ \inpropenv 
-%  {\propenv{}}
-%  {\isprop {\t{}} {\makelocal{o}}}}
-%$,
-%under proposition environment
-%$
-%\propenv{} = {{\isprop{\Order}{\makelocal{o}}},
-%    {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
-%$
-%which deduces \t{} to be a {\makekw{combo}} meal.
-%The logical
-%system \emph{combines} pieces of type information to deduce more accurate types for lexical
-%bindings---this is explained in \secref{formalmodel:proofsystem}.
+In the ${\makekw{combo}}$ method, we know
+${\appexp{\makekw{Meal}}{\makelocal{o}}}$ is ${\makekw{combo}}$,
+based on multimethod dispatch rules. This is written
+  {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}},
+pronounced ``the ${\makekw{Meal}}$ path of variable \makelocal{o} is of type
+{\Value{\makekw{combo}}}''.
+
+%\paragraph{Logical system in action} 
+To attain the type of \makelocal{o}, 
+we must solve for \t{} in
+$
+{ \inpropenv 
+  {\propenv{}}
+  {\isprop {\t{}} {\makelocal{o}}}}
+$,
+under proposition environment
+$
+\propenv{} = {{\isprop{\Order}{\makelocal{o}}},
+    {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
+$
+which deduces \t{} to be a {\makekw{combo}} meal.
+The logical
+system \emph{combines} pieces of type information to deduce more accurate types for lexical
+bindings---this is explained in \secref{formalmodel:proofsystem}.
 
 %The first insight about occurrence typing is that
 %logical formulas
@@ -278,7 +269,7 @@ that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition 
 
 
 \begin{figure*}[t]
-%\footnotesize
+\footnotesize
     %{\TDo}
     %{\TClass}
     %{\TIf}
@@ -289,31 +280,29 @@ that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition 
     %\end{array}
   \begin{mathpar}
         {\TLocal}
-
         {\TAbs}
-
         {\TIf}
-    %\\
-    %\begin{array}{c}
-    %{\TKw}\\
-    %  {\TNum}\\
-    %\end{array}
-    %\begin{array}{c}
-    %  {\TNil}\\
-    %  {\TFalse}\\
-    %{\TConst}
-    %\end{array}
-    %\begin{array}{c}
-    %{\TStr}\\
-    %{\TClass}\\
-    %{\TTrue}
-    %\end{array}
+    \\
+    \begin{array}{c}
+    {\TKw}\\
+      {\TNum}\\
+    \end{array}
+    \begin{array}{c}
+      {\TNil}\\
+      {\TFalse}\\
+    {\TConst}
+    \end{array}
+    \begin{array}{c}
+    {\TStr}\\
+    {\TClass}\\
+    {\TTrue}
+  \end{array}
         \\
 
-    %{\TLet}
+    {\TLet}
+    \\
 
-    {\TApp}
-
+    {\TApp}\ \ 
     {\TSubsume}
     \\
   \end{mathpar}
@@ -323,48 +312,45 @@ that {\makelocal{o}} is false in \e{3} via {\makelocal{o}}'s `else' proposition 
     %  {\TNil}\\\\
     %  {\TFalse}
     %\end{array}
-  \caption{Select core typing rules}
+  \caption{Core typing rules}
   \label{main:figure:othertypingrules}
 \end{figure*}
 
 \begin{figure}%[t!]
-  %\footnotesize
+  \footnotesize
   \begin{mathpar}
 
-\SUnionSuper{} % \ \ \ 
-
-\SUnionSub{} %\ \ \ 
-%\SFunMono{}\ \ \ 
-%\begin{array}{l}
-%\SObject{}\\
-%\SClass{}\\
-%\SSBool{}
-%\end{array}
+\SUnionSuper{}\ \ \ 
+\SUnionSub{}\ \ \ 
+\SFunMono{}\ \ \ 
+\begin{array}{l}
+\SObject{}\\
+\SClass{}\\
+\SSBool{}
+\end{array}
 
 \SFun{}
-%\begin{array}{l}
-
-    %\SRefl{} %\ \ \ 
-
-    %\STop{}\\
-%\SSKw{}
-%\end{array}
+\begin{array}{l}
+    \SRefl{}\ \ \ 
+    \STop{}\\
+\SSKw{}
+\end{array}
 
 
   \end{mathpar}
-  \caption{Select core subtyping rules}
+  \caption{Core subtyping rules}
   \label{main:figure:subtyping}
 \end{figure}
 
-%\begin{figure}
-%\begin{mathpar}
-%    \BIfTrue{}
-%
-%    \BIfFalse{}
-%\end{mathpar}
-%  \caption{Select core semantics}
-%\label{main:figure:coresemantics}
-%\end{figure}
+\begin{figure}
+\begin{mathpar}
+    \BIfTrue{}
+
+    \BIfFalse{}
+\end{mathpar}
+  \caption{Select core semantics}
+\label{main:figure:coresemantics}
+\end{figure}
 
 \paragraph{Typing judgment}
 
@@ -414,154 +400,128 @@ to
 
 \paragraph{Typing rules}
 
-A selection of core typing rules are
-given as \figref{main:figure:othertypingrules}. 
+The core typing rules are
+given as \figref{main:figure:othertypingrules}. We introduce
+the interesting rules with the complement number predicate
+as a running example.
+\begin{equation}
+\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}
+\end{equation}
+%, including
+%a subsumption rule T-Subsume and rules for the false values---T-Nil and T-False---encoded 
+%as impossible (\botprop{}) `then' propositions.
 
-The essense of occurrence typing is contained in the first three rules
-T-Local, T-Abs, and T-If.
-The first rule T-Local type checks local bindings, and defers to the proof system to infer its type.
-The propositions on a local binding say that if bound value
-is logically true (not \nil{} or \false{}), then so is its binding, and similar if the
-value is logically false (\nil{} or \false{}).
-The symbolic object of a local binding is itself.
+The lambda rule T-Abs introduces \isprop{\s{}}{\x{}}} = \isprop{\Top}{\makelocal{d}}
+to check the body.
+With \propenv{} = \isprop{\Top}{\makelocal{d}},
+T-If first checks the test \e{1} = {\appexp{\numberhuh{}}{\makelocal{d}}}
+via the T-App rule, with three steps.
 
-The second rule T-Abs extends the type environment with information
-on the parameter's type to type check the body. It stores latent
-propositions and object in the resulting function type, which are
-used when the function is applied in T-App.
-Notice, T-App substitutes the actual argument object for the
-parameter's name in the resulting type, propositions, and object
-of an application.
+First, in T-App the operator \e{} = \numberhuh{} is checked with T-Const, which
+uses 
+\constanttypeliteral{} (\figref{main:figure:constanttyping}, dynamic semantics in the supplemental material)
+to type constants.
+\numberhuh{} is a predicate over numbers, and
+\classconst{} returns its argument's class.
 
-The third rule T-If extends the type environment with information
-learnt from the test. For example, to check the then branch, the proposition
-environment is extended with the test's then proposition.
-The subsumption rule T-Subsume allows us to combine the resulting type, propositions,
-and object of both branches as the resulting type, propositions, and object
-of the entire expression.
+Resuming {\appexp{\numberhuh{}}{\makelocal{d}}},
+in T-App the operand \ep{} = \makelocal{d} is checked with
+T-Local as
+\begin{equation}
+\judgementselfrewrite{\propenv{}}
+                     {\makelocal{d}}
+                     {\Top}
+                     {\filterset{\notprop{\falsy}{\makelocal{d}}}
+                                {\isprop{\falsy}{\makelocal{d}}}}
+                     {\makelocal{d}}
+\end{equation}
+which encodes the type, proposition, and object information
+about variables. The proposition {\notprop{\falsy}{\makelocal{d}}}
+says ``it is not the case that variable {\makelocal{d}} is of type {\falsy}'';
+{\isprop{\falsy}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\falsy}''.
 
-%We introduce
-%the interesting rules with the complement number predicate
-%as a running example.
-%\begin{equation}
-%\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}
-%\end{equation}
-%%, including
-%%a subsumption rule T-Subsume and rules for the false values---T-Nil and T-False---encoded 
-%%as impossible (\botprop{}) `then' propositions.
+Finally, the T-App rule substitutes the operand's object \objectp{}
+for the parameter \x{} in the latent type, propositions, and object. The proposition
+{\isprop{\Number{}}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\Number{}}'';
+{\notprop{\Number{}}{\makelocal{d}}} says ``it is not the case that {\makelocal{d}}
+is of type {\Number{}}''. The object {\makelocal{d}} is the symbolic representation
+of what the expression {\makelocal{d}} evaluates to.
+\begin{equation}
+\judgementselfrewrite{\propenv{}}
+  {\appexp{\numberhuh{}}{\makelocal{d}}}
+  {\Boolean{}}
+  {\filterset{\isprop{\Number{}}{\makelocal{d}}}
+             {\notprop{\Number{}}{\makelocal{d}}}}
+  {\emptyobject{}}
+\end{equation}
+To demonstrate, the `then' proposition---in T-App {\replacefor {\thenprop{\prop{}}} {\objectp{}} {\x{}}}---substitutes
+the latent `then' proposition of \constanttype{\numberhuh{}} with 
+\makelocal{d}, giving
+{\replacefor {\isprop{\Number{}}{\x{}}} {\makelocal{d}} {\x{}}} =
+{\isprop{\Number{}}{\makelocal{d}}}.
+
+To check the branches of {\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}},
+T-If
+introduces \thenprop{\prop{1}} = \isprop{\Number{}}{\makelocal{d}}
+to check \e{2} = {\false{}},
+and \elseprop{\prop{1}} = \notprop{\Number{}}{\makelocal{d}}
+to check 
+\e{3} = \true{}.
 %
-%The lambda rule T-Abs introduces \isprop{\s{}}{\x{}}} = \isprop{\Top}{\makelocal{d}}
-%to check the body.
-%With \propenv{} = \isprop{\Top}{\makelocal{d}},
-%T-If first checks the test \e{1} = {\appexp{\numberhuh{}}{\makelocal{d}}}
-%via the T-App rule, with three steps.
-%
-%First, in T-App the operator \e{} = \numberhuh{} is checked with T-Const, which
-%uses 
-%\constanttypeliteral{} (\figref{main:figure:constanttyping}, dynamic semantics in the supplemental material
-%of~\cite{bonnaire2016practical})
-%to type constants.
-%\numberhuh{} is a predicate over numbers, and
-%\classconst{} returns its argument's class.
-%
-%Resuming {\appexp{\numberhuh{}}{\makelocal{d}}},
-%in T-App the operand \ep{} = \makelocal{d} is checked with
-%T-Local as
-%\begin{equation}
-%\judgementselfrewrite{\propenv{}}
-%                     {\makelocal{d}}
-%                     {\Top}
-%                     {\filterset{\notprop{\falsy}{\makelocal{d}}}
-%                                {\isprop{\falsy}{\makelocal{d}}}}
-%                     {\makelocal{d}}
-%\end{equation}
-%which encodes the type, proposition, and object information
-%about variables. The proposition {\notprop{\falsy}{\makelocal{d}}}
-%says ``it is not the case that variable {\makelocal{d}} is of type {\falsy}'';
-%{\isprop{\falsy}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\falsy}''.
-%
-%Finally, the T-App rule substitutes the operand's object \objectp{}
-%for the parameter \x{} in the latent type, propositions, and object. The proposition
-%{\isprop{\Number{}}{\makelocal{d}}} says ``{\makelocal{d}} is of type {\Number{}}'';
-%{\notprop{\Number{}}{\makelocal{d}}} says ``it is not the case that {\makelocal{d}}
-%is of type {\Number{}}''. The object {\makelocal{d}} is the symbolic representation
-%of what the expression {\makelocal{d}} evaluates to.
-%\begin{equation}
-%\judgementselfrewrite{\propenv{}}
-%  {\appexp{\numberhuh{}}{\makelocal{d}}}
-%  {\Boolean{}}
-%  {\filterset{\isprop{\Number{}}{\makelocal{d}}}
-%             {\notprop{\Number{}}{\makelocal{d}}}}
-%  {\emptyobject{}}
-%\end{equation}
-%To demonstrate, the `then' proposition---in T-App {\replacefor {\thenprop{\prop{}}} {\objectp{}} {\x{}}}---substitutes
-%the latent `then' proposition of \constanttype{\numberhuh{}} with 
-%\makelocal{d}, giving
-%{\replacefor {\isprop{\Number{}}{\x{}}} {\makelocal{d}} {\x{}}} =
-%{\isprop{\Number{}}{\makelocal{d}}}.
-%
-%To check the branches of {\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}},
-%T-If
-%introduces \thenprop{\prop{1}} = \isprop{\Number{}}{\makelocal{d}}
-%to check \e{2} = {\false{}},
-%and \elseprop{\prop{1}} = \notprop{\Number{}}{\makelocal{d}}
-%to check 
-%\e{3} = \true{}.
-%%
-%The branches are first checked with T-False and T-True respectively,
-%the T-Subsume premises
-%\inpropenv {\propenv{}, {\thenprop {\prop{}}}} {\thenprop {\propp{}}}
-%and
-%\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
-%allow us to pick compatible propositions for both branches.
-%%$$
-%%\judgementselfrewrite{\propenv{},{\isprop{\Number{}}{\makelocal{d}}}}
-%%  {\false{}}
-%%  {\False{}}
-%%  {\filterset{\botprop{}}
-%%             {\topprop{}}}
-%%  {\emptyobject{}}
-%%$$
+The branches are first checked with T-False and T-True respectively,
+the T-Subsume premises
+\inpropenv {\propenv{}, {\thenprop {\prop{}}}} {\thenprop {\propp{}}}
+and
+\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
+allow us to pick compatible propositions for both branches.
 %$$
-%\begin{array}{c}
 %\judgementselfrewrite{\propenv{},{\isprop{\Number{}}{\makelocal{d}}}}
 %  {\false{}}
-%  {\Boolean{}}
-%  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
-%             {\isprop{\Number{}}{\makelocal{d}}}}
+%  {\False{}}
+%  {\filterset{\botprop{}}
+%             {\topprop{}}}
 %  {\emptyobject{}}
-%  \\
-%\judgementselfrewrite{\propenv{},{\notprop{\Number{}}{\makelocal{d}}}}
-%  {\true{}}
-%  {\Boolean{}}
-%  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
-%             {\isprop{\Number{}}{\makelocal{d}}}}
-%  {\emptyobject{}}
-%\end{array}
 %$$
-%%to suit the T-If outputs \t{} = \Boolean{}, \thenprop{\prop{}}
-%%= {\notprop{\Number{}}{\makelocal{d}}}, \elseprop{\prop{}} = {\isprop{\Number{}}{\makelocal{d}}},
-%%and \object{} = {\emptyobject{}}.
-%%
-%%In T-Subsume, we can upcast \t{} = \False{} to \tp{} = \Boolean{} via the premise 
-%%\issubtypein{}{\t{}}{\tp{}}.
-%%and 
-%%\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
-%%from 
-%%{\elseprop {\prop{}}} = \topprop{} to {\elseprop {\propp{}}} = {\isprop{\Number{}}{\makelocal{d}}}.
+$$
+\begin{array}{c}
+\judgementselfrewrite{\propenv{},{\isprop{\Number{}}{\makelocal{d}}}}
+  {\false{}}
+  {\Boolean{}}
+  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
+             {\isprop{\Number{}}{\makelocal{d}}}}
+  {\emptyobject{}}
+  \\
+\judgementselfrewrite{\propenv{},{\notprop{\Number{}}{\makelocal{d}}}}
+  {\true{}}
+  {\Boolean{}}
+  {\filterset{\notprop{\Number{}}{\makelocal{d}}}
+             {\isprop{\Number{}}{\makelocal{d}}}}
+  {\emptyobject{}}
+\end{array}
+$$
+%to suit the T-If outputs \t{} = \Boolean{}, \thenprop{\prop{}}
+%= {\notprop{\Number{}}{\makelocal{d}}}, \elseprop{\prop{}} = {\isprop{\Number{}}{\makelocal{d}}},
+%and \object{} = {\emptyobject{}}.
 %
-%Finally T-Abs assigns a type to the overall function:
-%$$
-%{\judgementselfrewrite{}{\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}}
-%                    {\ArrowOne {\makelocal{d}} {\Top{}}
-%                                      {\Boolean{}}
-%                                      {\filterset {\notprop{\Number{}}{\makelocal{d}}}
-%                                                  {\isprop{\Number{}}{\makelocal{d}}}}
-%                                      {\emptyobject{}}}
-%                    {\filterset {\topprop{}}
-%                                {\botprop{}}}
-%                    {\emptyobject{}}}
-%$$
+%In T-Subsume, we can upcast \t{} = \False{} to \tp{} = \Boolean{} via the premise 
+%\issubtypein{}{\t{}}{\tp{}}.
+%and 
+%\inpropenv {\propenv{}, {\elseprop {\prop{}}}} {\elseprop {\propp{}}}
+%from 
+%{\elseprop {\prop{}}} = \topprop{} to {\elseprop {\propp{}}} = {\isprop{\Number{}}{\makelocal{d}}}.
+
+Finally T-Abs assigns a type to the overall function:
+$$
+{\judgementselfrewrite{}{\abs{\makelocal{d}}{\Top}{\ifexp{\appexp{\numberhuh{}}{\makelocal{d}}}{\false{}}{\true{}}}}
+                    {\ArrowOne {\makelocal{d}} {\Top{}}
+                                      {\Boolean{}}
+                                      {\filterset {\notprop{\Number{}}{\makelocal{d}}}
+                                                  {\isprop{\Number{}}{\makelocal{d}}}}
+                                      {\emptyobject{}}}
+                    {\filterset {\topprop{}}
+                                {\botprop{}}}
+                    {\emptyobject{}}}
+$$
 
 %The object \x{} over latent propositions \thenprop{\prop{}} and
 %\elseprop{\prop{}}, latent object \object{}, and latent type \t{}. The
@@ -726,11 +686,17 @@ of the entire expression.
 %$$
 
 \paragraph{Subtyping}
-Subtyping is as a reflexive and transitive relation with top type \Top. 
-\figref{main:figure:subtyping} presents select rules.
-Subtyping for untagged unions is standard.
+\figref{main:figure:subtyping} presents subtyping
+as a reflexive and transitive relation with top type \Top. 
+Singleton types are instances of their respective classes---boolean singleton types
+are of type \Boolean{}, class literals are instances of \Class{} and keywords are
+instances of \Keyword{}.
+Instances of classes \class{} are subtypes of \Object{}. Function types 
+are subtypes of \IFn{}. All types except for \Nil{} are subtypes of \Object{},
+so \Top{} is similar to {\Union{\Nil}{\Object}}.
 Function subtyping is contravariant left of the arrow---latent propositions, object
 and result type are covariant.
+Subtyping for untagged unions is standard.
 
 \paragraph{Operational semantics} We define the dynamic semantics for \lambdatc{}
 in a big-step style using an environment, following~\cite{TF10}.
@@ -738,9 +704,9 @@ We include both errors and a \wrong{} value, which is provably ruled out by the
 type system.
 The main judgment is \opsem{\openv{}}{\e{}}{\definedreduction{}}
 which states that \e{} evaluates to answer \definedreduction{} in environment
-\openv{}. We omit the core rules (included in supplemental material of~\cite{bonnaire2016practical}).
-%however a notable difference is \nil{} is a false value, which affects the
-%semantics of \ifliteral{} (\figref{main:figure:coresemantics}).
+\openv{}. We chose to omit the core rules (included in supplemental material)
+however a notable difference is \nil{} is a false value, which affects the
+semantics of \ifliteral{} (\figref{main:figure:coresemantics}).
 
 %The definition of \updateliteral{} supports various idioms relating to \classpe{}
 %which we introduce in \secref{sec:isaformal}.
@@ -926,798 +892,796 @@ which states that \e{} evaluates to answer \definedreduction{} in environment
 %We can now use \isprop{\Number}{\x{}} in the environment to check the second subexpression
 %{\appexp{\inc{}}{\x{}}}, completing the example.
 
-%%% START PROPOSAL OMISSION
-%\subsection{Java Interoperability}
+\subsection{Java Interoperability}
+
+\begin{figure}
+  \footnotesize
+  $$
+  \begin{altgrammar}
+    \e{} &::=& \ldots   {\fieldexp {\fld{}} {\e{}}} \alt {\methodexp {\mth{}} {\e{}} {\overrightarrow{\e{}}}}
+                      \alt {\newexp {\class{}} {\overrightarrow{\e{}}}}
+                      &\mbox{Expressions}\\
+     &\alt& \nonreflectiveexpsyntax{} &\mbox{Non-reflective Expressions}\\
+
+    \v{} &::=& \ldots \alt {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}}
+    &\mbox{Values} \\
+
+    \classtableallsyntax{}
+  \end{altgrammar}
+  $$
+  \begin{mathpar}
+    {\TNew}
+
+    {\TMethod}
+
+    {\TField}
+
+    %{\TInstance}
+  \end{mathpar}
+ %\classtablelookupsyntax{}
+ \begin{mathpar}
+  \begin{altgrammar}
+    \convertjavatypenil{}
+  \end{altgrammar}
+  \begin{altgrammar}
+    \convertjavatypenonnil{}
+  \end{altgrammar}
+  \begin{altgrammar}
+    \converttctype{}
+  \end{altgrammar}
+\end{mathpar}
+  \begin{mathpar}
+    \BField{}\ \ \ 
 %
-%\begin{figure}
-%  %\footnotesize
-%  $$
-%  \begin{altgrammar}
-%    \e{} &::=& \ldots   {\fieldexp {\fld{}} {\e{}}} \alt {\methodexp {\mth{}} {\e{}} {\overrightarrow{\e{}}}}
-%                      \alt {\newexp {\class{}} {\overrightarrow{\e{}}}}
-%                      &\mbox{Expressions}\\
-%     &\alt& \nonreflectiveexpsyntax{} &\mbox{Non-reflective Expressions}\\
+    \BNew{}
+
+    \BMethod{}
+  \end{mathpar}
+  \caption{Java Interoperability Syntax, Typing and Operational Semantics}
+  \label{main:figure:javatyping}
+\end{figure}
+
+\begin{figure}
+  $$
+\constanttypefigure{}
+  $$
+  \caption{Constant typing}
+  \label{main:figure:constanttyping}
+\end{figure}
+
+We present Java interoperability in a restricted setting without class inheritance,
+overloading or Java Generics.
 %
-%    \v{} &::=& \ldots \alt {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}}
-%    &\mbox{Values} \\
-%
-%    \classtableallsyntax{}
-%  \end{altgrammar}
-%  $$
-%  \begin{mathpar}
+We extend the syntax in \figref{main:figure:javatyping} with Java field lookups and calls to
+methods and constructors. 
+To prevent ambiguity between zero-argument methods and fields,
+we use Clojure's primitive ``dot'' syntax:
+field accesses are written \fieldexp{\fld{}}{\e{}}
+and method calls $\methodexp{\mth{}}{\e{}}{\overrightarrow{e}}$.
+%and \clj{(new class es*)} is $\newexp{\class{}}{\overrightarrow{es}}$.
+
+In \egref{example:getparent-direct-constructor}, \clj{(*interop .getParent (*interop new File "a/b" interop*) interop*)}
+translates to
+\begin{equation}  \label{eq:unresolved}
+  \qquad {\methodexp {\getparent{}} {\newexp {\File{}} {\makestr{a/b}}} {}}
+\end{equation}
+
+But both the constructor and method are unresolved.
+We introduce \emph{non-reflective} expressions for specifying exact Java overloads.
+\begin{equation} \label{eq:resolved}
+\qquad {\methodstaticexp {\File} {} {\String} {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}
+\end{equation}
+From the left, the one-argument constructor for \File takes a \String, and the 
+\getparent{} method of
+\File{} takes zero arguments
+and
+returns a \String.
+
+We now walk through this conversion.% from unresolved expression~\ref{eq:unresolved} to 
+%resolved expression~\ref{eq:resolved}.
+
+\paragraph{Constructors} First we check and convert {\newexp {\File{}} {\makestr{a/b}}} to {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}}.
+The T-New typing rule checks and rewrites constructors.
+%$$
 %    {\TNew}
-%
+%$$
+To check
+{\newexp {\File{}} {\makestr{a/b}}}
+we first resolve the constructor overload in the class table---there is at most one
+to simplify presentation.
+With \classhint{1} = \String,
+we convert to a nilable type the argument with \t{1} = \Union{\Nil}{\String}
+and type check {\makestr{a/b}} against \t{1}.
+Typed Clojure defaults to allowing non-nilable arguments, but this
+can be overridden, so we model the more general case.
+% which erases nil
+The return Java type \File is converted to a non-nil
+Typed Clojure type \t{} = \File for the return type,
+and the propositions say constructors can never be false---constructors
+can never produce the internal boolean value that Clojure uses for \false{}, or \nil{}.
+Finally, the constructor rewrites to {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}}.
+
+\paragraph{Methods} Next we convert {\methodexp {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}
+to the non-reflective expression
+{\methodstaticexp {\File} {} {\String} {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}.
+%The T-Method rule checks unresolved methods.
+%$$
 %    {\TMethod}
-%
-%    {\TField}
-%
-%    %{\TInstance}
-%  \end{mathpar}
-% %\classtablelookupsyntax{}
-% \begin{mathpar}
-%  \begin{altgrammar}
-%    \convertjavatypenil{}
-%  \end{altgrammar}
-%  \begin{altgrammar}
-%    \convertjavatypenonnil{}
-%  \end{altgrammar}
-%  \begin{altgrammar}
-%    \converttctype{}
-%  \end{altgrammar}
-%\end{mathpar}
-%  \begin{mathpar}
-%    \BField{}\ \ \ 
-%%
-%    \BNew{}
-%
-%    \BMethod{}
-%  \end{mathpar}
-%  \caption{Java Interoperability Syntax, Typing and Operational Semantics}
-%  \label{main:figure:javatyping}
-%\end{figure}
-%
-%\begin{figure}
-%  $$
-%\constanttypefigure{}
-%  $$
-%  \caption{Constant typing}
-%  \label{main:figure:constanttyping}
-%\end{figure}
-%
-%We present Java interoperability in a restricted setting without class inheritance,
-%overloading or Java Generics.
-%%
-%We extend the syntax in \figref{main:figure:javatyping} with Java field lookups and calls to
-%methods and constructors. 
-%To prevent ambiguity between zero-argument methods and fields,
-%we use Clojure's primitive ``dot'' syntax:
-%field accesses are written \fieldexp{\fld{}}{\e{}}
-%and method calls $\methodexp{\mth{}}{\e{}}{\overrightarrow{e}}$.
-%%and \clj{(new class es*)} is $\newexp{\class{}}{\overrightarrow{es}}$.
-%
-%In \egref{example:getparent-direct-constructor}, \clj{(*interop .getParent (*interop new File "a/b" interop*) interop*)}
-%translates to
-%\begin{equation}  \label{eq:unresolved}
-%  \qquad {\methodexp {\getparent{}} {\newexp {\File{}} {\makestr{a/b}}} {}}
-%\end{equation}
-%
-%But both the constructor and method are unresolved.
-%We introduce \emph{non-reflective} expressions for specifying exact Java overloads.
-%\begin{equation} \label{eq:resolved}
-%\qquad {\methodstaticexp {\File} {} {\String} {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}
-%\end{equation}
-%From the left, the one-argument constructor for \File takes a \String, and the 
-%\getparent{} method of
-%\File{} takes zero arguments
-%and
-%returns a \String.
-%
-%We now walk through this conversion.% from unresolved expression~\ref{eq:unresolved} to 
-%%resolved expression~\ref{eq:resolved}.
-%
-%\paragraph{Constructors} First we check and convert {\newexp {\File{}} {\makestr{a/b}}} to {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}}.
-%The T-New typing rule checks and rewrites constructors.
-%%$$
-%%    {\TNew}
-%%$$
-%To check
-%{\newexp {\File{}} {\makestr{a/b}}}
-%we first resolve the constructor overload in the class table---there is at most one
-%to simplify presentation.
-%With \classhint{1} = \String,
-%we convert to a nilable type the argument with \t{1} = \Union{\Nil}{\String}
-%and type check {\makestr{a/b}} against \t{1}.
-%Typed Clojure defaults to allowing non-nilable arguments, but this
-%can be overridden, so we model the more general case.
-%% which erases nil
-%The return Java type \File is converted to a non-nil
-%Typed Clojure type \t{} = \File for the return type,
-%and the propositions say constructors can never be false---constructors
-%can never produce the internal boolean value that Clojure uses for \false{}, or \nil{}.
-%Finally, the constructor rewrites to {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}}.
-%
-%\paragraph{Methods} Next we convert {\methodexp {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}
-%to the non-reflective expression
-%{\methodstaticexp {\File} {} {\String} {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}.
-%%The T-Method rule checks unresolved methods.
-%%$$
-%%    {\TMethod}
-%%$$
-%The T-Method rule for unresolved methods
-%checks {\methodexp {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}.
-%We verify the target type \s{} = \File is non-nil by T-New.
-%The overload is chosen from the class table based on \classhint{1} = \File---there is at most one.
-%The nilable return type \t{} = \Union{\Nil}{\String} is given, and the 
-%entire expression rewrites to expression \ref{eq:resolved}.
-%%
-%%We allow arguments to constructors and methods to be nilable, but not method
-%%and field targets.
-%
-%The T-Field rule (\figref{main:figure:javatyping}) is like T-Method, but without arguments.
-%
-%The evaluation rules B-Field, B-New and B-Method (\figref{main:figure:javatyping}) simply evaluate their
-%arguments and call the relevant JVM operation, which we do not model---\secref{sec:metatheory}
-%states our exact assumptions.
-%There are no evaluation rules for reflective Java interoperability, since there are no typing
-%rules that rewrite to reflective calls.
-%
-%
-%%\subsection{Paths}
-%%\label{sec:formalpaths}
-%%
-%%Recall the first insight of occurrence typing---we can reason
-%%about specific \emph{parts} of the runtime environment
-%%using propositions.
-%%We refer to parts of the runtime environment via 
-%%a \emph{path} that consists of a series of
-%%\emph{path elements} applied right-to-left to a variable
-%%written \path{\pathelem{}}{\x{}}.
-%%\cite{TF10} introduce the path elements \carpe{} and \cdrpe{}
-%%to reason about selector operations on cons cells.
-%%We instead want to reason about HMap lookups and calls to \classconst{}.
-%%
-%%\paragraph{Key path element} We introduce our first path element
-%%{\keype{\k{}}}, which represents the operation of looking up
-%%a key \k{}.
-%%We directly relate this to our typing rule T-GetHMap
-%%(\figref{main:figure:hmapsyntax}) by
-%%checking the then branch of the first conditional test is checked in 
-%%an equivalent version of \egref{example:decleaf}.
-%%\begin{minted}{clojure}
-%%  (fn [m :- Expr]
-%%    (if (= (get m :op) :if)
-%%      {:op :if, ...}
-%%      (if ...)))
-%%\end{minted}
-%%
-%%We do not specifically support \equivliteral{} in our calculus, 
-%%but on keyword arguments it works identically to \clj{isa?} which we model
-%%in \secref{sec:isaformal}.
-%%Intuitively, if {\judgement{\propenv{}}{\e{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}}
-%%then \equivapp{\e{}}{\makekw{if}} has the true and false propositions
-%%$$
-%%{\replacefor{\filterset{\isprop{\Value{\makekw{if}}}{\x{}}}{\notprop{\Value{\makekw{if}}}{\x{}}}}{\object{}}{\x{}}}
-%%$$
-%%where substitution reduces to \topprop{} if \object{} = \emptyobject{}.
-%%
-%%We start with proposition environment \propenv{} = {\isprop{\Expr{}}{m}}.
-%%Since {\Expr{}} is a union of HMaps, each with the entry \makekw{op}, we can use T-GetHMap.
-%%$$
-%%\judgement{\propenv{}}{\getexp{m}{\makekw{op}}}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\path{\keype{\makekw{op}}}{m}}
-%%$$
-%%Using our intuitive definition of \equivliteral{} above, we know
-%%$$
-%%\judgement{\propenv{}}{\equivapp{\getexp{m}{\makekw{op}}}{\makekw{if}}}{\Boolean}{\filterset{\isprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}{\notprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}}{\emptyobject{}}
-%%$$
-%%Going down the then branch gives us the extended environment
-%%\propenvp{} = {\isprop{\Expr{}}{m}},{\isprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}.
-%%Using L-Update we can combine what we know about object $m$ and object
-%%{\path{\keype{\makekw{op}}}{m}}
-%%to derive
-%%$$
-%%\inpropenv{\propenvp{}}{\isprop{\HMapp{\mandatoryset{{\mandatoryentrykwnoarrow{op}{\makekw{if}}}, {\mandatoryentrykwnoarrow{test}{\Expr{}}},
-%%                                       {\mandatoryentrykwnoarrow{then}{\Expr{}}},   {\mandatoryentrykwnoarrow{else}{\Expr{}}}}}
-%%                                   {\emptyabsent{}}}{m}}
-%%$$
-%%
-%%The full definition of \updateliteral{} is given in \figref{main:figure:update}
-%%which considers both keys a path elements as well as the \classconst{}
-%%path element described below.
-%%In the absence of paths, update simply performs set-theoretic operations
-%%on types; see \figref{main:figure:restrictremove} for details.
-%%
-%%\paragraph{Class path element} Our second path element \classpe{} is used in the latent
-%%object of the constant \classconst{} function. Like Clojure's \clj{class}
-%%function \classconst{} returns the argument's class or \nil{}
-%%if passed \nil{}.
-%%$$
-%%\begin{array}{lrlr}
-%%  \pesyntax{}   &::=& \ldots \alt {\classpe{}}
-%%                &\mbox{Path Elements}
-%%\end{array}
-%%$$
-%%\begin{mathpar}
-%%\constanttypefigure{}
-%%\end{mathpar}
-%%The dynamic semantics are given in \figref{main:figure:primitivesem}.
-%%The definition of \updateliteral{} supports various idioms relating to \classpe{}
-%%which we introduce in \secref{sec:isaformal}.
-%
-%\subsection{Multimethod preliminaries: \isaliteral}
-%
-%\label{sec:isaformal}
-%
-%We now consider the \isaliteral{} operation, a core part of the multimethod dispatch mechanism. 
-%Recalling the examples in \secref{sec:multioverview},
-%\isaliteral{} is
-%a subclassing test for classes, but otherwise is an equality test.
-%%---we do not model the semantics for vectors
-%%
-%The T-IsA rule uses \isacompareliteral{}
-%(\figref{main:figure:mmsyntax}), a metafunction which produces the propositions for
-%\isaliteral{} expressions.
-%%\begin{mathpar}
-%%  \TIsA{}
-%%\end{mathpar}
-%
-%To demonstrate the first \isacompareliteral{} case,
-%the expression
-%\isaapp{\appexp{\classconst{}}{\x{}}}{\Keyword}
-%is true if \x{} is a keyword, otherwise false.
-%When checked with T-IsA,
-%the object of the left subexpression \object{} = {\path{\classpe{}}{\x{}}}
-%(which starts with the {\classpe{}} path element)
-%and the type of the right subexpression \t{} = {\Value{\Keyword}} (a singleton class type)
-%together trigger the first \isacompareliteral{} case
-%\isacompare{\s{}}{\path{\classpe{}}{\x{}}}{\Value{\Keyword}}{\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}},
-%giving propositions that correspond to our informal description {\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}} = {\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}}.
-%
-%The second \isacompareliteral{} case captures the simple equality mode for non-class singleton types.
-%For example,
-%the expression
-%\isaapp{\x{}}{\makekw{en}} produces true 
-%when \x{} evaluates to {\makekw{en}}, otherwise it produces false.
-%Using T-IsA,
-%it has the propositions {\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}} = 
-%\isacompare{}{\x{}}{\Value{\makekw{en}}}{\filterset {\isprop {\Value{\makekw{en}}}{\x{}}}{\notprop{\Value{\makekw{en}}}{\x{}}}}
-%since \object{} = {\x{}} and \t{} = {\Value{\makekw{en}}}.
-%%
-%The side condition on the second \isacompareliteral{} case ensures we are in equality mode---if \x{} can possibly be a class in 
-%\isaapp{\x{}}{\Object{}}, \isacompareliteral{} uses its conservative default case,
-%since if \x{} is a class literal, subclassing mode could be triggered.
-%%
-%Capture-avoiding substitution of objects {\replacefor {} {\object{}} {\x{}}} used in this case erases propositions
-%that would otherwise have \emptyobject{} substituted in for their objects---it
-%is defined in the appendix.
-%
-%The operational behavior of \isaliteral{} is given by B-IsA (\figref{main:figure:mmsyntax}). \isaopsemliteral{} explicitly handles classes in the second case.
-%
-%%The definition of \isacompareliteral{} (figure~\ref{main:figure:mmsyntax}) is deliberately conservative.
-%%The first line considers the case where the object of the left argument
-%%is a non-empty path ending in \classpe{} and the type of the right argument is a singleton class.
-%
-%%\constantsemfigure{main}
-%
-%\subsection{Multimethods}
-%
-%\begin{figure}
-%  %\footnotesize
 %$$
-%\begin{altgrammar}
-%  \e{} &::=& \ldots \alt {\createmultiexp {\t{}} {\e{}}} \alt
-%             {\extendmultiexp {\e{}} {\e{}} {\e{}}}
-%             \alt {\isaapp {\e{}} {\e{}}} &\mbox{Expressions} \\
-%  \v{} &::=& \ldots \alt {\multi {\v{}} {\disptable{}}}
-%                &\mbox{Values} \\
-% \disptablesyntax{} \\
-%  \s{}, \t{} &::=& \ldots \alt {\MultiFntype{\t{}}{\t{}}}
-%                &\mbox{Types}
-%\end{altgrammar}
+The T-Method rule for unresolved methods
+checks {\methodexp {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}.
+We verify the target type \s{} = \File is non-nil by T-New.
+The overload is chosen from the class table based on \classhint{1} = \File---there is at most one.
+The nilable return type \t{} = \Union{\Nil}{\String} is given, and the 
+entire expression rewrites to expression \ref{eq:resolved}.
+%
+%We allow arguments to constructors and methods to be nilable, but not method
+%and field targets.
+
+The T-Field rule (\figref{main:figure:javatyping}) is like T-Method, but without arguments.
+
+The evaluation rules B-Field, B-New and B-Method (\figref{main:figure:javatyping}) simply evaluate their
+arguments and call the relevant JVM operation, which we do not model---\secref{sec:metatheory}
+states our exact assumptions.
+There are no evaluation rules for reflective Java interoperability, since there are no typing
+rules that rewrite to reflective calls.
+
+
+%\subsection{Paths}
+%\label{sec:formalpaths}
+%
+%Recall the first insight of occurrence typing---we can reason
+%about specific \emph{parts} of the runtime environment
+%using propositions.
+%We refer to parts of the runtime environment via 
+%a \emph{path} that consists of a series of
+%\emph{path elements} applied right-to-left to a variable
+%written \path{\pathelem{}}{\x{}}.
+%\cite{TF10} introduce the path elements \carpe{} and \cdrpe{}
+%to reason about selector operations on cons cells.
+%We instead want to reason about HMap lookups and calls to \classconst{}.
+%
+%\paragraph{Key path element} We introduce our first path element
+%{\keype{\k{}}}, which represents the operation of looking up
+%a key \k{}.
+%We directly relate this to our typing rule T-GetHMap
+%(\figref{main:figure:hmapsyntax}) by
+%checking the then branch of the first conditional test is checked in 
+%an equivalent version of \egref{example:decleaf}.
+%\begin{minted}{clojure}
+%  (fn [m :- Expr]
+%    (if (= (get m :op) :if)
+%      {:op :if, ...}
+%      (if ...)))
+%\end{minted}
+%
+%We do not specifically support \equivliteral{} in our calculus, 
+%but on keyword arguments it works identically to \clj{isa?} which we model
+%in \secref{sec:isaformal}.
+%Intuitively, if {\judgement{\propenv{}}{\e{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}}
+%then \equivapp{\e{}}{\makekw{if}} has the true and false propositions
 %$$
-%  \begin{mathpar}
-%    \TDefMulti{}
-%
-%    \TDefMethod{}
-%
-%    \TIsA{}
-%  \end{mathpar}
-%  \begin{mathpar}
-%    \isapropsfigure{}
-%  \end{mathpar}
-%  \begin{mathpar}
-%    \Multisubtyping{}
-%
-%    \BDefMulti{}
-%  \end{mathpar}
-%  \begin{mathpar}
-%    \BDefMethod{}
-%    %\BBetaMulti{}
-%  \end{mathpar}
-%  \getmethodfigure{}
-%\begin{mathpar}
-%  {\BIsA{}}
-%  {\isaopsemfigure{}}
-%  \\
-%\BBetaMulti{}
-%\end{mathpar}
-%\caption{Multimethod Syntax, Typing and Operational Semantics}
-%\label{main:figure:mmsyntax}
-%\end{figure}
-%
-%
-%\figref{main:figure:mmsyntax} presents \emph{immutable} multimethods without default methods to ease presentation.
-%%Syntax and semantics are given in \figref{main:figure:mmsyntax}. 
-%%Multimethods can error if no matching method is chosen (rules in the supplemental material).
-%\figref{main:figure:mmexample} translates the mutable \egref{example:hi-multimethod} to \lambdatc{}.
-%%\begin{minted}{clojure}
-%%(ann hi [Kw -> Str])
-%%(defmulti hi identity)
-%%(defmethod hi :en [_] "hello")
-%%(defmethod hi :fr [_] "bonjour")
-%%(hi :en) ;=> "hello"
-%%\end{minted}
-%
-%\begin{figure}
-%$\letexp{hi_0} {\createmultiexp {\ArrowOne{\x{}}{\Keyword}{\String}{\filterset{\topprop{}}{\topprop{}}}{\emptyobject{}}} {\abs{\x{}}{\Keyword}{\x{}}}}
-%  {\\\text{\quad}
-%    \letexp{hi_1} {\extendmultiexp {hi_0} {\makekw{en}} {\abs {\x{}} {\Keyword} {\makestr{hello}}}}
-%      {\\\text{\quad\quad}
-%        \letexp{hi_2} {\extendmultiexp {hi_1} {\makekw{fr}} {\abs {\x{}} {\Keyword} {\makestr{bonjour}}}}
-%        {\\\text{\quad\quad\quad
-%          \appexp{hi_2}{\makekw{en}}}}}}
-%$
-%\caption{Multimethod example}
-%\label{main:figure:mmexample}
-%\end{figure}
-%%
-%%For convenience, examples in this section are flattened when they are really nested
-%%let bindings. We also elide trivial latent propositions and objects.
-%%The following is an abbreviation of the previous expression.
-%%\begin{lstlisting}
-%%${\createmultiexp {\ArrowTwo{\x{}}{\Keyword}{\String}} {\abs{\x{}}{\Keyword}{\x{}}}}$
-%%${\extendmultiexp {hi} {\makekw{en}} {\abs {\x{}} {\Keyword} {\makestr{hello}}}}$
-%%${\extendmultiexp {hi} {\makekw{fr}} {\abs {\x{}} {\Keyword} {\makestr{bonjour}}}}$
-%%$\appexp{hi}{\makekw{en}}$
-%%\end{lstlisting}
-%%
-%%\defmethodliteral{} returns a new extended multimethod
-%%without changing the original multimethod. 
-%%
-%%\begin{minted}{clojure}
-%%(let [hi (defmulti [Kw -> Str] identity)]
-%%  (let [hi (defmethod hi :en [_] "hello")]
-%%    (let [hi (defmethod hi :fr [_] "bonjour")]
-%%      (hi :en))) ;=> "hello"
-%%\end{minted}
-%%
-%%\paragraph{How to check}
-%To check 
-%{\createmultiexp {\ArrowTwo{\x{}}{\Keyword}{\String}} {\abs{\x{}}{\Keyword}{\x{}}}},
-%%
-%we note
-%{\createmultiexp {\s{}} {\e{}}} creates a multimethod with \emph{interface type} \s{}, and dispatch function \e{}
-%of type \sp{},
-%producing a value of type
-%{\MultiFntype {\s{}} {\sp{}}}. % with interface type {\s{}} and dispatch function type {\sp{}}.
-%The T-DefMulti typing rule checks the dispatch function, and
-%verifies both the interface and dispatch type's domain agree.
-%%$$
-%%    \TDefMulti{}
-%%$$
-%Our example checks with \t{} = \Keyword, interface type \s{} = {\ArrowTwo{\x{}}{\Keyword}{\String}},
-%dispatch function type \sp{} = {\ArrowOne{\x{}}{\Keyword}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\x{}}}, and overall type
-%$
-%{\MultiFntype {\ArrowTwo{\x{}}{\Keyword}{\String}}
-%              {\ArrowOne{\x{}}{\Keyword}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\x{}}}}
-%$.
-%
-%Next, we show how to check
-%$
-%{\extendmultiexp {hi_0} {\makekw{en}} {\abs {\x{}} {\Keyword} {\makestr{hello}}}}
-%$.
-%%
-%The expression 
-%{\extendmultiexp {\e{m}} {\e{v}} {\e{f}}} creates a new multimethod
-%that extends multimethod \e{m}'s dispatch table, mapping dispatch value
-%\e{v} to method \e{f}. The T-DefMulti typing rule
-%checks \e{m} is a multimethod with dispatch function type \t{d},
-%then calculates the extra information we know based on the current
-%dispatch value {\thenprop{\proppp{}}}, which is assumed when checking the method
-%body.
-%%$$
-%%    \TDefMethod{}
-%%$$
-%Our example checks with \e{m} being of type
-%$
-%{\MultiFntype {\ArrowTwo{\x{}}{\Keyword}{\String}}
-%              {\ArrowOne{\x{}}{\Keyword}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\x{}}}}
-%$
-%with \objectp{} = {\x{}} (from below the arrow on the right argument of the previous type) and \t{v} = \Value{\makekw{en}}. 
-%Then {\thenprop{\proppp{}}} = 
-%{\isprop {\Value{\makekw{en}}}{\x{}}}
-%from
-%$
-%\isacompare{}{\x{}}{\Value{\makekw{en}}}
-%{\filterset {\isprop {\Value{\makekw{en}}}{\x{}}}{\notprop{\Value{\makekw{en}}}{\x{}}}}
-%$
-%(see \secref{sec:isaformal}).
-%Since \t{} = \Keyword{}, we check the method body with
-%$
-%\judgement{{\isprop{\Keyword}{\x{}}},{\isprop {\Value{\makekw{en}}}{\x{}}}}
-%  {\makestr{hello}}
-%  {\String}{\filterset{\topprop{}}{\topprop{}}}{\emptyobject{}}
-%$.
-%Finally from the interface type \t{m}, we know \thenprop{\prop{}} = \elseprop{\prop{}} = \topprop{},
-%and \object{} = \emptyobject{}, which also agrees with the method body, above.
-%Notice the overall type of a \defmethodliteral{} is the same as its first subexpression \e{m}.
-%
-%It is worth noting the lack of special typing rules for overlapping methods---each
-%method is checked independently based on local type information.
-%
-%%The expression {\createmultiexp {\s{}} {\e{}}} 
-%%defines a multimethod
-%%with interface type \s{} and dispatch function \e{}.
-%%The expression {\extendmultiexp {\e{m}} {\e{v}}{\e{f}}}
-%%extends multimethod \e{m} and to map
-%%dispatch value {\e{v}} to {\e{f}} in an extended dispatch table.
-%%The value {\multi {\v{}} {\disptable{}}} is the runtime value of a multimethod
-%%with dispatch function {\v{}} and dispatch table {\disptable{}}.
-%%
-%%The T-DefMulti rule ensures that the type of the dispatch function
-%%has at least as permissive a parameter type
-%%as the interface type.
-%%
-%%For example, we can check the definition from our translation above of \egref{example:rep}
-%%using T-DefMulti.
-%%$$
-%%\judgement{}%{\propenv{}}
-%%{\createmultiexp 
-%%      {\s{}}
-%%      {\classconst{}}}
-%%  {\MultiFntype {\s{}}{\sp{}}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
-%%$$
-%%where \s{}  = {\ArrowOne {\x{}} {\Top{}} {\t{}} {\filterset {\topprop{}} {\topprop{}}} {\emptyobject{}}}
-%%  and \sp{} = {\ArrowOne {\x{}} {\Top{}} {\Union{\Nil}{\Class}} {\filterset {\topprop{}} {\topprop{}}} {\path{\classpe{}}{\x{}}}}.
-%%  Since the parameter types agree, this is well-typed.
-%%
-%%The T-DefMethod rule requires a syntactic lambda expression as the method.
-%%This way we can manually check the body of the lambda under an extended
-%%environment as sketched in \egref{example:incmap}.
-%%We use \isacompareliteral{} to compute the proposition for this method,
-%%since \isaliteral{} is used at runtime in multimethod dispatch.
-%%
-%%We continue with the next line of the translation of \egref{example:rep}.
-%%From the previous line we have \propenv{} = {\isprop{\MultiFntype {\s{}}{\sp{}}}{path}},
-%%so
-%%$$
-%%\judgement{\propenv{}}
-%%  {\extendmultiexp {prop} {\String}
-%%                   {\abs {\x{}} {\Top{}} {\x{}}}}
-%%  {\MultiFntype {\s{}}{\sp{}}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
-%%$$
-%%We know \emph{prop} is a multimethod by \propenv{}, so now we check the body
-%%of this method.
-%%$$
-%%\judgement{\propenv{},{\isprop{\Top}{\x{}}},{\isprop{\String}{\x{}}}}
-%%  {\x{}}
-%%  {\String}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
-%%$$
-%%%This is checked by T-Local since {\inpropenv{\propenv{},{\isprop{\Top}{\x{}}},{\isprop{\String}{\x{}}}}{\isprop{\String}{\x{}}}}.
-%%The new proposition {\isprop{\String}{\x{}}} is derived by 
-%%$$
-%%  \isacompare{\Top{}}{\path{\classpe{}}{\x{}}}{\Value{\File{}}}
-%%             {\filterset{\isprop{\String}{\x{}}}
-%%                        {\notprop{\String}{\x{}}}}.
-%%$$
-%%%
-%%The body of the \clj{let} is checked by T-App because
-%%{\MultiFntype {\s{}}{\sp{}}} is a subtype of its interface type {\s{}}.
-%
-%\paragraph{Subtyping}
-%Multimethods are functions, via S-PMultiFn,
-%%$$
-%%\SPMultiFn{}
-%%$$
-%which says a multimethod can be upcast to its interface type. 
-%Multimethod call sites are then handled by T-App via T-Subsume. Other rules are given
-%in \figref{main:figure:mmsyntax}. 
-%
-%\paragraph{Semantics}
-%Multimethod definition semantics are also given 
-%in \figref{main:figure:mmsyntax}. 
-%B-DefMulti creates a multimethod with the given dispatch function and an empty dispatch table.
-%B-DefMethod produces a new multimethod with an extended dispatch table.
-%
-%The overall dispatch mechanism is summarised by B-BetaMulti.
-%First the dispatch function \v{d} is applied to the argument \vp{} to obtain
-%the dispatch value \v{e}.
-%Based on \v{e},
-%the \getmethodliteral{} metafunction (\figref{main:figure:mmsyntax})
-%extracts a method \v{f} from the method table {\disptable{}}
-%and applies it to the original argument for the final result.
-%
-%\subsection{Precise Types for Heterogeneous maps}
-%\label{sec:hmapformal}
-%
-%\begin{figure}
-%  %\footnotesize
-%  $$
-%  \begin{altgrammar}
-%    \e{} &::=& \ldots \alt \hmapexpressionsyntax{}
-%    &\mbox{Expressions} \\
-%    \v{} &::=& \ldots \alt {\emptymap{}}
-%    &\mbox{Values} \\
-%    \t{} &::=& \ldots \alt {\HMapgeneric {\mandatory{}} {\absent{}}}
-%    &\mbox{Types} \\
-%    \auxhmapsyntax{}\\
-%%    \pesyntax{}   &::=& \ldots \alt {\keype{\k{}}}
-%%                  &\mbox{Path Elements}
-%  \end{altgrammar}
-%  $$
-%  \begin{mathpar}
-%    {\TAssoc}
-%
-%    {\TGetHMap}
-%
-%    {\TGetAbsent}
-%
-%    {\TGetHMapPartialDefault}
-%    \ \ \ 
-%  {\SHMapMono}
-%  \end{mathpar}
-%  \begin{mathpar}
-%  {\SHMapP}\ \ 
-%  {\SHMap}
-%
-%  \end{mathpar}
-%  \begin{mathpar}
-%    {\BAssoc}\ \ 
-%    {\BGet}\ \ 
-%    {\BGetMissing}
-%  \end{mathpar}
-%  \caption{HMap Syntax, Typing and Operational Semantics}
-%  \label{main:figure:hmapsyntax}
-%\end{figure}
-%
-%
-%\begin{figure}
-%  %\footnotesize
+%{\replacefor{\filterset{\isprop{\Value{\makekw{if}}}{\x{}}}{\notprop{\Value{\makekw{if}}}{\x{}}}}{\object{}}{\x{}}}
 %$$
-%\begin{array}{lr}
-%  \begin{array}{llll}
-%    \restrictfigure{}
-%  \end{array}
-%  \ \ 
-%  \begin{array}{llll}
-%    \removefigure{}
-%  \end{array}
+%where substitution reduces to \topprop{} if \object{} = \emptyobject{}.
+%
+%We start with proposition environment \propenv{} = {\isprop{\Expr{}}{m}}.
+%Since {\Expr{}} is a union of HMaps, each with the entry \makekw{op}, we can use T-GetHMap.
+%$$
+%\judgement{\propenv{}}{\getexp{m}{\makekw{op}}}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\path{\keype{\makekw{op}}}{m}}
+%$$
+%Using our intuitive definition of \equivliteral{} above, we know
+%$$
+%\judgement{\propenv{}}{\equivapp{\getexp{m}{\makekw{op}}}{\makekw{if}}}{\Boolean}{\filterset{\isprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}{\notprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}}{\emptyobject{}}
+%$$
+%Going down the then branch gives us the extended environment
+%\propenvp{} = {\isprop{\Expr{}}{m}},{\isprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}.
+%Using L-Update we can combine what we know about object $m$ and object
+%{\path{\keype{\makekw{op}}}{m}}
+%to derive
+%$$
+%\inpropenv{\propenvp{}}{\isprop{\HMapp{\mandatoryset{{\mandatoryentrykwnoarrow{op}{\makekw{if}}}, {\mandatoryentrykwnoarrow{test}{\Expr{}}},
+%                                       {\mandatoryentrykwnoarrow{then}{\Expr{}}},   {\mandatoryentrykwnoarrow{else}{\Expr{}}}}}
+%                                   {\emptyabsent{}}}{m}}
+%$$
+%
+%The full definition of \updateliteral{} is given in \figref{main:figure:update}
+%which considers both keys a path elements as well as the \classconst{}
+%path element described below.
+%In the absence of paths, update simply performs set-theoretic operations
+%on types; see \figref{main:figure:restrictremove} for details.
+%
+%\paragraph{Class path element} Our second path element \classpe{} is used in the latent
+%object of the constant \classconst{} function. Like Clojure's \clj{class}
+%function \classconst{} returns the argument's class or \nil{}
+%if passed \nil{}.
+%$$
+%\begin{array}{lrlr}
+%  \pesyntax{}   &::=& \ldots \alt {\classpe{}}
+%                &\mbox{Path Elements}
 %\end{array}
 %$$
-%\caption{Restrict and remove}
-%\label{main:figure:restrictremove}
-%\end{figure}
+%\begin{mathpar}
+%\constanttypefigure{}
+%\end{mathpar}
+%The dynamic semantics are given in \figref{main:figure:primitivesem}.
+%The definition of \updateliteral{} supports various idioms relating to \classpe{}
+%which we introduce in \secref{sec:isaformal}.
+
+\subsection{Multimethod preliminaries: \isaliteral}
+
+\label{sec:isaformal}
+
+We now consider the \isaliteral{} operation, a core part of the multimethod dispatch mechanism. 
+Recalling the examples in \secref{sec:multioverview},
+\isaliteral{} is
+a subclassing test for classes, but otherwise is an equality test.
+%---we do not model the semantics for vectors
 %
-%\figref{main:figure:hmapsyntax}
-%presents
-%heterogeneous map types.
-%The type \HMapgeneric{\mandatory{}}{\absent{}}
-%contains {\mandatory{}}, a map of \emph{present} entries (mapping keywords to types),
-%\absent{}, a set of keyword keys that are known to be \emph{absent}
-%and
-%tag \completenessmeta{} which is either {\complete{}} (``complete'') if the map is fully specified by \mandatory{},
-%and {\partial{}} (``partial'') if there are \emph{unknown} entries.
-%%
-%The partially specified map of
-%\clj{lunch} in \egref{example:lunchpartial}
-%is written
-%\HMapp{\mandatoryset{\mandatoryentrynoarrow{\Valkw{en}}{\String}, {\mandatoryentrynoarrow{\Valkw{fr}}{\String}}}}{\emptyabsent{}}
-%(abbreviated \Lunch).
-%%
-%The type of the fully specified map
-%\clj{breakfast} in \egref{example:breakfastcomplete} elides the absent entries,
-%written
-%\HMapc{\mandatoryset{\mandatoryentrynoarrow{\Valkw{en}}{\String}, {\mandatoryentrynoarrow{\Valkw{fr}}{\String}}}}
-%(abbreviated \Breakfast).
-%To ease presentation, 
-%if an HMap has completeness tag \complete{} then \absent{} is elided and implicitly contains all keywords not in the domain of 
-%\mandatory{}---dissociating keys is not modelled, so the set of absent entries otherwise
-%never grows.
-%Keys cannot be both present and absent.
-%%\HMapcwithabsent{\mandatory{}}{\absent{}} is abbreviated to \HMapc{\mandatory{}}. 
+The T-IsA rule uses \isacompareliteral{}
+(\figref{main:figure:mmsyntax}), a metafunction which produces the propositions for
+\isaliteral{} expressions.
+%\begin{mathpar}
+%  \TIsA{}
+%\end{mathpar}
+
+To demonstrate the first \isacompareliteral{} case,
+the expression
+\isaapp{\appexp{\classconst{}}{\x{}}}{\Keyword}
+is true if \x{} is a keyword, otherwise false.
+When checked with T-IsA,
+the object of the left subexpression \object{} = {\path{\classpe{}}{\x{}}}
+(which starts with the {\classpe{}} path element)
+and the type of the right subexpression \t{} = {\Value{\Keyword}} (a singleton class type)
+together trigger the first \isacompareliteral{} case
+\isacompare{\s{}}{\path{\classpe{}}{\x{}}}{\Value{\Keyword}}{\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}},
+giving propositions that correspond to our informal description {\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}} = {\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}}.
+
+The second \isacompareliteral{} case captures the simple equality mode for non-class singleton types.
+For example,
+the expression
+\isaapp{\x{}}{\makekw{en}} produces true 
+when \x{} evaluates to {\makekw{en}}, otherwise it produces false.
+Using T-IsA,
+it has the propositions {\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}} = 
+\isacompare{}{\x{}}{\Value{\makekw{en}}}{\filterset {\isprop {\Value{\makekw{en}}}{\x{}}}{\notprop{\Value{\makekw{en}}}{\x{}}}}
+since \object{} = {\x{}} and \t{} = {\Value{\makekw{en}}}.
 %
-%The metavariable \mapval{}
-%ranges over the runtime value of maps {\curlymapvaloverright{\k{}}{\v{}}},
-%usually written {\curlymapvaloverrightnoarrow{\k{}}{\v{}}}.
-%We %do not model keywords as functions,
-%only provide syntax for the empty map literal,
-%however when convenient we abbreviate non-empty map literals
-%to be a series of \assocliteral{} operations on the empty map.
-%We restrict lookup and extension to keyword keys. 
+The side condition on the second \isacompareliteral{} case ensures we are in equality mode---if \x{} can possibly be a class in 
+\isaapp{\x{}}{\Object{}}, \isacompareliteral{} uses its conservative default case,
+since if \x{} is a class literal, subclassing mode could be triggered.
+%
+Capture-avoiding substitution of objects {\replacefor {} {\object{}} {\x{}}} used in this case erases propositions
+that would otherwise have \emptyobject{} substituted in for their objects---it
+is defined in the appendix.
+
+The operational behavior of \isaliteral{} is given by B-IsA (\figref{main:figure:mmsyntax}). \isaopsemliteral{} explicitly handles classes in the second case.
+
+%The definition of \isacompareliteral{} (figure~\ref{main:figure:mmsyntax}) is deliberately conservative.
+%The first line considers the case where the object of the left argument
+%is a non-empty path ending in \classpe{} and the type of the right argument is a singleton class.
+
+%\constantsemfigure{main}
+
+\subsection{Multimethods}
+
+\begin{figure}
+  \footnotesize
+$$
+\begin{altgrammar}
+  \e{} &::=& \ldots \alt {\createmultiexp {\t{}} {\e{}}} \alt
+             {\extendmultiexp {\e{}} {\e{}} {\e{}}}
+             \alt {\isaapp {\e{}} {\e{}}} &\mbox{Expressions} \\
+  \v{} &::=& \ldots \alt {\multi {\v{}} {\disptable{}}}
+                &\mbox{Values} \\
+ \disptablesyntax{} \\
+  \s{}, \t{} &::=& \ldots \alt {\MultiFntype{\t{}}{\t{}}}
+                &\mbox{Types}
+\end{altgrammar}
+$$
+  \begin{mathpar}
+    \TDefMulti{}
+
+    \TDefMethod{}
+
+    \TIsA{}
+  \end{mathpar}
+  \begin{mathpar}
+    \isapropsfigure{}
+  \end{mathpar}
+  \begin{mathpar}
+    \Multisubtyping{}
+
+    \BDefMulti{}
+  \end{mathpar}
+  \begin{mathpar}
+    \BDefMethod{}
+    %\BBetaMulti{}
+  \end{mathpar}
+  \getmethodfigure{}
+\begin{mathpar}
+  {\BIsA{}}
+  {\isaopsemfigure{}}
+  \\
+\BBetaMulti{}
+\end{mathpar}
+\caption{Multimethod Syntax, Typing and Operational Semantics}
+\label{main:figure:mmsyntax}
+\end{figure}
+
+
+\figref{main:figure:mmsyntax} presents \emph{immutable} multimethods without default methods to ease presentation.
+%Syntax and semantics are given in \figref{main:figure:mmsyntax}. 
+%Multimethods can error if no matching method is chosen (rules in the supplemental material).
+\figref{main:figure:mmexample} translates the mutable \egref{example:hi-multimethod} to \lambdatc{}.
+%\begin{minted}{clojure}
+%(ann hi [Kw -> Str])
+%(defmulti hi identity)
+%(defmethod hi :en [_] "hello")
+%(defmethod hi :fr [_] "bonjour")
+%(hi :en) ;=> "hello"
+%\end{minted}
+
+\begin{figure}
+$\letexp{hi_0} {\createmultiexp {\ArrowOne{\x{}}{\Keyword}{\String}{\filterset{\topprop{}}{\topprop{}}}{\emptyobject{}}} {\abs{\x{}}{\Keyword}{\x{}}}}
+  {\\\text{\quad}
+    \letexp{hi_1} {\extendmultiexp {hi_0} {\makekw{en}} {\abs {\x{}} {\Keyword} {\makestr{hello}}}}
+      {\\\text{\quad\quad}
+        \letexp{hi_2} {\extendmultiexp {hi_1} {\makekw{fr}} {\abs {\x{}} {\Keyword} {\makestr{bonjour}}}}
+        {\\\text{\quad\quad\quad
+          \appexp{hi_2}{\makekw{en}}}}}}
+$
+\caption{Multimethod example}
+\label{main:figure:mmexample}
+\end{figure}
+%
+%For convenience, examples in this section are flattened when they are really nested
+%let bindings. We also elide trivial latent propositions and objects.
+%The following is an abbreviation of the previous expression.
+%\begin{lstlisting}
+%${\createmultiexp {\ArrowTwo{\x{}}{\Keyword}{\String}} {\abs{\x{}}{\Keyword}{\x{}}}}$
+%${\extendmultiexp {hi} {\makekw{en}} {\abs {\x{}} {\Keyword} {\makestr{hello}}}}$
+%${\extendmultiexp {hi} {\makekw{fr}} {\abs {\x{}} {\Keyword} {\makestr{bonjour}}}}$
+%$\appexp{hi}{\makekw{en}}$
+%\end{lstlisting}
+%
+%\defmethodliteral{} returns a new extended multimethod
+%without changing the original multimethod. 
+%
+%\begin{minted}{clojure}
+%(let [hi (defmulti [Kw -> Str] identity)]
+%  (let [hi (defmethod hi :en [_] "hello")]
+%    (let [hi (defmethod hi :fr [_] "bonjour")]
+%      (hi :en))) ;=> "hello"
+%\end{minted}
 %
 %\paragraph{How to check}
-%A mandatory lookup is checked by T-GetHMap.
-%$$
-%\abs{\makelocal{b}}{\Breakfast}{\getexp{\makelocal{b}}{\makekw{en}}}
-%$$
-%The result type is \String, and the return object is \path{\keype{\makekw{en}}}{\makelocal{b}}.
-%The object {\replacefor {\path {\keype{k}} {\x{}}} {\object{}} {\x{}}}
-%is a symbolic representation for a keyword lookup of $k$ in \object{}.
-%The substitution for {\x{}} handles the case where \object{} is empty.
-%\begin{mathpar}
-%\begin{array}{rcl}
-%{\replacefor {\path {\keype{k}} {\x{}}} {\y{}} {\x{}}} &=& {\path {\keype{k}} {\y{}}} \\
-%\end{array}
-%\ \ \ \ \ \ \ 
-%\begin{array}{rcl}
-%{\replacefor {\path {\keype{k}} {\x{}}} {\emptyobject{}} {\x{}}} &=& \emptyobject{}
-%\end{array}
-%\end{mathpar}
+To check 
+{\createmultiexp {\ArrowTwo{\x{}}{\Keyword}{\String}} {\abs{\x{}}{\Keyword}{\x{}}}},
 %
-%An absent lookup is checked by T-GetHMapAbsent.
+we note
+{\createmultiexp {\s{}} {\e{}}} creates a multimethod with \emph{interface type} \s{}, and dispatch function \e{}
+of type \sp{},
+producing a value of type
+{\MultiFntype {\s{}} {\sp{}}}. % with interface type {\s{}} and dispatch function type {\sp{}}.
+The T-DefMulti typing rule checks the dispatch function, and
+verifies both the interface and dispatch type's domain agree.
 %$$
-%\abs{\makelocal{b}}{\Breakfast}{\getexp{\makelocal{b}}{\makekw{bocce}}}
+%    \TDefMulti{}
 %$$
-%The result type is \Nil---since \Breakfast is fully specified---with return object \path{\keype{\makekw{bocce}}}{\makelocal{b}}.
+Our example checks with \t{} = \Keyword, interface type \s{} = {\ArrowTwo{\x{}}{\Keyword}{\String}},
+dispatch function type \sp{} = {\ArrowOne{\x{}}{\Keyword}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\x{}}}, and overall type
+$
+{\MultiFntype {\ArrowTwo{\x{}}{\Keyword}{\String}}
+              {\ArrowOne{\x{}}{\Keyword}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\x{}}}}
+$.
+
+Next, we show how to check
+$
+{\extendmultiexp {hi_0} {\makekw{en}} {\abs {\x{}} {\Keyword} {\makestr{hello}}}}
+$.
 %
-%A lookup that is not present or absent is checked by
-%T-GetHMapPartialDefault.
+The expression 
+{\extendmultiexp {\e{m}} {\e{v}} {\e{f}}} creates a new multimethod
+that extends multimethod \e{m}'s dispatch table, mapping dispatch value
+\e{v} to method \e{f}. The T-DefMulti typing rule
+checks \e{m} is a multimethod with dispatch function type \t{d},
+then calculates the extra information we know based on the current
+dispatch value {\thenprop{\proppp{}}}, which is assumed when checking the method
+body.
 %$$
-%\abs{\makelocal{u}}{\Lunch}{\getexp{\makelocal{u}}{\makekw{bocce}}}
+%    \TDefMethod{}
 %$$
-%The result type is \Top---since {\Lunch} has an unknown \makekw{bocce} entry---with return object \path{\keype{\makekw{bocce}}}{\makelocal{u}}.
-%Notice propositions are erased once they enter a HMap type.
+Our example checks with \e{m} being of type
+$
+{\MultiFntype {\ArrowTwo{\x{}}{\Keyword}{\String}}
+              {\ArrowOne{\x{}}{\Keyword}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\x{}}}}
+$
+with \objectp{} = {\x{}} (from below the arrow on the right argument of the previous type) and \t{v} = \Value{\makekw{en}}. 
+Then {\thenprop{\proppp{}}} = 
+{\isprop {\Value{\makekw{en}}}{\x{}}}
+from
+$
+\isacompare{}{\x{}}{\Value{\makekw{en}}}
+{\filterset {\isprop {\Value{\makekw{en}}}{\x{}}}{\notprop{\Value{\makekw{en}}}{\x{}}}}
+$
+(see \secref{sec:isaformal}).
+Since \t{} = \Keyword{}, we check the method body with
+$
+\judgement{{\isprop{\Keyword}{\x{}}},{\isprop {\Value{\makekw{en}}}{\x{}}}}
+  {\makestr{hello}}
+  {\String}{\filterset{\topprop{}}{\topprop{}}}{\emptyobject{}}
+$.
+Finally from the interface type \t{m}, we know \thenprop{\prop{}} = \elseprop{\prop{}} = \topprop{},
+and \object{} = \emptyobject{}, which also agrees with the method body, above.
+Notice the overall type of a \defmethodliteral{} is the same as its first subexpression \e{m}.
+
+It is worth noting the lack of special typing rules for overlapping methods---each
+method is checked independently based on local type information.
+
+%The expression {\createmultiexp {\s{}} {\e{}}} 
+%defines a multimethod
+%with interface type \s{} and dispatch function \e{}.
+%The expression {\extendmultiexp {\e{m}} {\e{v}}{\e{f}}}
+%extends multimethod \e{m} and to map
+%dispatch value {\e{v}} to {\e{f}} in an extended dispatch table.
+%The value {\multi {\v{}} {\disptable{}}} is the runtime value of a multimethod
+%with dispatch function {\v{}} and dispatch table {\disptable{}}.
 %
-%For presentational reasons, lookups on unions of HMaps are only supported in T-GetHMap
-%and each element of the union must contain the relevant key.
+%The T-DefMulti rule ensures that the type of the dispatch function
+%has at least as permissive a parameter type
+%as the interface type.
+%
+%For example, we can check the definition from our translation above of \egref{example:rep}
+%using T-DefMulti.
 %$$
-%\abs{\makelocal{u}}{\Unionsplice{\Breakfast \Lunch}}{\getexp{\makelocal{u}}{\makekw{en}}}
+%\judgement{}%{\propenv{}}
+%{\createmultiexp 
+%      {\s{}}
+%      {\classconst{}}}
+%  {\MultiFntype {\s{}}{\sp{}}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
 %$$
-%The result type is \String, and the return object is \path{\keype{\makekw{en}}}{\makelocal{u}}.
-%However, lookups of \makekw{bocce} on {\Unionsplice{\Breakfast \Lunch}} maps are unsupported.
-%This restriction still allows us to check many of the examples in \secref{sec:overview}---in
-%particular we can check 
-%\egref{example:desserts-on-meal}, as \makekw{Meal} is in common with both HMaps,
-%but cannot check \egref{example:desserts-on-class}
-%because a \makekw{combo} meal lacks a \makekw{desserts} entry.
-%Adding a rule to handle \egref{example:desserts-on-class} is otherwise straightforward.
+%where \s{}  = {\ArrowOne {\x{}} {\Top{}} {\t{}} {\filterset {\topprop{}} {\topprop{}}} {\emptyobject{}}}
+%  and \sp{} = {\ArrowOne {\x{}} {\Top{}} {\Union{\Nil}{\Class}} {\filterset {\topprop{}} {\topprop{}}} {\path{\classpe{}}{\x{}}}}.
+%  Since the parameter types agree, this is well-typed.
 %
-%Extending a map with T-AssocHMap preserves its completeness.
+%The T-DefMethod rule requires a syntactic lambda expression as the method.
+%This way we can manually check the body of the lambda under an extended
+%environment as sketched in \egref{example:incmap}.
+%We use \isacompareliteral{} to compute the proposition for this method,
+%since \isaliteral{} is used at runtime in multimethod dispatch.
+%
+%We continue with the next line of the translation of \egref{example:rep}.
+%From the previous line we have \propenv{} = {\isprop{\MultiFntype {\s{}}{\sp{}}}{path}},
+%so
 %$$
-%\abs{\makelocal{b}}{\Breakfast}{\assocexp{\makelocal{b}}{\makekw{au}}{\makestr{beans}}}
+%\judgement{\propenv{}}
+%  {\extendmultiexp {prop} {\String}
+%                   {\abs {\x{}} {\Top{}} {\x{}}}}
+%  {\MultiFntype {\s{}}{\sp{}}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
 %$$
-%The result type is
-%$
-%\HMapc{\mandatoryset{\mandatoryentrynoarrow{\Valkw{en}}{\String}, {\mandatoryentrynoarrow{\Valkw{fr}}{\String}}
-%        ,{\mandatoryentrynoarrow{\Valkw{au}}{\String}}}}
-%$,
-%a complete map.
-%T-AssocHMap also enforces ${\k{}} \not\in {\absent{}}$ to prevent badly formed types.
+%We know \emph{prop} is a multimethod by \propenv{}, so now we check the body
+%of this method.
+%$$
+%\judgement{\propenv{},{\isprop{\Top}{\x{}}},{\isprop{\String}{\x{}}}}
+%  {\x{}}
+%  {\String}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
+%$$
+%%This is checked by T-Local since {\inpropenv{\propenv{},{\isprop{\Top}{\x{}}},{\isprop{\String}{\x{}}}}{\isprop{\String}{\x{}}}}.
+%The new proposition {\isprop{\String}{\x{}}} is derived by 
+%$$
+%  \isacompare{\Top{}}{\path{\classpe{}}{\x{}}}{\Value{\File{}}}
+%             {\filterset{\isprop{\String}{\x{}}}
+%                        {\notprop{\String}{\x{}}}}.
+%$$
+%%
+%The body of the \clj{let} is checked by T-App because
+%{\MultiFntype {\s{}}{\sp{}}} is a subtype of its interface type {\s{}}.
+
+\paragraph{Subtyping}
+Multimethods are functions, via S-PMultiFn,
+%$$
+%\SPMultiFn{}
+%$$
+which says a multimethod can be upcast to its interface type. 
+Multimethod call sites are then handled by T-App via T-Subsume. Other rules are given
+in \figref{main:figure:mmsyntax}. 
+
+\paragraph{Semantics}
+Multimethod definition semantics are also given 
+in \figref{main:figure:mmsyntax}. 
+B-DefMulti creates a multimethod with the given dispatch function and an empty dispatch table.
+B-DefMethod produces a new multimethod with an extended dispatch table.
+
+The overall dispatch mechanism is summarised by B-BetaMulti.
+First the dispatch function \v{d} is applied to the argument \vp{} to obtain
+the dispatch value \v{e}.
+Based on \v{e},
+the \getmethodliteral{} metafunction (\figref{main:figure:mmsyntax})
+extracts a method \v{f} from the method table {\disptable{}}
+and applies it to the original argument for the final result.
+
+\subsection{Precise Types for Heterogeneous maps}
+\label{sec:hmapformal}
+
+\begin{figure}
+  \footnotesize
+  $$
+  \begin{altgrammar}
+    \e{} &::=& \ldots \alt \hmapexpressionsyntax{}
+    &\mbox{Expressions} \\
+    \v{} &::=& \ldots \alt {\emptymap{}}
+    &\mbox{Values} \\
+    \t{} &::=& \ldots \alt {\HMapgeneric {\mandatory{}} {\absent{}}}
+    &\mbox{Types} \\
+    \auxhmapsyntax{}\\
+%    \pesyntax{}   &::=& \ldots \alt {\keype{\k{}}}
+%                  &\mbox{Path Elements}
+  \end{altgrammar}
+  $$
+  \begin{mathpar}
+    {\TAssoc}
+
+    {\TGetHMap}
+
+    {\TGetAbsent}
+
+    {\TGetHMapPartialDefault}
+    \ \ \ 
+  {\SHMapMono}
+  \end{mathpar}
+  \begin{mathpar}
+  {\SHMapP}\ \ 
+  {\SHMap}
+
+  \end{mathpar}
+  \begin{mathpar}
+    {\BAssoc}\ \ 
+    {\BGet}\ \ 
+    {\BGetMissing}
+  \end{mathpar}
+  \caption{HMap Syntax, Typing and Operational Semantics}
+  \label{main:figure:hmapsyntax}
+\end{figure}
+
+
+\begin{figure}
+  \footnotesize
+$$
+\begin{array}{lr}
+  \begin{array}{llll}
+    \restrictfigure{}
+  \end{array}
+  \ \ 
+  \begin{array}{llll}
+    \removefigure{}
+  \end{array}
+\end{array}
+$$
+\caption{Restrict and remove}
+\label{main:figure:restrictremove}
+\end{figure}
+
+\figref{main:figure:hmapsyntax}
+presents
+heterogeneous map types.
+The type \HMapgeneric{\mandatory{}}{\absent{}}
+contains {\mandatory{}}, a map of \emph{present} entries (mapping keywords to types),
+\absent{}, a set of keyword keys that are known to be \emph{absent}
+and
+tag \completenessmeta{} which is either {\complete{}} (``complete'') if the map is fully specified by \mandatory{},
+and {\partial{}} (``partial'') if there are \emph{unknown} entries.
 %
-%%for cases like \egref{example:desserts-on-meal}
-%%where every element in the union
-%%contains the key we are looking up.
+The partially specified map of
+\clj{lunch} in \egref{example:lunchpartial}
+is written
+\HMapp{\mandatoryset{\mandatoryentrynoarrow{\Valkw{en}}{\String}, {\mandatoryentrynoarrow{\Valkw{fr}}{\String}}}}{\emptyabsent{}}
+(abbreviated \Lunch).
 %
-%\paragraph{Subtyping}
-%Subtyping for HMaps
-%designate \MapLiteral{} as a common supertype for all HMaps.
-%S-HMap says that HMaps are subtypes if they agree
-%on \completenessmeta{}, agree on mandatory entries with subtyping
-%and at least cover the absent keys of the supertype.
-%Complete maps are subtypes of partial maps
-%as long as they agree on the mandatory entries of the partial map via subtyping (S-HMapP).
-%
-%%The typing rules for \getliteral{} consider three possible cases. T-GetHMap models a lookup
-%%that will certainly succeed, T-GetHMapAbsent a lookup that will certainly fail
-%%and T-GetHMapPartialDefault a lookup with unknown results.
-%
-%%The objects in the T-Get rules are more complicated than those in T-Local---the 
-%%next section discusses this in detail.
-%%Finally T-AssocHMap extends an HMap with a mandatory entry while preserving completeness
-%%and absent entries, and enforcing ${\k{}} \not\in {\absent{}}$ to prevent badly
-%%formed types.
-%
-%The semantics for \getliteral{} and \assocliteral{} are straightforward.
-%%If the entry is missing, B-GetMissing produces \nil{}.
-%
-%\begin{figure}[t]
+The type of the fully specified map
+\clj{breakfast} in \egref{example:breakfastcomplete} elides the absent entries,
+written
+\HMapc{\mandatoryset{\mandatoryentrynoarrow{\Valkw{en}}{\String}, {\mandatoryentrynoarrow{\Valkw{fr}}{\String}}}}
+(abbreviated \Breakfast).
+To ease presentation, 
+if an HMap has completeness tag \complete{} then \absent{} is elided and implicitly contains all keywords not in the domain of 
+\mandatory{}---dissociating keys is not modelled, so the set of absent entries otherwise
+never grows.
+Keys cannot be both present and absent.
+%\HMapcwithabsent{\mandatory{}}{\absent{}} is abbreviated to \HMapc{\mandatory{}}. 
+
+The metavariable \mapval{}
+ranges over the runtime value of maps {\curlymapvaloverright{\k{}}{\v{}}},
+usually written {\curlymapvaloverrightnoarrow{\k{}}{\v{}}}.
+We %do not model keywords as functions,
+only provide syntax for the empty map literal,
+however when convenient we abbreviate non-empty map literals
+to be a series of \assocliteral{} operations on the empty map.
+We restrict lookup and extension to keyword keys. 
+
+\paragraph{How to check}
+A mandatory lookup is checked by T-GetHMap.
+$$
+\abs{\makelocal{b}}{\Breakfast}{\getexp{\makelocal{b}}{\makekw{en}}}
+$$
+The result type is \String, and the return object is \path{\keype{\makekw{en}}}{\makelocal{b}}.
+The object {\replacefor {\path {\keype{k}} {\x{}}} {\object{}} {\x{}}}
+is a symbolic representation for a keyword lookup of $k$ in \object{}.
+The substitution for {\x{}} handles the case where \object{} is empty.
+\begin{mathpar}
+\begin{array}{rcl}
+{\replacefor {\path {\keype{k}} {\x{}}} {\y{}} {\x{}}} &=& {\path {\keype{k}} {\y{}}} \\
+\end{array}
+\ \ \ \ \ \ \ 
+\begin{array}{rcl}
+{\replacefor {\path {\keype{k}} {\x{}}} {\emptyobject{}} {\x{}}} &=& \emptyobject{}
+\end{array}
+\end{mathpar}
+
+An absent lookup is checked by T-GetHMapAbsent.
+$$
+\abs{\makelocal{b}}{\Breakfast}{\getexp{\makelocal{b}}{\makekw{bocce}}}
+$$
+The result type is \Nil---since \Breakfast is fully specified---with return object \path{\keype{\makekw{bocce}}}{\makelocal{b}}.
+
+A lookup that is not present or absent is checked by
+T-GetHMapPartialDefault.
+$$
+\abs{\makelocal{u}}{\Lunch}{\getexp{\makelocal{u}}{\makekw{bocce}}}
+$$
+The result type is \Top---since {\Lunch} has an unknown \makekw{bocce} entry---with return object \path{\keype{\makekw{bocce}}}{\makelocal{u}}.
+Notice propositions are erased once they enter a HMap type.
+
+For presentational reasons, lookups on unions of HMaps are only supported in T-GetHMap
+and each element of the union must contain the relevant key.
+$$
+\abs{\makelocal{u}}{\Unionsplice{\Breakfast \Lunch}}{\getexp{\makelocal{u}}{\makekw{en}}}
+$$
+The result type is \String, and the return object is \path{\keype{\makekw{en}}}{\makelocal{u}}.
+However, lookups of \makekw{bocce} on {\Unionsplice{\Breakfast \Lunch}} maps are unsupported.
+This restriction still allows us to check many of the examples in \secref{sec:overview}---in
+particular we can check 
+\egref{example:desserts-on-meal}, as \makekw{Meal} is in common with both HMaps,
+but cannot check \egref{example:desserts-on-class}
+because a \makekw{combo} meal lacks a \makekw{desserts} entry.
+Adding a rule to handle \egref{example:desserts-on-class} is otherwise straightforward.
+
+Extending a map with T-AssocHMap preserves its completeness.
+$$
+\abs{\makelocal{b}}{\Breakfast}{\assocexp{\makelocal{b}}{\makekw{au}}{\makestr{beans}}}
+$$
+The result type is
+$
+\HMapc{\mandatoryset{\mandatoryentrynoarrow{\Valkw{en}}{\String}, {\mandatoryentrynoarrow{\Valkw{fr}}{\String}}
+        ,{\mandatoryentrynoarrow{\Valkw{au}}{\String}}}}
+$,
+a complete map.
+T-AssocHMap also enforces ${\k{}} \not\in {\absent{}}$ to prevent badly formed types.
+
+%for cases like \egref{example:desserts-on-meal}
+%where every element in the union
+%contains the key we are looking up.
+
+\paragraph{Subtyping}
+Subtyping for HMaps
+designate \MapLiteral{} as a common supertype for all HMaps.
+S-HMap says that HMaps are subtypes if they agree
+on \completenessmeta{}, agree on mandatory entries with subtyping
+and at least cover the absent keys of the supertype.
+Complete maps are subtypes of partial maps
+as long as they agree on the mandatory entries of the partial map via subtyping (S-HMapP).
+
+%The typing rules for \getliteral{} consider three possible cases. T-GetHMap models a lookup
+%that will certainly succeed, T-GetHMapAbsent a lookup that will certainly fail
+%and T-GetHMapPartialDefault a lookup with unknown results.
+
+%The objects in the T-Get rules are more complicated than those in T-Local---the 
+%next section discusses this in detail.
+%Finally T-AssocHMap extends an HMap with a mandatory entry while preserving completeness
+%and absent entries, and enforcing ${\k{}} \not\in {\absent{}}$ to prevent badly
+%formed types.
+
+The semantics for \getliteral{} and \assocliteral{} are straightforward.
+%If the entry is missing, B-GetMissing produces \nil{}.
+
+\begin{figure}[t]
+  $$
+\begin{array}{llll}
+\updatefigure{}
+\end{array}
+$$
+\caption{Type update (the metavariable \propisnotmeta{} ranges over \t{} and \nottype{\t{}} (without variables), 
+  \notsubtypein{}{\Nil{}}{\nottype{\t{}}} when \issubtypein{}{\Nil{}}{\t{}}, see
+\figref{main:figure:restrictremove} for \restrictliteral{} and \removeliteral{}.
+  )}
+\label{main:figure:update}
+\end{figure}
+
+%\begin{figure}
 %  $$
 %\begin{array}{llll}
-%\updatefigure{}
+%  \restrictremovefigure{}
 %\end{array}
-%$$
-%\caption{Type update (the metavariable \propisnotmeta{} ranges over \t{} and \nottype{\t{}} (without variables), 
-%  \notsubtypein{}{\Nil{}}{\nottype{\t{}}} when \issubtypein{}{\Nil{}}{\t{}}, see
-%\figref{main:figure:restrictremove} for \restrictliteral{} and \removeliteral{}.
-%  )}
-%\label{main:figure:update}
-%\end{figure}
-%
-%%\begin{figure}
-%%  $$
-%%\begin{array}{llll}
-%%  \restrictremovefigure{}
-%%\end{array}
-%%  $$
-%%  \caption{Restrict and Remove}
-%%  \label{main:figure:restrictremove}
-%%\end{figure}
-%
-%\subsection{Proof system}
-%\label{formalmodel:proofsystem}
-%
-%The occurrence typing proof system uses standard propositional logic,
-%except for where nested information is combined. This is
-%handled by L-Update:
-%{  %\footnotesize
 %  $$
-%\LUpdate{}
-%$$
-%}
-%
-%It says
-%under \propenv{}, if object \path{\pathelemp{}}{\x{}} is of type \t{}, and 
-%an extension
-%\path{\pathelem{}}{\path{\pathelemp{}}{\x{}}}
-%is of possibly-negative type \propisnotmeta{}, then
-%{\update{\t{}}{\propisnotmeta{}}{\pathelem{}}}
-%is \path{\pathelemp{}}{\x{}}'s type under \propenv{}.
-%
-%Recall \egref{example:desserts-on-meal}.
-%%, resuming from
-%%\secref{sec:coretypesystem}. 
-%Solving
+%  \caption{Restrict and Remove}
+%  \label{main:figure:restrictremove}
+%\end{figure}
+
+\subsection{Proof system}
+\label{formalmodel:proofsystem}
+
+The occurrence typing proof system uses standard propositional logic,
+except for where nested information is combined. This is
+handled by L-Update:
+{  \footnotesize
+  $$
+\LUpdate{}
+$$
+}
+
+It says
+under \propenv{}, if object \path{\pathelemp{}}{\x{}} is of type \t{}, and 
+an extension
+\path{\pathelem{}}{\path{\pathelemp{}}{\x{}}}
+is of possibly-negative type \propisnotmeta{}, then
+{\update{\t{}}{\propisnotmeta{}}{\pathelem{}}}
+is \path{\pathelemp{}}{\x{}}'s type under \propenv{}.
+
+Recall \egref{example:desserts-on-meal}.
+%, resuming from
+%\secref{sec:coretypesystem}. 
+Solving
+$
+{ \inpropenv 
+  {{\isprop{\Order}{\makelocal{o}}},
+    {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
+  {\isprop {\t{}} {\makelocal{o}}}}
+$
+uses L-Update, where \pathelem{} = {\emptypath{}} and \pathelemp{} = [{\keype{\makekw{Meal}}}].
+$$
+\inpropenv{\propenv{}}{\isprop{\update{\Order}{\Value{\makekw{combo}}}{[{\keype{\makekw{Meal}}}]}}{\makelocal{o}}}
+$$
+Since {\Order} is a union of HMaps, we structurally recur on the first case of \updateliteral{}
+(\figref{main:figure:update}),
+which preserves \pathelem{}.
+Each initial recursion hits the first HMap case, since there is some \t{} such that
+{\inmandatory{\k{}}{\t{}}{\mandatory{}}} and 
+\completenessmeta{} accepts partial maps \partial{}.
+
+To demonstrate,
+\makekw{lunch} meals are handled by the first HMap case and
+update to {\HMapp {\extendmandatoryset {\mandatory{}}{\Valkw{Meal}}{\sp{}}} {\emptyabsent{}}}
+where \sp{} = {\update{\Valkw{lunch}}{\Valkw{combo}}{\emptypath{}}}
+and \mandatory{} = \mandatoryset{\mandatoryentry{\Valkw{Meal}}{\Valkw{lunch}},{\mandatoryentry{\Valkw{desserts}}{\Number{}}}}.
+\sp{} updates to \Bot via the penultimate \updateliteral{} case,
+because \restrict{\Value{\makekw{lunch}}}{\Value{\makekw{combo}}} = \Bot
+by the first \restrictliteral{} case.
+The same happens to \makekw{dinner} meals,
+leaving just the \makekw{combo} HMap. 
+
+In \egref{example:desserts-on-class},
+$
+\inpropenv{\propenv{}}{\isprop{\update{\Order}{\Long}{[{\classpe{}}, {\keype{\makekw{desserts}}}]}}{\makelocal{o}}}
+$
+updates the argument in the {\Long} method.
+This recurs twice for each meal to handle the {\classpe{}}
+path element.
+
+We describe the other \updateliteral{} cases.
+The first \classpe{} case updates
+to \class{} if \classconst{} returns \Value{\class{}}.
+The second \keype{\k{}} case detects contradictions in absent
+keys. % not overlapping with \Nil{}.
+The third \keype{\k{}} case updates unknown entries to be mapped to \t{} or absent.
+The fourth \keype{\k{}} case updates unknown entries to be \emph{present}
+when they do not overlap with \Nil{}.
+
 %$
-%{ \inpropenv 
-%  {{\isprop{\Order}{\makelocal{o}}},
-%    {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
-%  {\isprop {\t{}} {\makelocal{o}}}}
+%{\update{\Number}{\Long}{[{\classpe{}}]}}}
 %$
-%uses L-Update, where \pathelem{} = {\emptypath{}} and \pathelemp{} = [{\keype{\makekw{Meal}}}].
-%$$
-%\inpropenv{\propenv{}}{\isprop{\update{\Order}{\Value{\makekw{combo}}}{[{\keype{\makekw{Meal}}}]}}{\makelocal{o}}}
-%$$
-%Since {\Order} is a union of HMaps, we structurally recur on the first case of \updateliteral{}
-%(\figref{main:figure:update}),
-%which preserves \pathelem{}.
-%Each initial recursion hits the first HMap case, since there is some \t{} such that
-%{\inmandatory{\k{}}{\t{}}{\mandatory{}}} and 
-%\completenessmeta{} accepts partial maps \partial{}.
 %
-%To demonstrate,
-%\makekw{lunch} meals are handled by the first HMap case and
-%update to {\HMapp {\extendmandatoryset {\mandatory{}}{\Valkw{Meal}}{\sp{}}} {\emptyabsent{}}}
-%where \sp{} = {\update{\Valkw{lunch}}{\Valkw{combo}}{\emptypath{}}}
-%and \mandatory{} = \mandatoryset{\mandatoryentry{\Valkw{Meal}}{\Valkw{lunch}},{\mandatoryentry{\Valkw{desserts}}{\Number{}}}}.
-%\sp{} updates to \Bot via the penultimate \updateliteral{} case,
-%because \restrict{\Value{\makekw{lunch}}}{\Value{\makekw{combo}}} = \Bot
-%by the first \restrictliteral{} case.
-%The same happens to \makekw{dinner} meals,
-%leaving just the \makekw{combo} HMap. 
-%
-%In \egref{example:desserts-on-class},
 %$
-%\inpropenv{\propenv{}}{\isprop{\update{\Order}{\Long}{[{\classpe{}}, {\keype{\makekw{desserts}}}]}}{\makelocal{o}}}
+%{\update{\Int}{\Long}{[{\classpe{}}]}}}
 %$
-%updates the argument in the {\Long} method.
-%This recurs twice for each meal to handle the {\classpe{}}
-%path element.
 %
-%We describe the other \updateliteral{} cases.
-%The first \classpe{} case updates
-%to \class{} if \classconst{} returns \Value{\class{}}.
-%The second \keype{\k{}} case detects contradictions in absent
-%keys. % not overlapping with \Nil{}.
-%The third \keype{\k{}} case updates unknown entries to be mapped to \t{} or absent.
-%The fourth \keype{\k{}} case updates unknown entries to be \emph{present}
-%when they do not overlap with \Nil{}.
 %
-%%$
-%%{\update{\Number}{\Long}{[{\classpe{}}]}}}
-%%$
-%%
-%%$
-%%{\update{\Int}{\Long}{[{\classpe{}}]}}}
-%%$
-%%
-%%
-%%% END PROPOSAL OMISSION

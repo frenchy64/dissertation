@@ -1,4 +1,11 @@
 all:
+	pdflatex thesis.tex 
+	bibtex thesis
+	pdflatex thesis.tex 
+	bibtex thesis
+	pdflatex thesis.tex 
+
+sym:
 	pdflatex symb.tex 
 	bibtex symb
 	pdflatex symb.tex 

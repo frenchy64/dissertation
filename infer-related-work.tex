@@ -1,0 +1,75 @@
+\section{Related work}
+
+The field of dynamic analysis has a rich history.
+Ball~\cite{ball1999concept}
+introduces frequency spectrum analysis,
+an approach that observes a running program
+that is similar to our instrumentation approach.
+Mock~\cite{mock2003dynamic}
+makes the case for efficient profiling of programs
+to better facilitate usage of instrumentation.
+
+Value Profiling is another related area which characterises
+programs based on their running entities.
+
+Daikon~\cite{ernst2001dynamically}
+uses dynamic analysis to recover likely program invariants
+in C programs.
+
+Dynamic type inference has been attempted in many different
+areas.
+Rubydust~\cite{An10dynamicinference}
+infers static types for Ruby. They prove the generated types
+sound, which we do not. 
+\begin{verbatim}
+Conversely, they do not generate
+recursive types, but recursive types in ruby are probably
+nominal, so how different are we?
+\end{verbatim}
+
+In the context of JavaScript, several usages of this technique
+can be found.
+JSTrace~\cite{saftoiu2010jstrace}
+generates types for (?).
+Separately, work has been done to generate JSDoc-like annotations~\cite{odgaard2014}.
+TypeDevil~\cite{pradel2015typedevil}
+uses dynamic analysis to warn JavaScript programmers of possible inconsistencies
+in their programs.
+
+Work in recovering context-free grammars is most related to our algorithm
+to recover recursive types.
+% TODO Shamir~\cite{shamir1962remark} notes that it is impossible
+% TODO \cite{knobe1976method}
+
+In the context of machine learning, 
+this area is called grammar induction or language learning.  % according to vcrepinvsek2005inferring
+% TODO Wang\cite{wang1998grammar} summarises 
+{\v{C}}repin{\v{s}}ek et. al~\cite{vcrepinvsek2005inferring}
+use genetic programming to infer context-free grammars
+for domain-specific languages.
+Most work in this area assume both positive and negative
+examples. We cannot distinguish between these two in
+our system, so we assume all examples are positive.
+
+Chen~\cite{chen1995bayesian} uses Bayesian inference to converge
+on a suitable grammar, given examples.
+
+There has been recent interest in approximate type inference.
+
+Pluquet et. al~\cite{marot2009fast} investigate heuristics
+to quickly infer types in dynamic programs.
+So does Milojkovi{\'c}
+\cite{milojkovic2016exploring}.
+Spasojevi{\'c} et. al~\cite{spasojevic2014mining}
+compare types across a cross section of projects to improve
+inference.
+
+Adamsen et. al~\cite{adamsen2016analyzing} verify test suite completeness using a hybrid approach of lightweight dependency analysis, static type checking and dynamic instrumentation.
+
+
+% Inference and Evolution of TypeScript Declaration Files
+% - they submit pull requests from their tool's output
+% https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
+
+% Automatic TS annotations from JSON (including recursive types)
+% https://github.com/shakyShane/json-ts

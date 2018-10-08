@@ -1,0 +1,241 @@
+\section{Q2: Experiment 1}
+\label{appendix1}
+
+This section we put our notes on the first experiment.
+
+\begingroup
+    \fontsize{5pt}{7pt}\selectfont
+\begin{verbatim}
+valuehash: 
+- 1 fn returning fn
+- 1 fn taking fn
+- Note: fn takes input-stream, how to generate? are fspec generators used in `lein test`?
+https://github.com/arachne-framework/valuehash/blob/fdd19b4a4c3b294d46fe7e0b50187290043b48aa/src/valuehash/specs.clj
+
+arachne-fileset: trying to get best of both worlds (documentation but no generative testing)
+- 1 fn taking pred
+- Note: fn takes File
+https://github.com/arachne-framework/arachne-fileset/blob/0336d2d8d273eb1e0a862641000da1bd76099626/test/user.clj#L35
+
+dspec: utility function, checks direct HOF
+- 1 fn taking pred (filter wrapper)
+https://github.com/lab-79/dspec/blob/26f88e74066e381c8569d175c1bd5948a8005bd0/src/clj/lab79/dspec/util.clj
+
+async-connect: maps of fn handlers
+- 19 fspecs, for a `keys` of functions
+- Note: `with-generator` suppresses all fspec generators, but that doesn't suppress
+  instrumentation fn generative testing. Unsure if generative testing used.
+  Takes a :netty/context, but that spec isn't defined anywhere...
+https://github.com/tyano/async-connect/blob/4f30801485b68e60fc5352b8a169b6f5829d2553/src/async_connect/netty/handler.clj
+- 7 fspecs, maps of fn's (channel ops)
+- Note: `with-generator` suppresses generators
+https://github.com/tyano/async-connect/blob/4f30801485b68e60fc5352b8a169b6f5829d2553/src/async_connect/server.clj#L46
+
+devcards: direct HOF, also mixes ifn? checks
+- 3 ifn?'s
+  - 2 in map input
+  - 1 fn taking fn
+- 1 fspec
+  - 1 fn returning fn
+  - 1 fn taking map with a fn entry
+- Note: alpha quality
+https://github.com/olivergeorge/devcards-vs-clojure-spec/blob/385e332c21e57b097b56e899c09e99a260daf3ad/src/devcards_vs_clojure_spec/core_specs.cljc#L7
+
+email-tool: map of fn's
+- 2 fspecs
+  - map args to fn
+  - 1 fspec is any -> any
+  - 1 fspec has easy to generate things (strings etc.)
+https://github.com/andrewzhurov/email-tool/blob/fd6bf979c5534315edf0d5e2ca762a879d0c9587/src/email_tool/parts.clj#L8
+
+bifocal: lenses, everything is HOF, sorely missing polymorphism
+- 6 fspecs
+  - 4 are basically any -> any
+  - fn taking fn taking fn (3 nestings)
+   - (s/def ::upd-f (s/fspec :args (s/cat :s any? :f fn?) :ret any?))
+- 1 fn?
+  - as above, mixing with fspec
+https://github.com/andrewmcveigh/bifocal/blob/850e79452f4f9bc6966768055acfc7aae6671f80/src/bifocal/lens.clj#L36
+
+triboard: fn taking fn
+- 1 fspec
+  - posn -> any
+https://github.com/QuentinDuval/triboard/blob/dc9d60197262857bbea0756a5a395ba248929961/src/cljs/triboard/view/frame.cljs#L15
+
+yoose: fn taking handler fn
+- 1 fspec
+  - 1 fn taking fn (any -> any, event handler)
+https://github.com/brianium/yoose/blob/6400ed9e20f8472411c6cb0185a392cda097a0b8/src/brianium/yoose/spec.clj#L9
+
+cljs-fn: map of fn's
+- 2 fspecs (react)
+  - map of fn's
+  - render db/id fn
+  - thunk for end of row formatting
+https://github.com/briansunter/cljs-hn/blob/a15bac4535fd88d6f79a80864a0301fe3d7d8d60/src/hackernews/components/list.cljs#L15
+
+kxix.collect: fn taking handler/processing fn's
+- 2 fspecs
+  - 2 fn taking fn's (handlers)
+- Note: alpha, no release but not a toy
+https://github.com/MastodonC/kixi.collect/blob/8a5e6a0de041f5684602235be6466afa805be92d/src/kixi/collect/aggregate.clj#L15
+
+frereth-common: or + fn's !!!
+- 5 fspecs
+ - 3 fn taking fn
+ - 2 fn returning fn
+ - odd combination of or + fspec's
+ - most (any -> any) but comments are unsure if it can be more specific
+  - perhaps polymorphism might help?
+- Note: unreleased, discouraged from use, but not a toy
+https://github.com/jimrthy/frereth-common/blob/ff59081b170984d25e8e8192d34348ce36f7296c/src/com/frereth/common/methods.cljc#L33-L36
+- 5 fspecs
+  - 3 fn taking fn (bytes -> any)
+  - 2 fn returning fn
+https://github.com/jimrthy/frereth-common/blob/88e57bb942334124f29be1b9405bbf04c9c2af08/src/com/frereth/common/aleph.clj#L98
+
+datomic-spec: homogeneous map with fn vals
+- 1 fspec (in testing code)
+  - 1 fn returning homogeneous map of fn vals (thunks that return test.check generators)
+https://github.com/lab-79/datomic-spec/blob/880ab123b49da8cc79c27cd78c9a2455b260e4b9/src/cljc/lab79/datomic_spec/gen_overrides.cljc#L6
+
+mqtt: many fspecs, contain very specific args
+- 10 fspecs
+ - 1 fn returning fn (connection init fn)
+ - 1 fn taking fn (handler)
+ - 4 fn map of fn
+ - 1 fspec fn intersection (I (nil Val -> Any) (Val nil -> Any))
+ - 
+https://github.com/dvlopt/mqtt/blob/c7f2dcaf8d4df0a31460c16f24c5b402f21df655/src/dvlopt/mqtt/v3.clj
+
+chu.graph: fn returning fn
+- 11 fspecs
+ - 14 function taking fn
+ - 2 functions returns fn
+ - extremely complicated dependent function specs
+  - https://github.com/CharlesHD/chu.graph/blob/a820ef8456b44b1044d7f6cd9340a5504ad393de/src/chu/graph.cljc#L78-L84
+  - Note: are these even used?
+https://github.com/CharlesHD/chu.graph/blob/a820ef8456b44b1044d7f6cd9340a5504ad393de/src/chu/graph.cljc#L17
+
+takelist: fn returning fn
+- 1 fspec
+  - 1 fn returning fn
+https://github.com/alexanderkiel/takelist/blob/434ef6f6e05ca406c446b81fa5a77c7f0519c355/src/takelist/app.clj#L27
+
+java.jdbc: seems dubious these are ever used, unless fn's are stubbed.
+- 6 fspec
+  - 1 fn taking fn
+  - 7 fn taking map of fn
+  - 1 fn returning fn
+- 1 fspec commented out
+  - improved custom generator needed (database ResultSet's)
+https://github.com/clojure/java.jdbc/blob/64a79366fa464be75bdf4bdda133441b9d1efb26/src/main/clojure/clojure/java/jdbc/spec.clj#L124
+
+sparkle: disjunction between map and fn
+- 1 fspec (fdef return)
+https://github.com/GradySimon/sparkle/blob/d5d82c37ab6be8359be7d3b5524d8b32dac452a1/src/sparkle/layer.clj#L9
+ - commented out dependent :fn clause
+https://github.com/GradySimon/sparkle/blob/d5d82c37ab6be8359be7d3b5524d8b32dac452a1/src/sparkle/spec.clj#L18-L24
+\end{verbatim}
+\endgroup
+
+\section{Q2: Experiment 2}
+\label{appendix2}
+
+This section we put our notes on the second experiment.
+
+\begingroup
+    \fontsize{5pt}{7pt}\selectfont
+\begin{verbatim}
+arachne-fileset : explicitly avoids fspec, comments out more expressive specs to avoid generative behaviour
+- 5 fn taking ifn?
+- 2 homogeneous map of ifn?
+- Comment: ;; Need to override specs here so it doesn't try to gen when I instrument
+https://github.com/arachne-framework/arachne-fileset/blob/0336d2d8d273eb1e0a862641000da1bd76099626/src/arachne/fileset/specs.clj#L7
+
+z-com : uses ifn? (probably polymorphic 1 arg function), probably doesn't make sense to gen
+- 4 fn taking ifn?
+- 4 heterogeneous map of ifn?
+https://github.com/aw7/z-com/blob/3180acf693f620bde5c7fb9d7c300e5deb02f88a/src/z_com/standard.cljs#L18
+
+meiro : uses ifn? (unclear how to fspec, might be possible with very specific generators)
+https://github.com/defndaines/meiro/blob/19f93996b87663fec5ed70c4966d114aa4855d6b/src/meiro/backtracker.clj#L17
+- 2 fn taking ifn?
+- 1 fn returning ifn?
+https://github.com/defndaines/meiro/blob/f4fe98f8a54ffd0cc78a671de96bcd9727904c0c/src/meiro/core.clj#L201
+
+comfy : utility library, uses ifn? for HOF's (19 occurrences in about a dozen very polymorphic function specs)
+- 16 fn taking ifn?
+- 3 fn returning ifn?
+	- possible transducer returns, like in (map f)
+https://github.com/madstap/comfy/blob/bbca80f269a912a3a4914188d8dac29e5edaca0b/src/madstap/comfy.cljc
+
+ferje : polymorphic "app(ly)" function uses ifn?
+- 1 fn taking ifn?
+	 - polymorphic
+https://github.com/chourave/ferje/blob/d8a3261309a994bdbaf6e3af29fc6d22c3e51844/src/ferje/util.clj#L33
+
+huri : 12 occurrences of ifn? (here combines `s/or` and ifn?, so fspec probably not appropriate)
+- 109 fn taking ifn?
+- 30 heterogeneous map ifn?
+- 93 homogeneous map ifn?
+https://github.com/sbelak/huri/blob/fc98c5f1870f524c1e2662980085b6a258abd5cf/src/huri/core.clj#L159-L161
+
+arche : ifn? takes a "User Defined Type" (keyword), perhaps hard to generate?
+- 6 fn taking ifn?
+- 6 heterogeneous map ifn?
+https://github.com/troy-west/arche/blob/1c739d178cbc5e1e1f0ac67feb64da2f8e82e099/src/troy_west/arche/spec.clj#L36
+
+conllu-clj : ifn? for `keyfn`, but can only be one of 2 predefined def's
+- 1 fn taking ifn?
+https://github.com/ysmiraak/conllu-clj/blob/6bc02c8f3a28dcea871c20fb965878b21fb0c5e5/src/conllu/eval.clj#L19
+- 2 fn taking ifn?
+	- arbitrary transformation functions
+https://github.com/ysmiraak/conllu-clj/blob/564e64a94cfde69f58dc37da183e735ebd5a07bb/src/conllu/parse.clj#L42
+
+planck : TCP data handlers are ifn?
+- 2 fn taking ifn?
+https://github.com/mfikes/planck/blob/3bc8b174834cf413dbc7415f7af30955adcc27b0/planck-cljs/src/planck/socket/alpha.cljs#L11-L12
+
+owlet : callback is ifn?
+- 1 fn taking ifn?
+	- callback
+https://github.com/codefordenver/owlet/blob/4864e0cbc7726501cc58a1362347f07f10524ed7/src/cljs/owlet/views/confirm.cljs#L12
+
+sqlingvo : evaluation fn is ifn? + another (latter could be enum of fns tbh)
+- 2 fn returning ifn?
+- 2 heterogeneous map ifn?
+	- ifn's are interfaces to db
+https://github.com/r0man/sqlingvo/blob/183014264e998366cdb906dbfe35a984c7d5443f/src/sqlingvo/db.cljc
+
+proletariat : 2 HOF helpers with IFn (reduce, conj wrappers)
+- 2 fn taking ifn?
+	- could be polymorphic
+https://github.com/LiaisonTechnologies/proletariat/blob/2a9a8cb8185785cb1d12376da21ddb97d5e43d51/src/proletariat/core.clj#L566
+
+mazes : ifn? for predicate arg (but rest of fn is also sparsely annotated with sequential?)
+- 1 fn taking ifn?
+https://github.com/amacdougall/mazes/blob/1766a5fb2a3bbfc3141f44c09a2477a1ec65edef/src/cljc/mazes/generators/wilson.cljc#L36
+
+Arcadia : listener is ifn?
+- 1 fn taking ifn?
+https://github.com/arcadia-unity/Arcadia/blob/a0f1ee9f3d8a5b248bb415001d2d0cb2d27527db/Source/arcadia/internal/state.clj#L52
+
+hive : callback is ifn?
+- 1 fn taking ifn?
+- 1 heterogeneous map ifn?
+https://github.com/hiposfer/hive/blob/f4323cc6ddba894942ba37329d4a5f7f7f974024/src/hive/services/raw/location.cljs#L12
+
+datacore : map of callbacks is ifn? vals, + 4 function inputs as ifn?
+- 14 fn taking ifn?
+- 11 fn returning ifn?
+- 22 heterogeneous map ifn?
+- 11 homogeneous map ifn?
+https://github.com/stathissideris/datacore/blob/e4ab7f4822edfccca821fb8f4f9ec81a69e9d056/src/datacore/cells.clj#L59
+
+ambiparse : predicate is ifn?
+- 1 fn returning ifn?
+- 2 heterogeneous map ifn?
+https://github.com/brandonbloom/ambiparse/blob/eeb047878e4990a877810ac4805a45d8cfe9acfb/src/ambiparse/gll.clj#L175
+\end{verbatim}
+\endgroup
