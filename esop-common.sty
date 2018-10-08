@@ -87,7 +87,8 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \lstset{ %
   upquote=true,
   language=clojure,                % choose the language of the code
-  columns=fixed,basewidth=.5em,
+  columns=fixed,
+  basewidth=.5em,
   basicstyle=\ttfamily,       % the size of the fonts that are used for the code
   %numbers=left,                   % where to put the line-numbers
   %numberstyle=\small\ttfamily,      % the size of the fonts that are used for the line-numbers
@@ -145,12 +146,25 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \newcommand\smallsection[1]{\textbf{\emph{#1}}}
 
 \usepackage{amsthm}
+\usepackage{thmtools}
 
-\newtheorem{assumption}{Assumption}
-\newtheorem{lemma}{Lemma}
-\newtheorem{theorem}{Theorem}
-\newtheorem{corollary}{Corollary}
-\newtheorem{definition}{Definition}
+% commented out to use thmtools instead
+%\newtheorem{assumption}{Assumption}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{corollary}{Corollary}
+%\newtheorem{definition}{Definition}
+
+\declaretheorem[numberwithin=chapter]{assumption}
+\declaretheorem[numberwithin=chapter]{lemma}
+\declaretheorem[numberwithin=chapter]{theorem}
+\declaretheorem[numberwithin=chapter]{corollary}
+\declaretheorem[numberwithin=chapter]{definition}
+%\declaretheorem[numberwithin=chapter, name=Assumption]{assumption}
+%\declaretheorem[numberwithin=chapter, name={Lemma}]{lemma}
+%\declaretheorem[numberwithin=chapter, name={Theorem}]{theorem}
+%\declaretheorem[numberwithin=chapter, name={Corollary}]{corollary}
+%\declaretheorem[numberwithin=chapter, name={Definition}]{definition}
 
 \theoremstyle{remark}
 \newtheorem*{case}{Case}

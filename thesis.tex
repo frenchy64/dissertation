@@ -1,4 +1,9 @@
-\documentclass[9pt]{extarticle}
+\documentclass[11pt,reqno,draft]{iuthesis}
+
+\newcommand{\DISSERTATION}{}
+
+\usepackage{setspace} % allows toggling of double/single-spacing
+\doublespacing %\singlespacing % sets default spacing; also: \doublespacing & \onehalfspacing
 
 \usepackage[margin=1in]{geometry}
 \usepackage{savesym}
@@ -8,25 +13,87 @@
 \usepackage{infer-common}
 \usepackage{quals-common}
 
-\title{Typed Clojure in Theory and Practice}
-\author{Ambrose Bonnaire-Sergeant}
+%\usepackage{microtype}
+
+\newcommand{\thesisauthor}[0]{Ambrose Bonnaire-Sergeant}
+\newcommand{\thesistitle}[0]{Typed Clojure in Theory and Practice}
+%\newcommand{\thesiskeywords}[0]{Kwd1, Kwd2, Kwd3}
+\newcommand{\thesismonth}[0]{TODO}
+\newcommand{\thesisyear}[0]{TODO}
+\newcommand{\thesisdate}[0]{\today}
+
+\advisor{Sam Tobin-Hochstadt}
+\secondreader{Chung-chieh Shan}
+\thirdreader{Ryan R. Newton}
+\fourthreader{Lawrence S. Moss}
+\departmentname{School}
+\department{Informatics, Computing, and Engineering}
+\copyrightyear{2019}
+\submitdate{TODO}
+\acceptdate{TODO}
+
+
+\def\wspace{\vspace{0.2cm}}
 
 \usepackage[backend=bibtex]{biblatex}
 \addbibresource{bibliography.bib}
 
+%\addtolength{\textwidth}{.5in}
+%\addtolength{\textheight}{.5in}
+%\setlength{\topmargin}{.25in}
+%\usepackage{fontspec}
+%\usepackage{hanging}
+%\usepackage{xltxtra}
+%\setlength{\oddsidemargin}{.75in}
+%\setlength{\evensidemargin}{.25in}
+
+
+
+\usepackage{thmtools}
+%\declaretheorem[numberwithin=chapter]{example}
+%\declaretheorem[numberwithin=chapter]{theorem}
+%\declaretheorem[numberwithin=chapter]{lemma}
+%\declaretheorem[numberwithin=chapter]{corollary}
+%\declaretheorem[numberwithin=chapter]{definition}
+
 \begin{document}
 
-\maketitle
+\frontmatter %turns off chapter numbering and uses roman numerals for page numbers
+\title{\thesistitle{}}
+\author{\thesisauthor{}}
+
+%\begin{acknowledgements}
+%\end{acknowledgements}
+
+%\begin{dedication}
+%\end{dedication}
 
 \begin{abstract}
-  \input{abstract}
+\input{abstract}
 \end{abstract}
 
-\input{auto-ann-intro}
+\maketitle
+\signaturepage
+\copyrightpage
+%\makeack
+%\makededication
+\makeabstract
+
+\tableofcontents
+
+\listoffigures
+
+%\listoftheorems
+
+
+\newpage
+
+%turns on chapter numbering, resets page numbering and uses arabic numerals for page numbers;
+\mainmatter
 
 \input{thesis-statement}
 
-\section{Practical Optional Types for Clojure}
+\chapter{Practical Optional Types for Clojure}
 
 \input{esop-abstract}
 \input{esop-intro}
@@ -37,13 +104,12 @@
 \input{esop-related-work}
 \input{esop-conclusion}
 
-\section{Automatic Annotations for Typed Clojure}
+\chapter{Automatic Annotations for Typed Clojure}
 
 
 \input{infer-abstract}
 
 \input{infer-intro}
-%\input{auto-ann-intro}
 \input{infer-grammar}
 \input{infer-semantics}
 \input{infer-overview}
@@ -337,8 +403,9 @@ process for domain-specific type error messages.
 
 \printbibliography
 
-\newpage
 
-\input{esop-appendix}
+% uncomment for appendix
+%\newpage
+%\input{esop-appendix}
 
 \end{document}

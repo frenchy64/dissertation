@@ -91,7 +91,7 @@
 % easy math mode overrightarrow
 \newcommand\overr[1]{\ma{\overrightarrow{#1}}}
 
-\newcommand\getparent{\operatorfont{getParent}}
+\newcommand\getparent{\CLJoperatorfont{getParent}}
 \newcommand\getx{getX}
 \newcommand\coretyped{\texttt{core.typed}\xspace}
 \newcommand\All[2]{(\ma{\Allliteral\ [#1]\ #2})}
@@ -180,24 +180,24 @@
 \newmeta\num{n}
 \newmeta\nat{n}
 \newmeta\bool{b}
-\newcommand\operatorfont[1]{\ma{{\mathsf{#1}}}}
+\newcommand\CLJoperatorfont[1]{\ma{{\mathsf{#1}}}}
 \newcommand\literalfont[1]{\ma{{\mathsf{#1}}}}
 \newcommand\nil[0]{{\literalfont{nil}}}
 \newcommand\true[0]{{\literalfont{true}}}
 \newcommand\false[0]{{\literalfont{false}}}
-\newcommand\assocliteral[0]{{\operatorfont{assoc}}}
+\newcommand\assocliteral[0]{{\CLJoperatorfont{assoc}}}
 \newcommand\assocexp[3]{(\assocliteral{}\ #1\ #2\ #3)}
 \newmeta\dissoc{dissoc}
-\newmeta\getliteral{{\operatorfont{get}}}
+\newmeta\getliteral{{\CLJoperatorfont{get}}}
 \newcommand\getexp[2]{(\getliteral{}\ #1\ #2)}
-\newcommand\ifliteral[0]{{\operatorfont{if}}}
-\newcommand\doliteral[0]{{\operatorfont{do}}}
-\newcommand\letliteral[0]{{\operatorfont{let}}}
-\newcommand\throwliteral[0]{{\operatorfont{throw}}}
-\newcommand\newliteral[0]{{\operatorfont{new}}}
-\newcommand\defmultiliteral[0]{{\operatorfont{defmulti}}}
-\newcommand\defmethodliteral[0]{{\operatorfont{defmethod}}}
-\newcommand\fnliteral[0]{{\operatorfont{fn}}}
+\newcommand\ifliteral[0]{{\CLJoperatorfont{if}}}
+\newcommand\doliteral[0]{{\CLJoperatorfont{do}}}
+\newcommand\letliteral[0]{{\CLJoperatorfont{let}}}
+\newcommand\throwliteral[0]{{\CLJoperatorfont{throw}}}
+\newcommand\newliteral[0]{{\CLJoperatorfont{new}}}
+\newcommand\defmultiliteral[0]{{\CLJoperatorfont{defmulti}}}
+\newcommand\defmethodliteral[0]{{\CLJoperatorfont{defmethod}}}
+\newcommand\fnliteral[0]{{\CLJoperatorfont{fn}}}
 \newcommand\abs[3]{\ma{\l #1^{#2} . #3}}
 \newcommand\absoverright[3]{\ma{\l \overrightarrow{#1^{#2}} . #3}}
 \newcommand\curlymap[1]{\ma{\{#1\}}}
@@ -228,7 +228,7 @@
 \newcommand\newexp[2]{\ma{(\newliteral{}\ #1 #2)}}
 % deleted 2nd argument which is just the same as #3
 \newcommand\newstaticexp[4]{\ma{({\newliteral}_{[#1]}\ #3\ #4)}}
-\newcommand\dotliteral[0]{{\operatorfont{.}}}
+\newcommand\dotliteral[0]{{\CLJoperatorfont{.}}}
 \newcommand\fieldexp[2]{\ma{(\dotliteral\ #2\ #1)}}
 \newcommand\fieldstaticexp[4]{\ma{(\dotliteral\ #4\ {#3}^{#1}_{#2})}}
 \newcommand\methodexp[3]{\ma{(\dotliteral\ #2\ (#1 #3))}}
@@ -272,8 +272,8 @@
 
 % constant calls
 \newbfop\ccclass{class}
-\newcommand\instanceliteral[0]{\operatorfont{instance?}}
-\newcommand\isaliteral[0]{{\operatorfont{isa?}}}
+\newcommand\instanceliteral[0]{\CLJoperatorfont{instance?}}
+\newcommand\isaliteral[0]{{\CLJoperatorfont{isa?}}}
 \newcommand\instanceapp[2]{{(\instanceliteral\ #1\ #2)}}
 \newcommand\isaapp[2]{(\isaliteral\ #1\ #2)}
 \newcommand\equivliteral[0]{\ma{=}}

@@ -5,6 +5,9 @@
 *.swo
 *.bbl
 *.blg
+*.loe
+*.lof
+*.toc
 code/demo/:
 _minted-small/
 _minted*
