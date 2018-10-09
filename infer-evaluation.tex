@@ -89,15 +89,15 @@ Since the tests do not specifically call this function,
 nor play the game long enough to invoke this condition,
 no useful type is inferred.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann game-over-out-of-time AnyFunction)
-\end{lstlisting}
+\end{cljlisting}
 
 In this case, very little effort is needed to amend this
 type signature, since we generated a useful type alias
 for the global configuration map.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (defalias CurrentKlingonsCurrentSectorEnterpriseMap
   (HMap :mandatory
     {:current-klingons (Vec EnergySectorMap), :current-sector (Vec Int), 
@@ -105,13 +105,13 @@ for the global configuration map.
      :stardate CurrentEndStartMap, :starting-klingons Int}
     :optional 
 		{:lrs-history (Vec Str)}))
-\end{lstlisting}
+\end{cljlisting}
 
 So we amend the signature as
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann game-over-out-of-time [(Atom1 CurrentKlingonsCurrentSectorEnterpriseMap) :-> Boolean])
-\end{lstlisting}
+\end{cljlisting}
 
 
 \paragraph{Over-precision}
@@ -126,9 +126,9 @@ As evidenced in the generated type, the tests exercise
 this functions with collections of integers, atoms,
 keywords, and characters.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann all-different? [(Coll (U Int (Atom1 Int) ':a ':b Character)) :-> Boolean])
-\end{lstlisting}
+\end{cljlisting}
 
 In our experience, the union is very rarely a good candidate
 for a Typed Clojure type signature, so a useful heuristic to improve
@@ -136,9 +136,9 @@ the generated types might be to upcast such unions to a more permissive
 type, like \clj{Any}. 
 In this case, we manually amend the signature as
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann all-different? [(Coll Any) :-> Boolean])
-\end{lstlisting}
+\end{cljlisting}
 
 Another example of overprecision is the generated type
 of \clj{initial-perm-numbers} a helper function
@@ -150,15 +150,15 @@ function.
 The generated type shows only a frequency map where
 the values are integers are exercised.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann initial-perm-numbers [(Map Int Int) :-> (Coll Int)])
-\end{lstlisting}
+\end{cljlisting}
 
 A more appropriate type signature is instead
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann initial-perm-numbers [(Map Any Int) :-> (Coll Int)])
-\end{lstlisting}
+\end{cljlisting}
 
 In many examples of overprecision, while the generated
 type might not be immediately useful to check programs,
@@ -176,33 +176,33 @@ returns a functional delete operation on its argument.
 Here we can see the tests only exercise this function with
 collections of integers.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann remove-nth [(Coll Int) Int :-> (Vec Int)])
-\end{lstlisting}
+\end{cljlisting}
 
 However, the overall shape of the function is intact,
 and the manually amended type only requires a few 
 keystrokes.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann remove-nth (All [a] [(Coll a) Int :-> (Vec a)]))
-\end{lstlisting}
+\end{cljlisting}
 
 Similarly, \clj{iter-perm} could be polymorphic, 
 but its type is generated as
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann iter-perm [(Vec Int) :-> (U nil (Vec Int))])
-\end{lstlisting}
+\end{cljlisting}
 
 We decided this function actually works over any number,
 and bounded polymorphism was more appropriate, encoding
 the fact that the elements of the output collection
 are from the input collection.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann iter-perm (All [a] [(Vec (I a Num)) :-> (U nil (Vec (I a Num)))]))
-\end{lstlisting}
+\end{cljlisting}
 %
 %\paragraph{Missing return}
 %Sometimes a function never returns, because of infinite loops
@@ -219,27 +219,27 @@ for the \clj{plus} helper function from \clj{math.combinatorics}.
 From the generated type, we can see the tests exercise this function with 2, 6,
 and 7 arguments.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann plus
   (IFn [Int Int Int Int Int Int Int :-> Int]
        [Int Int Int Int Int Int :-> Int]
        [Int Int :-> Int]))
-\end{lstlisting}
+\end{cljlisting}
 
 Instead, \clj{plus} is actually variadic and works over any number of arguments.
 It is better annotated as the following, which is easy to guess based on
 both the annotated type and manually viewing the function implementation.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann plus [Int * :-> Int])
-\end{lstlisting}
+\end{cljlisting}
 
 A similar issue occurs with \clj{mult}.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann mult [Int Int :-> Int]) ;; generated
 (ann mult [Int * :-> Int])   ;; amended
-\end{lstlisting}
+\end{cljlisting}
 
 A similar issue is inferring keyword arguments. Clojure implements
 keyword arguments with normal variadic arguments. Notice
@@ -247,18 +247,18 @@ the generated type for \clj{lex-partitions-H},
 which takes a fixed argument then some optional integer keyword
 arguments. 
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann lex-partitions-H
 	(IFn [Int :-> (Coll (Coll (Vec Int)))]
 		   [Int ':min Int ':max Int :-> (Coll (Coll (Coll Int)))]))
-\end{lstlisting}
+\end{cljlisting}
 
 While the arity of the generated type is too specific,
 we can conceivably use the type to help us write a better one.
 
-\begin{lstlisting}
+\begin{cljlisting}
 (ann lex-partitions-H [Int & :optional {:min Int :max Int} :-> (Coll (Coll (Coll Int)))])
-\end{lstlisting}
+\end{cljlisting}
 
 \paragraph{Weaknesses in Typed Clojure}
 

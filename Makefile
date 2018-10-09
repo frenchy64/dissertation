@@ -5,6 +5,9 @@ all:
 	bibtex thesis
 	pdflatex thesis.tex 
 
+fast:
+	pdflatex thesis.tex 
+
 sym:
 	pdflatex symb.tex 
 	bibtex symb

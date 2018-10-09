@@ -11,6 +11,12 @@
 \usepackage{infer-common}
 \usepackage{quals-common}
 
+\usepackage[doublespacing]{setspace}
+
+\lstnewenvironment{cljlisting}
+{\singlespacing}
+{}
+
 %\usepackage{microtype}
 
 \newcommand{\thesisauthor}[0]{Ambrose Bonnaire-Sergeant}
@@ -29,6 +35,33 @@
 \copyrightyear{2019}
 \submitdate{TODO}
 \acceptdate{TODO}
+
+% For use with iuthesis-alt.cls.
+\parskip=6pt
+\parindent=0pt
+\normalparindent=0pt
+
+\usepackage[top=1in,bottom=1.25in,left=1in,right=1in]{geometry}
+\renewcommand{\thepart}{\Roman{part}}
+\renewcommand{\thechapter}{\arabic{chapter}}
+
+% The annoying section-only section numbering is inherited from
+% amsbook, on which iuthesis-alt is based.  This is to bring back
+% chapter numbers in the section headings.
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}}
+
+% Also, put chapter numbers in figure and table numbering.
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{figure}}
+
+% fix badly formatted toc
+% https://tex.stackexchange.com/questions/22983/list-of-figures-and-list-of-tables-overlaps-figure-table-indices-with-proceeding
+\makeatletter
+\renewcommand*\l@figure{\@dottedtocline{1}{1.5em}{3em}}% 3em instead of 2.3em
+\let\l@table\l@figure
+\makeatother
+
 
 \usepackage[backend=bibtex]{biblatex}
 \addbibresource{bibliography.bib}
@@ -88,6 +121,7 @@
 \input{thesis-statement}
 
 \part{Practical Optional Types for Clojure}
+\label{part:types}
 
 \input{esop-abstract}
 \input{esop-intro}
@@ -98,6 +132,7 @@
 \input{esop-conclusion}
 
 \part{Automatic Annotations for Typed Clojure}
+\label{part:autoann}
 
 \input{infer-abstract}
 
@@ -113,13 +148,14 @@
 % performance analysis vs Daikon
 \input{infer-comparison}
 
-\part{Clojure.Spec}
+\part{Investigation of clojure.spec}
+\label{part:spec}
 
 \input{spec-intro}
 \input{spec-study}
 \input{spec-model}
 
-\part{Related Work}
+\part*{Related and Future Work}
 
 \input{esop-related-work}
 
@@ -226,80 +262,82 @@ quantitative analysis could reveal further insights.
 
 %Runtime analysis \cite{Mastrangelo:2015:UYO:2814270.2814313}
 
+\chapter{Future work}
+
 %\cite{Mastrangelo:2015:UYO:2814270.2814313} 
 
-%\paragraph{Interleaving Type Checking with Expansion, Extensible type systems and Symbolic Analysis}
-%
-%Turnstile~\cite{Chang2017TSM} type checks a program during expansion
-%by repurposing the Racket macro system. It provides a fully extensible framework
-%for specifying and combining core typing rules.
-%On the other hand, Typed Clojure does not have the goal of allowing users to override
-%how language primitives type check. Instead, our goal is to provide
-%a simple interface to write type rules for library functions and macros
-%in a style that hides the necessary bookkeeping surrounding occurrence
-%typing and scope management.
-%
-%SugarJ~\cite{Erdweg2011SJ}
-%adds syntactic language extensibility to languages like Java, such as pair
-%syntax, embedded XML, and closures.
-%Desugarings are expressed as rewrite rules to plain Java.
-%Similarly, work on \emph{type-specific languages}~\cite{omar2014safely}
-%adds extensible systems for the definitions of specialized syntax literals
-%to existing languages.
-%The \emph{type} of an expression determines how it is parsed and elaborated.
-%
-%% this paper has a great related works section that differentiates
-%% the strategies of several typed metaprogramming techniques
-%SoundX~\cite{Lorenzen2016STS} presents a solution to a common
-%dilemma in typed metaprogramming: whether to desugar before
-%type checking, or vice-versa.
-%The authors present a system where a form is type checked before 
-%being desugared, with a guarantee that only well-typed code is generated.
-%Programmers specify desugarings with a combination of typing and rewriting rules, 
-%which are then connected to form a valid type derivation
-%in a process called \emph{forwarding}.
-%We will explore whether we can get the same effect in Typed Clojure
-%without requiring the user to understand typing rules.
-%%For example, Scala macros~\cite{Burmako2013SML} interleave type checking and
-%%desugaring
-%
-%Ziggurat~\cite{Fisher06staticanalysis} allows programmers to define
-%the static and dynamic semantics of macros separately. To demonstrate its
-%broad applicability, they choose Scheme-like macros that generate assembly code
-%for the dynamic semantics.
-%They advocate building towers of static analyses, so
-%macros can be statically checked in terms the static semantics of other macros, instead
-%of just their assembly code expansions which would otherwise be too difficult to check.
-%This idea resembles our prototypes in defining custom typing rules for functions and macros in Typed Clojure,
-%where the dynamic semantics are defined by runtime Clojure constructs (\texttt{defn}
-%and \texttt{defmacro}), and towers of static semantics are progressively specified in terms of the static
-%analysis of other Clojure forms.
-%
-%Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
-%in the same system, specifying a mode for (nested) regions of code.
-%They argue this tradeoff keeps the predictability of type checking, while preserving enough
-%symbolic execution to drive further checking.
-%In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
-%Our preliminary explorations in symbolic execution for Typed Clojure, for example, type checks an
-%anonymous function if annotated, otherwise treats it symbolically.
-%As the authors envision, this is akin to automatically inserting
-%the mode of a code region based on its context, with a Mix-like language
-%becoming the intermediate language.
-%
-%Type Tailoring~\cite{greenmanttailoring} is an approach to provide more information
-%to a host type system than it might be capable of by itself.
-%In particular, the authors use the host platform's metaprogramming functionality
-%to refine the types of calls based on the program syntax alone, as well as improve
-%error messages by incorporating surface syntax. Their experiments are based in Typed Racket, that fully expands
-%syntax before checking it. Since Typed Clojure recently changed to interleave macroexpansion
-%and type checking, we could extend this technique to also refine calls based on the
-%types of their arguments (like SoundX).
-%
-%
-%Other work is relevant to our investigations of improving the user experience
-%of Typed Clojure. SweetT~\cite{pombrio2018inferring} automatically infers type rules
-%for syntactic sugar. Helium~\cite{Heeren2003STI} provides hooks into the type inference
-%process for domain-specific type error messages.
+\paragraph{Interleaving Type Checking with Expansion, Extensible type systems and Symbolic Analysis}
+
+Turnstile~\cite{Chang2017TSM} type checks a program during expansion
+by repurposing the Racket macro system. It provides a fully extensible framework
+for specifying and combining core typing rules.
+On the other hand, Typed Clojure does not have the goal of allowing users to override
+how language primitives type check. Instead, our goal is to provide
+a simple interface to write type rules for library functions and macros
+in a style that hides the necessary bookkeeping surrounding occurrence
+typing and scope management.
+
+SugarJ~\cite{Erdweg2011SJ}
+adds syntactic language extensibility to languages like Java, such as pair
+syntax, embedded XML, and closures.
+Desugarings are expressed as rewrite rules to plain Java.
+Similarly, work on \emph{type-specific languages}~\cite{omar2014safely}
+adds extensible systems for the definitions of specialized syntax literals
+to existing languages.
+The \emph{type} of an expression determines how it is parsed and elaborated.
+
+% this paper has a great related works section that differentiates
+% the strategies of several typed metaprogramming techniques
+SoundX~\cite{Lorenzen2016STS} presents a solution to a common
+dilemma in typed metaprogramming: whether to desugar before
+type checking, or vice-versa.
+The authors present a system where a form is type checked before 
+being desugared, with a guarantee that only well-typed code is generated.
+Programmers specify desugarings with a combination of typing and rewriting rules, 
+which are then connected to form a valid type derivation
+in a process called \emph{forwarding}.
+We will explore whether we can get the same effect in Typed Clojure
+without requiring the user to understand typing rules.
+%For example, Scala macros~\cite{Burmako2013SML} interleave type checking and
+%desugaring
+
+Ziggurat~\cite{Fisher06staticanalysis} allows programmers to define
+the static and dynamic semantics of macros separately. To demonstrate its
+broad applicability, they choose Scheme-like macros that generate assembly code
+for the dynamic semantics.
+They advocate building towers of static analyses, so
+macros can be statically checked in terms the static semantics of other macros, instead
+of just their assembly code expansions which would otherwise be too difficult to check.
+This idea resembles our prototypes in defining custom typing rules for functions and macros in Typed Clojure,
+where the dynamic semantics are defined by runtime Clojure constructs (\texttt{defn}
+and \texttt{defmacro}), and towers of static semantics are progressively specified in terms of the static
+analysis of other Clojure forms.
+
+Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
+in the same system, specifying a mode for (nested) regions of code.
+They argue this tradeoff keeps the predictability of type checking, while preserving enough
+symbolic execution to drive further checking.
+In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
+Our preliminary explorations in symbolic execution for Typed Clojure, for example, type checks an
+anonymous function if annotated, otherwise treats it symbolically.
+As the authors envision, this is akin to automatically inserting
+the mode of a code region based on its context, with a Mix-like language
+becoming the intermediate language.
+
+Type Tailoring~\cite{greenmanttailoring} is an approach to provide more information
+to a host type system than it might be capable of by itself.
+In particular, the authors use the host platform's metaprogramming functionality
+to refine the types of calls based on the program syntax alone, as well as improve
+error messages by incorporating surface syntax. Their experiments are based in Typed Racket, that fully expands
+syntax before checking it. Since Typed Clojure recently changed to interleave macroexpansion
+and type checking, we could extend this technique to also refine calls based on the
+types of their arguments (like SoundX).
+
+
+Other work is relevant to our investigations of improving the user experience
+of Typed Clojure. SweetT~\cite{pombrio2018inferring} automatically infers type rules
+for syntactic sugar. Helium~\cite{Heeren2003STI} provides hooks into the type inference
+process for domain-specific type error messages.
 
 \printbibliography
 

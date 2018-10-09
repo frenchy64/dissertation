@@ -1,6 +1,9 @@
-\part{Typed Clojure in Theory and Practice}
+\part*{Typed Clojure in Theory and Practice}
 
-\section{Introduction}
+Typed Clojure is an optional type system for the Clojure programming language
+hat aims to provide a type system to check idiomatic Clojure code.
+
+\section*{Thesis Statement}
 
 My thesis statement is:
 
@@ -20,7 +23,15 @@ Typed Clojure is a sound and practical optional type system for Clojure.
 %hundreds of projects by generating, running, and exercising clojure.spec runtime specifications.
 \end{quote}
 
-I will support this thesis statement with the following:
+%I will support this thesis statement with the following:
+%
+
+\section*{Structure of this thesis}
+
+This document progresses in several parts that support my thesis statement, presented in chronological order
+in when they were developed.
+
+Part~\ref{part:types} motivates and presents the core type system of Typed Clojure.
 
 \begin{itemize}
   \item \emph{Typed Clojure is sound} We formalize Typed Clojure, including
@@ -30,53 +41,43 @@ I will support this thesis statement with the following:
     \begin{itemize}
       \item We present an empirical study of real-world Typed Clojure usage
         in over 19,000 lines of code, showing its features correspond to actual usage patterns.
-       \item %\emph{Top-level annotation burden}
-         To lower the annotation burden,
-          we formalize and implement a tool to automatically annotate types for top-level
-          user and library definitions, and empirically study the manual changes needed for the generated annotations
-          to pass type checking.
     \end{itemize}
     % our annotation approach can be repurposed to generate clojure.spec which can be \emph{run}.
     % use results to explore both the quality of the tool and to explore what the inferred specs
     % tell us about clj programs.
 \end{itemize}
 
-I will augment this thesis statement with one of the following research directions:
+As a response to the results of this work, I pursued several research directions.
 
-\begin{enumerate}
-  \item More Clojure programs can be type checked by first interleaving
-    checking with macroexpansion, then combining
-    symbolic execution with extensible typing rules.
-    \begin{itemize}
-      \item \emph{Type checking interleaved with expansion}
-        We motivate and describe how to convert Typed Clojure from a type system that only checks fully
-        expanded programs to one that incrementally
-        checks partially expanded programs, and present an implementation.
-      \item \emph{Extensible type rules}
-        We describe and implement an extensible system to define custom type rules
-        for usages of top-level functions and macros
-        and study how they improve the inference of core Clojure idioms.
-      \item \emph{Symbolic analysis}
-        We describe and implement symbolic rewriting strategies for Clojure
-        programs and study how many more programs can be checked.
-    \end{itemize}
-  \item The process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
-    \begin{itemize}
-      \item \emph{Repurpose automation technology}
-        We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs by reusing
-        most of the the infrastructure for automatic Typed Clojure annotations.
-        We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
-        and implement the model in Redex.
-      \item \emph{Study how Clojure is used in real projects}
-        We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
-        across hundreds of projects, as well as analyzing design choices in Typed Clojure's type system,
-        clojure.spec's features, and our automatic annotation tool.
-      \item \emph{Test effectiveness of clojure.spec annotation generation}
-        We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
-        across hundreds of projects, as well as analyze design choices in Typed Clojure's type system and
-        clojure.spec's features.
-    \end{itemize}
-\end{enumerate}
+Part~\ref{part:autoann} presents a solution to lower the annotation burden in real-world Typed Clojure programs.
+We formalize and implement a tool to automatically annotate types for top-level
+user and library definitions, and empirically study the manual changes needed for the generated annotations
+to pass type checking.
+
+Part~\ref{part:spec} investigates clojure.spec, Clojure's official runtime verification library.
+Released 5 years after Typed Clojure, clojure.spec represents a significant development in Clojure
+verification. I investigate clojure.spec's design and compare it to Typed Clojure
+by producing a formal model of clojure.spec and repurposing the automatic annotation tool 
+from Part~\ref{part:autoann} to automatically produce clojure.spec annotations for real-world Clojure programs.
+%
+%\begin{enumerate}
+%  \item The process of porting to Typed Clojure can be partially-automated, and this automation technology can be repurposed to further reveal how Clojure is used in real projects.
+%    \begin{itemize}
+%      \item \emph{Repurpose automation technology}
+%        We describe how to automatically generate clojure.spec annotations (``specs'') for existing programs by reusing
+%        most of the the infrastructure for automatic Typed Clojure annotations.
+%        We present a formal model of clojure.spec (an existing and popular runtime verification tool for Clojure)
+%        and implement the model in Redex.
+%      \item \emph{Study how Clojure is used in real projects}
+%        We conduct a study of general Clojure idioms and practices by generating, enforcing, and exercising specs
+%        across hundreds of projects, as well as analyzing design choices in Typed Clojure's type system,
+%        clojure.spec's features, and our automatic annotation tool.
+%      \item \emph{Test effectiveness of clojure.spec annotation generation}
+%        We test the effectiveness of our generated specs by generating, enforcing, and exercising specs
+%        across hundreds of projects, as well as analyze design choices in Typed Clojure's type system and
+%        clojure.spec's features.
+%    \end{itemize}
+%\end{enumerate}
 
 % Evan Chang (Boulder)
 % - symbolic exec + type checking
@@ -89,6 +90,12 @@ I will augment this thesis statement with one of the following research directio
 % - sell as: Programs hard to TC
 % use (comp (map inc) (map dec)) as an example
 
-\section{Structure of this thesis}
+\section*{Previously published work}
 
-\section{Previously published work}
+Part~\ref{part:types} has been published:
+%
+\begin{itemize}
+  \item Ambrose Bonnaire-Sergeant, Rowan Davies, Sam Tobin-Hochstadt.
+        Practical Optional Types for Clojure.
+        In \textit{European Symposium on Programming Languages and Systems}, 2016
+\end{itemize}

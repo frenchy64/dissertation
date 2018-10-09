@@ -105,13 +105,13 @@ possible without effective handling of these three Clojure features.
 
 \begin{figure*}[t!]
   %\normalsize
-\begin{lstlisting}
+\begin{cljlisting}
 (*typed ann pname [(U File String) -> (U nil String)] typed*)
 (defmulti pname class)  ; multimethod dispatching on class of argument
 (defmethod pname String [s] (*invoke pname (*interop new File s interop*) invoke*)) ; String case 
 (defmethod pname File [f] (*interop .getName f interop*)) ; File case, static null check
 (*invoke pname "STAINS/JELLY" invoke*) ;=> "JELLY" :- (U nil Str)
-\end{lstlisting}
+\end{cljlisting}
 \caption{A simple Typed Clojure program (delimiters: {\color{interop}Java interoperation (green)}, 
   {\color{types}type annotation (blue)},
   {\color{invoke}function invocation (black)}, {\color{red}collection literal (red)}, {\color{mygray}other (gray)})}
