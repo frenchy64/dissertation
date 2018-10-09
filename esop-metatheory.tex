@@ -11,18 +11,20 @@ Errors behave like Java exceptions---they can be thrown and propagate ``upwards'
 Rather than modeling Java's dynamic semantics, a task of daunting
 complexity, we instead make our assumptions about Java explicit. We
 concede that method and constructor calls may diverge or error, but
-assume they can never go wrong
-(other assumptions given in the supplemental material).
+assume they can never go wrong.
+%(other assumptions given in the supplemental material).
 
-{\javanewassumption{main}}
+%{\javanewassumption{main}}
+{\javaassumptionsall{main}}
 
 For readability we define logical truth in Clojure.
 
 {\istruefalsedefinitions{main}}
 
 For the purposes of our soundness proof, we require that all values
-are \emph{consistent}.  Consistency (defined in the supplemental
-material) states that the types of closures are well-scoped---they do
+are \emph{consistent}.  Consistency 
+%(defined in the supplemental material)
+states that the types of closures are well-scoped---they do
 not claim propositions about variables hidden in their closures.
 
 {\consistentwithonlydef{main}}
@@ -41,4 +43,4 @@ metavariable \definedreduction{} ranges over \v{}, \errorvalv{} and
 
 {\wrongtheoremnoproof{main}}
 
-{\nilinvoketheoremnoproof{main}}
+%{\nilinvoketheoremnoproof{main}}

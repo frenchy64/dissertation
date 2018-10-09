@@ -565,8 +565,10 @@
 \newcommand\isconsistent[1]{\ma{{#1}\ \text{is consistent}}}
 \newcommand\fv[1]{\ma{{\metafunctionfont{fv}}(#1)}}
 
-\newcommand\istrueval[1]{\ma{\metafunctionfont{TrueVal}(#1)}}
-\newcommand\isfalseval[1]{\ma{\metafunctionfont{FalseVal}(#1)}}
+\newcommand\istruevalOp[0]{\ma{\metafunctionfont{TrueVal}}}
+\newcommand\istrueval[1]{\ma{\istruevalOp{}(#1)}}
+\newcommand\isfalsevalOp[0]{\ma{\metafunctionfont{FalseVal}}}
+\newcommand\isfalseval[1]{\ma{\isfalsevalOp{}(#1)}}
 
 \newmeta\definedreduction{\alpha}
 
@@ -2235,12 +2237,12 @@ $$
 }
 
 \newcommand\istruefalsedefinitions[1]{
-\begin{definition} \label{#1:definition:istrueval}
+\begin{definition}[\istruevalOp{}] \label{#1:definition:istrueval}
   \istrueval{\v{}} iff {\v{}} $\not=$ \false\ and {\v{}} $\not=$ \nil.
 
 \end{definition}
 
-\begin{definition} \label{#1:definition:isfalseval}
+\begin{definition}[\isfalsevalOp{}] \label{#1:definition:isfalseval}
   \isfalseval{\v{}} iff {\v{}} $=$ \false\ or {\v{}} $=$ \nil.
 
 \end{definition}
@@ -2278,7 +2280,7 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
       }
 
 \newcommand\soundnesstheoremnoproof[1]{
-\begin{theorem}[Type soundness] \label{#1:theorem:soundnessnoproof}
+\begin{theorem}[Type soundness for \lambdatc{}] \label{#1:theorem:soundnessnoproof}
 \soundnesstheorembody{#1}
 
 \end{theorem}
@@ -2286,7 +2288,7 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
 }
 
 \newcommand\soundnesstheorem[1]{
-\begin{theorem}[Type soundness] \label{#1:theorem:soundness}
+\begin{theorem}[Type soundness for \lambdatc{}] \label{#1:theorem:soundness}
 \soundnesstheorembody{#1}
 \begin{proof}
   Corollary of lemma \ref{#1:lemma:soundness}.
@@ -2349,7 +2351,7 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
 }
 
 \newcommand\consistentwithonlydef[1]{
-\begin{definition} \label{#1:definition:consistentwith}
+\begin{definition}[Consistent with] \label{#1:definition:consistentwith}
   \consistentwith{\v{}}{\openv{}}
   iff $\forall$ \closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}} in \v{},
   if \judgementselfrewrite{}{\closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}}}{\t{}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}

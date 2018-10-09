@@ -89,6 +89,7 @@ of calling \classconst{} and looking up a keyword $k$, respectively.
 \paragraph{Propositions with a logical system}
 In standard type systems, association lists often
 track the types of variables, like in LC-Let and LC-Local.
+\begin{singlespacing}
 \begin{mathpar}
 \infer [LC-Let]
 { \judgementtwo {{\propenv{}}}
@@ -109,6 +110,7 @@ track the types of variables, like in LC-Let and LC-Local.
             {\x{}} {\t{}}
            }
 \end{mathpar}
+\end{singlespacing}
 
 Occurrence typing instead pairs \emph{logical formulas},
 that can reason about arbitrary non-empty objects,
@@ -118,6 +120,7 @@ variable $x$ is of type \s{}.
 %A \emph{logical system}
 %must now \emph{prove}
 %a variable's type.
+\begin{singlespacing}
 \begin{mathpar}
 \infer [T0-Let]
 { \judgementtwo {{\propenv{}}}
@@ -139,6 +142,7 @@ variable $x$ is of type \s{}.
             {\x{}} {\t{}}
            }
 \end{mathpar}
+\end{singlespacing}
 In T0-Local, 
 $
 { \inpropenv {\propenv{}} {\isprop {\t{}}{\x{}}}}
@@ -1510,6 +1514,7 @@ The result type is \String, and the return object is \path{\keype{\makekw{en}}}{
 The object {\replacefor {\path {\keype{k}} {\x{}}} {\object{}} {\x{}}}
 is a symbolic representation for a keyword lookup of $k$ in \object{}.
 The substitution for {\x{}} handles the case where \object{} is empty.
+\begin{singlespacing}
 \begin{mathpar}
 \begin{array}{rcl}
 {\replacefor {\path {\keype{k}} {\x{}}} {\y{}} {\x{}}} &=& {\path {\keype{k}} {\y{}}} \\
@@ -1519,6 +1524,7 @@ The substitution for {\x{}} handles the case where \object{} is empty.
 {\replacefor {\path {\keype{k}} {\x{}}} {\emptyobject{}} {\x{}}} &=& \emptyobject{}
 \end{array}
 \end{mathpar}
+\end{singlespacing}
 
 An absent lookup is checked by T-GetHMapAbsent.
 $$
@@ -1616,6 +1622,7 @@ The occurrence typing proof system uses standard propositional logic,
 except for where nested information is combined. This is
 handled by L-Update:
 {  %\footnotesize
+\singlespacing
   $$
 \LUpdate{}
 $$
