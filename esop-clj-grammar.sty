@@ -340,8 +340,9 @@
 % 6 place relation (w/ rewrite)
 \newcommand\judgementselfrewrite[5]{\ma{#1 \vdash {\hastype{#2}{#3}}\ ;\ #4\ ;\ #5}}
 %DISABLE REWRITING
-%\newcommand\judgementrewrite[6]{\ma{#1 \vdash {\hastype{\rewrites{#2}{#6}}{#3}}\ ;\ #4\ ;\ #5}}
 \newcommand\judgementrewrite[6]{\ma{#1 \vdash {\hastype{#2}{#3}}\ ;\ #4\ ;\ #5}}
+%if you really want the => rewrite to show
+\newcommand\judgementshowrewrite[6]{\ma{#1 \vdash {\hastype{\rewrites{#2}{#6}}{#3}}\ ;\ #4\ ;\ #5}}
 %\newcommand\judgementsev[7]{\ma{#3 \vdash_{\scriptscriptstyle{\trdiff{\ct{}}}} #4\ ;\ #5\ ;\ #6}}
 % lookuping props in the env
 % 2 place relation (same as tt | tt; empty)

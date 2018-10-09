@@ -28,3 +28,6 @@ prospectus:
 	pdflatex prospectus.tex 
 	bibtex prospectus
 	pdflatex prospectus.tex 
+
+clean:
+	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod

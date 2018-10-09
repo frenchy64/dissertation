@@ -362,7 +362,7 @@ We formalize our system following Tobin-Hochstadt and Felleisen \cite{TF10}.
 %(with differences highlighted in $\trdiff{\text{blue}}$)
 The typing judgment 
 $
-{\judgementrewrite   {\propenv}
+{\judgementshowrewrite   {\propenv}
               {\e{}} {\t{}}
   {\filterset {\thenprop {\prop{}}}
               {\elseprop {\prop{}}}}
@@ -373,33 +373,33 @@ says expression \e{} rewrites to \ep{}, which
 is of type \t{} in the 
 proposition environment $\propenv{}$, with 
 `then' proposition {\thenprop {\prop{}}}, `else' proposition {\elseprop {\prop{}}}
-and object \object{}. 
+and object \object{}.
+For ease of presentation, we omit \ep{} when it is easily inferred.
 
 We write 
 {\judgementtworewrite{\propenv}{\e{}} {\t{}}{\ep{}} 
 to mean 
-{\judgementrewrite   {\propenv}
+{\judgementshowrewrite   {\propenv}
               {\e{}} {\t{}}
   {\filterset {\thenprop {\propp{}}}
               {\elseprop {\propp{}}}}
   {\objectp{}}
   {\ep{}}}
 for some {\thenprop {\propp{}}}, {\elseprop {\propp{}}}
-and {\objectp{}},
-and
-  abbreviate self rewriting judgements
-{\judgementrewrite   {\propenv}
-              {\e{}} {\t{}}
-  {\filterset {\thenprop {\prop{}}}
-              {\elseprop {\prop{}}}}
-  {\object{}}
-  {\e{}}}
-to
-{\judgementselfrewrite   {\propenv}
-              {\e{}} {\t{}}
-  {\filterset {\thenprop {\prop{}}}
-              {\elseprop {\prop{}}}}
-  {\object{}}}.
+and {\objectp{}}.
+%and abbreviate self rewriting judgements
+%{\judgementrewrite   {\propenv}
+%              {\e{}} {\t{}}
+%  {\filterset {\thenprop {\prop{}}}
+%              {\elseprop {\prop{}}}}
+%  {\object{}}
+%  {\e{}}}
+%to
+%{\judgementselfrewrite   {\propenv}
+%              {\e{}} {\t{}}
+%  {\filterset {\thenprop {\prop{}}}
+%              {\elseprop {\prop{}}}}
+%  {\object{}}}.
 
 
 \paragraph{Typing rules}
@@ -1013,7 +1013,10 @@ to the non-reflective expression
 %    {\TMethod}
 %$$
 The T-Method rule for unresolved methods
-checks {\methodexp {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}.
+checks:
+
+{\methodexp {\getparent{}} {\newstaticexp {\String} {\File{}} {\File{}} {\makestr{a/b}}} {}}.
+
 We verify the target type \s{} = \File is non-nil by T-New.
 The overload is chosen from the class table based on \classhint{1} = \File---there is at most one.
 The nilable return type \t{} = \Union{\Nil}{\String} is given, and the 
@@ -1454,15 +1457,10 @@ and applies it to the original argument for the final result.
 \begin{figure}
   %\footnotesize
 $$
-\begin{array}{lr}
   \begin{array}{llll}
-    \restrictfigure{}
-  \end{array}
-  \ \ 
-  \begin{array}{llll}
+    \restrictfigure{}\\
     \removefigure{}
   \end{array}
-\end{array}
 $$
 \caption{Restrict and remove}
 \label{main:figure:restrictremove}
@@ -1514,7 +1512,7 @@ The result type is \String, and the return object is \path{\keype{\makekw{en}}}{
 The object {\replacefor {\path {\keype{k}} {\x{}}} {\object{}} {\x{}}}
 is a symbolic representation for a keyword lookup of $k$ in \object{}.
 The substitution for {\x{}} handles the case where \object{} is empty.
-\begin{singlespacing}
+
 \begin{mathpar}
 \begin{array}{rcl}
 {\replacefor {\path {\keype{k}} {\x{}}} {\y{}} {\x{}}} &=& {\path {\keype{k}} {\y{}}} \\
@@ -1524,7 +1522,6 @@ The substitution for {\x{}} handles the case where \object{} is empty.
 {\replacefor {\path {\keype{k}} {\x{}}} {\emptyobject{}} {\x{}}} &=& \emptyobject{}
 \end{array}
 \end{mathpar}
-\end{singlespacing}
 
 An absent lookup is checked by T-GetHMapAbsent.
 $$
@@ -1659,9 +1656,15 @@ Each initial recursion hits the first HMap case, since there is some \t{} such t
 
 To demonstrate,
 \makekw{lunch} meals are handled by the first HMap case and
-update to {\HMapp {\extendmandatoryset {\mandatory{}}{\Valkw{Meal}}{\sp{}}} {\emptyabsent{}}}
+update to
+$$
+{\HMapp {\extendmandatoryset {\mandatory{}}{\Valkw{Meal}}{\sp{}}} {\emptyabsent{}}}
+$$
 where \sp{} = {\update{\Valkw{lunch}}{\Valkw{combo}}{\emptypath{}}}
-and \mandatory{} = \mandatoryset{\mandatoryentry{\Valkw{Meal}}{\Valkw{lunch}},{\mandatoryentry{\Valkw{desserts}}{\Number{}}}}.
+and
+$$
+\mandatory{} = \mandatoryset{\mandatoryentry{\Valkw{Meal}}{\Valkw{lunch}},{\mandatoryentry{\Valkw{desserts}}{\Number{}}}}.
+$$
 \sp{} updates to \Bot via the penultimate \updateliteral{} case,
 because \restrict{\Value{\makekw{lunch}}}{\Value{\makekw{combo}}} = \Bot
 by the first \restrictliteral{} case.
