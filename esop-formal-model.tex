@@ -1,4 +1,4 @@
-\section{A Formal Model of \lambdatc{}}
+\chapter{A Formal Model of \lambdatc{}}
 
 \label{sec:formal}
 
@@ -12,7 +12,7 @@ novel feature of Typed Clojure to the formalism,
 interleaving presentation of syntax, typing rules, operational semantics,
 and subtyping.
 
-\subsection{Core type system}
+\section{Core type system}
 \label{sec:coretypesystem}
 
 We start with a review of
@@ -892,7 +892,7 @@ semantics of \ifliteral{} (\figref{main:figure:coresemantics}).
 %We can now use \isprop{\Number}{\x{}} in the environment to check the second subexpression
 %{\appexp{\inc{}}{\x{}}}, completing the example.
 
-\subsection{Java Interoperability}
+\section{Java Interoperability}
 
 \begin{figure}
   %\footnotesize
@@ -1108,7 +1108,7 @@ rules that rewrite to reflective calls.
 %The definition of \updateliteral{} supports various idioms relating to \classpe{}
 %which we introduce in \secref{sec:isaformal}.
 
-\subsection{Multimethod preliminaries: \isaliteral}
+\section{Multimethod preliminaries: \isaliteral}
 
 \label{sec:isaformal}
 
@@ -1163,7 +1163,7 @@ The operational behavior of \isaliteral{} is given by B-IsA (\figref{main:figure
 
 %\constantsemfigure{main}
 
-\subsection{Multimethods}
+\section{Multimethods}
 
 \begin{figure}
   %\footnotesize
@@ -1403,7 +1403,7 @@ the \getmethodliteral{} metafunction (\figref{main:figure:mmsyntax})
 extracts a method \v{f} from the method table {\disptable{}}
 and applies it to the original argument for the final result.
 
-\subsection{Precise Types for Heterogeneous maps}
+\section{Precise Types for Heterogeneous maps}
 \label{sec:hmapformal}
 
 \begin{figure}
@@ -1609,7 +1609,7 @@ $$
 %  \label{main:figure:restrictremove}
 %\end{figure}
 
-\subsection{Proof system}
+\section{Proof system}
 \label{formalmodel:proofsystem}
 
 The occurrence typing proof system uses standard propositional logic,

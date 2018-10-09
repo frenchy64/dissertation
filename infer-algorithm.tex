@@ -1,6 +1,6 @@
-\section{The algorithm}
+\chapter{The algorithm}
 
-\subsection{Step 1}
+\section{Step 1}
 
 \begin{figure*}
 \begin{mathpar}
@@ -110,7 +110,7 @@ of the old ranges.
 Assumption: No optional keys. No recursive types.
 
 %TODO
-\subsection{Step 2.a}
+\section{Step 2.a}
 
 \begin{figure*}
 \begin{mathpar}
@@ -178,7 +178,7 @@ HMaps labels they point to.
 
 Assumption: No recursive types.
 
-\subsection{Step 2.b}
+\section{Step 2.b}
 
 \begin{figure*}
 \begin{mathpar}
@@ -295,7 +295,7 @@ not handle recursive types.
 Assumption: No recursive types before we start 
 (?but surely as we go?)
 
-\subsection{Step 3.a}
+\section{Step 3.a}
 
 Where: \emph{alias-single-HMaps}
 
@@ -304,7 +304,7 @@ Relabel nodes to HMap keyset.
 Relabel each node to its keyset if it is
 a HMap, otherwise do not label.
 
-\subsection{Step 3.b}
+\section{Step 3.b}
 
 Where: \emph{squash-horizontally}
 
@@ -336,7 +336,7 @@ aliases that point to a HMaps with identical required keysets (aliases must poin
 top-level HMap, no unions).}
 \end{figure*}
 
-\subsection{Step 4}
+\section{Step 4}
 %\begin{figure*}
 %\begin{mathpar}
 %  \begin{array}{lllll}

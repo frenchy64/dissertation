@@ -1,4 +1,4 @@
-\section{Metatheory}
+\chapter{Metatheory}
 \label{sec:metatheory}
 
 We prove type soundness following Tobin-Hochstadt and Felleisen~\cite{TF10}.  Our model is extended
@@ -16,16 +16,16 @@ assume they can never go wrong
 
 {\javanewassumption{main}}
 
-%For readability we define logical truth in Clojure.
+For readability we define logical truth in Clojure.
 
-%{\istruefalsedefinitions{main}}
+{\istruefalsedefinitions{main}}
 
 For the purposes of our soundness proof, we require that all values
 are \emph{consistent}.  Consistency (defined in the supplemental
 material) states that the types of closures are well-scoped---they do
 not claim propositions about variables hidden in their closures.
 
-%{\consistentwithonlydef{main}}
+{\consistentwithonlydef{main}}
 
 We can now state our main lemma and soundness theorem.  The
 metavariable \definedreduction{} ranges over \v{}, \errorvalv{} and
@@ -37,9 +37,8 @@ metavariable \definedreduction{} ranges over \v{}, \errorvalv{} and
 \end{lemma}
 
 
-
 {\soundnesstheoremnoproof{main}}
 
-%{\wrongtheoremnoproof{main}}
-%
-%{\nilinvoketheoremnoproof{main}}
+{\wrongtheoremnoproof{main}}
+
+{\nilinvoketheoremnoproof{main}}

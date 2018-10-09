@@ -1,4 +1,4 @@
-\subsection{Background: Clojure with static typing}
+\chapter{Background: Clojure with static typing}
 
 % current situation 
 
@@ -119,20 +119,20 @@ possible without effective handling of these three Clojure features.
 \end{figure*}
 
 
-%\subsection{Contributions}
+\section{Contributions}
 
-%Our main contributions are as follows:
-%
-%\begin{enumerate}
-%  \item We motivate and describe  Typed Clojure, an optional
-%    type system for Clojure that understands existing Clojure idioms.
-%  \item We present a sound formal model for three crucial type
-%    system features: multi-methods, Java
-%    interoperability, and heterogenous maps.
-%  \item We evaluate the use of Typed Clojure features on existing
-%    Typed Clojure code, including both open source and in-house systems.
-%\end{enumerate}
-%
+Our main contributions are as follows:
+
+\begin{enumerate}
+  \item We motivate and describe  Typed Clojure, an optional
+    type system for Clojure that understands existing Clojure idioms.
+  \item We present a sound formal model for three crucial type
+    system features: multi-methods, Java
+    interoperability, and heterogenous maps.
+  \item We evaluate the use of Typed Clojure features on existing
+    Typed Clojure code, including both open source and in-house systems.
+\end{enumerate}
+
 %
 %
 %%% \begin{figure}
@@ -156,17 +156,17 @@ possible without effective handling of these three Clojure features.
 %%% \clj{String}. The \clj{parent} function uses the \clj{:file} keyword
 %%% as an accessor to get the file, checks that it isn't \clj{nil}, and
 %%% then obtains the parent by making a Java method call.
-%
-%\noindent
-% The remainder of this paper begins with an example-driven
-% presentation of the main type system features in
-% \secref{sec:overview}. We then incrementally present a core calculus
-% for Typed Clojure covering all of these features together in
-% \secref{sec:formal} and prove type soundness
-% (\secref{sec:metatheory}). We then 
-% %discuss the full implementation of
-% %Typed Clojure, \coretyped{}, which extends the formal model in many ways, 
-% present an empirical analysis of significant code bases written
-% in \coretyped{}---the full implementation of Typed Clojure---in \secref{sec:experience}. 
-% Finally, we discuss related work and conclude.
-%
+
+\noindent
+ The remainder of this part begins with an example-driven
+ presentation of the main type system features in
+ \secref{sec:overview}. We then incrementally present a core calculus
+ for Typed Clojure covering all of these features together in
+ \secref{sec:formal} and prove type soundness
+ (\secref{sec:metatheory}). We then 
+ %discuss the full implementation of
+ %Typed Clojure, \coretyped{}, which extends the formal model in many ways, 
+ present an empirical analysis of significant code bases written
+ in \coretyped{}---the full implementation of Typed Clojure---in \secref{sec:experience}. 
+ Finally, we discuss related work and conclude.
+

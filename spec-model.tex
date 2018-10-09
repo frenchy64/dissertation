@@ -1,13 +1,11 @@
-\section{Question 3}
+\chapter{Formal model of Clojure.spec}
 
-\begin{verbatim}
-Write a formal model of Clojure with core.spec, and implement it in
-PLT Redex. Formulate a consistency property between contracted and
-uncontracted execution, and test it in redex.
-\end{verbatim}
-
-\subsection{Formal model}
-
+%\begin{verbatim}
+%Write a formal model of Clojure with core.spec, and implement it in
+%PLT Redex. Formulate a consistency property between contracted and
+%uncontracted execution, and test it in redex.
+%\end{verbatim}
+%
 %\input{syntax-figure-lambdac}
 
 We devise a base formal model for Clojure called \lambdac{}
@@ -28,7 +26,7 @@ Figure~\ref{arrowvspec} defines the reduction rules for
 Finally, Figure~\ref{arrowvspec-hof} defines the reduction rules for 
 \lambdacsf{}, adding support for \texttt{fspec}.
 
-\subsection{Consistency property}
+\section{Consistency property}
 
 Let $\rightarrow^{*}$ be the reflexive, transitive closure of $\rightarrow$,
 the single-step reduction relation for our respective languages.
@@ -92,7 +90,7 @@ Original-form: (assert-spec boolean? (FSpec () zero? 0))
 Stuck-form: (assert-spec boolean? (FSpec () zero? 0))
 \end{verbatim}
 
-\subsection{Notes on Redex model}
+\section{Notes on Redex model}
 
 Caching was disabled for the Redex model because it interfered with generative testing.
 For example, the result of \texttt{(gen-spec number?)} was cached, so generative testing coverage

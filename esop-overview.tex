@@ -1,4 +1,4 @@
-\section{Overview of Typed Clojure}
+\chapter{Overview of Typed Clojure}
 
 \label{sec:overview}
 
@@ -8,7 +8,7 @@ uses the full Typed Clojure system to illustrate key type system
 ideas,\footnote{Full examples: \url{https://github.com/typedclojure/esop16}} before studying the core features in detail in
 \secref{sec:formal}.
 
-\subsection{Clojure}
+\section{Clojure}
 
 Clojure~\cite{Hic08} is a Lisp that runs on the
 Java Virtual Machine with support for concurrent programming
@@ -39,7 +39,7 @@ However, this smooth interoperability comes at the cost of pervasive \java{null}
 %
 %\emph{Commas} are always \emph{whitespace}.
 
-\subsection{Typed Clojure}
+\section{Typed Clojure}
 
 A simple one-argument function \clj{greet} is annotated with \clj{ann} to take and return strings.
 
@@ -155,7 +155,7 @@ Removing the branch is a static type error---\clj{repeat} cannot be passed \clj{
 %to check Clojure code.
 
 
-\subsection{Java interoperability}
+\section{Java interoperability}
 \label{sec:overviewjavainterop}
 
 Clojure can interact with Java constructors, methods, and fields.
@@ -235,7 +235,7 @@ In contrast, JVM invariants guarantee constructors return non-null.\footnote{\ur
 \end{exmp}
 
 
-\subsection{Multimethods}
+\section{Multimethods}
 
 \label{sec:multioverview}
 
@@ -416,7 +416,7 @@ is not.
 %Multiple dispatch follows the same kind of reasoning as \egref{example:incmap},
 %except we update multiple bindings simultaneously.
 
-\subsection{Heterogeneous hash-maps}
+\section{Heterogeneous hash-maps}
 
 %Beyond primitives and Java objects, 
 The most common way to represent compound data in Clojure 
@@ -464,7 +464,7 @@ a company with a large production Typed Clojure system
 (\secref{sec:casestudy} presents a case study and empirical
 result from this code base).
 
-\newpage
+%\newpage
 
 \begin{exmp}
 \begin{lstlisting}
@@ -554,7 +554,7 @@ entry named by the second argument. Notice removing \clj{dissoc} causes a type e
 %
 %Section~\ref{sec:formalpaths} discusses how this automatic reasoning is achieved.
 
-\subsection{HMaps and multimethods, joined at the hip}
+\section{HMaps and multimethods, joined at the hip}
 
 HMaps and multimethods are the primary ways for representing
 and dispatching on data respectively, and so are intrinsically linked.

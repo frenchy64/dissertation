@@ -1,119 +1,6 @@
-\section{Question 2}
+\chapter{Clojure.spec Study}
 
-\begin{verbatim}
-Examine the use of Clojure's core.spec contract system in several
-real world code bases. Look at what features are used, and how precise
-specifications are. Analyze how specifications address the lack of
-higher-order contracts by looking at the frequency of higher-order function
-contracts vs higher-order functions that omit specifications of higher-order
-arguments or results.
-\end{verbatim}
-
-\subsection{clojure.spec}
-
-Recently, Clojure added a runtime verification system to its core library called
-\texttt{clojure.spec}.
-It resembles common approaches to runtime verification, such as Racket's contract
-system, but is different in several important ways.
-
-Firstly, \texttt{clojure.spec} is designed to treat most values as ``data at rest''. That is,
-at verification sites, values are eagerly traversed without waiting to see
-if or how the program actually uses them.
-When we consider that \texttt{clojure.spec} treats infinite streams
-and functions as data at rest, we begin to see the tradeoffs that have been
-made.
-
-Secondly, specifications (called ``specs'') are not enforced by default. Users must
-opt-in to enforcing specs via an explicit instrumentation phase.
-This is also different than most contract systems, many of which are enforced
-by default. There is no standard way to integrate spec enforcement into a
-test suite, so it is difficult to tell whether specific specs are primarily 
-unchecked documentation, or actually used for runtime verification.
-
-Since \texttt{clojure.spec} has a unique feature set amongst runtime verification
-libraries, it is interesting to consider how programmers use \texttt{clojure.spec}
-in practice. For example, do programmers find the semantics of treating functions
-as data at rest useful?
-
-Unfortunately since specs are opt-in, it is difficult to
-correlate someone writing a spec with that person \emph{using} the spec,
-implying spec's semantics as being useful.
-Nevertheless, in the following sections we attempt to draw conclusions about
-spec's common usage based mostly on the frequency of spec annotations.
-
-\subsection{Function specifications in clojure.spec}
-
-From here, we map the namespace prefix \texttt{s} to \texttt{clojure.spec.alpha},
-and \texttt{stest} to \texttt{clojure.spec.test.alpha}.
-
-\begin{verbatim}
-(require '[clojure.spec.alpha :as s])
-(require '[clojure.spec.test.alpha :as stest])
-\end{verbatim}
-
-There are two kinds of function checking semantics in \texttt{clojure.spec}.
-We use \texttt{intmap}, a higher-order function that maps a function over 
-a collection of ints, to demonstrate both semantics.
-
-\begin{verbatim}
-(defn intmap
-  "Maps a collection of ints over a function."
-  [f c]
-  (map f c))
-\end{verbatim}
-
-If the programmer wants to write a higher-order function spec to
-verify \texttt{intmap}, they might write the following spec.
-
-\begin{verbatim}
-(s/fdef intmap
-  :args (s/cat :f (s/fspec :args (cat :x int?) :ret int?)
-               :c (s/coll-of int?))
-  :ret (s/coll-of int?))
-\end{verbatim}
-
-The \texttt{s/fdef} form signals we are annotating a top-level
-function, in this case \texttt{intmap}. Argument specs are
-provided with the \texttt{:args} keyword option
-in the form of the ``tagged'' heterogeneous collection spec
-\texttt{s/cat}---here 2 arguments are allowed, tagged as
-\texttt{:f} for the function and \texttt{:c} as the collection.
-
-The \texttt{s/fspec} spec is another kind of function spec,
-specifically for non-top-level functions (such as function arguments
-to top-level functions). It has a similar syntax to \texttt{s/fdef},
-but a function name is not provided.
-
-In a nutshell, \texttt{s/fdef} provides traditional proxy-based
-verification semantics while \texttt{s/fspec} uses eager \emph{generative testing}
-to exercise a function before letting it pass the spec boundary, bare (without a proxy).
-
-We will now demonstrate how the following call gets checked.
-
-\begin{verbatim}
-(intmap inc [1 2 3])
-;=> (2 3 4)
-\end{verbatim}
-
-First, the programmer instruments \texttt{intmap} with:
-
-\begin{verbatim}
-(stest/instrument `intmap)
-\end{verbatim}
-
-This mutates the top-level binding associated with \texttt{intmap}, wrapping a function
-proxy around the original value.
-
-Now, when checking \texttt{(intmap inc [1 2 3])}, the \texttt{inc} function is
-called several hundred times with generated values conforming to \texttt{int?},
-and checks each call returns an \texttt{int?}.
-Then, \texttt{[1 2 3]} is eagerly checked against \texttt{(s/coll-of int?)}.
-The original \texttt{intmap} function is then called with the original arguments,
-yielding a value \texttt{(2 3 4)}. Instrumentation does not check return value specs,
-so \texttt{(s/coll-of int?)} is ignored, and the original return value is passed to the calling
-context.
-
-\subsection{Research questions}
+\section{Research questions}
 
 I aim to answer these research questions:
 
@@ -129,9 +16,9 @@ I do not attempt to answer the following questions:
   \item How frequently do users instrument specs for runtime verification?
 \end{itemize}
 
-\subsection{Methodology}
+\section{Methodology}
 
-\subsubsection{Sources}
+\subsection{Sources}
 
 To determine the frequency of \texttt{fdef} and \texttt{fspec} specs,
 the search features of \texttt{GitHub}~\footnote{\texttt{https://github.com}} and 
@@ -152,7 +39,7 @@ GitHub search) and thus have more credibility that they are used.
 Cross-links are gathered for function/macro usages, and transitive project dependencies.
 Unlike GitHub, CrossClj also distinguishes between ClojureScript and Clojure code
 
-\subsubsection{Frequency Data gathering}
+\subsection{Frequency Data gathering}
 
 Simple GitHub searches were used to find occurrences of \texttt{fdef} and \texttt{fspec}.
 As of March 2018,
@@ -235,7 +122,7 @@ numbers of projects using these forms matches our intuition---\texttt{fspec} occ
 (see plot in Figure~\ref{frequencybargraphs}).
 Still, these numbers should be treated with suspicion.
 
-\subsubsection{Project Samples}
+\subsection{Project Samples}
 
 We selected 18 open source projects that use \texttt{fspec} to manually examine.
 They were chosen by first searching GitHub for \texttt{fspec} occurrences, and
@@ -252,7 +139,7 @@ the flat contract for Clojure functions.
 We selected 17 projects using a similar method via a GitHub search.
 Appendix~\ref{appendix2} contains the projects and our scratch notes for this experiment.
 
-\subsection{Experiment 1: Frequency of \texttt{fspec}}
+\section{Experiment 1: Frequency of \texttt{fspec}}
 \label{experiment1}
 
 \begin{figure*}[t]
@@ -342,7 +229,7 @@ semantics of \texttt{fspec} would be welcomed by spec users.
 % - depth 3 fspec's
 % - depth 2 fspec's + terminating ifn?
 
-\subsection{Experiment 2: Frequency of \texttt{ifn?}}
+\section{Experiment 2: Frequency of \texttt{ifn?}}
 \label{experiment2}
 
 \begin{figure*}[t]
@@ -384,7 +271,7 @@ per project. None of the projects that primarily used \texttt{ifn?} used \texttt
 In the first experiment, projects that used \texttt{fspec} used \texttt{ifn?} rarely---mostly to
 avoid \texttt{fspec}'s generative testing semantics.
 
-\subsection{Conclusions}
+\section{Conclusions}
 
 Our goal in this section was to inform our decisions for when to generate \texttt{fspec}
 annotations in our automatic spec annotation tool.
@@ -456,3 +343,4 @@ an \texttt{fdef}, in a heterogeneous or homogeneous map, or even nested in anoth
 are relevant contextual information that the default behavior of the tool should take
 into account. The varied and subtle results of this investigation support the conclusion
 that the tool's behavior should probably itself be varied and subtle.
+

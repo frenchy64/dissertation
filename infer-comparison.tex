@@ -1,26 +1,26 @@
-\section{Question 1}
+\chapter{Performance analysis}
 
-\begin{verbatim}
-Analyze the space and time complexity of your approach to dynamic
-tracing & subsequent type inference for Typed Clojure.  Are you able
-to bound space use at all by reducing traces as they are collected?
-Please analyze a related system, Daikon
-(https://plse.cs.washington.edu/daikon/), along the same lines.  How
-expressive are Daikons invariants compared to yours?  How much space
-and runtime overhead does it impose?  If Daikon's inferred invariants
-were to become part of a (refinement) type system, how powerful would
-it need to be?
-\end{verbatim}
+%\begin{verbatim}
+%Analyze the space and time complexity of your approach to dynamic
+%tracing & subsequent type inference for Typed Clojure.  Are you able
+%to bound space use at all by reducing traces as they are collected?
+%Please analyze a related system, Daikon
+%(https://plse.cs.washington.edu/daikon/), along the same lines.  How
+%expressive are Daikons invariants compared to yours?  How much space
+%and runtime overhead does it impose?  If Daikon's inferred invariants
+%were to become part of a (refinement) type system, how powerful would
+%it need to be?
+%\end{verbatim}
 
 We begin by analyzing our approach to dynamic tracing and type inference
 for Typed Clojure's dynamic type inference.
 
-\subsection{Dynamic tracing Performance}
+\section{Dynamic tracing Performance}
 
 To avoid the full cost of naive dynamic tracing, we leverage several
 known techniques from the higher-order contract checking literature.
 
-\subsubsection{Space complexity of dynamic tracing}
+\subsection{Space complexity of dynamic tracing}
 
 The space complexity of dynamic tracing in Typed Clojure is similar
 to proxy-based higher-order contract checking (so, reasonable, with
@@ -43,7 +43,7 @@ using a immutable vector with structural sharing.
 %We use several small benchmarks to demonstrate the space-efficiency of
 %function wrappers, and the linear nature of the tracking data.
 
-\subsubsection{Time complexity of dynamic tracing}
+\subsection{Time complexity of dynamic tracing}
 
 Most tracked Clojure collections are traversed lazily as they are used,
 so incurs a $O(1)$ cost to each lookup.
@@ -58,7 +58,7 @@ Non-Clojure Objects simply record their class (including arrays).
 
 \pagebreak
 
-\subsection{Space complexity of type inference}
+\section{Space complexity of type inference}
 
 The type inference algorithm uses a linear amount of memory with respect
 to the number of distinct HMap types in the input.
@@ -70,7 +70,7 @@ factors are small.
 The algorithm also can use more space as more samples are processed. For example,
 a large union type could be accumulated by combining several samples.
 
-\subsection{Time complexity of type inference}
+\section{Time complexity of type inference}
 
 \begin{figure}
 \begin{mdframed}
@@ -116,7 +116,7 @@ merges similar recursive types that occur in different type/alias
 environment entries.
 The overall time complexity is summarized in Section~\ref{overall-time-complexity}.
 
-\subsubsection{Join}
+\subsection{Join}
 \label{join}
 \begin{verbatim}
 join(D, W, U) = O(D * max(W, U^2))
@@ -132,7 +132,7 @@ each of the members of its types pairwise, of which the maximum number is $W$.
 A maximum number of $D$ recursive joins can occur, and $max(W, U^2)$ work is done
 at each level, so time complexity is $O(D * max(W, U^2))$.
 
-\subsubsection{Naive type environment creation}
+\subsection{Naive type environment creation}
 \label{naive-gamma-slow}
 
 1. Build naive type environment.
@@ -152,7 +152,7 @@ Join this type with the existing type taking $join(D, W, U)$.
 Since we do $(D + join(D, W, U))$ work for each result, time complexity
 is $O(I * (D + join(D, W, U)))$.
 
-\subsubsection{Naive type environment creation (optimized)}
+\subsection{Naive type environment creation (optimized)}
 \label{naive-gamma-fast}
 
 1. Build naive type environment (optimized)
@@ -164,7 +164,7 @@ is $O(I * (D + join(D, W, U)))$.
 optimized\Gamma(I, D, W, U) = O(I * (D + join(D, W, U)))
 \]
 
-\subsubsection{Squash Vertically}
+\subsection{Squash Vertically}
 \label{squash-vertically}
 Iterate down each type in the type environment and merge similarly "tagged"
 maps, resulting in a possibly recursive type.
@@ -188,7 +188,7 @@ Each iteration involves:
 squash\_vertically(\Gamma, A, D, W, U) = O(|\Gamma| * (D*W*U + A*join(D, W, U)))
 \]
 
-\subsubsection{Squash Horizontally}
+\subsection{Squash Horizontally}
 \label{squash-horizontally}
 
 Iterate over the reachable aliases (from the type environment)
@@ -226,7 +226,7 @@ squash\_horizontally(\Gamma, A, D, W, U) = O(&group\_req\_keys(A,D,W,U)\\
 								  												   &+ group\_likely\_tag\_key(A,D,W,U))
 \end{align*}
 
-\subsubsection{Overall time complexity}
+\subsection{Overall time complexity}
 \label{overall-time-complexity}
 The overall time complexity is the sum of the previous passes.
 
@@ -250,7 +250,7 @@ Based on this analysis, we have a few observations:
 	\end{itemize}
 \end{itemize}
 
-\subsection{Benchmarks}
+\section{Benchmarks}
 
 To test the time complexity of the implementation of the type reconstruction
 algorithm, we devise several benchmarks.
@@ -259,7 +259,7 @@ The benchmarks are designed to emperically determine the influence of the
 size of the largest union type on the time complexity of the type reconstruction
 algorithm.
 
-\subsubsection{Benchmark 1: 2 tags}
+\subsection{Benchmark 1: 2 tags}
 
 The first benchmark generates deep inputs using one of 2 "tagged" maps.
 This is equivalent to seeding the algorithm with
@@ -291,7 +291,7 @@ The final output of the algorithm is a recursive type with 2 tags.
 
 All inputs to Benchmark 1 greater than 0 result in this same calculated type.
 
-\subsubsection{Benchmark 2: Many tags}
+\subsection{Benchmark 2: Many tags}
 
 The second benchmark forces the largest union to be linear to the depth
 of the input type. It achieves this with a similar approach to Benchmark 1,
@@ -347,7 +347,7 @@ For example, Benchmark 2 with depth 10 results in:
     '{:tag ':null}))
 \end{verbatim}
 
-\subsubsection{Results}
+\subsection{Results}
 
 \includegraphics[width=\textwidth]{tagged-untagged-depth-bench120}
 
@@ -363,7 +363,7 @@ with respect to the size of the largest union.
 
 These observations are consistent with the prior theoretical analysis.
 
-\subsection{Can space use be bounded by reducing traces as collected?}
+\section{Can space use be bounded by reducing traces as collected?}
 
 Traces in Typed Clojure's dynamic analysis are accumulated online, and then
 folded into a type environment offline. However, this fold operation is commutative
@@ -381,7 +381,7 @@ annotations are very compressed compared to intermediate points in the analysis,
 fully or partially performing this analysis online may drastically decrease space
 usage where recursively defined maps are used, and very deep examples are found.
 
-\subsection{Daikon}
+\section{Comparison to Daikon}
 
 Daikon is a related system to Typed Clojure's dynamic type inference.
 However, Daikon is built for ``invariant detection'', while our system
@@ -421,7 +421,7 @@ and typically target untyped languages.
 %basic nominal or structural type information---it is generally applied to untyped
 %languages where basic static type information is absent.
 
-\subsubsection{Daikon's expressivity vs Typed Clojure's dynamic inference}
+\subsection{Daikon's expressivity vs Typed Clojure's dynamic inference}
 
 Daikon can reason about very expressive relationships between variables
 using properties like ordering ($x < y$), linear relationships ($y = ax + b$),
@@ -441,7 +441,7 @@ between variables. Typed Clojure recovers relevant dependent information
 via occurrence typing, and gives the option to manually annotate necessary
 dependencies in function signatures when needed.
 
-\subsubsection{Space/time overhead of Daikon's dynamic tracing}
+\subsection{Space/time overhead of Daikon's dynamic tracing}
 
 Performance of dynamic tracing is not directly addressed in the Daikon
 literature, who only provide complexity analyses and optimizations for storing
@@ -483,7 +483,7 @@ to observe mutation. However, local unsynchronized mutation is non-idiomatic
 in Clojure so re-tracking variables is almost always redundant---mutation is
 often via synchronized global variables that can be instrumented once-and-for-all.
 
-\subsubsection{Space/time overhead of Daikon's type inference}
+\subsection{Space/time overhead of Daikon's type inference}
 
 The overhead of likely invariant detection
 is described by Perkins and Ernst~\cite{Perkins04efficientincremental}.
@@ -510,7 +510,7 @@ They note, however, most invariants are removed quickly (after
 $O(1)$ samples), so performance improves as more samples
 are collected.
 
-\subsubsection{Checking Daikon's invariants in a refinement type system}
+\subsection{Checking Daikon's invariants in a refinement type system}
 
 Daikon has expressive invariants, but can they be statically verified?
 Yes, in fact Daikon supports generating annotations for a Java-based
