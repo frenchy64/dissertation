@@ -123,12 +123,12 @@ of its keyset as a name.
 \end{Verbatim}
 
 \begin{figure*}
-\begin{Verbatim}
+\begin{cljlisting}
 (defn vertices [m]
   (case (:op m)
     :leaf 1
     :node (+ 1 (:left m) (:right m))))
-\end{Verbatim}
+\end{cljlisting}
 \label{code:vertices}
 \end{figure*}
 

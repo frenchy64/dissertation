@@ -1,4 +1,4 @@
-\section{Soundness for Typed Clojure}
+\chapter{Soundness for Typed Clojure}
 
 {\javaassumptionsall{appendix}}
 
@@ -558,13 +558,14 @@ Part 4 holds vacuously.
         Similar to T-True.
       \end{subcase}
     \item[]
-      \begin{subcase}[T-Instance] \v{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}},
-  \ep{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}},
-  \e{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}},
-  \issubtypein{}{\class{}}{\t{}},
-  \inpropenv{\topprop{}}{\thenprop{\prop{}}},
-  \inpropenv{\botprop{}}{\elseprop{\prop{}}},
-  \issubtypein{}{\emptyobject{}}{\object{}}
+      \begin{subcase}[T-Instance]
+        \v{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}},
+        \ep{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}},
+        \e{} = {\classvalue{\classhint{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}},
+        \issubtypein{}{\class{}}{\t{}},
+        \inpropenv{\topprop{}}{\thenprop{\prop{}}},
+        \inpropenv{\botprop{}}{\elseprop{\prop{}}},
+        \issubtypein{}{\emptyobject{}}{\object{}}
 
 
         Similar to T-True.
@@ -1379,7 +1380,7 @@ by noting \judgementtwo {} {\v{d}} {\t{d}},
     Prove by cases on \v{2}.
 
         \begin{itemize}
-          \item[] \begin{subcase}[\v{2} = \classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}]
+          \item[] \begin{subcase}[\v{2} = \classvalue{\class{}} {\protect\overrightarrow {\classfieldpair{\fld{i}} {\v{i}}}}]
                     \v{} = \class{}
 
                     To prove part 1,
@@ -1428,7 +1429,7 @@ by noting \judgementtwo {} {\v{d}} {\t{d}},
 
               As above.
                   \end{subcase}
-          \item[] \begin{subcase}[\v{2} = {\curlymapvaloverright{\v{1}}{\v{2}}}] \v{} = \Keyword{}
+          \item[] \begin{subcase}[\v{2} = {\protect\curlymapvaloverright{\v{1}}{\v{2}}}] \v{} = \Keyword{}
 
 
               As above.

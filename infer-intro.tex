@@ -11,10 +11,27 @@ writing type annotations is a manual process.
 Take \texttt{vertices} (Figure~\ref{vertices}),
 written in Clojure.
 As is good style, it comes with a unit test.
-Our goal is to \textit{generate} Typed Clojure~\cite{typed-clojure}
+Our goal is to \textit{generate} Typed Clojure~\cite{bonnaire2016practical}
 annotations
 for this function, relieving most of the annotation
 burden.
+
+\begin{figure}
+\begin{cljlisting}
+(defn vertices [t]
+  (case (:op t)
+    :leaf 1
+    :node (+ 1 (vertices (:left t))
+               (vertices (:right t)))))
+(deftest vertices-test
+  (is (= 3 (vertices {:op :node 
+                      :left {:op :leaf :val 2}
+                      :right {:op :leaf :val 3}}))))
+\end{cljlisting}
+\caption{A function counting vertices in a tree,
+with a test.}
+\label{vertices}
+\end{figure}
 
 Our approach features several stages.
 First, we \textit{instrument} top-level functions
@@ -24,22 +41,27 @@ how they are used at runtime
 (Section \ref{track-TODO}).
 At this point, we have a preliminary
 annotation:
-%
-\begin{Verbatim}
-(ann vertices ['{:op ':node, :left '{:op ':leaf, :val Int}, :right '{:op ':leaf, :val Int}} -> Int]})
-\end{Verbatim}
-%
+
+\begin{cljlisting}
+(ann vertices ['{:op ':node,
+                 :left '{:op ':leaf,
+                         :val Int},
+                 :right '{:op ':leaf,
+                          :val Int}}
+               -> Int]})
+\end{cljlisting}
+
 This type is too specific---trees are recursively
 defined---we \textit{squash} types to be
 recursive from example unrollings (Section \ref{recursive-TODO}):
 
-\begin{Verbatim}
+\begin{cljlisting}
 (defalias NodeLeaf 
-  (U '{:op ':node :left NodeLeaf :right NodeLeaf}
-     '{:op ':leaf :val Int}))
+  (U '{:op ':node, :left NodeLeaf, :right NodeLeaf}
+     '{:op ':leaf, :val Int}))
 (ann vertices [NodeLeaf -> Int])
-\end{Verbatim}
-%
+\end{cljlisting}
+
 %\begin{Verbatim}
 %(declare Node Leaf)
 %(defalias NodeLeaf (U Node Leaf))
@@ -53,23 +75,23 @@ If \texttt{NodeLeaf} is used in multiple positions
 in the program, local recursive types are redundant.
 In this paper, we name and \textit{merge} recursive
 types, reusing them in annotations.
-%
-\begin{Verbatim}
+ 
+\begin{cljlisting}
 (ann vertices [NodeLeaf -> Int])
 (ann sum-tree [NodeLeaf NodeLeaf -> NodeLeaf])
-\end{Verbatim}
-%
+\end{cljlisting}
+ 
 If minor variants of the recursive types occur
 across a program,
-we use \textit{optional} entries~\cite{typed-clojure}
+we use \textit{optional} entries%~\cite{typed-clojure}
 to reduce redundancy (Section \ref{optional-merge-TODO}).
-%
-\begin{Verbatim}
+ 
+\begin{cljlisting}
 (defalias NodeLeaf 
-  (U '{:op ':node :left NodeLeaf :right NodeLeaf}
+  (U '{:op ':node, :left NodeLeaf, :right NodeLeaf}
      (HMap :mandatory {:op ':leaf :val Int}
            :optional {:label Str})))
-\end{Verbatim}
+\end{cljlisting}
 
 After inserting these annotations, we can run the
 type checker over them to check their usefulness.
@@ -146,20 +168,3 @@ would mean less manual casts are needed.
 \item
   We include a formal model of our inference algorithm.
 \end{itemize}
-
-\begin{figure}
-\begin{Verbatim}
-(defn vertices [t]
-  (case (:op t)
-    :leaf 1
-    :node (+ 1 (vertices (:left t))
-               (vertices (:right t)))))
-(deftest vertices-test
-  (is (= 3 (vertices {:op :node 
-                      :left {:op :leaf :val 2}
-                      :right {:op :leaf :val 3}))))
-\end{Verbatim}
-\caption{A function counting vertices in a tree,
-with a test.}
-\label{vertices}
-\end{figure}
