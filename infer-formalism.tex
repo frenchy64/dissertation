@@ -1,22 +1,89 @@
 \chapter{Formalism}
 
 We present \lambdatrack{}, an untyped $\lambda$-calculus
-that describes the essense of our approach to runtime instrumentation
-and tracking.
-\figref{infer:fig:syntax} presents the syntax of \lambdatrack{}.
+that describes the essense of our approach to automatic annotations.
+Our model is split into two phases: the collection phase 
+\collectOp{}
+that runs an instrumented program and collects observations, and
+an inference phase 
+\inferanns{}
+that derives type annotations from these observations
+that can be used to automatically annotate the program.
 
+Before getting into details, we define the top-level driver function \annotateOp{} that connects
+both pieces.
+It says, given a program \e{}
+and top-level variables $\overrightarrow{\x{}}$ to infer annotations for,
+return an annotation environment \atenv{} with possible entries for
+$\overrightarrow{\x{}}$ based on observations from evaluating
+an instrumented \e{}.
+
+\begin{mathpar}
+\infer[Driver]
+{ \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}
+  \\
+  \inferannsnoalign{\res{}}{\atenv{}}
+}
+{ \annotatenoalign{\e{}}{\overrightarrow{\x{}}}{\atenv{}} }
+\end{mathpar}
+
+To contextualize the presentation of these phases, we begin a running example:
+inferring the type of a top-level function $f$, that takes a map and
+returns its {\makekw{a}} entry, 
+based on the following usage.
+
+\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
+define $f$ = \uabs{m}{\getexp{m}{\makekw{a}}}
+
+\appexp{f}{\curlymap{\makekw{a} 42}}
+=> 42
+\end{Verbatim}
+
+Plugging this example into our driver function, where \e{} = {\appexp{f}{\curlymap{\makekw{a}\ 42}}},
+we derive an annotation for $f$:
+
+$$
+\annotatenoalign{\e{}}{[f]}{\{\hastype{f}{[\{\makekw{a}\ \IntT{}\} \rightarrow \IntT{}]}\}}
+$$
+
+Now that we have a high-level picture of how these phases interact,
+we describe the syntax and semantics of \lambdatrack{}, before
+presenting the details of \collectOp{}.
+
+\figref{infer:fig:syntax} presents the syntax of \lambdatrack{}.
 Values \v{} consist of numbers \num{}, Clojure-style keywords {\kw{}},
-closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}, constants \const{},
 and keyword keyed hash maps {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}.
 
 Expressions \e{} consist of variables \x{}, values,
 functions, hash-maps, and function applications.
-The a special form
+The special form
 \trackE{\e{}}{\inferpath{}}
-tracks {\e{}}'s eventual value as related to path {\inferpath{}},
+observes {\e{}} as related to path {\inferpath{}}.
 Paths \inferpath{} 
 record the source of a runtime value with respect
-to a sequence of path elements \pth{}.
+to a sequence of path elements \pth{}, which always starts with
+a variable \x{}, and are read left-to-right.
+Other path elements are
+a function domain \dompe{}, 
+a function range \rngpe{},
+and a map entry {\inferkeype{\overrightarrow{\kw{1}}}{\kw{2}}}
+which represents the result of looking up key {\kw{2}}
+in a map with keyset ${\overrightarrow{\kw{1}}}$.
+
+Inference results \restwoarrow{\inferpath{}}{\t{}}
+are pairs of paths {\inferpath{}} and types \t{}
+that say the path \inferpath{} was observed to be 
+type \t{}.
+Types \t{} are numbers \IntT{}, function types \arrow{\t{}}{\t{}},
+ad-hoc union types \Union{\t{}}{\t{}},
+type aliases \alias{},
+%top type \Top{},
+and unknown type \UnknownT{} that represents
+a temporary lack of knowledge during the inference process.
+Heterogeneous keyword map types \HMappretty{\overrightarrow{\kw{}\ \t{}}}
+for now represent a series of required keyword entries---we will extend
+them to have optional entries in later phases.
 
 \begin{figure*}
   $$
@@ -49,13 +116,12 @@ to a sequence of path elements \pth{}.
       &\mbox{Inference results} \\
     \ty{}, \sigma
       &::=& \IntT{}
-       \alt [\tau \rightarrow \tau]
-       %\alt [\overrightarrow{\tau} \tau * \rightarrow \tau]
-       \alt \{\overrightarrow{\kw{}\ \tau}\}
-       \\
-       &\alt& \HMaptwo{\{\overrightarrow{\kw{}\ \tau}\}}{\{\overrightarrow{\kw{}\ \tau}\}}
-       \alt \tau \cup \tau
+       \alt \arrow{\t{}}{\t{}}
+       \alt \HMappretty{\overrightarrow{\kw{}\ \t{}}}
+       %&\alt& \HMaptwo{\{\overrightarrow{\kw{}\ \tau}\}}{\{\overrightarrow{\kw{}\ \tau}\}}
+       \alt \Union{\t{}}{\t{}}
        \alt \alias{} % type alias
+       %\alt \Top{}
        \alt \UnknownT{}
       &\mbox{Types} \\
     \tenv{} &::=& \{\overrightarrow{\xvar{} : \tau}\}
@@ -63,56 +129,39 @@ to a sequence of path elements \pth{}.
     \aenv{} &::=& \{\overrightarrow{\alias{} \mapsto \tau}\}
       &\mbox{Type alias environments} \\
     \atenv{} &::=& (\aenv{}, \tenv{})
-      &\mbox{Combined environments} \\
+      &\mbox{Annotation environments} \\
   \end{altgrammar}
   $$
 \caption{Syntax of Terms, Types, Inference results, and Environments for \lambdatrack{}}
 \label{infer:fig:syntax}
 \end{figure*}
 
-For example, say we have a global variable $f$ that takes a map and
-returns its {\makekw{a}} entry:
-
-\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
-$f$ $m$ = \getexp{m}{\makekw{a}}
-\end{Verbatim}
-
-Let's track the usage of $f$ in the following program.
-
-\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
-=> \appexp{f}{\curlymap{\makekw{a} 42}}
-\end{Verbatim}
-
-We instrument the program by wrapping each usage of $f$ with \trackEOp{}
-with an initial path of $[f]$ (itself), and collect \emph{inference results}
-as the program evaluates.
-We bind $p$ to {\curlymap{\makekw{a}\ 42}} for readability.
-
-\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
-=> \appexp{f}{p}
-=> \appexp{\trackE{f}{[f]}}{p}
-=> \trackE{\getexp{\trackE{p}{[f, \dompe{}]}}{\makekw{a}}}{[f, \rngpe{}]}
-=> \trackE{\getexp{p ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{\makekw{a}}}{[f, \rngpe{}]}
-=> \trackE{42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{[f, \rngpe{}]}
-=> $42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}}$
-\end{Verbatim}
-
-Notice that values can have inference results (colored) attached to them with a semicolon,
-and the final value has inference results about both $f$'s domain and range.
-To explain this reduction, we introduce the semantic rules of \lambdatrack{}.
-
 The big-step operational semantics
 {\opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}}}
+(\figref{infer:fig:semantics})
 says under runtime environment \openv{}
 expression \e{} evaluates to value \v{}
 with inference results \res{}.
-\figref{infer:fig:semantics} contains the rules.
 Most rules are standard, with extensions to correctly
 propagate inference results \res{}.
 B-Track is the only interesting rule, which instruments
-its fully-evaluated argument with the \trackEOp{}
-metafunction (\figref{infer:fig:trackmeta}).
+its fully-evaluated argument with the \trackmetaOp{}
+metafunction.
 
+The metafunction \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\res{}} (\figref{infer:fig:trackmeta})
+says if value \v{} occurs at path {\inferpath{}}, then return a possibly-instrumented
+\vp{} paired with inference results {\res{}} that can be immediately derived
+from the knowledge that \v{} occurs at path {\inferpath{}}.
+It has a case for every kind of value.
+The first case records the number input as type {\IntT{}}.
+The second case, for closures, returns a wrapped value
+resembling higher-order function contracts~\cite{findler2002contracts},
+but we track the domain and range rather than verify them.
+The third case, for maps, recursively tracks each map value,
+and returns a map with possibly wrapped values.
+Immediately accessible inference results are combined
+and returned.
+The other cases are straightforward.
 
 \begin{figure*}
 \begin{mathpar}
@@ -185,20 +234,6 @@ metafunction (\figref{infer:fig:trackmeta}).
 \label{infer:fig:semantics}
 \end{figure*}
 
-The metafunction \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\res{}}
-takes value \v{} and path {\inferpath{}} and returns a value
-\vp{} paired with inference results {\res{}}.
-It has a case for every kind of value.
-The first case records the number input as type {\IntT{}}.
-The second case, for closures, returns a wrapped value
-resembling higher-order function contracts~\cite{findler2002contracts},
-but we track the domain and range rather than verify them.
-The third case, for maps, recursively tracks each map value,
-and returns a map with possibly wrapped values.
-Immediately accessible inference results are combined
-and returned.
-The other cases are trivial.
-
 \begin{figure*}
 \begin{mathpar}
 
@@ -240,7 +275,56 @@ The other cases are trivial.
 \label{infer:fig:trackmeta}
 \end{figure*}
 
-         
+Now we have sufficient pieces to describe the initial collection phase of our model.
+Given an expression \e{} and variables ${\overrightarrow{\x{}}}$ to track,
+\instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\ep{}}
+returns an expression \ep{} with each occurrence of \x{} instrumented.
+It is defined via capture-avoiding substitution:
+
+$$
+\instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\replacefor{\e{}}{\overrightarrow{\trackE{\x{}}{[\x{}]}}}{\overrightarrow{\x{}}}}
+$$
+
+Then, the overall collection phase 
+\collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}
+says, given an expression \e{}
+and variables
+$\overrightarrow{\x{}}$
+to track,
+returns inference results {\res{}}
+that are the results of evaluating \e{}
+with instrumented occurrences of $\overrightarrow{\x{}}$.
+It is defined as:
+
+\begin{mathpar}
+\infer[]
+  { \instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\ep{}}
+  \\
+  \opsemtrack{\emptyopenv{}}{\ep{}}{\v{}}{\res{}}
+  }
+  { \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}} }
+\end{mathpar}
+
+For our running example,
+we instrument the program by wrapping each usage of $f$ with \trackEOp{}
+with an initial path of $[f]$ (itself), and collect \emph{inference results}
+as the program evaluates.
+
+\opsemtrack{}{\e{}}{\v{}}{\res{}}
+
+\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
+=> \appexp{f}{\curlymap{\makekw{a}\ 42}}
+=> \appexp{\trackE{f}{[f]}}{\curlymap{\makekw{a}\ 42}}
+=> \trackE{\getexp{\trackE{\curlymap{\makekw{a}\ 42}}{[f, \dompe{}]}}{\makekw{a}}}{[f, \rngpe{}]}
+=> \trackE{\getexp{{\curlymap{\makekw{a}\ 42}} ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{\makekw{a}}}{[f, \rngpe{}]}
+=> \trackE{42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{[f, \rngpe{}]}
+=> $42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}}$
+\end{Verbatim}
+
+Notice that values can have inference results (colored) attached to them with a semicolon,
+and the final value has inference results about both $f$'s domain and range.
+To explain this reduction, we introduce the semantic rules of \lambdatrack{}.
+
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}

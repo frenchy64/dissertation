@@ -15,13 +15,14 @@
 \newcommand\PairOfT[1]{{\mathsf{PairOf}}}
 \newcommand\NatT[1]{{\mathsf{N}}}
 \newcommand\IntT[1]{\ma{\mathsf{N}}}
-\newcommand\UnknownT[1]{{\mathrm{?}}}
-\newcommand\HMaptwo[2]{({\mathsf{HMap}}\ #1\ #2)}
+\newcommand\UnknownT[1]{\ma{\mathrm{?}}}
+\newcommand\HMaptwo[2]{\ma{({\mathsf{HMap}}\ #1\ #2)}}
+\newcommand\HMappretty[1]{\ma{\{#1\}}}
 \newcommand\appendone[2]{#1 :: [#2]}
 \newcommand\Proxy[0]{\specialformfont{Proxy}}
 \newcommand\ProxyE[3]{(\Proxy{}\ #1\ #2\ #3)}
 % types
-\newcommand\arrow[2]{[#1 \rightarrow #2]}
+\newcommand\arrow[2]{\ma{[#1 \rightarrow #2]}}
 \newmeta\ty{\tau}
 
 % semantics
@@ -40,7 +41,8 @@
 \newcommand\stepthree[0]{\infermetafnfont{squashGlobal}}
 \newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
 \newcommand\aliassinglehmap[0]{aliasSingleHMap}      %% TODO needs definition!
-\newcommand\inferanns[0]{\infermetafnfont{inferAnns}}
+\newcommand\inferanns[0]{\ma{\infermetafnfont{infer}}}
+\newcommand\inferannsnoalign[2]{\ma{\inferanns{}(#1) = #2}}
 \newcommand\generatetenv[0]{\infermetafnfont{gen{\Gamma}}}
 \newcommand\genupdate[0]{\infermetafnfont{genUpdate}}
 \newcommand\trackmetaOp[0]{\ma{\infermetafnfont{track}}}
@@ -56,6 +58,12 @@
 \newcommand\joinalign[4]{\joinOp{}(#1, #2, #3) &=& #4}
 \newcommand\joinnoalign[4]{\ma{\joinOp{}(#1, #2, #3) = #4}}
 \newcommand\joinexpression[3]{\joinOp{}(#1, #2, #3)}
+\newcommand\instrumentOp[0]{\ma{\infermetafnfont{instrument}}}
+\newcommand\instrumentnoalign[3]{\ma{\instrumentOp{}(#1, #2) = #3}}
+\newcommand\collectOp[0]{\ma{\infermetafnfont{collect}}}
+\newcommand\collectnoalign[3]{\ma{\collectOp{}(#1, #2) = #3}}
+\newcommand\annotateOp[0]{\ma{\infermetafnfont{annotate}}}
+\newcommand\annotatenoalign[3]{\ma{\annotateOp{}(#1, #2) = #3}}
 
 % aliases
 \newmeta\alias{a}
