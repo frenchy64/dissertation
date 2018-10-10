@@ -7,14 +7,14 @@
 \usepackage{mmm}
 
 \newcommand\specialformfont[1]{{\textbf{#1}}}
-\newcommand\trackE[2]{({\specialformfont{track}}\ #1\ #2)}
+\newcommand\trackEOp[0]{\ma{\specialformfont{track}}}
+\newcommand\trackE[2]{\ma{({\trackEOp{}}\ #1\ #2)}}
 \newcommand\trackpolyE[3]{({\specialformfont{trackPoly}}\ #1\ #2\ #3)}
 \newcommand\genE[0]{({\specialformfont{genInt}})}
 \newcommand\inferletliteral[0]{{\specialformfont{let}}}
-\newcommand\assocE[3]{({\specialformfont{assoc}}\ #1\ #2\ #3)}
 \newcommand\PairOfT[1]{{\mathsf{PairOf}}}
 \newcommand\NatT[1]{{\mathsf{N}}}
-\newcommand\IntT[1]{{\mathsf{N}}}
+\newcommand\IntT[1]{\ma{\mathsf{N}}}
 \newcommand\UnknownT[1]{{\mathrm{?}}}
 \newcommand\HMaptwo[2]{({\mathsf{HMap}}\ #1\ #2)}
 \newcommand\appendone[2]{#1 :: [#2]}
@@ -25,8 +25,8 @@
 \newmeta\ty{\tau}
 
 % semantics
-\newcommand\bigstep[4]{ #1 \vdash #2 \Downarrow #3\ ; #4}
-\newcommand\bigstepgen[6]{ #1 ; #2 \vdash #3 \Downarrow #4\ ; #5 ; #6}
+\newcommand\opsemtrack[4]{\ma{#1 \vdash #2 \Downarrow #3\ ; #4}}
+\newcommand\bigstepgen[6]{\ma{#1 ; #2 \vdash #3 \Downarrow #4\ ; #5 ; #6}}
 
 % environments
 \newmeta\aenv{\ma{A}}
@@ -43,21 +43,24 @@
 \newcommand\inferanns[0]{\infermetafnfont{inferAnns}}
 \newcommand\generatetenv[0]{\infermetafnfont{gen{\Gamma}}}
 \newcommand\genupdate[0]{\infermetafnfont{genUpdate}}
-\newcommand\trackmeta[0]{\infermetafnfont{track}}
-\newcommand\trackpolymeta[0]{\infermetafnfont{trackPoly}}
-\newcommand\inferupdate[4]{\infermetafnfont{update}(#1, #2, #3, #4)}
+\newcommand\trackmetaOp[0]{\ma{\infermetafnfont{track}}}
+\newcommand\trackmeta[4]{\ma{\trackmetaOp{}(#1, #2) = #3\ ; #4}}
+\newcommand\trackmetaalign[4]{\ma{\trackmetaOp{}(#1, #2) &=& #3\ ; #4}}
+\newcommand\trackpolymeta[0]{\ma{\infermetafnfont{trackPoly}}}
+\newcommand\inferupdateOp[0]{\ma{\infermetafnfont{update}}}
+\newcommand\inferupdate[4]{\inferupdateOp{}(#1, #2, #3, #4)}
 \newcommand\inferupdatecommon[6]{\inferupdate{#1}{#2}{#3}{#4} #5 #6} % takes the = sign to allow extra alignment
-\newcommand\inferupdatenoalign[5]{\inferupdatecommon{#1}{#2}{#3}{#4}{=}{#5}}
+\newcommand\inferupdatenoalign[5]{\ma{\inferupdatecommon{#1}{#2}{#3}{#4}{=}{#5}}}
 \newcommand\inferupdatealign[5]{\inferupdatecommon{#1}{#2}{#3}{#4}{&=&}{#5}}
-\newcommand\joinalign[4]{\infermetafnfont{join}(#1, #2, #3) &=& #4}
-\newcommand\joinnoalign[4]{\infermetafnfont{join}(#1, #2, #3) = #4}
-\newcommand\joinexpression[3]{\infermetafnfont{join}(#1, #2, #3)}
+\newcommand\joinOp[0]{\ma{\infermetafnfont{join}}}
+\newcommand\joinalign[4]{\joinOp{}(#1, #2, #3) &=& #4}
+\newcommand\joinnoalign[4]{\ma{\joinOp{}(#1, #2, #3) = #4}}
+\newcommand\joinexpression[3]{\joinOp{}(#1, #2, #3)}
 
 % aliases
 \newmeta\alias{a}
 
 % expressions
-\newmeta\exp{e}
 \newmeta\val{v}
 \newmeta\kw{k}
 \newmeta\xvar{x}
@@ -67,7 +70,9 @@
 % abstract syntax for pathelem
 \newmeta\pth{l}
 \newcommand\inferpefont[1]{\textbf{#1}}
-\newcommand\inferkeype[2]{\ma{\inferpefont{key}_{#1}(#2)}}
+\newcommand\keypeOp[0]{\ma{\inferpefont{key}}}
+\newcommand\inferkeype[2]{\ma{\keypeOp{}_{#1}(#2)}}
+\newcommand\inferkeypenokeyset[2]{\ma{\keypeOp{}(#2)}}
 \newcommand\dompe[0]{\ma{\inferpefont{dom}}}
 \newcommand\rngpe[0]{\ma{\inferpefont{rng}}}
 
@@ -75,4 +80,16 @@
 \newmeta\inferpath{\ma{\pi}}
 
 % inference results
-\newmeta\res{{\ma{r}}}
+\newmeta\res{\ma{r}}
+\newmeta\resp{\ma{r'}}
+\newcommand\emptyres[0]{\ma{\{\}}}
+\newcommand\resentry[2]{\ma{#1 : #2}}
+\newcommand\singletonres[2]{\ma{\{\resentry{#1}{#2}\}}}
+\newcommand\resflat[1]{\ma{\{#1\}}}
+\newcommand\resflatcolor[1]{\ma{\textcolor{red}{\resflat{#1}}}}
+\newcommand\restwoarrow[2]{\ma{\{\overrightarrow{\resentry{#1}{#2}}\}}}
+\newcommand\unionres[2]{\ma{{#1 \sqcup #2}}}
+\newcommand\bigunionres[1]{\ma{\overrightarrow{\sqcup\ #1}}}
+\newcommand\unionresthree[3]{\ma{{#1 \sqcup \unionres{#2}{#3}}}}
+
+\newcommand\lambdatrack[0]{\ma{\lambda_{\trackmetaOp{}}}}

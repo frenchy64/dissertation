@@ -1,18 +1,305 @@
 \chapter{Formalism}
 
-We create a $\lambda$-calculus with multi-arity functions,
-$\lambda \overrightarrow{x}. e$,
-plain maps
-$\{\overrightarrow{e\ e}\}$
-and
-numbers $n$.
-The \textbf{track} function
-$(\text{track}\ e\ \overrightarrow{pth})$
-takes a value and a path and returns 
-a wrapped value.
+We present \lambdatrack{}, an untyped $\lambda$-calculus
+that describes the essense of our approach to runtime instrumentation
+and tracking.
+\figref{infer:fig:syntax} presents the syntax of \lambdatrack{}.
+
+Values \v{} consist of numbers \num{}, Clojure-style keywords {\kw{}},
+closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+and keyword keyed hash maps {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}.
+
+Expressions \e{} consist of variables \x{}, values,
+functions, hash-maps, and function applications.
+The a special form
+\trackE{\e{}}{\inferpath{}}
+tracks {\e{}}'s eventual value as related to path {\inferpath{}},
+Paths \inferpath{} 
+record the source of a runtime value with respect
+to a sequence of path elements \pth{}.
+
+\begin{figure*}
+  $$
+  \begin{altgrammar}
+    \val{} &::=& \num{}
+       \alt {\kw{}}
+       \alt {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+       \alt {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}
+       \alt {\const{}}
+       &\mbox{Values} \\
+   \e{} &::=& \x{}
+       \alt \val
+       \alt \trackE{\e{}}{\inferpath{}}
+       \alt {\uabs{\x{}}{\e{}}}
+       \alt {\curlymapvaloverrightnoarrow{\e{}}{\e{}}}
+       \alt {\appexp{\e{}}{\overrightarrow{\e{}}}}
+       &\mbox{Expressions} \\
+    \openv{} &::=& \{\overrightarrow{x \mapsto \val}\}
+       &\mbox{Runtime environments} \\
+   \pth{}
+      &::=& \x{}
+       \alt \dompe{}
+       \alt \rngpe{}
+       \alt {\inferkeype{\overrightarrow{\kw{}}}{\kw{}}}
+       &\mbox{Path Elements} \\
+   \inferpath{} &::=& \overrightarrow{\pth{}}
+       &\mbox{Paths} \\
+       \res{}
+      &::=& \restwoarrow{\inferpath{}}{\tau{}}
+      &\mbox{Inference results} \\
+    \ty{}, \sigma
+      &::=& \IntT{}
+       \alt [\tau \rightarrow \tau]
+       %\alt [\overrightarrow{\tau} \tau * \rightarrow \tau]
+       \alt \{\overrightarrow{\kw{}\ \tau}\}
+       \\
+       &\alt& \HMaptwo{\{\overrightarrow{\kw{}\ \tau}\}}{\{\overrightarrow{\kw{}\ \tau}\}}
+       \alt \tau \cup \tau
+       \alt \alias{} % type alias
+       \alt \UnknownT{}
+      &\mbox{Types} \\
+    \tenv{} &::=& \{\overrightarrow{\xvar{} : \tau}\}
+      &\mbox{Type environments} \\
+    \aenv{} &::=& \{\overrightarrow{\alias{} \mapsto \tau}\}
+      &\mbox{Type alias environments} \\
+    \atenv{} &::=& (\aenv{}, \tenv{})
+      &\mbox{Combined environments} \\
+  \end{altgrammar}
+  $$
+\caption{Syntax of Terms, Types, Inference results, and Environments for \lambdatrack{}}
+\label{infer:fig:syntax}
+\end{figure*}
+
+For example, say we have a global variable $f$ that takes a map and
+returns its {\makekw{a}} entry:
+
+\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
+$f$ $m$ = \getexp{m}{\makekw{a}}
+\end{Verbatim}
+
+Let's track the usage of $f$ in the following program.
+
+\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
+=> \appexp{f}{\curlymap{\makekw{a} 42}}
+\end{Verbatim}
+
+We instrument the program by wrapping each usage of $f$ with \trackEOp{}
+with an initial path of $[f]$ (itself), and collect \emph{inference results}
+as the program evaluates.
+We bind $p$ to {\curlymap{\makekw{a}\ 42}} for readability.
+
+\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
+=> \appexp{f}{p}
+=> \appexp{\trackE{f}{[f]}}{p}
+=> \trackE{\getexp{\trackE{p}{[f, \dompe{}]}}{\makekw{a}}}{[f, \rngpe{}]}
+=> \trackE{\getexp{p ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{\makekw{a}}}{[f, \rngpe{}]}
+=> \trackE{42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{[f, \rngpe{}]}
+=> $42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}}$
+\end{Verbatim}
+
+Notice that values can have inference results (colored) attached to them with a semicolon,
+and the final value has inference results about both $f$'s domain and range.
+To explain this reduction, we introduce the semantic rules of \lambdatrack{}.
 
 The big-step operational semantics
-$\rho \vdash e \Downarrow v\ ; res$
-says under runtime environment $\rho$,
-expression $e$ evaluates to value $v$
-with inference results $res$.
+{\opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}}}
+says under runtime environment \openv{}
+expression \e{} evaluates to value \v{}
+with inference results \res{}.
+\figref{infer:fig:semantics} contains the rules.
+Most rules are standard, with extensions to correctly
+propagate inference results \res{}.
+B-Track is the only interesting rule, which instruments
+its fully-evaluated argument with the \trackEOp{}
+metafunction (\figref{infer:fig:trackmeta}).
+
+
+\begin{figure*}
+\begin{mathpar}
+%\infer [B-Var]
+%{ track(\openv{}(x), [x]) = v\ ; res }
+%{ \openv{} \vdash x \Downarrow v\ ; res}
+
+% track is inserted manually
+\infer [B-Var]
+{}
+{ \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
+}
+
+\infer [B-Track]
+{ \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\
+  \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\resp{}}}
+{ \opsemtrack{\openv{}}{\trackE{\e{}}{\inferpath{}}}{\vp{}}{\unionres{\res{}}{\resp{}}}
+}
+
+\infer [B-App]
+{ \opsemtrack{\openv{}}{\e{1}}{[\lambda \x{}. \e{}, \openvp{}]}{\res{1}} \\\\
+  \opsemtrack{\openv{}}{\e{2}}{\v{}}{\res2} \\\\
+  \opsemtrack{\extendopenv{\openvp{}}{\x{}}{\v{}}}{\e{}}{\vp{}}{\res{3}} \\
+}
+{ \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\unionresthree{\res{1}}{\res{2}}{\res{3}}}
+}
+
+\infer [B-Clos]
+{}
+{ \opsemtrack{\openv{}}{\lambda \xvar{}. \e{}}{[\lambda \overrightarrow{\xvar{}} . \e{}, \openv{} ]}{\emptyres{}}}
+
+\infer [B-Val]
+{}
+{ \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
+
+%\infer [B-Get]
+%{ \opsemtrack{\openv{}}{\e{1}}{\{ \overrightarrow{\kw{}\ \v{}} \}}{\res{1}} \\
+%  \opsemtrack{\openv{}}{\e{2}}{\kw1}{\res{2}} \\
+%}
+%{ \opsemtrack{\openv{}}{\getexp{\e{1}}{\e{2}}}{\getmap{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\kw{1}}}{\unionres{\res{1}}{\res{2}}}
+%}
+%
+%\infer [B-Assoc]
+%{ 
+%  \opsemtrack{\openv{}}{\e{1}}{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\res{1}} \\
+%  \opsemtrack{\openv{}}{\e{2}}{\kw{1}}{\res{2}} \\
+%  \opsemtrack{\openv{}}{\e{3}}{\v{}}{\res{3}} \\
+%}
+%{ \opsemtrack{\openv{}}
+%             {\assocexp{\e{1}}{\e{2}}{\e{3}}}
+%             {\extendmap{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\kw{1}}{\v{}}}
+%             {\unionresthree{\res{1}}{\res{2}}{\res{3}}}
+%}
+
+\infer [B-Delta]
+{ \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{}}
+  \\
+  \overrightarrow{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
+  \\
+  \constantopsem{\const{}}{\overrightarrow{\v{}}} = \vp{}
+}
+{ \opsemtrack {\openv{}}
+              {\appexp {\e{}} {\overrightarrow{\ep{}}}}
+              {\vp{}}
+              {\unionres{\bigunionres{\resp{}}}{\res{}}}
+       }
+
+\end{mathpar}
+\caption{Operational Semantics for \lambdatrack{}}
+\label{infer:fig:semantics}
+\end{figure*}
+
+The metafunction \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\res{}}
+takes value \v{} and path {\inferpath{}} and returns a value
+\vp{} paired with inference results {\res{}}.
+It has a case for every kind of value.
+The first case records the number input as type {\IntT{}}.
+The second case, for closures, returns a wrapped value
+resembling higher-order function contracts~\cite{findler2002contracts},
+but we track the domain and range rather than verify them.
+The third case, for maps, recursively tracks each map value,
+and returns a map with possibly wrapped values.
+Immediately accessible inference results are combined
+and returned.
+The other cases are trivial.
+
+\begin{figure*}
+\begin{mathpar}
+
+  \begin{array}{lllll}
+    %\trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}\\\\
+
+    \trackmetaalign{\num{}}{\inferpath{}}{\num{}}{\singletonres{\inferpath{}}{\IntT{}}}
+    \\
+    \trackmetaalign{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+                   {\inferpath{}}
+                   {\closure{\uabs{\y{}}
+                                  {\trackE{\appexp{\uabs{\x{}}{\e{}}}
+                                                  {\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}})}}
+                                          {\appendone{\inferpath{}}{\rngpe{}}}}}
+                            {\openv{}}}
+                   {\singletonres{\inferpath{}}
+                                 {\arrow{\UnknownT{}}{\UnknownT{}}}}
+         \\
+    &&
+    \text{where}\ \y{} \text{ is fresh}
+    \\
+    \trackmetaalign{\curlymapvaloverrightnoarrow{\v{1}}{\v{2}}}
+                   {\inferpath{}}
+                   {\curlymapvaloverrightnoarrow{\v{1}}{\vp{2}}}
+                   {\unionres{\bigunionres{\res{}}}
+                             {\singletonres{\inferpath{}}{\curlymapvaloverrightnoarrow{\v{1}}{\UnknownT{}}}}}
+    \\
+    &&
+    \text{where}\ \overrightarrow{\trackmeta{\v{2}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\val1}}{\val1}}}{\vp{2}}{\res{}}}
+    \\
+    \trackmetaalign{\kw{}}{\inferpath{}}{\kw{}}{\emptyres{}}
+    \\
+    \trackmetaalign{\const{}}{\inferpath{}}{\const{}}{\emptyres{}}
+    \\
+  \end{array}
+
+\end{mathpar}
+\caption{Definition of \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}}
+\label{infer:fig:trackmeta}
+\end{figure*}
+
+         
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    %\inferupdatenoalign{\aenv{}}{\tenv{}}{\inferpath{}}{\tau}{\atenv{}}
+    %\\\\
+
+    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\ty{}}
+            {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \ty{} \}}}
+    \\
+    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\ty{}}
+                {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\arrow{\ty{}}{\UnknownT{}}}}
+    \\
+    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\ty{}}
+                {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\ty{}}}}
+    \\
+    \inferupdatealign{\aenv{}}{\tenv{}}{[x]}{\ty{}}{(\tenv{}[\sigma / \xvar{}] , \aenv{}')}
+    \\
+    && \text{where}\ \tenv{}(\xvar{}) = \ty{}', join(\aenv{}, \ty{}, \ty{}') = \sigma\ ;\ \aenv{}'
+    \\
+    \inferupdatealign{\aenv{}}{\tenv{}}{[\xvar{}]}{\ty{}}{(\tenv{}[\ty{} / \xvar{}], \aenv{})}
+    \\
+    && \text{where}\ \xvar{} \not\in dom(\tenv{})
+  \end{array}
+\end{mathpar}
+\caption{Definition of \inferupdatenoalign{\aenv{}}{\tenv{}}{\inferpath{}}{\tau}{\atenv{}}}
+\label{infer:fig:update}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    %\joinnoalign{\aenv{}}{\tau}{\tau}{\tau}
+    %\\ \\
+
+    \joinalign{\aenv{}}{(\cup\ \overrightarrow{\tau_1})}{\tau}{(\cup\ \overrightarrow{\sigma})}\\
+                                                    && \text{where }
+                                                    \overrightarrow{\joinnoalign{\aenv{}}{\tau_1}{\tau}{\sigma}}
+    \\
+    \joinalign{\aenv{}}{\tau}{(\cup\ \overrightarrow{\tau_1})}{(\cup\ \overrightarrow{\sigma})} \\
+                                                    && \text{where }
+                                                    \overrightarrow{\joinnoalign{\aenv{}}{\tau_1}{\tau}{\sigma}}
+    \\
+    \joinalign{\aenv{}}{\UnknownT{}}{\tau}{\tau}
+    \\
+    \joinalign{\aenv{}}{\tau}{\UnknownT{}}{\tau}
+    \\
+    \joinalign{\aenv{}}{[\overrightarrow{\tau_1} \rightarrow \sigma_1]}{[\overrightarrow{\tau_2} \rightarrow \sigma_2]}{[\overrightarrow{\joinexpression{\aenv{}}{\tau_1}{\tau_2}}
+    \rightarrow
+    \joinexpression{\aenv{}}{\sigma_1}{\sigma_2}]}
+    \\
+    % TODO add condition on should-join-HMap?
+    %join(A, (HMap\  m_1\ o_1), (HMap\  m_2\ o_2))
+    %&=& joinHMap(A, (HMap\  m_1\ o_1), (HMap\  m_2\ o_2))
+    %\\
+    \joinalign{\aenv{}}{\tau}{\sigma}{(\cup\ \tau\ \sigma)}
+
+  \end{array}
+
+\end{mathpar}
+\caption{Definition of \joinnoalign{\aenv{}}{\tau}{\tau}{\tau}}
+\label{infer:fig:join}
+\end{figure*}

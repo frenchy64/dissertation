@@ -172,6 +172,7 @@
 \newmeta\z{z}
 \newmeta\v{v}
 \newmeta\vp{v'}
+\newmeta\vpp{v''}
 \newmeta\class{C}
 \newmeta\classp{C{'}}
 \newmeta\protocol{P}
@@ -189,7 +190,7 @@
 \newcommand\assocexp[3]{(\assocliteral{}\ #1\ #2\ #3)}
 \newmeta\dissoc{dissoc}
 \newmeta\getliteral{{\CLJoperatorfont{get}}}
-\newcommand\getexp[2]{(\getliteral{}\ #1\ #2)}
+\newcommand\getexp[2]{\ma{(\getliteral{}\ #1\ #2)}}
 \newcommand\ifliteral[0]{{\CLJoperatorfont{if}}}
 \newcommand\doliteral[0]{{\CLJoperatorfont{do}}}
 \newcommand\letliteral[0]{{\CLJoperatorfont{let}}}
@@ -199,6 +200,7 @@
 \newcommand\defmethodliteral[0]{{\CLJoperatorfont{defmethod}}}
 \newcommand\fnliteral[0]{{\CLJoperatorfont{fn}}}
 \newcommand\abs[3]{\ma{\l #1^{#2} . #3}}
+\newcommand\uabs[2]{\ma{\l #1 . #2}}
 \newcommand\absoverright[3]{\ma{\l \overrightarrow{#1^{#2}} . #3}}
 \newcommand\curlymap[1]{\ma{\{#1\}}}
 \newcommand\emptymap[1]{\ma{\{\}}}

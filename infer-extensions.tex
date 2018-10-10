@@ -5,41 +5,41 @@
 \begin{figure*}
 \begin{mathpar}
   \begin{altgrammar}
-   \exp{} &::=& ...
-       \alt \trackpolyE{\exp}{\inferpath{}}{\exp{}}
+   \e{} &::=& ...
+       \alt \trackpolyE{\e{}}{\inferpath{}}{\e{}}
        \alt \genE{}
   \end{altgrammar}
 
   \infer [B-Gen]
   { \num{}' = \num{} + 1
   }
-  { \bigstepgen{\rho}{\num{}}{\genE{}}{\num{}'}{\{\}}{\num{}'}}
+  { \bigstepgen{\opsem{}}{\num{}}{\genE{}}{\num{}'}{\{\}}{\num{}'}}
 
 
   \infer [B-TrackPoly]
-  { \bigstepgen{\rho}{\num0}{\exp{}}{\val{}}{\res{}}{\num1} 
+  { \bigstepgen{\opsem{}}{\num0}{\e{}}{\v{}}{\res{}}{\num1} 
     \\\\
-    \bigstepgen{\rho}{\num1}{\exp{}'}{\num{}}{\res{}'}{\num2}
+    \bigstepgen{\opsem{}}{\num1}{\ep{}}{\num{}}{\res{}'}{\num2}
     \\\\
-    \trackpolymeta{}(\val{}, \inferpath{}, {\num{}}) = \val{}'\ ; \res{}'' }
-  { \bigstepgen{\rho}{\num0}{\trackpolyE{\exp{}}{\inferpath{}}{\exp{}'}}{\val{}'}{\res{} \sqcup \res{}' \sqcup \res{}''}{\num2} }
+    \trackpolymeta{}(\v{}, \inferpath{}, {\num{}}) = \vp{}\ ; \res{}'' }
+  { \bigstepgen{\opsem{}}{\num0}{\trackpolyE{\e{}}{\inferpath{}}{\ep{}}}{\vp{}}{\res{} \sqcup \res{}' \sqcup \res{}''}{\num2} }
 
   \begin{array}{lllll}
-    \trackpolymeta{}(\val{}, \inferpath{}, \num{}) = \val{}\ ;\ \res{}\\\\
+    \trackpolymeta{}(\v{}, \inferpath{}, \num{}) = \v{}\ ;\ \res{}\\\\
 
     \trackpolymeta{}(\num{}, \inferpath{}, \num{}')
     &=&
     n\ ; \{\inferpath{} : \IntT{}\}
     \\
-    \trackpolymeta{}([\lambda \xvar{}. \exp{}, \rho], \inferpath{}, \num{})
+    \trackpolymeta{}([\lambda \xvar{}. \e{}, \opsem{}], \inferpath{}, \num{})
     &=&
     [
     \lambda \yvar{}.
     \inferletliteral (\xvar{n} \genE{})
     \\&&
-      \trackpolyE{((\lambda \xvar{}. \exp{}) \trackpolyE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}{\xvar{n}})}
+      \trackpolyE{((\lambda \xvar{}. \e{}) \trackpolyE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}{\xvar{n}})}
              {\appendone{\inferpath{}}{\rngpe{}}}{\xvar{n}}
-         , \rho]
+         , \opsem{}]
          \ ; \{\inferpath{} : [\UnknownT{} \rightarrow \UnknownT{}] \}
          \\
     &&
@@ -79,41 +79,41 @@ a new wrapped function, we return a $\ProxyE{}$.
 \begin{figure*}
 \begin{mathpar}
   \begin{altgrammar}
-    \val{} &::=& ... \alt \ProxyE{\val{}}{\val{}}{\overrightarrow{\inferpath{}}}
+    \v{} &::=& ... \alt \ProxyE{\v{}}{\v{}}{\overrightarrow{\inferpath{}}}
        &\mbox{Values}
   \end{altgrammar}
   \\
 
   \begin{array}{lllll}
-    \trackmeta{}([\lambda \xvar{}. \exp{}, \rho], \overrightarrow{\inferpath{}})
+    \trackmetaOp{}([\lambda \xvar{}. \e{}, \opsem{}], \overrightarrow{\inferpath{}})
     &=&
-    \ProxyE{[\lambda \xvar{}. \exp{}, \rho]}
+    \ProxyE{[\lambda \xvar{}. \e{}, \opsem{}]}
     {[
     \lambda \yvar{}.
-      \trackE{((\lambda \xvar{}. \exp{}) \trackE{\yvar{}}{\overrightarrow{\appendone{\inferpath{}}{\dompe{}}}})}
+      \trackE{((\lambda \xvar{}. \e{}) \trackE{\yvar{}}{\overrightarrow{\appendone{\inferpath{}}{\dompe{}}}})}
              {\overrightarrow{\appendone{\inferpath{}}{\rngpe{}}}}
-         , \rho]}
+         , \opsem{}]}
          {\overrightarrow{\inferpath{}}}
          \ ; \overrightarrow{\{\inferpath{} : [\UnknownT{} \rightarrow \UnknownT{}] \}}
          \\
     &&
     \text{where}\ \yvar{} \text{ is fresh}
     \\
-    \trackmeta{}(\ProxyE{\val1{}}{\val2{}}{\overrightarrow{\inferpath{}'}}, \overrightarrow{\inferpath{}})
+    \trackmetaOp{}(\ProxyE{\val1{}}{\val2{}}{\overrightarrow{\inferpath{}'}}, \overrightarrow{\inferpath{}})
     &=&
     \ProxyE{\val1{}}{\val3{}}{(\inferpath{} \cup \inferpath{}')}
          \ ; \res{}
          \\
     &&
-    \text{where}\ \trackmeta{}(\val1{},\ \overrightarrow{\appendone{(\inferpath{} \cup \inferpath{}')}{\dompe{}}}) = \val3{} ;\ \res{}
+    \text{where}\ \trackmetaOp{}(\val1{},\ \overrightarrow{\appendone{(\inferpath{} \cup \inferpath{}')}{\dompe{}}}) = \val3{} ;\ \res{}
   \end{array}
 
   \\
 \infer [B-ProxyApp]
-{ \bigstep{\rho}{\exp1}{\ProxyE{\val{}''}{\val{}}{\overrightarrow{\inferpath{}}}}{\res1} \\\\
-  \bigstep{\rho}{(\val{}\ \exp2)}{\val{}'}{\res2}\\
+{ \opsemtrack{\opsem{}}{\exp1}{\ProxyE{\vpp{}}{\v{}}{\overrightarrow{\inferpath{}}}}{\res{1}} \\\\
+  \opsemtrack{\opsem{}}{\appexp{\v{}}{\exp{2}}}{\vp{}}{\res{2}}\\
 }
-{ \bigstep{\rho}{(\exp1\ \exp2)}{\val{}'}{\res1 \sqcup \res2}}
+{ \opsemtrack{\opsem{}}{\appexp{\exp{1}}{\exp{2}}}{\vp{}}{\res{1} \sqcup \res{2}}}
 \end{mathpar}
 \caption{Space efficient tracking extensions}
 \end{figure*}
