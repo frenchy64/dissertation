@@ -30,4 +30,4 @@ prospectus:
 	pdflatex prospectus.tex 
 
 clean:
-	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod
+	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod *.loe
