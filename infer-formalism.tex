@@ -418,8 +418,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \emptyatenv{}, \res{})\\
   \end{array}
   \begin{array}{lllll}
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\t{}}
-            {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \t{} \}}}
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\HMapreq{}}{\kw{}}}}{\t{}}
+            {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\HMapreq{}},\ \kw{}\ \t{} \}}}
     \\
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
                 {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
@@ -484,17 +484,16 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \begin{array}{lllll}
       \text{ where }
           &\mathsf{req}  &= \bigcup \overrightarrow{dom({\HMapreq{i}})} \\
-          &\mathsf{com}  &= \bigcap \overrightarrow{dom({\HMapreq{i}})} \\
-          &\mathsf{swp}  &= \mathsf{req} \setminus \mathsf{com}\\
-          &\mathsf{opt}' &= \bigcup \overrightarrow{dom({\HMapopt{i}})} \cup \mathsf{swp} \\
-          &\mathsf{req}' &= \mathsf{com} \setminus \mathsf{opt}' \\
+          &\mathsf{opt}  &= \bigcup \overrightarrow{dom({\HMapopt{i}})} \\
+          &\mathsf{req}' &= \bigcap \overrightarrow{dom({\HMapreq{i}})} \\
+          &\mathsf{opt}' &= \mathsf{opt} \cup (\mathsf{req} \setminus \mathsf{req}')\\
           &m             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i}} ]}) \ |\ 
                               \kw{} \in \mathsf{req}'
                                \}
                             \\
-          &o             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i},\HMapopt{i}}) \ |\ 
+          &o             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i},\HMapopt{i}})]} \ |\ 
                                \kw{} \in \mathsf{opt}'
-                                ]}\}
+                                \}
     \end{array}
   \end{array}
 
