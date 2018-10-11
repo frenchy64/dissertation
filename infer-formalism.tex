@@ -485,7 +485,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
       \text{ where }
           &\mathsf{req}  &= \bigcup \overrightarrow{dom({\HMapreq{i}})} \\
           &\mathsf{opt}  &= \bigcup \overrightarrow{dom({\HMapopt{i}})} \\
-          &\mathsf{req}' &= \bigcap \overrightarrow{dom({\HMapreq{i}})} \\
+          &\mathsf{req}' &= \bigcap \overrightarrow{dom({\HMapreq{i}})} \setminus \mathsf{opt}\\
           &\mathsf{opt}' &= \mathsf{opt} \cup (\mathsf{req} \setminus \mathsf{req}')\\
           &m             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i}} ]}) \ |\ 
                               \kw{} \in \mathsf{req}'
