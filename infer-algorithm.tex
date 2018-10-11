@@ -6,20 +6,19 @@
 \begin{mathpar}
 
   \begin{array}{lllll}
+    groupBy\ f\ c = [(k, v) | e \in c, k = f(e), v = [a | a \in c, f(a) = k]]
     \\
     containsUnknown(t) = (t = (HMap\ \{k : ?, \overrightarrow{k': t'}\}\ o) \vee t = (HMap\ m \{k' : ?, \overrightarrow{k'': t''}\})))
     \\
-    unionHMaps(A, hmaps) = hmapsmerged2
+    unionHMaps(hs) = hmapsmerged2
     \\
   \begin{array}{lllll}
     \text{ where }
-      &commonkeys = \bigcap[k_m | (HMap\ \{\overrightarrow{k_m : t}\} \ o) \in ts]\\
-      &likelytags = [k | k \in commonkeys \wedge \bigwedge [\textbf{if}\ (k,k_1) \in m\ \textbf{then}\ T\ \textbf{else}\ F\ | (HMap\ m\ o) \in ts]]\\
-      &hmapsbykeys = [(ks, ts) | t  \in hmaps \wedge t = (HMap\ \{\overrightarrow{ks: t}\}\ o) \wedge 
-                                 ts = [t | t \in hmaps \wedge t = (HMap\ \{\overrightarrow{ks: t'}\}\ o')]
-                                 ]\\
-      &hmapsmerged = \textbf{if}\ (\textbf{empty?}\ likelytags)\ \textbf{then}\ hmaps\ \textbf{else}\ 
-                            [t | ts \in hmapsbykeys \wedge t = \textbf{fold}\ joinHMap\ ts]
+      &commonkeys = \bigcap[k_m | \HMaptwo{\{\overrightarrow{k_m : t}\}}{o} \in hs]\\
+      &likelytags = [k | k \in commonkeys, \bigwedge [(k,k_1) \in m | (HMap\ m\ o) \in ts]]\\
+      &hmapsbykeys = \textbf{groupBy}(\lambda \HMaptwo{\{\overrightarrow{ks : t}\}}{o}. ks, hs)\\
+      &hmapsmerged = \textbf{if}\ likelytags = []\ \textbf{then}\ hs\ \textbf{else}\ 
+                            [t | ts \in rng(hmapsbykeys), t = joinHMap*(ts)]
       \\
       &isolatetag() =
 \begin{cases}
@@ -50,7 +49,7 @@
     \text{ where }
       &hmaps = [(HMap\ m\ o) | (HMap\ m\ o) \in ts]\\
       &nonhmaps = [t | t \in ts \wedge t \not= (HMap\ m\ o)]\\
-      &hmapsmerged = unionHMaps(A, hmaps)\\
+      &hmapsmerged = unionHMaps(hmaps)\\
       &u = nonhmaps \cup hmapsmerged
   \end{array}
       \\

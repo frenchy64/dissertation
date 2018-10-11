@@ -368,6 +368,8 @@ merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:
 
 \subsection{Pass 1: Generating initial type environment}
 
+The first pass is given in \figref{infer:fig:generatetenv}.
+
 %\begin{figure*}
 %\begin{mathpar}
 %  \begin{array}{lllll}
@@ -393,13 +395,6 @@ merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:
       &f(\atenv{},\resentry{\inferpath{}}{\t{}}) = \inferupdate{\atenv{}}{\inferpath{}}{\t{}}
   \end{array}
   \end{array}
-\end{mathpar}
-\caption{Definition of $\generatetenv{} (\res{}) = \atenv{}$ }
-\label{infer:fig:generatetenv}
-\end{figure*}
-
-\begin{figure*}
-\begin{mathpar}
   \begin{array}{lllll}
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\t{}}
             {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \t{} \}}}
@@ -420,8 +415,59 @@ merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:
     \\
   \end{array}
 \end{mathpar}
-\caption{Definition of \inferupdatenoalign{\atenv{}}{\inferpath{}}{\tau}{\atenv{}}}
-\label{infer:fig:update}
+\caption{Definitions of $\generatetenv{} (\res{}) = \atenv{}$ and \inferupdatenoalign{\atenv{}}{\inferpath{}}{\tau}{\atenv{}}}
+\label{infer:fig:generatetenv}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    %\joinnoalign{\aenv{}}{\t{}}{\t{}}{\t{}}
+    %\\ \\
+
+    \joinalign{(\cup\ \overrightarrow{\t{1}})}{\t{}}{(\cup\ \overrightarrow{\sigma})}
+                                                  \\&& \text{where }
+                                                    \overrightarrow{\joinnoalign{\t{1}}{\t{}}{\sigma}}
+    \\
+    \joinalign{\t{}}{(\cup\ \overrightarrow{\t{1}})}{(\cup\ \overrightarrow{\sigma})}
+                                                  \\&& \text{where }
+                                                    \overrightarrow{\joinnoalign{\t{1}}{\t{}}{\sigma}}
+    \\
+    \joinalign{\UnknownT{}}{\t{}}{\t{}}
+    \\
+    \joinalign{\t{}}{\UnknownT{}}{\t{}}
+    \\
+    \joinalign{\arrow{\t{1}}{\s{1}}}{\arrow{\t{2}}{\s{2}}}
+              {\arrow{\joinexpression{\t{1}}{\t{2}}}
+                     {\joinexpression{\s{1}}{\s{2}}}}
+    \\
+    \joinalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\joinHMapexpression{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}}\\
+    % TODO don't merge when common dispatch key
+    &&\text{where } dom(m_1) = dom(m_2), dom(o_1) = dom(o_2)
+    \\
+    \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
+    \\\\
+    \joinstaralign{\overrightarrow{\t{}}}{\textbf{fold}({\joinOp{}},{\UnknownT{}},{\overrightarrow{\t{}}})}
+  \end{array}
+
+  \begin{array}{lllll}
+    \joinHMapnoalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\HMaptwo{m}{o}}
+    \\
+    \begin{array}{lllll}
+        \text{ where }
+            &allreq    &= dom(m_1) \cup dom(m_2) \\
+            &commonreq &= dom(m_1) \cap dom(m_2) \\
+            &reqtoopt  &= allreq \setminus commonreq\\
+            &newopt    &= dom(o_1) \cup dom(o_2) \cup reqtoopt \\
+            &newreq    &= commonreq \setminus newopt,\\
+            &m         &= \{k : t \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in \textbf{concat}(m_1, m_2)]}\}\\
+            &o         &= \{k : t \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in \textbf{concat}(m_1, m_2, o_1, o_2)]]}\}\\
+    \end{array}
+  \end{array}
+
+\end{mathpar}
+\caption{Definition of \joinnoalign{\t{}}{\t{}}{\t{}}}
+\label{infer:fig:join}
 \end{figure*}
 
 
@@ -461,55 +507,6 @@ merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:
 %top-level HMap, no unions).
   }
   \label{infer:fig:stepthree}
-\end{figure*}
-
-\begin{figure*}
-\begin{mathpar}
-  \begin{array}{lllll}
-    %\joinnoalign{\aenv{}}{\tau}{\tau}{\tau}
-    %\\ \\
-
-    \joinalign{(\cup\ \overrightarrow{\tau_1})}{\tau}{(\cup\ \overrightarrow{\sigma})}
-                                                    & \text{where }
-                                                    \overrightarrow{\joinnoalign{\tau_1}{\tau}{\sigma}}
-    \\
-    \joinalign{\tau}{(\cup\ \overrightarrow{\tau_1})}{(\cup\ \overrightarrow{\sigma})}
-                                                    & \text{where }
-                                                    \overrightarrow{\joinnoalign{\tau_1}{\tau}{\sigma}}
-    \\
-    \joinalign{\UnknownT{}}{\tau}{\tau}
-    \\
-    \joinalign{\tau}{\UnknownT{}}{\tau}
-    \\
-    \joinalign{\arrow{\t{1}}{\s{1}}}{\arrow{\t{2}}{\s{2}}}
-              {\arrow{\joinexpression{\t{1}}{\t{2}}}
-                     {\joinexpression{\s{1}}{\s{2}}}}
-    \\
-    \joinalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\joinHMapexpression{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}}
-    \\
-    \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
-    \\\\
-    \joinstaralign{\overrightarrow{\t{}}}{\textbf{fold}({\joinOp{}},{\UnknownT{}},{\overrightarrow{\t{}}})}
-  \end{array}
-
-  \begin{array}{lllll}
-    \joinHMapnoalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\HMaptwo{m}{o}}
-    \\
-    \begin{array}{lllll}
-        \text{ where }
-            &allreq    &= dom(m_1) \cup dom(m_2) \\
-            &commonreq &= dom(m_1) \cap dom(m_2) \\
-            &reqtoopt  &= allreq \setminus commonreq\\
-            &newopt    &= dom(o_1) \cup dom(o_2) \cup reqtoopt \\
-            &newreq    &= commonreq \setminus newopt,\\
-            &m         &= \{k : t \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in [m_1, m_2]}\}\\
-            &o         &= \{k : t \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in [m_1, m_2, o_1, o_2]]}\}\\
-    \end{array}
-  \end{array}
-
-\end{mathpar}
-\caption{Definition of \joinnoalign{\tau}{\tau}{\tau}}
-\label{infer:fig:join}
 \end{figure*}
 
 % Things we could prove:
