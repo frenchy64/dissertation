@@ -6,25 +6,6 @@
 \begin{mathpar}
 
   \begin{array}{lllll}
-    joinHMap(A, (HMap\  m_1\ o_1),
-                (HMap\  m_2\ o_2))
-      = (HMap\ m\ o) ; A
-      \\
-  \begin{array}{lllll}
-      \text{ where }
-          &m_1 = \{\overrightarrow{km_1 : tm_1}\}\\
-          &m_2 = \{\overrightarrow{km_2 : tm_2}\}\\
-          &o_1 = \{\overrightarrow{ko_1 : to_1}\}\\
-          &o_2 = \{\overrightarrow{ko_2 : to_2}\}\\
-          &allreq = km_1 \cup km_2 \\
-          &commonreq = km_1 \cap km_2 \\
-          &reqtoopt = allreq \setminus commonreq\\
-          &newopt = ko_1 \cup ko_2 \cup reqtoopt \\
-          &newreq = commonreq \setminus newopt,\\
-          &m = \{k : t_m | k \in newreq, t_m = join*(A, [t | \overrightarrow{\bigvee(k, t) \in s_i}^{s = [m_1, m_2]}])\}\\
-          &o = \{k : t_o | k \in newopt, t_o = join*(A, [t | \overrightarrow{\bigvee(k, t) \in s_i}^{s = [m_1, m_2, o_1, o_2]}])\}\\
-  \end{array}
-    \\
     \\
     containsUnknown(t) = (t = (HMap\ \{k : ?, \overrightarrow{k': t'}\}\ o) \vee t = (HMap\ m \{k' : ?, \overrightarrow{k'': t''}\})))
     \\
@@ -38,7 +19,7 @@
                                  ts = [t | t \in hmaps \wedge t = (HMap\ \{\overrightarrow{ks: t'}\}\ o')]
                                  ]\\
       &hmapsmerged = \textbf{if}\ (\textbf{empty?}\ likelytags)\ \textbf{then}\ hmaps\ \textbf{else}\ 
-                            [t | ts \in hmapsbykeys \wedge t = \textbf{fold}\ (joinHMap\ A)\ ts]
+                            [t | ts \in hmapsbykeys \wedge t = \textbf{fold}\ joinHMap\ ts]
       \\
       &isolatetag() =
 \begin{cases}
@@ -53,10 +34,10 @@
                      \textbf{group-by}(\lambda (HMap\ \{k_t : k_m, \overrightarrow{k': t'}\}\ o). k_m)
                      hmapsmerged
                                   \\
-      &newmaps = [t | ts \in hmapsbytags \wedge t = \textbf{fold}\ (joinHMap\ A)\ ts]
+      &newmaps = [t | ts \in hmapsbytags \wedge t = \textbf{fold}\ joinHMap\ ts]
   \end{array}\\
     hmapsmerged , \text{if} \neg\textbf{empty?}([t | t \in hmapsmerged \wedge containsUnknown(t)])\\
-    \textbf{fold}\ (joinHMap\ A)\ hmapsmerged, \text{otherwise}
+    \textbf{fold}\ joinHMap\ hmapsmerged, \text{otherwise}
 \end{cases}
       \\
       % check common keys
@@ -234,28 +215,6 @@ Assumption: No recursive types.
 \caption{Step 2.b}
 \end{figure*}
 
-\begin{figure*}
-\begin{mathpar}
-  \begin{array}{lllll}
-    \steptwohelper{} : \atenv{}, (\xvar{}, \ty{}) \rightarrow \atenv{}\\
-    \steptwohelper{} ((\aenv{}, \Gamma), (\xvar{}, \ty{})) = (\aenv2, \tenv{}[\xvar{} \mapsto \ty2])\\
-  \begin{array}{lllll}
-    \text{ where }
-      &(\aenv1, \ty1) = aliasHMap(\aenv{}, \ty{})\\
-      &(\aenv2, \ty2) = squashAll(\aenv1, \ty1)\\
-  \end{array}
-  \\
-  \\
-  \steptwo{} : \tenv{} \rightarrow \atenv{}
-  \\
-  \steptwo{}(\tenv{}) = \textbf{fold}(\steptwohelper{}, ([], \tenv{}), \tenv{})\\
-  \end{array}
-\end{mathpar}
-\caption{Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
-(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
-redundant aliases.}
-\end{figure*}
-
 Where: \emph{squash-all}
 
 Vertical recursive types.
@@ -322,19 +281,6 @@ in/out edges belonging to the candidate
 node to the "new" node.
 
 Note: This only merges non-recursive nodes.
-
-\begin{figure*}
-\begin{mathpar}
-  \begin{array}{lllll}
-    \stepthree{} : \atenv{} \rightarrow \atenv{}\\
-    \stepthree{} = \squashhorizonally{} \circ \aliassinglehmap{}
-  \\
-  \end{array}
-\end{mathpar}
-\caption{Step 3 summary: First ensure all HMaps correspond to an alias. Then merge
-aliases that point to a HMaps with identical required keysets (aliases must point to exactly one
-top-level HMap, no unions).}
-\end{figure*}
 
 \section{Step 4}
 %\begin{figure*}
@@ -421,23 +367,3 @@ top-level HMap, no unions).}
 Where: \emph{follow-all}
 
 Remove aliases that just point to other aliases.
-
-\begin{figure*}
-\begin{mathpar}
-  \begin{array}{lllll}
-    % FIXME the types for 'update' don't quite work out
-    \genupdate{} : \Gamma, (\inferpath{}, \tau) \rightarrow \tau\\
-    \genupdate{}(\Gamma, (\inferpath{}, \tau)) = update([], \Gamma, \inferpath{}, \tau)\\
-    \\
-    \generatetenv{} : \res{} \rightarrow \Gamma\\
-    \generatetenv{} (\res{}) = \textbf{fold}(\genupdate{}, [], \res{})\\
-    \\
-    \inferanns{} : \res{} \rightarrow \atenv{}\\
-    \inferanns{} = \stepthree{} \circ \steptwo{} \circ \generatetenv{}\\
-  \end{array}
-\end{mathpar}
-\caption{Algorithm summary: Generate an initial type environment from inference results.
-Then generate an updated type environment paired with a type alias environment by 1: creating
-a recursive type if a HMap contains another HMap whose keysets have a non-empty intersection, 2:
-globally merging type aliases based on identical HMap keysets, 3: cleaning up redundant aliases.}
-\end{figure*}

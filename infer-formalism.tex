@@ -17,39 +17,46 @@ and top-level variables $\overrightarrow{\x{}}$ to infer annotations for,
 return an annotation environment \atenv{} with possible entries for
 $\overrightarrow{\x{}}$ based on observations from evaluating
 an instrumented \e{}.
-
+%
+%\begin{mathpar}
+%\infer[]
+%{ \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}
+%  \\
+%  \inferannsnoalign{\res{}}{\atenv{}}
+%}
+%{ \annotatenoalign{\e{}}{\overrightarrow{\x{}}}{\atenv{}} }
+%\end{mathpar}
 \begin{mathpar}
-\infer[Driver]
-{ \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}
-  \\
-  \inferannsnoalign{\res{}}{\atenv{}}
-}
-{ \annotatenoalign{\e{}}{\overrightarrow{\x{}}}{\atenv{}} }
+  \begin{array}{lllll}
+    \annotateOp{} : \e{}, {\overrightarrow{\x{}}} \rightarrow \atenv{}\\
+    \annotateOp{} = \inferanns{} \circ \collectOp{}
+  \end{array}
 \end{mathpar}
 
 To contextualize the presentation of these phases, we begin a running example:
 inferring the type of a top-level function $f$, that takes a map and
 returns its {\makekw{a}} entry, 
 based on the following usage.
-
+%
 \begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
 define $f$ = \uabs{m}{\getexp{m}{\makekw{a}}}
 
 \appexp{f}{\curlymap{\makekw{a} 42}}
 => 42
 \end{Verbatim}
-
-Plugging this example into our driver function, where \e{} = {\appexp{f}{\curlymap{\makekw{a}\ 42}}},
-we derive an annotation for $f$:
-
+%
+Plugging this example into our driver function
+we get a candidate annotation for $f$:
 $$
-\annotatenoalign{\e{}}{[f]}{\{\hastype{f}{[\{\makekw{a}\ \IntT{}\} \rightarrow \IntT{}]}\}}
+\annotatenoalign{\appexp{f}{\curlymap{\makekw{a}\ 42}}}{[f]}{\{\hastype{f}{[\{\makekw{a}\ \IntT{}\} \rightarrow \IntT{}]}\}}
 $$
+
+\section{Collection phase}
 
 Now that we have a high-level picture of how these phases interact,
 we describe the syntax and semantics of \lambdatrack{}, before
 presenting the details of \collectOp{}.
-
+%
 \figref{infer:fig:syntax} presents the syntax of \lambdatrack{}.
 Values \v{} consist of numbers \num{}, Clojure-style keywords {\kw{}},
 closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}, constants \const{},
@@ -114,7 +121,7 @@ them to have optional entries in later phases.
        \res{}
       &::=& \restwoarrow{\inferpath{}}{\tau{}}
       &\mbox{Inference results} \\
-    \ty{}, \sigma
+    \t{}, \s{}
       &::=& \IntT{}
        \alt \arrow{\t{}}{\t{}}
        \alt \HMappretty{\overrightarrow{\kw{}\ \t{}}}
@@ -124,7 +131,7 @@ them to have optional entries in later phases.
        %\alt \Top{}
        \alt \UnknownT{}
       &\mbox{Types} \\
-    \tenv{} &::=& \{\overrightarrow{\xvar{} : \tau}\}
+    \tenv{} &::=& \{\overrightarrow{\hastype{\x{}}{\t{}}}\}
       &\mbox{Type environments} \\
     \aenv{} &::=& \{\overrightarrow{\alias{} \mapsto \tau}\}
       &\mbox{Type alias environments} \\
@@ -278,9 +285,9 @@ The other cases are straightforward.
 Now we have sufficient pieces to describe the initial collection phase of our model.
 Given an expression \e{} and variables ${\overrightarrow{\x{}}}$ to track,
 \instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\ep{}}
-returns an expression \ep{} with each occurrence of \x{} instrumented.
+returns an instrumented expression \ep{}
+that tracked usages of $\overrightarrow{\x{}}$.
 It is defined via capture-avoiding substitution:
-
 $$
 \instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\replacefor{\e{}}{\overrightarrow{\trackE{\x{}}{[\x{}]}}}{\overrightarrow{\x{}}}}
 $$
@@ -295,62 +302,165 @@ returns inference results {\res{}}
 that are the results of evaluating \e{}
 with instrumented occurrences of $\overrightarrow{\x{}}$.
 It is defined as:
-
+%
 \begin{mathpar}
 \infer[]
-  { \instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\ep{}}
-  \\
-  \opsemtrack{\emptyopenv{}}{\ep{}}{\v{}}{\res{}}
+  { 
+  \opsemtrack{}{\instrument{\e{}}{\overrightarrow{\x{}}}}{\v{}}{\res{}}
   }
   { \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}} }
 \end{mathpar}
 
-For our running example,
-we instrument the program by wrapping each usage of $f$ with \trackEOp{}
-with an initial path of $[f]$ (itself), and collect \emph{inference results}
-as the program evaluates.
+For our running example
+of collecting for the program \appexp{f}{\curlymap{\makekw{a}\ 42}},
+we instrument the program by wrapping occurrences of $f$ with \trackEOp{}
+with path $[f]$.
+$$
+\instrumentnoalign{\appexp{f}{\curlymap{\makekw{a}\ 42}}}{[f]}{\appexp{\trackE{f}{[f]}}{\curlymap{\makekw{a}\ 42}}}
+$$
 
-\opsemtrack{}{\e{}}{\v{}}{\res{}}
+Then we evaluate the instrumented program and derive two inference results:
+$$
+\opsemtrack{}{\appexp{\trackE{f}{[f]}}{\curlymap{\makekw{a}\ 42}}}{42}{\resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}}}
+$$
 
+Here is the full derivation:
 \begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
-=> \appexp{f}{\curlymap{\makekw{a}\ 42}}
 => \appexp{\trackE{f}{[f]}}{\curlymap{\makekw{a}\ 42}}
 => \trackE{\getexp{\trackE{\curlymap{\makekw{a}\ 42}}{[f, \dompe{}]}}{\makekw{a}}}{[f, \rngpe{}]}
-=> \trackE{\getexp{{\curlymap{\makekw{a}\ 42}} ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{\makekw{a}}}{[f, \rngpe{}]}
-=> \trackE{42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT}}}{[f, \rngpe{}]}
+=> \trackE{\getexp{{\curlymap{\makekw{a}\ 42}} ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}}}{\makekw{a}}}{[f, \rngpe{}]}
+=> \trackE{42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}}}{[f, \rngpe{}]}
 => $42 ; \resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}}$
 \end{Verbatim}
 
-Notice that values can have inference results (colored) attached to them with a semicolon,
+Notice that intermediate values can have inference results (colored) attached to them with a semicolon,
 and the final value has inference results about both $f$'s domain and range.
-To explain this reduction, we introduce the semantic rules of \lambdatrack{}.
+
+\section{Inference phase}
+
+After the collection phase, we have a collection of inference results \res{}
+which can be passed to the 
+metafunction \inferanns{}(\res{}) = \atenv{} to produce an annotation environment,
+which is defined as the composition of three passes (whose type signatures are below):
+\begin{mathpar}
+  \begin{array}{lllll}
+    \inferanns{} : \res{} \rightarrow \atenv{}\\
+    \inferanns{} = \stepthree{} \circ \steptwo{} \circ \generatetenv{}\\\\
+
+    \generatetenv{} : \res{} \rightarrow \atenv{}\\
+    \steptwo{} : \atenv{} \rightarrow \atenv{}\\
+    \stepthree{} : \atenv{} \rightarrow \atenv{}\\
+  \end{array}
+\end{mathpar}
+
+The first pass $\generatetenv{} (\res{}) = \tenv{}$ generates an initial type environment
+from inference results \res{}.
+%It is defined (in \figref{infer:fig:generatetenv})
+%as a fold over \res{}, building a \tenv{} incrementally via the \inferupdateOp{}
+%metafunction.
+%
+The second pass $\steptwo{}(\tenv{}) = \atenv{}$ creates individual type aliases
+for each HMap type in \tenv{} and then merges aliases that both occur inside the same
+nested type into possibly recursive types. % (\figref{infer:fig:steptwo}).
+%
+The third pass $\stepthree{} (\atenv{}) = \atenvp{}$
+merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:stepthree}).
+
+\subsection{Pass 1: Generating initial type environment}
+
+%\begin{figure*}
+%\begin{mathpar}
+%  \begin{array}{lllll}
+%    \inferanns{} : \res{} \rightarrow \atenv{}\\
+%    \inferanns{} = \stepthree{} \circ \steptwo{} \circ \generatetenv{}\\
+%  \end{array}
+%\end{mathpar}
+%\caption{Algorithm summary: Generate an initial type environment from inference results.
+%Then generate an updated type environment paired with a type alias environment by 1: creating
+%a recursive type if a HMap contains another HMap whose keysets have a non-empty intersection, 2:
+%globally merging type aliases based on identical HMap keysets, 3: cleaning up redundant aliases.}
+%\label{infer:fig:inferanns}
+%\end{figure*}
 
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
-    %\inferupdatenoalign{\aenv{}}{\tenv{}}{\inferpath{}}{\tau}{\atenv{}}
-    %\\\\
-
-    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\ty{}}
-            {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \ty{} \}}}
-    \\
-    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\ty{}}
-                {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\arrow{\ty{}}{\UnknownT{}}}}
-    \\
-    \inferupdatealign{\aenv{}}{\tenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\ty{}}
-                {\inferupdate{\aenv{}}{\tenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\ty{}}}}
-    \\
-    \inferupdatealign{\aenv{}}{\tenv{}}{[x]}{\ty{}}{(\tenv{}[\sigma / \xvar{}] , \aenv{}')}
-    \\
-    && \text{where}\ \tenv{}(\xvar{}) = \ty{}', join(\aenv{}, \ty{}, \ty{}') = \sigma\ ;\ \aenv{}'
-    \\
-    \inferupdatealign{\aenv{}}{\tenv{}}{[\xvar{}]}{\ty{}}{(\tenv{}[\ty{} / \xvar{}], \aenv{})}
-    \\
-    && \text{where}\ \xvar{} \not\in dom(\tenv{})
+    \generatetenv{} : \res{} \rightarrow \atenv{}\\
+    \generatetenv{} (\res{}) = \textbf{fold}(f, \atenv{0}, \res{})\\
+  \begin{array}{lllll}
+    \text{ where }
+      &\atenv{0} = \emptyatenv{}\\
+      &f(\atenv{},\resentry{\inferpath{}}{\t{}}) = \inferupdate{\atenv{}}{\inferpath{}}{\t{}}
+  \end{array}
   \end{array}
 \end{mathpar}
-\caption{Definition of \inferupdatenoalign{\aenv{}}{\tenv{}}{\inferpath{}}{\tau}{\atenv{}}}
+\caption{Definition of $\generatetenv{} (\res{}) = \atenv{}$ }
+\label{infer:fig:generatetenv}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\t{}}
+            {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\kw{}' : \UnknownT{}},\ \kw{} : \t{} \}}}
+    \\
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
+                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
+    \\
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
+                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
+    \\
+    \inferupdatealign{\makeatenv{\aenv{}}{\replacefor{\tenv{}}{\s{}}{\x{}}}}{[x]}{\t{}}
+                     {\makeatenv{\aenv{}}
+                       {\replacefor{\tenv{}}
+                                   {\joinexpression{\t{}}{\s{}}}
+                                   {\x{}}}}
+    \\
+    \inferupdatealign{\makeatenv{\aenv{}}{\tenv{}}}{[\xvar{}]}{\t{}}{\makeatenv{\aenv{}}{\replacefor{\tenv{}}{\t{}}{\x{}}}}
+    \\
+  \end{array}
+\end{mathpar}
+\caption{Definition of \inferupdatenoalign{\atenv{}}{\inferpath{}}{\tau}{\atenv{}}}
 \label{infer:fig:update}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    \steptwo{} : \atenv{} \rightarrow \atenv{}\\
+    \steptwo{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \tenv{})\\\\
+    \steptwohelper{} : \atenv{}, (\hastype{\x{}}{\t{}}) \rightarrow \atenv{}\\
+    \steptwohelper{} (\makeatenv{\aenv{}}{\tenv{}}, (\hastype{\x{}}{\t{}}) = \makeatenv{\aenv{2}}{\replacefor{\tenv{}}{\x{}}{\t{2}}}\\
+  \begin{array}{lllll}
+    \text{ where }
+      &(\aenv{1}, \t{1}) = aliasHMap(\aenv{}, \t{})\\
+      &(\aenv{2}, \t{2}) = squashAll(\aenv{1}, \t{1})\\
+  \end{array}
+  \end{array}
+\end{mathpar}
+\caption{Definition of $\steptwo{}(\tenv{}) = \atenv{}$
+%  Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
+%(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
+%redundant aliases.
+  }
+  \label{infer:fig:steptwo}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
+  \begin{array}{lllll}
+    \stepthree{} : \atenv{} \rightarrow \atenv{}\\
+    \stepthree{} = \squashhorizonally{} \circ \aliassinglehmap{}
+  \\
+  \end{array}
+\end{mathpar}
+\caption{
+%  Step 3 summary: First ensure all HMaps correspond to an alias. Then merge
+%aliases that point to a HMaps with identical required keysets (aliases must point to exactly one
+%top-level HMap, no unions).
+  }
+  \label{infer:fig:stepthree}
 \end{figure*}
 
 \begin{figure*}
@@ -359,31 +469,48 @@ To explain this reduction, we introduce the semantic rules of \lambdatrack{}.
     %\joinnoalign{\aenv{}}{\tau}{\tau}{\tau}
     %\\ \\
 
-    \joinalign{\aenv{}}{(\cup\ \overrightarrow{\tau_1})}{\tau}{(\cup\ \overrightarrow{\sigma})}\\
-                                                    && \text{where }
-                                                    \overrightarrow{\joinnoalign{\aenv{}}{\tau_1}{\tau}{\sigma}}
+    \joinalign{(\cup\ \overrightarrow{\tau_1})}{\tau}{(\cup\ \overrightarrow{\sigma})}
+                                                    & \text{where }
+                                                    \overrightarrow{\joinnoalign{\tau_1}{\tau}{\sigma}}
     \\
-    \joinalign{\aenv{}}{\tau}{(\cup\ \overrightarrow{\tau_1})}{(\cup\ \overrightarrow{\sigma})} \\
-                                                    && \text{where }
-                                                    \overrightarrow{\joinnoalign{\aenv{}}{\tau_1}{\tau}{\sigma}}
+    \joinalign{\tau}{(\cup\ \overrightarrow{\tau_1})}{(\cup\ \overrightarrow{\sigma})}
+                                                    & \text{where }
+                                                    \overrightarrow{\joinnoalign{\tau_1}{\tau}{\sigma}}
     \\
-    \joinalign{\aenv{}}{\UnknownT{}}{\tau}{\tau}
+    \joinalign{\UnknownT{}}{\tau}{\tau}
     \\
-    \joinalign{\aenv{}}{\tau}{\UnknownT{}}{\tau}
+    \joinalign{\tau}{\UnknownT{}}{\tau}
     \\
-    \joinalign{\aenv{}}{[\overrightarrow{\tau_1} \rightarrow \sigma_1]}{[\overrightarrow{\tau_2} \rightarrow \sigma_2]}{[\overrightarrow{\joinexpression{\aenv{}}{\tau_1}{\tau_2}}
-    \rightarrow
-    \joinexpression{\aenv{}}{\sigma_1}{\sigma_2}]}
+    \joinalign{\arrow{\t{1}}{\s{1}}}{\arrow{\t{2}}{\s{2}}}
+              {\arrow{\joinexpression{\t{1}}{\t{2}}}
+                     {\joinexpression{\s{1}}{\s{2}}}}
     \\
-    % TODO add condition on should-join-HMap?
-    %join(A, (HMap\  m_1\ o_1), (HMap\  m_2\ o_2))
-    %&=& joinHMap(A, (HMap\  m_1\ o_1), (HMap\  m_2\ o_2))
-    %\\
-    \joinalign{\aenv{}}{\tau}{\sigma}{(\cup\ \tau\ \sigma)}
+    \joinalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\joinHMapexpression{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}}
+    \\
+    \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
+    \\\\
+    \joinstaralign{\overrightarrow{\t{}}}{\textbf{fold}({\joinOp{}},{\UnknownT{}},{\overrightarrow{\t{}}})}
+  \end{array}
 
+  \begin{array}{lllll}
+    \joinHMapnoalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\HMaptwo{m}{o}}
+    \\
+    \begin{array}{lllll}
+        \text{ where }
+            &allreq    &= dom(m_1) \cup dom(m_2) \\
+            &commonreq &= dom(m_1) \cap dom(m_2) \\
+            &reqtoopt  &= allreq \setminus commonreq\\
+            &newopt    &= dom(o_1) \cup dom(o_2) \cup reqtoopt \\
+            &newreq    &= commonreq \setminus newopt,\\
+            &m         &= \{k : t \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in [m_1, m_2]}\}\\
+            &o         &= \{k : t \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in [m_1, m_2, o_1, o_2]]}\}\\
+    \end{array}
   \end{array}
 
 \end{mathpar}
-\caption{Definition of \joinnoalign{\aenv{}}{\tau}{\tau}{\tau}}
+\caption{Definition of \joinnoalign{\tau}{\tau}{\tau}}
 \label{infer:fig:join}
 \end{figure*}
+
+% Things we could prove:
+% - update is commutative
