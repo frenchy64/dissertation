@@ -479,17 +479,22 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \end{array}
 
   \begin{array}{lllll}
-    \joinHMapnoalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\HMaptwo{m}{o}}
+    \joinHMapnoalign{\HMaptwo{\HMapreq{1}}{\HMapopt{1}}}{\HMaptwo{\HMapreq{2}}{\HMapopt{2}}}{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
     \\
     \begin{array}{lllll}
-        \text{ where }
-            &allreq    &= dom(m_1) \cup dom(m_2) \\
-            &commonreq &= dom(m_1) \cap dom(m_2) \\
-            &reqtoopt  &= allreq \setminus commonreq\\
-            &newopt    &= dom(o_1) \cup dom(o_2) \cup reqtoopt \\
-            &newreq    &= commonreq \setminus newopt,\\
-            &m         &= \{(k, t) \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2)]}\}\\
-            &o         &= \{(k, t) \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2, o_1, o_2)]]}\}\\
+      \text{ where }
+          &\mathsf{req}  &= \bigcup \overrightarrow{dom({\HMapreq{i}})} \\
+          &\mathsf{com}  &= \bigcap \overrightarrow{dom({\HMapreq{i}})} \\
+          &\mathsf{swp}  &= \mathsf{req} \setminus \mathsf{com}\\
+          &\mathsf{opt}' &= \bigcup \overrightarrow{dom({\HMapopt{i}})} \cup \mathsf{swp} \\
+          &\mathsf{req}' &= \mathsf{com} \setminus \mathsf{opt}' \\
+          &m             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i}} ]}) \ |\ 
+                              \kw{} \in \mathsf{req}'
+                               \}
+                            \\
+          &o             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i},\HMapopt{i}}) \ |\ 
+                               \kw{} \in \mathsf{opt}'
+                                ]}\}
     \end{array}
   \end{array}
 
