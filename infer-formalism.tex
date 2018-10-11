@@ -114,7 +114,7 @@ them to have optional entries in later phases.
       &::=& \x{}
        \alt \dompe{}
        \alt \rngpe{}
-       \alt {\inferkeype{\overrightarrow{\kw{}}}{\kw{}}}
+       \alt {\inferkeype{\HMapreq{}}{\kw{}}}
        &\mbox{Path Elements} \\
    \inferpath{} &::=& \overrightarrow{\pth{}}
        &\mbox{Paths} \\
@@ -124,15 +124,22 @@ them to have optional entries in later phases.
     \t{}, \s{}
       &::=& \IntT{}
        \alt \arrow{\t{}}{\t{}}
-       \alt \HMappretty{\overrightarrow{\kw{}\ \t{}}}
-       %&\alt& \HMaptwo{\{\overrightarrow{\kw{}\ \tau}\}}{\{\overrightarrow{\kw{}\ \tau}\}}
-       \alt \Union{\t{}}{\t{}}
+       %\alt \HMappretty{\overrightarrow{\kw{}\ \t{}}}
+       \alt \HMaptwo{\HMapreq{}}{\HMapopt{}}
+       \alt \Unionsplice{\overrightarrow{\t{}}}
        \alt \alias{} % type alias
-       %\alt \Top{}
+       \\
+       &\alt& \kw{}
+       \alt \Keyword{}
+       \alt \Top{}
+       \alt \IPersistentMap{\t{}}{\t{}}
        \alt \UnknownT{}
       &\mbox{Types} \\
     \tenv{} &::=& \{\overrightarrow{\hastype{\x{}}{\t{}}}\}
       &\mbox{Type environments} \\
+    \HMapreq{}, \HMapopt{}
+      &::=& \{ \overrightarrow{\kw{}\ {\t{}}} \}
+      &\mbox{HMap entries} \\
     \aenv{} &::=& \{\overrightarrow{\alias{} \mapsto \tau}\}
       &\mbox{Type alias environments} \\
     \atenv{} &::=& (\aenv{}, \tenv{})
@@ -249,6 +256,12 @@ The other cases are straightforward.
 
     \trackmetaalign{\num{}}{\inferpath{}}{\num{}}{\singletonres{\inferpath{}}{\IntT{}}}
     \\
+    \trackmetaalign{\kw{}}{\inferpath{}}{\kw{}}
+                   {\singletonres{\inferpath{}}
+                                 {\Keyword{}}}
+    \\
+    \trackmetaalign{\const{}}{\inferpath{}}{\const{}}{\emptyres{}}
+    \\
     \trackmetaalign{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
                    {\inferpath{}}
                    {\closure{\uabs{\y{}}
@@ -256,24 +269,38 @@ The other cases are straightforward.
                                                   {\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}})}}
                                           {\appendone{\inferpath{}}{\rngpe{}}}}}
                             {\openv{}}}
-                   {\singletonres{\inferpath{}}
-                                 {\arrow{\UnknownT{}}{\UnknownT{}}}}
+                   {\emptyres{}}
+                   % let's treat functions as opaque wrt arity as they are in clojure
+                   %{\singletonres{\inferpath{}}
+                   %              {\arrow{\UnknownT{}}{\UnknownT{}}}}
          \\
     &&
     \text{where}\ \y{} \text{ is fresh}
     \\
-    \trackmetaalign{\curlymapvaloverrightnoarrow{\v{1}}{\v{2}}}
+    \trackmetaalign{\{\}}
                    {\inferpath{}}
-                   {\curlymapvaloverrightnoarrow{\v{1}}{\vp{2}}}
-                   {\unionres{\bigunionres{\res{}}}
-                             {\singletonres{\inferpath{}}{\curlymapvaloverrightnoarrow{\v{1}}{\UnknownT{}}}}}
+                   {\{\}}
+                   {\singletonres{\inferpath{}}
+                                 {\HMappretty{}}}
+    \\
+    \trackmetaalign{\{\overrightarrow{\kw{1}\ {\kw{2}}}\ 
+                      \overrightarrow{\kw{}\ {\v{}}}
+                    \}}
+                   {\inferpath{}}
+                   {\{\overrightarrow{\kw{1}\ {\kw{2}}}\ 
+                      \overrightarrow{\kw{}\ {\vp{}}}
+                    \}}
+                   {\bigunionres{\res{}}}
     \\
     &&
-    \text{where}\ \overrightarrow{\trackmeta{\v{2}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\val1}}{\val1}}}{\vp{2}}{\res{}}}
-    \\
-    \trackmetaalign{\kw{}}{\inferpath{}}{\kw{}}{\emptyres{}}
-    \\
-    \trackmetaalign{\const{}}{\inferpath{}}{\const{}}{\emptyres{}}
+    \text{where}\ \overrightarrow{\trackmeta{\v{}}
+                                            {\appendone{\inferpath{}}
+                                                       {\inferkeype{\{\overrightarrow{\kw{1}\ {\kw{2}}}\ 
+                                                                      \overrightarrow{\kw{}\ {\UnknownT{}}}
+                                                                    \}}
+                                                                   {\kw{}}}}
+                                            {\vp{}}
+                                            {\res{}}}
     \\
   \end{array}
 
@@ -353,13 +380,13 @@ which is defined as the composition of three passes (whose type signatures are b
   \end{array}
 \end{mathpar}
 
-The first pass $\generatetenv{} (\res{}) = \tenv{}$ generates an initial type environment
+The first pass $\generatetenv{} (\res{}) = \atenv{}$ generates an initial annotation environment
 from inference results \res{}.
 %It is defined (in \figref{infer:fig:generatetenv})
 %as a fold over \res{}, building a \tenv{} incrementally via the \inferupdateOp{}
 %metafunction.
 %
-The second pass $\steptwo{}(\tenv{}) = \atenv{}$ creates individual type aliases
+The second pass $\steptwo{}(\atenv{}) = \atenvp{}$ creates individual type aliases
 for each HMap type in \tenv{} and then merges aliases that both occur inside the same
 nested type into possibly recursive types. % (\figref{infer:fig:steptwo}).
 %
@@ -388,12 +415,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 \begin{mathpar}
   \begin{array}{lllll}
     \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    \generatetenv{} (\res{}) = \textbf{fold}(f, \atenv{0}, \res{})\\
-  \begin{array}{lllll}
-    \text{ where }
-      &\atenv{0} = \emptyatenv{}\\
-      &f(\atenv{},\resentry{\inferpath{}}{\t{}}) = \inferupdate{\atenv{}}{\inferpath{}}{\t{}}
-  \end{array}
+    \generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \emptyatenv{}, \res{})\\
   \end{array}
   \begin{array}{lllll}
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\overrightarrow{\kw{}'}}{\kw{}}}}{\t{}}
@@ -405,13 +427,12 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
                 {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
     \\
-    \inferupdatealign{\makeatenv{\aenv{}}{\replacefor{\tenv{}}{\s{}}{\x{}}}}{[x]}{\t{}}
-                     {\makeatenv{\aenv{}}
-                       {\replacefor{\tenv{}}
-                                   {\joinexpression{\t{}}{\s{}}}
-                                   {\x{}}}}
+    \inferupdatealign{\replacefor{\atenv{}}{\s{}}{\x{}}}{[x]}{\t{}}
+                     {\replacefor{\atenv{}}
+                                 {\joinexpression{\t{}}{\s{}}}
+                                 {\x{}}}
     \\
-    \inferupdatealign{\makeatenv{\aenv{}}{\tenv{}}}{[\xvar{}]}{\t{}}{\makeatenv{\aenv{}}{\replacefor{\tenv{}}{\t{}}{\x{}}}}
+    \inferupdatealign{\atenv{}}{[\xvar{}]}{\t{}}{\replacefor{\atenv{}}{\t{}}{\x{}}}
     \\
   \end{array}
 \end{mathpar}
@@ -441,9 +462,15 @@ The first pass is given in \figref{infer:fig:generatetenv}.
               {\arrow{\joinexpression{\t{1}}{\t{2}}}
                      {\joinexpression{\s{1}}{\s{2}}}}
     \\
-    \joinalign{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}{\joinHMapexpression{\HMaptwo{m_1}{o_1}}{\HMaptwo{m_2}{o_2}}}\\
+    \joinalign{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
+              {\HMaptwo{\HMapreqp{}}{\HMapoptp{}}}
+              {\joinHMapexpression{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
+                                  {\HMaptwo{\HMapreqp{}}{\HMapoptp{}}}}
+                                  \\
     % TODO don't merge when common dispatch key
-    &&\text{where } dom(m_1) = dom(m_2), dom(o_1) = dom(o_2)
+    &&\text{where } dom({\HMapreq{}}) = dom({\HMapreqp{}}), 
+                    \not\exists \kw{}, \kwp{}. (\kw{}\ \kwp{}) \in \bigcup({\HMapreq{}}, {\HMapreqp{}})
+                    %dom({\HMapopt{}}) = dom({\HMapoptp{}})
     \\
     \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
     \\\\
@@ -460,8 +487,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
             &reqtoopt  &= allreq \setminus commonreq\\
             &newopt    &= dom(o_1) \cup dom(o_2) \cup reqtoopt \\
             &newreq    &= commonreq \setminus newopt,\\
-            &m         &= \{k : t \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in \textbf{concat}(m_1, m_2)]}\}\\
-            &o         &= \{k : t \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in \textbf{concat}(m_1, m_2, o_1, o_2)]]}\}\\
+            &m         &= \{k : t \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2)]}\}\\
+            &o         &= \{k : t \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2, o_1, o_2)]]}\}\\
     \end{array}
   \end{array}
 

@@ -17,6 +17,10 @@
 \newcommand\IntT[1]{\ma{\mathsf{N}}}
 \newcommand\UnknownT[1]{\ma{\mathrm{?}}}
 \newcommand\HMaptwo[2]{\ma{({\mathsf{HMap}}\ #1\ #2)}}
+\newmeta\HMapreq{\ma{m}}
+\newmeta\HMapreqp{\ma{m'}}
+\newmeta\HMapopt{\ma{o}}
+\newmeta\HMapoptp{\ma{o'}}
 \newcommand\HMappretty[1]{\ma{\{#1\}}}
 \newcommand\appendone[2]{#1 :: [#2]}
 \newcommand\Proxy[0]{\specialformfont{Proxy}}
@@ -56,7 +60,7 @@
 \newcommand\trackmetaalign[4]{\ma{\trackmetaOp{}(#1, #2) &=& #3\ ; #4}}
 \newcommand\trackpolymeta[0]{\ma{\infermetafnfont{trackPoly}}}
 \newcommand\inferupdateOp[0]{\ma{\infermetafnfont{update}}}
-\newcommand\inferupdate[3]{\inferupdateOp{}(#1, #2, #3)}
+\newcommand\inferupdate[3]{\inferupdateOp{}(#1, \resentry{#2}{#3})}
 \newcommand\inferupdatecommon[5]{\inferupdate{#1}{#2}{#3} #4  #5} % takes the = sign to allow extra alignment
 \newcommand\inferupdatenoalign[4]{\ma{\inferupdatecommon{#1}{#2}{#3}{=}{#4}}}
 \newcommand\inferupdatealign[4]{\inferupdatecommon{#1}{#2}{#3}{&=&}{#4}}
@@ -64,7 +68,7 @@
 \newcommand\joinalign[3]{\joinOp{}(#1, #2) &=& #3}
 \newcommand\joinnoalign[3]{\ma{\joinOp{}(#1, #2) = #3}}
 \newcommand\joinexpression[2]{\joinOp{}(#1, #2)}
-\newcommand\joinHMapOp[0]{\ma{\infermetafnfont{mergeHMap}}}
+\newcommand\joinHMapOp[0]{\ma{\infermetafnfont{joinHMap}}}
 \newcommand\joinHMapnoalign[3]{\ma{\joinHMapOp{}(#1, #2) = #3}}
 \newcommand\joinHMapexpression[2]{\ma{\joinHMapOp{}(#1, #2)}}
 \newcommand\joinstarOp[0]{\ma{\infermetafnfont{join*}}}
@@ -85,6 +89,7 @@
 % expressions
 \newmeta\val{v}
 \newmeta\kw{k}
+\newmeta\kwp{k'}
 \newmeta\xvar{x}
 \newmeta\yvar{y}
 \newmeta\num{n}
