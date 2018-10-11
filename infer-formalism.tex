@@ -468,8 +468,9 @@ The first pass is given in \figref{infer:fig:generatetenv}.
                                   {\HMaptwo{\HMapreqp{}}{\HMapoptp{}}}}
                                   \\
     % TODO don't merge when common dispatch key
-    &&\text{where } dom({\HMapreq{}}) = dom({\HMapreqp{}}), 
-                    \not\exists \kw{}, \kwp{}. (\kw{}\ \kwp{}) \in \bigcup({\HMapreq{}}, {\HMapreqp{}})
+    &&\text{where } %dom({\HMapreq{}}) = dom({\HMapreqp{}}), 
+                    \forall \kw{}. \text{ if } (\kw{}, \kw{1}) \in {\HMapreq{}} \text{ and } (\kw{}, \kw{2}) \in {\HMapreqp{}} \text{, then } \kw{1} = \kw{2}
+                    %\not\exists \kw{}. (\kw{}, \kw{1}) \in {\HMapreq{}} \wedge (\kw{}, \kw{2}) \in {\HMapreqp{}} \wedge \kw{1} \not= \kw{2}
                     %dom({\HMapopt{}}) = dom({\HMapoptp{}})
     \\
     \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
@@ -487,8 +488,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
             &reqtoopt  &= allreq \setminus commonreq\\
             &newopt    &= dom(o_1) \cup dom(o_2) \cup reqtoopt \\
             &newreq    &= commonreq \setminus newopt,\\
-            &m         &= \{k : t \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2)]}\}\\
-            &o         &= \{k : t \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2, o_1, o_2)]]}\}\\
+            &m         &= \{(k, t) \ |\  k \in newreq, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2)]}\}\\
+            &o         &= \{(k, t) \ |\  k \in newopt, t = \joinstarexpression{[t \ |\ (k, t) \in \bigcup(m_1, m_2, o_1, o_2)]]}\}\\
     \end{array}
   \end{array}
 
