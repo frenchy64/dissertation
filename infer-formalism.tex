@@ -330,13 +330,10 @@ that are the results of evaluating \e{}
 with instrumented occurrences of $\overrightarrow{\x{}}$.
 It is defined as:
 %
-\begin{mathpar}
-\infer[]
-  { 
+$$
+\collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}, \text{ where }
   \opsemtrack{}{\instrument{\e{}}{\overrightarrow{\x{}}}}{\v{}}{\res{}}
-  }
-  { \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}} }
-\end{mathpar}
+$$
 
 For our running example
 of collecting for the program \appexp{f}{\curlymap{\makekw{a}\ 42}},
@@ -367,16 +364,11 @@ and the final value has inference results about both $f$'s domain and range.
 
 After the collection phase, we have a collection of inference results \res{}
 which can be passed to the 
-metafunction \inferanns{}(\res{}) = \atenv{} to produce an annotation environment,
-which is defined as the composition of three passes (whose type signatures are below):
+metafunction \inferanns{}(\res{}) = \atenv{} to produce an annotation environment:
 \begin{mathpar}
   \begin{array}{lllll}
     \inferanns{} : \res{} \rightarrow \atenv{}\\
-    \inferanns{} = \stepthree{} \circ \steptwo{} \circ \generatetenv{}\\\\
-
-    \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    \steptwo{} : \atenv{} \rightarrow \atenv{}\\
-    \stepthree{} : \atenv{} \rightarrow \atenv{}\\
+    \inferanns{} = \inferrecOp{} \circ \generatetenv{}\\\\
   \end{array}
 \end{mathpar}
 
@@ -414,49 +406,17 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
-    \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    \generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \emptyatenv{}, \res{})\\
-  \end{array}
-  \begin{array}{lllll}
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\HMapreq{}}{\kw{}}}}{\t{}}
-            {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\HMapreq{}},\ \kw{}\ \t{} \}}}
+    \joinOp{} : \t{}, \t{} \rightarrow \t{}
     \\
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
-                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
+    \joinexpression{\Unionsplice{\overrightarrow{\s{}}}}{\t{}};\ 
+    \joinexpression{\t{}}{\Unionsplice{\overrightarrow{\s{}}}}
+    &=&
+    \Unionsplice{\overrightarrow{\joinexpression{\s{}}{\t{}}}}
     \\
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
-                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
-    \\
-    \inferupdatealign{\replacefor{\atenv{}}{\s{}}{\x{}}}{[x]}{\t{}}
-                     {\replacefor{\atenv{}}
-                                 {\joinexpression{\t{}}{\s{}}}
-                                 {\x{}}}
-    \\
-    \inferupdatealign{\atenv{}}{[\xvar{}]}{\t{}}{\replacefor{\atenv{}}{\t{}}{\x{}}}
-    \\
-  \end{array}
-\end{mathpar}
-\caption{Definitions of $\generatetenv{} (\res{}) = \atenv{}$ and \inferupdatenoalign{\atenv{}}{\inferpath{}}{\tau}{\atenv{}}}
-\label{infer:fig:generatetenv}
-\end{figure*}
-
-\begin{figure*}
-\begin{mathpar}
-  \begin{array}{lllll}
-    %\joinnoalign{\aenv{}}{\t{}}{\t{}}{\t{}}
-    %\\ \\
-
-    \joinalign{(\cup\ \overrightarrow{\t{1}})}{\t{}}{(\cup\ \overrightarrow{\sigma})}
-                                                  \\&& \text{where }
-                                                    \overrightarrow{\joinnoalign{\t{1}}{\t{}}{\sigma}}
-    \\
-    \joinalign{\t{}}{(\cup\ \overrightarrow{\t{1}})}{(\cup\ \overrightarrow{\sigma})}
-                                                  \\&& \text{where }
-                                                    \overrightarrow{\joinnoalign{\t{1}}{\t{}}{\sigma}}
-    \\
-    \joinalign{\UnknownT{}}{\t{}}{\t{}}
-    \\
-    \joinalign{\t{}}{\UnknownT{}}{\t{}}
+    \joinexpression{\UnknownT{}}{\t{}};\ 
+    \joinexpression{\t{}}{\UnknownT{}}
+    &=&
+    \t{}
     \\
     \joinalign{\arrow{\t{1}}{\s{1}}}{\arrow{\t{2}}{\s{2}}}
               {\arrow{\joinexpression{\t{1}}{\t{2}}}
@@ -474,10 +434,13 @@ The first pass is given in \figref{infer:fig:generatetenv}.
                     %dom({\HMapopt{}}) = dom({\HMapoptp{}})
     \\
     \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
-    \\\\
-    \joinstaralign{\overrightarrow{\t{}}}{\textbf{fold}({\joinOp{}},{\UnknownT{}},{\overrightarrow{\t{}}})}
   \end{array}
 
+  \begin{array}{ll}
+    \joinstarOp{} : \overrightarrow{\t{}} \rightarrow \t{}
+    \\
+    \joinstarnoalign{\overrightarrow{\t{}}}{\textbf{fold}({\joinOp{}},{\UnknownT{}},{\overrightarrow{\t{}}})}
+  \end{array}
   \begin{array}{lllll}
     \joinHMapnoalign{\HMaptwo{\HMapreq{1}}{\HMapopt{1}}}{\HMaptwo{\HMapreq{2}}{\HMapopt{2}}}{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
     \\
@@ -497,9 +460,35 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \end{array}
   \end{array}
 
+  \begin{array}{lllll}
+    \generatetenv{} : \res{} \rightarrow \atenv{}\\
+    \generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \atenv{0}, \res{})\\
+  \end{array}
+  \begin{array}{lllll}
+    \inferupdateOp : \atenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \atenv{} 
+    \\
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\HMapreq{}}{\kw{}}}}{\t{}}
+            {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\HMapreq{}},\ \kw{}\ \t{} \}}}
+    \\
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
+                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
+    \\
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
+                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
+    \\
+    \inferupdatealign{\replacefor{\atenv{}}{\s{}}{\x{}}}{[x]}{\t{}}
+                     {\replacefor{\atenv{}}
+                                 {\joinexpression{\t{}}{\s{}}}
+                                 {\x{}}}
+    \\
+    \inferupdatealign{\atenv{}}{[\xvar{}]}{\t{}}{\replacefor{\atenv{}}{\t{}}{\x{}}}
+    \\
+  \end{array}
+
+
 \end{mathpar}
-\caption{Definition of \joinnoalign{\t{}}{\t{}}{\t{}}}
-\label{infer:fig:join}
+\caption{Definition of \generatetenv{}, where \atenv{0} is an initial annotation environment. }
+\label{infer:fig:generatetenv}
 \end{figure*}
 
 
@@ -507,14 +496,15 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 \begin{mathpar}
   \begin{array}{lllll}
     \steptwo{} : \atenv{} \rightarrow \atenv{}\\
-    \steptwo{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \tenv{})\\\\
-    \steptwohelper{} : \atenv{}, (\hastype{\x{}}{\t{}}) \rightarrow \atenv{}\\
-    \steptwohelper{} (\makeatenv{\aenv{}}{\tenv{}}, (\hastype{\x{}}{\t{}}) = \makeatenv{\aenv{2}}{\replacefor{\tenv{}}{\x{}}{\t{2}}}\\
-  \begin{array}{lllll}
-    \text{ where }
-      &(\aenv{1}, \t{1}) = aliasHMap(\aenv{}, \t{})\\
-      &(\aenv{2}, \t{2}) = squashAll(\aenv{1}, \t{1})\\
-  \end{array}
+    \steptwo{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
+    \begin{array}{lllll}
+      \text{where} &\steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
+                   &\begin{array}{lllll}
+                      \text{where}
+                        &(\atenv{1}, \t{1}) = aliasHMap(\atenv{}, \t{})\\
+                        &(\atenv{2}, \t{2}) = squashAll(\atenv{1}, \t{1})\\
+                    \end{array}
+    \end{array}
   \end{array}
 \end{mathpar}
 \caption{Definition of $\steptwo{}(\tenv{}) = \atenv{}$
