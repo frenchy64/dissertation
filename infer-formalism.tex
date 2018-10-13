@@ -408,15 +408,13 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \begin{array}{lllll}
     \joinOp{} : \t{}, \t{} \rightarrow \t{}
     \\
-    \joinexpression{\Unionsplice{\overrightarrow{\s{}}}}{\t{}};\ 
-    \joinexpression{\t{}}{\Unionsplice{\overrightarrow{\s{}}}}
-    &=&
-    \Unionsplice{\overrightarrow{\joinexpression{\s{}}{\t{}}}}
+    \joinalign{\Unionsplice{\overrightarrow{\s{}}}}{\t{}}{\Unionsplice{\overrightarrow{\joinexpression{\s{}}{\t{}}}}}
     \\
-    \joinexpression{\UnknownT{}}{\t{}};\ 
-    \joinexpression{\t{}}{\UnknownT{}}
-    &=&
-    \t{}
+    \joinalign{\t{}}{\Unionsplice{\overrightarrow{\s{}}}}{\Unionsplice{\overrightarrow{\joinexpression{\s{}}{\t{}}}}}
+    \\
+    \joinalign{\UnknownT{}}{\t{}}{\t{}}
+    \\
+    \joinalign{\t{}}{\UnknownT{}}{\t{}}
     \\
     \joinalign{\arrow{\t{1}}{\s{1}}}{\arrow{\t{2}}{\s{2}}}
               {\arrow{\joinexpression{\t{1}}{\t{2}}}
