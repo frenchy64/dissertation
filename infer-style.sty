@@ -46,10 +46,14 @@
 
 % algorithm
 \newcommand\infermetafnfont[1]{\ma{\mathsf{#1}}}
-\newcommand\steptwo[0]{\ma{\infermetafnfont{squashLocal}}}
+\newcommand\squashlocal[0]{\ma{\infermetafnfont{squashLocal}}}
 \newcommand\steptwohelper[0]{\ma{\infermetafnfont{h}}}
-\newcommand\stepthree[0]{\infermetafnfont{squashGlobal}}
+\newcommand\squashglobal[0]{\infermetafnfont{squashGlobal}}
+\newcommand\aliashmap[0]{\infermetafnfont{aliasHMap}}
 \newcommand\inferrecOp[0]{\infermetafnfont{inferRec}}
+\newcommand\squashall[0]{\infermetafnfont{squashAll}}
+\newcommand\squash[0]{\infermetafnfont{squash}}
+\newcommand\trymergealias[0]{\infermetafnfont{tryMergeAlias}}
 \newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
 \newcommand\aliassinglehmap[0]{aliasSingleHMap}      %% TODO needs definition!
 \newcommand\inferanns[0]{\ma{\infermetafnfont{infer}}}
@@ -86,6 +90,8 @@
 
 % aliases
 \newmeta\alias{a}
+\newmeta\aliasp{a'}
+\newmeta\aliaspp{a''}
 
 % expressions
 \newmeta\val{v}

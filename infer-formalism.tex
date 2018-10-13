@@ -378,12 +378,12 @@ from inference results \res{}.
 %as a fold over \res{}, building a \tenv{} incrementally via the \inferupdateOp{}
 %metafunction.
 %
-The second pass $\steptwo{}(\atenv{}) = \atenvp{}$ creates individual type aliases
+The second pass $\squashlocal{}(\atenv{}) = \atenvp{}$ creates individual type aliases
 for each HMap type in \tenv{} and then merges aliases that both occur inside the same
-nested type into possibly recursive types. % (\figref{infer:fig:steptwo}).
+nested type into possibly recursive types. % (\figref{infer:fig:squashlocal}).
 %
-The third pass $\stepthree{} (\atenv{}) = \atenvp{}$
-merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:stepthree}).
+The third pass $\squashglobal{} (\atenv{}) = \atenvp{}$
+merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:squashglobal}).
 
 \subsection{Pass 1: Generating initial type environment}
 
@@ -393,7 +393,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 %\begin{mathpar}
 %  \begin{array}{lllll}
 %    \inferanns{} : \res{} \rightarrow \atenv{}\\
-%    \inferanns{} = \stepthree{} \circ \steptwo{} \circ \generatetenv{}\\
+%    \inferanns{} = \squashglobal{} \circ \squashlocal{} \circ \generatetenv{}\\
 %  \end{array}
 %\end{mathpar}
 %\caption{Algorithm summary: Generate an initial type environment from inference results.
@@ -493,40 +493,99 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
-    \steptwo{} : \atenv{} \rightarrow \atenv{}\\
-    \steptwo{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
+    \aliashmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
+    \aliashmap{}(\atenv{0}, \arrow{\t{1}}{\t{2}}) = (\atenv{2}, \arrow{\s{1}}{\s{2}})\\
+    \begin{array}{lllll}
+      \text{where}
+        &\overrightarrow{(\atenv{i}, \s{i}) = \aliashmap{}(\atenv{i-1},  \t{i})}\\
+    \end{array}
+    \\
+    \aliashmap{}(\atenv{0}, \HMaptwo{\HMapreq{1}}{\HMapreq{2}}) = (\replacefor{\atenv{2}}{\HMaptwo{\HMapreqp{1}}{\HMapreqp{2}}}{\alias{}}, \alias{})\\
+    \begin{array}{lllll}
+      \text{where}
+        &\textsf{step}((\atenv{}, \textsf{c}), \s{}) = (\atenvp{}, \t{} :: \textsf{c})\\
+        &\begin{array}{lllll}
+          &\text{where} (\atenvp{}, \t{}) = \aliashmap{}(\atenv{}, \s{})
+        \end{array}\\
+        &\overrightarrow{(\atenv{i}, \overrightarrow{\t{i}}) = \textsf{foldr}(\textsf{step}, (\atenv{i-1}, []), rng(\HMapreq{i}))}\\
+        &\overrightarrow{\HMapreqp{i} = \textsf{zip}(dom(\HMapreq{i}), \overrightarrow{\t{i}})}\\
+        &\alias{} = freshAlias(\atenv{2})
+    \end{array}
+    \\
+    \aliashmap{}(\atenv{0}, \Unionsplice{\t{1}, ..., \t{n}}) = \textsf{res}
+    \\
+    \begin{array}{lllll}
+      \text{where}
+      &\overrightarrow{(\atenv{i}, \s{i}) = \aliashmap{}(\atenv{i-1}, \t{i})}\\
+      &\alias{} = freshAlias(\atenv{n})\\
+      &\textsf{res} = \textsf{if} \bigwedge\overrightarrow{\textsf{simple?}(\s{i})}
+                      \textsf{ then } (\atenv{n}, \Unionsplice{\s{1}, ..., \s{n}})
+                      \textsf{ else } (\replacefor{\atenv{n}}{\Unionsplice{\overrightarrow{\textsf{resolveTopLevel}(\s{i})}}}{\alias{}}, \alias{})
+    \end{array}
+    \\
+    \aliashmap{}(\atenv{}, \t{}) = (\atenv{}, \t{})
+    \\
+    \\
+    \squashall{} : \atenv{}, \t{} \rightarrow \atenv{}\\
+    \squashall{}(\atenv{}, \t{}) = \textsf{fold}(\lambda (\atenv{}, \alias{}). \squash{}(\atenv{}, [\alias{}], []), \atenv{}, shallowAliasesIn(\t{}))\\
+    \begin{array}{lllll}
+      \text{where }
+      &\squash : \atenv{}, \overrightarrow{\alias{}}, \overrightarrow{\alias{}} \rightarrow \atenv{}\\
+      &\squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
+      &\squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})
+        \\
+        &\begin{array}{lllll}
+          \text{where }
+          &\textsf{as} = shallowAliasesIn(\atenv{}[\alias{}]) \setminus \textsf{d}\\
+          &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
+          &\atenvp{} = 
+             \textsf{if } \alias{} \in \textsf{d}
+             \textsf{ then } \atenv{}
+             \textsf{ else } \textsf{fold}(\lambda (\atenv{}, \aliasp{}) . \trymergealias{}(\atenv{}, \aliasp{}, \alias{}),
+                                            \atenv{}, \textsf{ap} \cup \textsf{as})
+        \end{array}
+    \end{array}
+    \\
+    \squashlocal{} : \atenv{} \rightarrow \atenv{}\\
+    \squashlocal{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
     \begin{array}{lllll}
       \text{where} &\steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
                    &\begin{array}{lllll}
                       \text{where}
-                        &(\atenv{1}, \t{1}) = aliasHMap(\atenv{}, \t{})\\
-                        &(\atenv{2}, \t{2}) = squashAll(\atenv{1}, \t{1})\\
+                        &(\atenv{1}, \t{1}) = \aliashmap{}(\atenv{}, \t{})\\
+                        &(\atenv{2}, \t{2}) = \squashall{}(\atenv{1}, \t{1})\\
                     \end{array}
     \end{array}
   \end{array}
+
+  \begin{array}{lllll}
+    \squashglobal{} : \atenv{} \rightarrow \atenv{}\\
+    \squashglobal{} = \squashhorizonally{} \circ \aliassinglehmap{}
+  \\
+  \end{array}
+
+  \begin{array}{lllll}
+    \inferrecOp{} : \atenv{} \rightarrow \atenv{}\\
+    \inferrecOp{} = \squashglobal{} \circ \squashlocal{}
+  \end{array}
 \end{mathpar}
-\caption{Definition of $\steptwo{}(\tenv{}) = \atenv{}$
+\caption{Definition of $\squashlocal{}(\tenv{}) = \atenv{}$
 %  Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
 %(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
 %redundant aliases.
   }
-  \label{infer:fig:steptwo}
+  \label{infer:fig:squashlocal}
 \end{figure*}
 
 \begin{figure*}
 \begin{mathpar}
-  \begin{array}{lllll}
-    \stepthree{} : \atenv{} \rightarrow \atenv{}\\
-    \stepthree{} = \squashhorizonally{} \circ \aliassinglehmap{}
-  \\
-  \end{array}
 \end{mathpar}
 \caption{
 %  Step 3 summary: First ensure all HMaps correspond to an alias. Then merge
 %aliases that point to a HMaps with identical required keysets (aliases must point to exactly one
 %top-level HMap, no unions).
   }
-  \label{infer:fig:stepthree}
+  \label{infer:fig:squashglobal}
 \end{figure*}
 
 % Things we could prove:
