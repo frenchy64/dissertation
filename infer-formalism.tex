@@ -13,22 +13,22 @@ that can be used to automatically annotate the program.
 Before getting into details, we define the top-level driver function \annotateOp{} that connects
 both pieces.
 It says, given a program \e{}
-and top-level variables $\overrightarrow{\x{}}$ to infer annotations for,
+and top-level variables $\ova{\x{}}$ to infer annotations for,
 return an annotation environment \atenv{} with possible entries for
-$\overrightarrow{\x{}}$ based on observations from evaluating
+$\ova{\x{}}$ based on observations from evaluating
 an instrumented \e{}.
 %
 %\begin{mathpar}
 %\infer[]
-%{ \collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}
+%{ \collectnoalign{\e{}}{\ova{\x{}}}{\res{}}
 %  \\
 %  \inferannsnoalign{\res{}}{\atenv{}}
 %}
-%{ \annotatenoalign{\e{}}{\overrightarrow{\x{}}}{\atenv{}} }
+%{ \annotatenoalign{\e{}}{\ova{\x{}}}{\atenv{}} }
 %\end{mathpar}
 \begin{mathpar}
   \begin{array}{lllll}
-    \annotateOp{} : \e{}, {\overrightarrow{\x{}}} \rightarrow \atenv{}\\
+    \annotateOp{} : \e{}, {\ova{\x{}}} \rightarrow \atenv{}\\
     \annotateOp{} = \inferanns{} \circ \collectOp{}
   \end{array}
 \end{mathpar}
@@ -74,9 +74,9 @@ a variable \x{}, and are read left-to-right.
 Other path elements are
 a function domain \dompe{}, 
 a function range \rngpe{},
-and a map entry {\inferkeype{\overrightarrow{\kw{1}}}{\kw{2}}}
+and a map entry {\inferkeype{\ova{\kw{1}}}{\kw{2}}}
 which represents the result of looking up key {\kw{2}}
-in a map with keyset ${\overrightarrow{\kw{1}}}$.
+in a map with keyset ${\ova{\kw{1}}}$.
 
 Inference results \restwoarrow{\inferpath{}}{\t{}}
 are pairs of paths {\inferpath{}} and types \t{}
@@ -88,7 +88,7 @@ type aliases \alias{},
 %top type \Top{},
 and unknown type \UnknownT{} that represents
 a temporary lack of knowledge during the inference process.
-Heterogeneous keyword map types \HMappretty{\overrightarrow{\kw{}\ \t{}}}
+Heterogeneous keyword map types \HMappretty{\ova{\kw{}\ \t{}}}
 for now represent a series of required keyword entries---we will extend
 them to have optional entries in later phases.
 
@@ -106,9 +106,9 @@ them to have optional entries in later phases.
        \alt \trackE{\e{}}{\inferpath{}}
        \alt {\uabs{\x{}}{\e{}}}
        \alt {\curlymapvaloverrightnoarrow{\e{}}{\e{}}}
-       \alt {\appexp{\e{}}{\overrightarrow{\e{}}}}
+       \alt {\appexp{\e{}}{\ova{\e{}}}}
        &\mbox{Expressions} \\
-    \openv{} &::=& \{\overrightarrow{x \mapsto \val}\}
+    \openv{} &::=& \{\ova{x \mapsto \val{}}\}
        &\mbox{Runtime environments} \\
    \pth{}
       &::=& \x{}
@@ -116,7 +116,7 @@ them to have optional entries in later phases.
        \alt \rngpe{}
        \alt {\inferkeype{\HMapreq{}}{\kw{}}}
        &\mbox{Path Elements} \\
-   \inferpath{} &::=& \overrightarrow{\pth{}}
+   \inferpath{} &::=& \ova{\pth{}}
        &\mbox{Paths} \\
        \res{}
       &::=& \restwoarrow{\inferpath{}}{\tau{}}
@@ -124,9 +124,9 @@ them to have optional entries in later phases.
     \t{}, \s{}
       &::=& \IntT{}
        \alt \arrow{\t{}}{\t{}}
-       %\alt \HMappretty{\overrightarrow{\kw{}\ \t{}}}
+       %\alt \HMappretty{\ova{\kw{}\ \t{}}}
        \alt \HMaptwo{\HMapreq{}}{\HMapopt{}}
-       \alt \Unionsplice{\overrightarrow{\t{}}}
+       \alt \Unionsplice{\ova{\t{}}}
        \alt \alias{} % type alias
        \\
        &\alt& \kw{}
@@ -135,12 +135,12 @@ them to have optional entries in later phases.
        \alt \IPersistentMap{\t{}}{\t{}}
        \alt \UnknownT{}
       &\mbox{Types} \\
-    \tenv{} &::=& \{\overrightarrow{\hastype{\x{}}{\t{}}}\}
+    \tenv{} &::=& \{\ova{\hastype{\x{}}{\t{}}}\}
       &\mbox{Type environments} \\
     \HMapreq{}, \HMapopt{}
-      &::=& \{ \overrightarrow{\kw{}\ {\t{}}} \}
+      &::=& \{ \ova{\kw{}\ {\t{}}} \}
       &\mbox{HMap entries} \\
-    \aenv{} &::=& \{\overrightarrow{\alias{} \mapsto \tau}\}
+    \aenv{} &::=& \{\ova{\alias{} \mapsto \tau}\}
       &\mbox{Type alias environments} \\
     \atenv{} &::=& (\aenv{}, \tenv{})
       &\mbox{Annotation environments} \\
@@ -205,14 +205,14 @@ The other cases are straightforward.
 
 \infer [B-Clos]
 {}
-{ \opsemtrack{\openv{}}{\lambda \xvar{}. \e{}}{[\lambda \overrightarrow{\xvar{}} . \e{}, \openv{} ]}{\emptyres{}}}
+{ \opsemtrack{\openv{}}{\lambda \xvar{}. \e{}}{[\lambda \ova{\xvar{}} . \e{}, \openv{} ]}{\emptyres{}}}
 
 \infer [B-Val]
 {}
 { \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
 
 %\infer [B-Get]
-%{ \opsemtrack{\openv{}}{\e{1}}{\{ \overrightarrow{\kw{}\ \v{}} \}}{\res{1}} \\
+%{ \opsemtrack{\openv{}}{\e{1}}{\{ \ova{\kw{}\ \v{}} \}}{\res{1}} \\
 %  \opsemtrack{\openv{}}{\e{2}}{\kw1}{\res{2}} \\
 %}
 %{ \opsemtrack{\openv{}}{\getexp{\e{1}}{\e{2}}}{\getmap{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\kw{1}}}{\unionres{\res{1}}{\res{2}}}
@@ -233,12 +233,12 @@ The other cases are straightforward.
 \infer [B-Delta]
 { \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{}}
   \\
-  \overrightarrow{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
+  \ova{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
   \\
-  \constantopsem{\const{}}{\overrightarrow{\v{}}} = \vp{}
+  \constantopsem{\const{}}{\ova{\v{}}} = \vp{}
 }
 { \opsemtrack {\openv{}}
-              {\appexp {\e{}} {\overrightarrow{\ep{}}}}
+              {\appexp {\e{}} {\ova{\ep{}}}}
               {\vp{}}
               {\unionres{\bigunionres{\resp{}}}{\res{}}}
        }
@@ -283,20 +283,20 @@ The other cases are straightforward.
                    {\singletonres{\inferpath{}}
                                  {\HMappretty{}}}
     \\
-    \trackmetaalign{\{\overrightarrow{\kw{1}\ {\kw{2}}}\ 
-                      \overrightarrow{\kw{}\ {\v{}}}
+    \trackmetaalign{\{\ova{\kw{1}\ {\kw{2}}}\ 
+                      \ova{\kw{}\ {\v{}}}
                     \}}
                    {\inferpath{}}
-                   {\{\overrightarrow{\kw{1}\ {\kw{2}}}\ 
-                      \overrightarrow{\kw{}\ {\vp{}}}
+                   {\{\ova{\kw{1}\ {\kw{2}}}\ 
+                      \ova{\kw{}\ {\vp{}}}
                     \}}
                    {\bigunionres{\res{}}}
     \\
     &&
-    \text{where}\ \overrightarrow{\trackmeta{\v{}}
+    \text{where}\ \ova{\trackmeta{\v{}}
                                             {\appendone{\inferpath{}}
-                                                       {\inferkeype{\{\overrightarrow{\kw{1}\ {\kw{2}}}\ 
-                                                                      \overrightarrow{\kw{}\ {\UnknownT{}}}
+                                                       {\inferkeype{\{\ova{\kw{1}\ {\kw{2}}}\ 
+                                                                      \ova{\kw{}\ {\UnknownT{}}}
                                                                     \}}
                                                                    {\kw{}}}}
                                             {\vp{}}
@@ -310,29 +310,29 @@ The other cases are straightforward.
 \end{figure*}
 
 Now we have sufficient pieces to describe the initial collection phase of our model.
-Given an expression \e{} and variables ${\overrightarrow{\x{}}}$ to track,
-\instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\ep{}}
+Given an expression \e{} and variables ${\ova{\x{}}}$ to track,
+\instrumentnoalign{\e{}}{\ova{\x{}}}{\ep{}}
 returns an instrumented expression \ep{}
-that tracked usages of $\overrightarrow{\x{}}$.
+that tracked usages of $\ova{\x{}}$.
 It is defined via capture-avoiding substitution:
 $$
-\instrumentnoalign{\e{}}{\overrightarrow{\x{}}}{\replacefor{\e{}}{\overrightarrow{\trackE{\x{}}{[\x{}]}}}{\overrightarrow{\x{}}}}
+\instrumentnoalign{\e{}}{\ova{\x{}}}{\replacefor{\e{}}{\ova{\trackE{\x{}}{[\x{}]}}}{\ova{\x{}}}}
 $$
 
 Then, the overall collection phase 
-\collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}
+\collectnoalign{\e{}}{\ova{\x{}}}{\res{}}
 says, given an expression \e{}
 and variables
-$\overrightarrow{\x{}}$
+$\ova{\x{}}$
 to track,
 returns inference results {\res{}}
 that are the results of evaluating \e{}
-with instrumented occurrences of $\overrightarrow{\x{}}$.
+with instrumented occurrences of $\ova{\x{}}$.
 It is defined as:
 %
 $$
-\collectnoalign{\e{}}{\overrightarrow{\x{}}}{\res{}}, \text{ where }
-  \opsemtrack{}{\instrument{\e{}}{\overrightarrow{\x{}}}}{\v{}}{\res{}}
+\collectnoalign{\e{}}{\ova{\x{}}}{\res{}}, \text{ where }
+  \opsemtrack{}{\instrument{\e{}}{\ova{\x{}}}}{\v{}}{\res{}}
 $$
 
 For our running example
@@ -405,12 +405,12 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 
 \begin{figure*}
 \begin{mathpar}
-  \begin{array}{lllll}
+  \begin{array}{rllll}
     \joinOp{} : \t{}, \t{} \rightarrow \t{}
     \\
-    \joinalign{\Unionsplice{\overrightarrow{\s{}}}}{\t{}}{\Unionsplice{\overrightarrow{\joinexpression{\s{}}{\t{}}}}}
+    \joinalign{\Unionsplice{\ova{\s{}}}}{\t{}}{\Unionsplice{\ova{\joinexpression{\s{}}{\t{}}}}}
     \\
-    \joinalign{\t{}}{\Unionsplice{\overrightarrow{\s{}}}}{\Unionsplice{\overrightarrow{\joinexpression{\s{}}{\t{}}}}}
+    \joinalign{\t{}}{\Unionsplice{\ova{\s{}}}}{\Unionsplice{\ova{\joinexpression{\s{}}{\t{}}}}}
     \\
     \joinalign{\UnknownT{}}{\t{}}{\t{}}
     \\
@@ -420,41 +420,28 @@ The first pass is given in \figref{infer:fig:generatetenv}.
               {\arrow{\joinexpression{\t{1}}{\t{2}}}
                      {\joinexpression{\s{1}}{\s{2}}}}
     \\
-    \joinalign{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
-              {\HMaptwo{\HMapreqp{}}{\HMapoptp{}}}
-              {\joinHMapexpression{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
-                                  {\HMaptwo{\HMapreqp{}}{\HMapoptp{}}}}
+    \joinalign{\HMaptwo{\HMapreq{1}}{\HMapopt{1}}}
+              {\HMaptwo{\HMapreq{2}}{\HMapopt{2}}}
+              {\joinHMapexpression{\HMaptwo{\HMapreq{1}}{\HMapopt{1}}}
+                                  {\HMaptwo{\HMapreq{2}}{\HMapopt{2}}}}
+                                  \text{,}
                                   \\
-    % TODO don't merge when common dispatch key
-    &&\text{where } %dom({\HMapreq{}}) = dom({\HMapreqp{}}), 
-                    \forall \kw{}. \text{ if } (\kw{}, \kw{1}) \in {\HMapreq{}} \text{ and } (\kw{}, \kw{2}) \in {\HMapreqp{}} \text{, then } \kw{1} = \kw{2}
-                    %\not\exists \kw{}. (\kw{}, \kw{1}) \in {\HMapreq{}} \wedge (\kw{}, \kw{2}) \in {\HMapreqp{}} \wedge \kw{1} \not= \kw{2}
-                    %dom({\HMapopt{}}) = dom({\HMapoptp{}})
+    &&\ova{(\kw{}, \kw{i}) \in {\HMapreq{i}}} \Rightarrow \ova{\kw{i-1} = \kw{i}}
     \\
-    \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}}
+    \joinalign{\t{}}{\s{}}{\Union{\t{}}{\s{}}} \text{, otherwise}
   \end{array}
-
-  \begin{array}{ll}
-    \joinstarOp{} : \overrightarrow{\t{}} \rightarrow \t{}
-    \\
-    \joinstarnoalign{\overrightarrow{\t{}}}{\textbf{fold}({\joinOp{}},{\UnknownT{}},{\overrightarrow{\t{}}})}
-  \end{array}
+%
   \begin{array}{lllll}
     \joinHMapnoalign{\HMaptwo{\HMapreq{1}}{\HMapopt{1}}}{\HMaptwo{\HMapreq{2}}{\HMapopt{2}}}{\HMaptwo{\HMapreq{}}{\HMapopt{}}}
     \\
     \begin{array}{lllll}
-      \text{ where }
-          &\mathsf{req}  &= \bigcup \overrightarrow{dom({\HMapreq{i}})} \\
-          &\mathsf{opt}  &= \bigcup \overrightarrow{dom({\HMapopt{i}})} \\
-          &\mathsf{req}' &= \bigcap \overrightarrow{dom({\HMapreq{i}})} \setminus \mathsf{opt}\\
-          &\mathsf{opt}' &= \mathsf{opt} \cup (\mathsf{req} \setminus \mathsf{req}')\\
-          &m             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i}} ]}) \ |\ 
-                              \kw{} \in \mathsf{req}'
-                               \}
-                            \\
-          &o             &= \{(\kw{}, \joinstarexpression{[\t{} \ |\ (\kw{}, \t{}) \in \bigcup \overrightarrow{\HMapreq{i},\HMapopt{i}})]} \ |\ 
-                               \kw{} \in \mathsf{opt}'
-                                \}
+      \text{where}
+          &\mathsf{req}  = \bigcup \ova{\textsf{dom}({\HMapreq{i}})} \\
+          &\mathsf{opt}  = \bigcup \ova{\textsf{dom}({\HMapopt{i}})} \\
+          &\ova{\kw{}^r} = \bigcap \ova{\textsf{dom}({\HMapreq{i}})} \setminus \mathsf{opt}\\
+          &\ova{\kw{}^o} = \mathsf{opt} \cup (\mathsf{req} \setminus \ova{\kw{}^r})\\
+          &\HMapreq{}    = \{\ova{\kw{}^r\ \joinstarexpression{\ova{\HMapreq{i}[\kw{}^r]}}} \} \\
+          &\HMapopt{}    = \{\ova{\kw{}^o\ \joinstarexpression{\ova{\HMapreq{i}[\kw{}^o], \HMapopt{i}[\kw{}^o]}}} \}
     \end{array}
   \end{array}
 
@@ -465,8 +452,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \begin{array}{lllll}
     \inferupdateOp : \atenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \atenv{} 
     \\
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\HMapreq{}}{\kw{}}}}{\t{}}
-            {\inferupdate{\atenv{}}{\inferpath{}}{\{\overrightarrow{\HMapreq{}},\ \kw{}\ \t{} \}}}
+    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\{\ova{\kwp{}\ \s{}} \}}{\kw{}}}}{\t{}}
+            {\inferupdate{\atenv{}}{\inferpath{}}{\{\ova{\kwp{}\ \s{}}\ \kw{}\ \t{} \}}}
     \\
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
                 {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
@@ -474,12 +461,13 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
                 {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
     \\
-    \inferupdatealign{\replacefor{\atenv{}}{\s{}}{\x{}}}{[x]}{\t{}}
-                     {\replacefor{\atenv{}}
-                                 {\joinexpression{\t{}}{\s{}}}
-                                 {\x{}}}
+    \inferupdatealign{\updatemap{\atenv{}}{\x{}}{\s{}}}{[x]}{\t{}}
+                     {\updatemap{\atenv{}}
+                                {\x{}}
+                                {\joinexpression{\t{}}{\s{}}}
+                                 }
     \\
-    \inferupdatealign{\atenv{}}{[\xvar{}]}{\t{}}{\replacefor{\atenv{}}{\t{}}{\x{}}}
+    \inferupdatealign{\atenv{}}{[\xvar{}]}{\t{}}{\updatemap{\atenv{}}{\x{}}{\t{}}}
     \\
   \end{array}
 
@@ -493,59 +481,18 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
-    \aliashmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
-    \aliashmap{}(\atenv{0}, \arrow{\t{1}}{\t{2}}) = (\atenv{2}, \arrow{\s{1}}{\s{2}})\\
-    \begin{array}{lllll}
-      \text{where}
-        &\overrightarrow{(\atenv{i}, \s{i}) = \aliashmap{}(\atenv{i-1},  \t{i})}\\
+    \trymergealias{} : \atenv{}, \alias{}, \alias{} \rightarrow \atenv{}
+    \\
+    \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
+    \begin{array}{llll}
+      &\textsf{if } relatedByDeepKeyset(\atenv{}, \alias{1}, \alias{2})\\
+      &\textsf {then } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
+                                 {\alias{1}}
+                                 % this fixes the "too much garbage" issue
+                                 {\joinstarexpression{\ova{\replacefor{\atenv{}[\alias{i}]}{\alias{1}}{\alias{2}}}}}\\
+      &\textsf{else } \atenv{}
     \end{array}
-    \\
-    \aliashmap{}(\atenv{0}, \HMaptwo{\HMapreq{1}}{\HMapreq{2}}) = (\replacefor{\atenv{2}}{\HMaptwo{\HMapreqp{1}}{\HMapreqp{2}}}{\alias{}}, \alias{})\\
-    \begin{array}{lllll}
-      \text{where}
-        &\textsf{step}((\atenv{}, \textsf{c}), \s{}) = (\atenvp{}, \t{} :: \textsf{c})\\
-        &\begin{array}{lllll}
-          &\text{where} (\atenvp{}, \t{}) = \aliashmap{}(\atenv{}, \s{})
-        \end{array}\\
-        &\overrightarrow{(\atenv{i}, \overrightarrow{\t{i}}) = \textsf{foldr}(\textsf{step}, (\atenv{i-1}, []), rng(\HMapreq{i}))}\\
-        &\overrightarrow{\HMapreqp{i} = \textsf{zip}(dom(\HMapreq{i}), \overrightarrow{\t{i}})}\\
-        &\alias{} = freshAlias(\atenv{2})
-    \end{array}
-    \\
-    \aliashmap{}(\atenv{0}, \Unionsplice{\t{1}, ..., \t{n}}) = \textsf{res}
-    \\
-    \begin{array}{lllll}
-      \text{where}
-      &\overrightarrow{(\atenv{i}, \s{i}) = \aliashmap{}(\atenv{i-1}, \t{i})}\\
-      &\alias{} = freshAlias(\atenv{n})\\
-      &\textsf{res} = \textsf{if} \bigwedge\overrightarrow{\textsf{simple?}(\s{i})}
-                      \textsf{ then } (\atenv{n}, \Unionsplice{\s{1}, ..., \s{n}})
-                      \textsf{ else } (\replacefor{\atenv{n}}{\Unionsplice{\overrightarrow{\textsf{resolveTopLevel}(\s{i})}}}{\alias{}}, \alias{})
-    \end{array}
-    \\
-    \aliashmap{}(\atenv{}, \t{}) = (\atenv{}, \t{})
-    \\
-    \\
-    \squashall{} : \atenv{}, \t{} \rightarrow \atenv{}\\
-    \squashall{}(\atenv{}, \t{}) = \textsf{fold}(\lambda (\atenv{}, \alias{}). \squash{}(\atenv{}, [\alias{}], []), \atenv{}, shallowAliasesIn(\t{}))\\
-    \begin{array}{lllll}
-      \text{where }
-      &\squash : \atenv{}, \overrightarrow{\alias{}}, \overrightarrow{\alias{}} \rightarrow \atenv{}\\
-      &\squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
-      &\squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})
-        \\
-        &\begin{array}{lllll}
-          \text{where }
-          &\textsf{as} = shallowAliasesIn(\atenv{}[\alias{}]) \setminus \textsf{d}\\
-          &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
-          &\atenvp{} = 
-             \textsf{if } \alias{} \in \textsf{d}
-             \textsf{ then } \atenv{}
-             \textsf{ else } \textsf{fold}(\lambda (\atenv{}, \aliasp{}) . \trymergealias{}(\atenv{}, \aliasp{}, \alias{}),
-                                            \atenv{}, \textsf{ap} \cup \textsf{as})
-        \end{array}
-    \end{array}
-    \\
+      \\\\
     \squashlocal{} : \atenv{} \rightarrow \atenv{}\\
     \squashlocal{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
     \begin{array}{lllll}
@@ -557,7 +504,79 @@ The first pass is given in \figref{infer:fig:generatetenv}.
                     \end{array}
     \end{array}
   \end{array}
+  \begin{array}{llll}
+    \squashall{} : \atenv{}, \t{} \rightarrow \atenv{}\\
+    \squashall{}(\atenv{}, \t{}) = \\
+    \begin{array}{lllll}
+      \textsf{fold}(\lambda (\atenv{}, \alias{}). \squash{}(\atenv{}, [\alias{}], []), \atenv{}, \aliasesin{}(\t{}))\\
+      \begin{array}{@{}llll}
+      \text{where } 
+        &\squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
+        &\squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
+        &\squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})\\
+        &\begin{array}{lllll}
+         \text{where }
+         &\textsf{as} = \aliasesin{}(\atenv{}[\alias{}]) \setminus \textsf{d}\\
+         &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
+         &\textsf{f}(\atenv{}, \aliasp{}) = \trymergealias{}(\atenv{}, \aliasp{}, \alias{})\\
+         &\begin{array}{@{}llll}
+           \atenvp{} = 
+            &\textsf{if } \alias{} \in \textsf{d}\\
+            &\textsf{then } \atenv{}\\
+            &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
+          \end{array}
+         \end{array}
+       \end{array}
+      \end{array}
+  \end{array}
 
+  \begin{array}{lllll}
+    \aliashmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
+    \aliashmap{}(\atenv{0}, \HMaptwo{\HMapreq{1}}{\HMapreq{2}}) = \textsf{res}\\
+    \begin{array}{lllll}
+      \text{where}
+        &\textsf{f} : (\atenv{}, \HMapreq{}), (\kw{}, \t{}) \rightarrow (\atenv{}, \HMapreq{})\\
+        &\textsf{f}((\atenv{}, \HMapreq{}), (\kw{}, \s{})) = (\atenvp{}, \updatemap{\HMapreq{}}{\kw{}}{\t{}})\\
+        &\begin{array}{lllll}
+          &\text{where} (\atenvp{}, \t{}) = \aliashmap{}(\atenv{}, \s{})
+        \end{array}\\
+        &\ova{(\atenv{i}, \HMapreqp{i}) = \textsf{fold}(\textsf{f}, (\atenv{i-1}, []), \HMapreq{i})}\\
+        &\alias{} = freshAlias(\atenv{2})\\
+        &\textsf{res} = (\updatemap{\atenv{2}}{\alias{}}{\HMaptwo{\HMapreqp{1}}{\HMapreqp{2}}}, \alias{})
+    \end{array}
+  \end{array}
+  \begin{array}{lllll}
+    \aliashmap{}(\atenv{0}, \arrow{\t{1}}{\t{2}}) = (\atenv{2}, \arrow{\s{1}}{\s{2}})\\
+    \begin{array}{lllll}
+      \text{where}
+        &\ova{(\atenv{i}, \s{i}) = \aliashmap{}(\atenv{i-1},  \t{i})}
+    \end{array}
+    \\
+    \aliashmap{}(\atenv{0}, \Unionsplice{\ova{\t{}}^n}) = \\
+      \begin{array}{@{}lllll}
+         &\textsf{if } \ova{\textsf{simple?}(\s{i})} \textsf{, then } (\atenv{n}, \Unionsplice{\ova{\s{}}}) \text{,}\\
+         &\textsf{else } (\updatemap{\atenv{n}}{\alias{}}{\Unionsplice{\ova{\textsf{resolveTopLevel}(\s{i})}}}, \alias{})\\
+         &\begin{array}{@{}llll}
+           \text{where} &\ova{(\atenv{i}, \s{i}) = \aliashmap{}(\atenv{i-1}, \t{i})}\\
+                        &\alias{} = freshAlias(\atenv{n})\\
+          \end{array}
+       \end{array}
+    \\
+    \aliashmap{}(\atenv{}, \t{}) = (\atenv{}, \t{})
+  \end{array}
+
+\end{mathpar}
+\caption{Definition of $\squashlocal{}(\tenv{}) = \atenv{}$
+\aliasesin{}(\t{}) returns the set of aliases that syntactically occur in \t{}.
+%  Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
+%(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
+%redundant aliases.
+  }
+  \label{infer:fig:squashlocal}
+\end{figure*}
+
+\begin{figure*}
+\begin{mathpar}
   \begin{array}{lllll}
     \squashglobal{} : \atenv{} \rightarrow \atenv{}\\
     \squashglobal{} = \squashhorizonally{} \circ \aliassinglehmap{}
@@ -568,17 +587,6 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \inferrecOp{} : \atenv{} \rightarrow \atenv{}\\
     \inferrecOp{} = \squashglobal{} \circ \squashlocal{}
   \end{array}
-\end{mathpar}
-\caption{Definition of $\squashlocal{}(\tenv{}) = \atenv{}$
-%  Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
-%(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
-%redundant aliases.
-  }
-  \label{infer:fig:squashlocal}
-\end{figure*}
-
-\begin{figure*}
-\begin{mathpar}
 \end{mathpar}
 \caption{
 %  Step 3 summary: First ensure all HMaps correspond to an alias. Then merge

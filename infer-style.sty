@@ -16,13 +16,16 @@
 \newcommand\NatT[1]{{\mathsf{N}}}
 \newcommand\IntT[1]{\ma{\mathsf{N}}}
 \newcommand\UnknownT[1]{\ma{\mathrm{?}}}
-\newcommand\HMaptwo[2]{\ma{({\mathsf{HMap}}\ #1\ #2)}}
+\newcommand\HMapOp[0]{\ma{\mathsf{HMap}}}
+\newcommand\HMaptwo[2]{\ma{(\HMapOp{}_{#2}^{#1})}}
+\newcommand\HMapsplice[1]{\ma{(\HMapOp{}\ #1)}}
 \newmeta\HMapreq{\ma{m}}
 \newmeta\HMapreqp{\ma{m'}}
 \newmeta\HMapopt{\ma{o}}
 \newmeta\HMapoptp{\ma{o'}}
 \newcommand\HMappretty[1]{\ma{\{#1\}}}
 \newcommand\appendone[2]{#1 :: [#2]}
+\newcommand\append[2]{#1 :: #2}
 \newcommand\Proxy[0]{\specialformfont{Proxy}}
 \newcommand\ProxyE[3]{(\Proxy{}\ #1\ #2\ #3)}
 % types
@@ -44,6 +47,12 @@
 \newcommand\makeatenv[2]{\ma{(#1, #2)}}
 \newcommand\emptyatenv[0]{\ma{\makeatenv{\emptyaenv{}}{\emptytenv{}}}}
 
+%arrows
+\newcommand\ova[1]{\ma{\overline{#1}}}
+
+%env update
+\newcommand\updatemap[3]{\ma{#1 [#2 \mapsto #3]}}
+
 % algorithm
 \newcommand\infermetafnfont[1]{\ma{\mathsf{#1}}}
 \newcommand\squashlocal[0]{\ma{\infermetafnfont{squashLocal}}}
@@ -53,7 +62,9 @@
 \newcommand\inferrecOp[0]{\infermetafnfont{inferRec}}
 \newcommand\squashall[0]{\infermetafnfont{squashAll}}
 \newcommand\squash[0]{\infermetafnfont{squash}}
-\newcommand\trymergealias[0]{\infermetafnfont{tryMergeAlias}}
+\newcommand\trymergealias[0]{\infermetafnfont{mergeAlias}}
+\newcommand\deepkeysets[0]{\infermetafnfont{keysets}}
+\newcommand\aliasesin[0]{\infermetafnfont{aliasesIn}}
 \newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
 \newcommand\aliassinglehmap[0]{aliasSingleHMap}      %% TODO needs definition!
 \newcommand\inferanns[0]{\ma{\infermetafnfont{infer}}}
@@ -69,17 +80,19 @@
 \newcommand\inferupdatecommon[5]{\inferupdate{#1}{#2}{#3} #4  #5} % takes the = sign to allow extra alignment
 \newcommand\inferupdatenoalign[4]{\ma{\inferupdatecommon{#1}{#2}{#3}{=}{#4}}}
 \newcommand\inferupdatealign[4]{\inferupdatecommon{#1}{#2}{#3}{&=&}{#4}}
-\newcommand\joinOp[0]{\ma{\infermetafnfont{join}}}
-\newcommand\joinalign[3]{\joinOp{}(#1, #2) &=& #3}
-\newcommand\joinnoalign[3]{\ma{\joinOp{}(#1, #2) = #3}}
-\newcommand\joinexpression[2]{\joinOp{}(#1, #2)}
-\newcommand\joinHMapOp[0]{\ma{\infermetafnfont{joinHMap}}}
-\newcommand\joinHMapnoalign[3]{\ma{\joinHMapOp{}(#1, #2) = #3}}
-\newcommand\joinHMapexpression[2]{\ma{\joinHMapOp{}(#1, #2)}}
-\newcommand\joinstarOp[0]{\ma{\infermetafnfont{join*}}}
-\newcommand\joinstaralign[2]{\ma{\joinstarOp{}(#1) &=& #2}}
-\newcommand\joinstarnoalign[2]{\ma{\joinstarOp{}(#1) = #2}}
-\newcommand\joinstarexpression[1]{\ma{\joinstarOp{}(#1)}}
+\newcommand\joinOp[0]{\ma{\sqcup}}
+\newcommand\joinlhs[2]{\ma{#1 \joinOp{} #2}}
+\newcommand\joinalign[3]{\joinlhs{#1}{#2} &=& #3}
+\newcommand\joinnoalign[3]{\ma{\joinlhs{#1}{#2} = #3}}
+\newcommand\joinexpression[2]{\joinlhs{#1}{#2}}
+\newcommand\joinHMapOp[0]{\ma{\sqcup^{\infermetafnfont{H}}}}
+\newcommand\joinHMaplhs[2]{\ma{#1 \joinHMapOp{} #2}}
+\newcommand\joinHMapnoalign[3]{\ma{\joinHMaplhs{#1}{#2} = #3}}
+\newcommand\joinHMapexpression[2]{\ma{\joinHMaplhs{#1}{#2}}}
+\newcommand\joinstarOp[0]{\ma{\bigsqcup}}
+\newcommand\joinstaralign[2]{\ma{\joinstarOp{} #1  &=& #2}}
+\newcommand\joinstarnoalign[2]{\ma{\joinstarOp{} #1  = #2}}
+\newcommand\joinstarexpression[1]{\ma{\joinstarOp{} #1 }}
 \newcommand\instrumentOp[0]{\ma{\infermetafnfont{instrument}}}
 \newcommand\instrumentnoalign[3]{\ma{\instrumentOp{}(#1, #2) = #3}}
 \newcommand\instrument[2]{\ma{\instrumentOp{}(#1, #2)}}
