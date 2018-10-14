@@ -446,16 +446,14 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \end{array}
 
   \begin{array}{lllll}
+    \textsf{fold} : (\alpha, \beta \rightarrow \alpha), \alpha, \ova{\beta} \rightarrow \alpha\\
+    \textsf{fold}(\textsf{f}, \textsf{a}_0, \ova{\textsf{b}}^n) = \textsf{a}^n\\
+    \begin{array}{llll}
+      \text{where } \ova{\textsf{a}_i = \textsf{f}(\textsf{a}_{i-1}, \textsf{b}_{i})}^{1 \leq i \leq n}\\
+    \end{array}
+    \\\\
     \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    %\generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \atenv{0}, \res{})\\
-    \generatetenv{} (\ova{\resentry{\inferpath{}}{\t{}}}^n) = \atenv{n}\\
-      \begin{array}{llll}
-        \text{where }\\
-          \begin{array}{@{}lll}
-            &\atenv{0} = \emptyatenv{}\\
-            &\ova{\atenv{i} = \inferupdate{\atenv{i-1}}{\inferpath{i}}{\t{i}}}
-          \end{array}
-        \end{array}
+    \generatetenv{} (\res{}) = \textsf{fold}(\inferupdateOp{}, \atenv{0}, \res{})\\
   \end{array}
   \begin{array}{lllll}
     \inferupdateOp : \atenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \atenv{} 
@@ -464,7 +462,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
             {\inferupdate{\atenv{}}{\inferpath{}}{\{\ova{\kwp{}\ \s{}}\ \kw{}\ \t{} \}}}
     \\
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
-                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
+                     {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
     \\
     \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
                 {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
@@ -479,7 +477,6 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \\
   \end{array}
 
-
 \end{mathpar}
 \caption{Definition of \generatetenv{}, where \atenv{0} is an initial annotation environment. }
 \label{infer:fig:generatetenv}
@@ -488,62 +485,6 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 
 \begin{figure*}
 \begin{mathpar}
-  \begin{array}{lllll}
-    \trymergealias{} : \atenv{}, \alias{}, \alias{} \rightarrow \atenv{}
-    \\
-    \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
-    \begin{array}{llll}
-      &\textsf{if } relatedByDeepKeyset(\atenv{}, \alias{1}, \alias{2})\\
-      &\textsf {then } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
-                                 {\alias{1}}
-                                 % this fixes the "too much garbage" issue
-                                 {\joinstarexpression{\ova{\replacefor{\atenv{}[\alias{i}]}{\alias{1}}{\alias{2}}}}}\\
-      &\textsf{else } \atenv{}
-    \end{array}
-      \\\\
-    \squashlocal{} : \atenv{} \rightarrow \atenv{}\\
-    \squashlocal{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
-    \begin{array}{lllll}
-      \text{where}\\
-                    \steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
-                    \begin{array}{lllll}
-                      \text{where}
-                        &(\atenv{1}, \t{1}) = \aliashmap{}(\atenv{}, \t{})\\
-                        &(\atenv{2}, \t{2}) = \squashall{}(\atenv{1}, \t{1})\\
-                    \end{array}
-    \end{array}
-  \end{array}
-  \begin{array}{llll}
-    \squashall{} : \atenv{}, \t{} \rightarrow \atenv{}\\
-    \squashall{}(\atenv{}, \t{}) = \\
-    \begin{array}{lllll}
-      \textsf{fold}(\lambda (\atenv{}, \alias{}). \squash{}(\atenv{}, [\alias{}], []), \atenv{}, \aliasesin{}(\t{}))\\
-      \begin{array}{@{}llll}
-        \text{where}\\
-        \begin{array}{llll}
-          \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
-          \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
-          \squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \\
-          \begin{array}{lllll}
-            \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})\\
-            \begin{array}{@{}llll}
-              \text{where }
-              &\textsf{as} = \aliasesin{}(\atenv{}[\alias{}]) \setminus \textsf{d}\\
-              &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
-              &\textsf{f}(\atenv{}, \aliasp{}) = \trymergealias{}(\atenv{}, \aliasp{}, \alias{})\\
-              &\begin{array}{@{}llll}
-                \atenvp{} = 
-                &\textsf{if } \alias{} \in \textsf{d}\\
-                &\textsf{then } \atenv{}\\
-                &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
-              \end{array}
-            \end{array}
-          \end{array}
-        \end{array}
-      \end{array}
-    \end{array}
-  \end{array}
-
   \begin{array}{lllll}
     \aliashmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
     \aliashmap{}(\atenv{0}, \HMaptwo{\HMapreq{1}}{\HMapreq{2}}) = \textsf{res}\\
@@ -576,7 +517,80 @@ The first pass is given in \figref{infer:fig:generatetenv}.
           \end{array}
        \end{array}
     \\
-    \aliashmap{}(\atenv{}, \t{}) = (\atenv{}, \t{})
+    \aliashmap{}(\atenv{}, \t{}) = (\atenv{}, \t{}), \text{ otherwise}
+  \end{array}
+
+  \begin{array}{lllll}
+    \trymergealias{} : \atenv{}, \alias{}, \alias{} \rightarrow \atenv{}
+    \\
+    \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
+    \begin{array}{llll}
+      &\textsf{if } relatedByDeepKeyset(\atenv{}, \alias{1}, \alias{2})\\
+      &\textsf {then } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
+                                 {\alias{1}}
+                                 % this fixes the "too much garbage" issue
+                                 {\joinstarexpression{\ova{\replacefor{\atenv{}[\alias{i}]}{\alias{1}}{\alias{2}}}}}\\
+      &\textsf{else } \atenv{}
+    \end{array}
+      \\\\
+      %fold-based version
+    %\squashlocal{} : \atenv{} \rightarrow \atenv{}\\
+    %\squashlocal{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
+    %\begin{array}{lllll}
+    %  \text{where} &\steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
+    %               &\begin{array}{lllll}
+    %                  \text{where}
+    %                    &(\atenv{1}, \t{1}) = \aliashmap{}(\atenv{}, \t{})\\
+    %                    &(\atenv{2}, \t{2}) = \squashall{}(\atenv{1}, \t{1})\\
+    %                \end{array}
+    %\end{array}
+    \squashlocal{} : \atenv{} \rightarrow \atenv{}\\
+    \squashlocal{}(\atenv{0}) = \atenv{n}\\
+    \begin{array}{lllll}
+      \text{where}\\
+      \begin{array}{lllll}
+        \ova{\hastype{\x{}}{\t{}}}^n = \atenv{0}[\tenv{}]\\
+        \steptwohelper{} (\atenv{}, \x{}, \t{}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
+        \begin{array}{lllll}
+          \text{where}
+          &(\atenv{1}, \t{1}) = \aliashmap{}(\atenv{}, \t{})\\
+          &(\atenv{2}, \t{2}) = \squashall{}(\atenv{1}, \t{1})\\
+        \end{array}
+        \\
+        \ova{\atenv{i} = \steptwohelper{}(\atenv{i-1},{\x{i}},{\t{i}})} \\
+      \end{array}
+    \end{array}
+  \end{array}
+  \begin{array}{llll}
+    \squashall{} : \atenv{}, \t{} \rightarrow \atenv{}\\
+    \squashall{}(\atenv{0}, \t{}) = \atenv{n} \\
+    \begin{array}{lllll}
+      \begin{array}{@{}llll}
+        \text{where}\\
+        \begin{array}{llll}
+          \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
+          \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
+          \squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \\
+          \begin{array}{lllll}
+            \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})\\
+            \begin{array}{@{}llll}
+              \text{where }
+              &\textsf{as} = \aliasesin{}(\atenv{}[\alias{}]) \setminus \textsf{d}\\
+              &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
+              &\textsf{f}(\atenv{}, \aliasp{}) = \trymergealias{}(\atenv{}, \aliasp{}, \alias{})\\
+              &\begin{array}{@{}llll}
+                \atenvp{} = 
+                &\textsf{if } \alias{} \in \textsf{d} \textsf{, then } \atenv{} \text{,}\\
+                &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
+              \end{array}
+            \end{array}
+          \end{array}
+          \\
+          \ova{\alias{}}^n = \aliasesin{}(\t{})\\
+          \ova{\atenv{i} = \squash{}(\atenv{i-1}, [\alias{i}], [])}
+        \end{array}
+      \end{array}
+    \end{array}
   \end{array}
 
 \end{mathpar}
