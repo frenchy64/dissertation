@@ -447,7 +447,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 
   \begin{array}{lllll}
     \textsf{fold} : (\alpha, \beta \rightarrow \alpha), \alpha, \ova{\beta} \rightarrow \alpha\\
-    \textsf{fold}(\textsf{f}, \textsf{a}_0, \ova{\textsf{b}}^n) = \textsf{a}^n\\
+    \textsf{fold}(\textsf{f}, \textsf{a}_0, \ova{\textsf{b}}^n) = \textsf{a}_n\\
     \begin{array}{llll}
       \text{where } \ova{\textsf{a}_i = \textsf{f}(\textsf{a}_{i-1}, \textsf{b}_{i})}^{1 \leq i \leq n}\\
     \end{array}
@@ -525,7 +525,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \\
     \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
     \begin{array}{llll}
-      &\textsf{if } relatedByDeepKeyset(\atenv{}, \alias{1}, \alias{2})\\
+      &\textsf{if } \shouldmergeOp{}(\atenv{}, \alias{1}, \alias{2})\\
       &\textsf {then } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
                                  {\alias{1}}
                                  % this fixes the "too much garbage" issue
@@ -549,7 +549,6 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \begin{array}{lllll}
       \text{where}\\
       \begin{array}{lllll}
-        \ova{\hastype{\x{}}{\t{}}}^n = \atenv{0}[\tenv{}]\\
         \steptwohelper{} (\atenv{}, \x{}, \t{}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
         \begin{array}{lllll}
           \text{where}
@@ -557,6 +556,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
           &(\atenv{2}, \t{2}) = \squashall{}(\atenv{1}, \t{1})\\
         \end{array}
         \\
+        \ova{\hastype{\x{}}{\t{}}}^n = \atenv{0}[\tenv{}]\\
         \ova{\atenv{i} = \steptwohelper{}(\atenv{i-1},{\x{i}},{\t{i}})} \\
       \end{array}
     \end{array}
@@ -601,6 +601,26 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 %redundant aliases.
   }
   \label{infer:fig:squashlocal}
+\end{figure*}
+
+\begin{figure*}
+  \begin{mathpar}
+    \begin{array}{lllll}
+      \shouldmergeOp{} : \atenv{}, \alias{}, \alias{} \rightarrow \textbf{Bool}\\
+      \shouldmergeOp{}(\atenv{}, \alias{1}, \alias{2}) =
+      \\
+      \begin{array}{lllll}
+        \text{match } \ova{\atenv{}[\alias{i}]}  \text{ with}\\
+        \begin{array}{lllll}
+          \ova{\HMaptwo{\HMapreq{i}}{\HMapopt{i}}} &\rightarrow \\
+          \textsf{\_} &\rightarrow \textbf{F}
+        \end{array}
+      \end{array}
+    \end{array}
+  \end{mathpar}
+  \caption{Alias merging conditions
+  }
+  \label{infer:fig:aliasmerge}
 \end{figure*}
 
 \begin{figure*}
