@@ -64,10 +64,11 @@
 \newcommand\inferrecOp[0]{\infermetafnfont{inferRec}}
 \newcommand\squashall[0]{\infermetafnfont{squashAll}}
 \newcommand\squash[0]{\infermetafnfont{squash}}
-\newcommand\trymergealias[0]{\infermetafnfont{mergeAlias}}
+\newcommand\trymergealias[0]{\infermetafnfont{mrgAlias}}
 \newcommand\deepkeysets[0]{\infermetafnfont{keysets}}
 \newcommand\aliasesin[0]{\infermetafnfont{aliases}}
-\newcommand\shouldmergeOp[0]{\infermetafnfont{shouldMerge}}
+\newcommand\shouldmergeOp[0]{\infermetafnfont{merge?}}
+\newcommand\register[0]{\infermetafnfont{reg}}
 \newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
 \newcommand\aliassinglehmap[0]{aliasSingleHMap}      %% TODO needs definition!
 \newcommand\inferanns[0]{\ma{\infermetafnfont{infer}}}
@@ -79,7 +80,7 @@
 \newcommand\trackmetaalign[4]{\ma{\trackmetaOp{}(#1, #2) &=& #3\ ; #4}}
 \newcommand\trackpolymeta[0]{\ma{\infermetafnfont{trackPoly}}}
 \newcommand\inferupdateOp[0]{\ma{\infermetafnfont{update}}}
-\newcommand\inferupdate[3]{\inferupdateOp{}(#1, #2, #3)}
+\newcommand\inferupdate[3]{\inferupdateOp{}(#1, \resentry{#2}{#3})}
 \newcommand\inferupdatecommon[5]{\inferupdate{#1}{#2}{#3} #4  #5} % takes the = sign to allow extra alignment
 \newcommand\inferupdatenoalign[4]{\ma{\inferupdatecommon{#1}{#2}{#3}{=}{#4}}}
 \newcommand\inferupdatealign[4]{\inferupdatecommon{#1}{#2}{#3}{&=&}{#4}}
@@ -133,8 +134,8 @@
 \newmeta\res{\ma{r}}
 \newmeta\resp{\ma{r'}}
 \newcommand\emptyres[0]{\ma{\{\}}}
-%\newcommand\resentry[2]{\ma{{#2}_{#1}}}
-\newcommand\resentry[2]{\ma{#1 : #2}}
+\newcommand\resentry[2]{\ma{{#2}_{#1}}}
+%\newcommand\resentry[2]{\ma{#1 : #2}}
 \newcommand\singletonres[2]{\ma{\{\resentry{#1}{#2}\}}}
 \newcommand\resflat[1]{\ma{\{#1\}}}
 \newcommand\resflatcolor[1]{\ma{\textcolor{red}{\resflat{#1}}}}
