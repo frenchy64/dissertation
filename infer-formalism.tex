@@ -453,7 +453,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \end{array}
     \\\\
     \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    \generatetenv{} (\res{}) = \textsf{fold}(\inferupdateOp{}, \atenv{0}, \res{})\\
+    \generatetenv{} (\res{}) = \textsf{fold}(\inferupdateOp{}, \emptyatenv{}, \res{})\\
   \end{array}
   \begin{array}{lllll}
     \inferupdateOp : \atenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \atenv{} 
@@ -478,7 +478,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \end{array}
 
 \end{mathpar}
-\caption{Definition of \generatetenv{}, where \atenv{0} is an initial annotation environment. }
+\caption{Definition of $\generatetenv{}(\res{}) = \atenv{}$}
 \label{infer:fig:generatetenv}
 \end{figure*}
 
@@ -564,6 +564,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
       \begin{array}{@{}llll}
         \text{where}\\
         \begin{array}{llll}
+          \ova{\alias{}}^n = \aliasesin{}(\t{})\\
+          \ova{\atenv{i} = \squash{}(\atenv{i-1}, [\alias{i}], [])}\\
           \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
           \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
           \squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \\
@@ -580,12 +582,13 @@ The first pass is given in \figref{infer:fig:generatetenv}.
               \end{array}
             \end{array}
           \end{array}
-          \\
-          \ova{\alias{}}^n = \aliasesin{}(\t{})\\
-          \ova{\atenv{i} = \squash{}(\atenv{i-1}, [\alias{i}], [])}
         \end{array}
       \end{array}
     \end{array}
+    \\\\
+    \aliasesin{} : \t{} \rightarrow \ova{\alias{}}\\
+    \aliasesin{}(\alias{}) = [\alias{}]\\
+    \aliasesin{}(\t{}(\ova{\s{}})) = \bigcup{\ova{\aliasesin{}(\s{})}}
   \end{array}
 
 \end{mathpar}
@@ -596,20 +599,6 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 %redundant aliases.
   }
   \label{infer:fig:squashlocal}
-\end{figure*}
-
-\begin{figure*}
-  \begin{mathpar}
-    \begin{array}{lllll}
-      \aliasesin{} : \t{} \rightarrow \ova{\alias{}}\\
-      \aliasesin{}(\alias{}) = [\alias{}]\\
-      \aliasesin{}(\t{}(\ova{\s{}})) = \bigcup{\ova{\aliasesin{}(\s{})}}
-    \end{array}
-  \end{mathpar}
-  \caption{Alias merging conditions, and helpers. $\t{}(\ova{\s{}})$ deconstructs \t{} such that \ova{\s{}} are the types
-  that occur syntactically in \t{}.
-  }
-  \label{infer:fig:aliasmerge}
 \end{figure*}
 
 \begin{figure*}
