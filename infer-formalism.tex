@@ -447,7 +447,15 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 
   \begin{array}{lllll}
     \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    \generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \atenv{0}, \res{})\\
+    %\generatetenv{} (\res{}) = \textbf{fold}(\inferupdateOp{}, \atenv{0}, \res{})\\
+    \generatetenv{} (\ova{\resentry{\inferpath{}}{\t{}}}^n) = \atenv{n}\\
+      \begin{array}{llll}
+        \text{where }\\
+          \begin{array}{@{}lll}
+            &\atenv{0} = \emptyatenv{}\\
+            &\ova{\atenv{i} = \inferupdate{\atenv{i-1}}{\inferpath{i}}{\t{i}}}
+          \end{array}
+        \end{array}
   \end{array}
   \begin{array}{lllll}
     \inferupdateOp : \atenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \atenv{} 
@@ -496,8 +504,9 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \squashlocal{} : \atenv{} \rightarrow \atenv{}\\
     \squashlocal{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
     \begin{array}{lllll}
-      \text{where} &\steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
-                   &\begin{array}{lllll}
+      \text{where}\\
+                    \steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \replacefor{\atenv{2}}{\t{2}}{\x{}}\\
+                    \begin{array}{lllll}
                       \text{where}
                         &(\atenv{1}, \t{1}) = \aliashmap{}(\atenv{}, \t{})\\
                         &(\atenv{2}, \t{2}) = \squashall{}(\atenv{1}, \t{1})\\
@@ -510,24 +519,29 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \begin{array}{lllll}
       \textsf{fold}(\lambda (\atenv{}, \alias{}). \squash{}(\atenv{}, [\alias{}], []), \atenv{}, \aliasesin{}(\t{}))\\
       \begin{array}{@{}llll}
-      \text{where } 
-        &\squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
-        &\squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
-        &\squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})\\
-        &\begin{array}{lllll}
-         \text{where }
-         &\textsf{as} = \aliasesin{}(\atenv{}[\alias{}]) \setminus \textsf{d}\\
-         &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
-         &\textsf{f}(\atenv{}, \aliasp{}) = \trymergealias{}(\atenv{}, \aliasp{}, \alias{})\\
-         &\begin{array}{@{}llll}
-           \atenvp{} = 
-            &\textsf{if } \alias{} \in \textsf{d}\\
-            &\textsf{then } \atenv{}\\
-            &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
+        \text{where}\\
+        \begin{array}{llll}
+          \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
+          \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
+          \squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \\
+          \begin{array}{lllll}
+            \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})\\
+            \begin{array}{@{}llll}
+              \text{where }
+              &\textsf{as} = \aliasesin{}(\atenv{}[\alias{}]) \setminus \textsf{d}\\
+              &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
+              &\textsf{f}(\atenv{}, \aliasp{}) = \trymergealias{}(\atenv{}, \aliasp{}, \alias{})\\
+              &\begin{array}{@{}llll}
+                \atenvp{} = 
+                &\textsf{if } \alias{} \in \textsf{d}\\
+                &\textsf{then } \atenv{}\\
+                &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
+              \end{array}
+            \end{array}
           \end{array}
-         \end{array}
-       \end{array}
+        \end{array}
       \end{array}
+    \end{array}
   \end{array}
 
   \begin{array}{lllll}
