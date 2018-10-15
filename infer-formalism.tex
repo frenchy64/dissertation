@@ -645,13 +645,27 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \begin{array}{lllll}
       \text{where} &\textsf{r} = [(\ova{\kw{}}, \ova{\alias{}}) | \HMaptwo{\{\ova{\kw{}\ \t{}}\}}{\HMapopt{}} \in \textsf{rng}(\atenv{}[\aenv{}]),
                                                                               \ova{\alias{}} = \textsf{matchingReq}(\ova{\kw{}})]\\
-                   &\textsf{r}' = [(\ova{\kw{}}, \ova{\aliasp{}}) | (\ova{\kw{}}, \ova{\alias{}}) \in \textsf{r},
-                                                                              \ova{\aliasp{}} = \textsf{similarReq}(\ova{\kw{}})]\\
+                   &\textsf{r}' = [(\ova{\kw{}}, \ova{\alias{}}) | \ova{\kw{}} \in \textsf{dom}(\textsf{r}),
+                                                                              \ova{\alias{}} = \textsf{remDiffTag}(\textsf{similarReq}(\ova{\kw{}}))
+                                                                              ]\\
                    &\textsf{matchingReq}(\ova{\kw{}}) = [\alias{} | (\alias{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) \in \atenv{}]\\
                    &\textsf{similarReq}(\ova{\kw{}}) = [\alias{} | \ova{\kwp{}}^n \subseteq \ova{\kw{}}^m,
                                                                    n \leq \textsf{thres}(m),
-                                                                   \alias{} \in \textsf{r}[\ova{\kwp{}}]]
+                                                                   \alias{} \in \textsf{r}[\ova{\kwp{}}]]\\
+                   &\textsf{remDiffTag}(\ova{\alias{}}) = [\aliasp{} | \aliasp{} \in \ova{\alias{}},
+                                                                       \text{ if } (\kw{}, \kwp{}) \in \textsf{req}(\atenv{}, \aliasp{})
+                                                                       \text{ and } 
+                                                                       \bigvee\ova{(\kw{}, \kwpp{}) \in \textsf{req}(\atenv{}, \alias{})}
+                                                                       \text{ then }
+                                                                       \kwp{} = \kwpp{}
+                                                                      ]
     \end{array}
+    \\\\
+    \textsf{req}: \atenv{}, \alias{} \rightarrow \ova{\HMapreq{}}\\
+    \textsf{req}(\atenv{}, \alias{}) = \textsf{req}(\atenv{}, \alias{})\\
+    \textsf{req}(\atenv{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) = [\HMapreq{}]\\
+    \textsf{req}(\atenv{}, \Unionsplice{\ova{\t{}}}) = \bigcup\ova{\textsf{req}(\atenv{},\t{})}\\
+    \textsf{req}(\atenv{}, \t{}) = [] \text{, otherwise}
   \end{array}
 
   \begin{array}{lllll}
