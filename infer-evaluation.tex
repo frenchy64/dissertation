@@ -278,7 +278,7 @@ value when it is first created.
 
 \paragraph{Possible errors in programs}
 
-\begin{figure}
+\begin{figure*}
 \begin{tabular}{| l | l | l | l | l | l |}
   Library            & Lines of types  & Local annotations & Manual Line +/- Diff \\
   \hline
@@ -291,9 +291,9 @@ value when it is first created.
   %clojurescript & \\
 \end{tabular}
 \caption{Generated types}
-\end{figure}
+\end{figure*}
 
-\begin{figure}
+\begin{figure*}
 \begin{tabular}{| l | l | l | l | l | l | l | l |}
   Library            & Casts & Instantiation & Poly & Local ann & Shortcoming & Overprecise arg \\
   \hline
@@ -317,31 +317,31 @@ value when it is first created.
   %clojurescript & \\
 \end{tabular}
 \caption{Number of changes needed to type check}
-\end{figure}
+\end{figure*}
 
 
 
-\Dsection{Experiment 3: Specs pass unit tests}
-
-For our experiment, we generated specs using our algorithm and enabled
-the generated specs.
-
-
-
-\begin{figure}
-\begin{tabular}{| l | l | l | l | l | l | l | l |}
-  Library            & Lines of spec & No. recursive specs & Instance tests & Useful map types & Passed unit tests \\
-  \hline
-  startrek-clojure   & 25            & 0                   & 10             & 0                & Yes\\
-  math.combinatorics & 601           & 0                   & 320            & 0                & Yes\\
-  fs                 & 543           & 0                   & 215            & 0                & Yes \\
-  data.json          & 401 \\
-  data.xml           & \\
-  mini.occ           & \\
-  %clojurescript & \\
-\end{tabular}
-\caption{Generated specs}
-\end{figure}
+%\Dsection{Experiment 3: Specs pass unit tests}
+%
+%For our experiment, we generated specs using our algorithm and enabled
+%the generated specs.
+%
+%
+%
+%\begin{figure*}
+%\begin{tabular}{| l | l | l | l | l | l | l | l |}
+%  Library            & Lines of spec & No. recursive specs & Instance tests & Useful map types & Passed unit tests \\
+%  \hline
+%  startrek-clojure   & 25            & 0                   & 10             & 0                & Yes\\
+%  math.combinatorics & 601           & 0                   & 320            & 0                & Yes\\
+%  fs                 & 543           & 0                   & 215            & 0                & Yes \\
+%  data.json          & 401 \\
+%  data.xml           & \\
+%  mini.occ           & \\
+%  %clojurescript & \\
+%\end{tabular}
+%\caption{Generated specs}
+%\end{figure*}
 
 
 %\Dsubsection{Experiment 3: Generating generative tests}

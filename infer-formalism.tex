@@ -92,7 +92,10 @@ Heterogeneous keyword map types \HMappretty{\ova{\kw{}\ \t{}}}
 for now represent a series of required keyword entries---we will extend
 them to have optional entries in later phases.
 
-\begin{figure*}
+\begin{figure}
+  \ifdefined\PAPER
+  \footnotesize
+  \fi
   $$
   \begin{altgrammar}
     \val{} &::=& \num{}
@@ -105,7 +108,8 @@ them to have optional entries in later phases.
        \alt \val
        \alt \trackE{\e{}}{\inferpath{}}
        \alt {\uabs{\x{}}{\e{}}}
-       \alt {\curlymapvaloverrightnoarrow{\e{}}{\e{}}}
+       \\
+       &\alt& {\curlymapvaloverrightnoarrow{\e{}}{\e{}}}
        \alt {\appexp{\e{}}{\ova{\e{}}}}
        &\mbox{Expressions} \\
     \openv{} &::=& \{\ova{x \mapsto \val{}}\}
@@ -127,9 +131,9 @@ them to have optional entries in later phases.
        %\alt \HMappretty{\ova{\kw{}\ \t{}}}
        \alt \HMaptwo{\HMapreq{}}{\HMapopt{}}
        \alt \Unionsplice{\ova{\t{}}}
-       \alt \alias{} % type alias
        \\
-       &\alt& \kw{}
+       &\alt& \alias{} % type alias
+       \alt \kw{}
        \alt \Keyword{}
        \alt \Top{}
        \alt \IPersistentMap{\t{}}{\t{}}
@@ -148,7 +152,7 @@ them to have optional entries in later phases.
   $$
 \caption{Syntax of Terms, Types, Inference results, and Environments for \lambdatrack{}}
 \label{infer:fig:syntax}
-\end{figure*}
+\end{figure}
 
 The big-step operational semantics
 {\opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}}}
@@ -178,22 +182,28 @@ and returned.
 The other cases are straightforward.
 
 \begin{figure*}
+  \ifdefined\PAPER
+  \footnotesize
+  \fi
 \begin{mathpar}
 %\infer [B-Var]
 %{ track(\openv{}(x), [x]) = v\ ; res }
 %{ \openv{} \vdash x \Downarrow v\ ; res}
 
 % track is inserted manually
-\infer [B-Var]
-{}
-{ \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
-}
 
-\infer [B-Track]
-{ \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\
-  \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\resp{}}}
-{ \opsemtrack{\openv{}}{\trackE{\e{}}{\inferpath{}}}{\vp{}}{\unionres{\res{}}{\resp{}}}
-}
+  \begin{array}{llll}
+    \infer [B-Var]
+    {}
+    { \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
+    }
+    \\\\
+    \infer [B-Track]
+    { \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\
+    \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\resp{}}}
+    { \opsemtrack{\openv{}}{\trackE{\e{}}{\inferpath{}}}{\vp{}}{\unionres{\res{}}{\resp{}}}
+    }
+  \end{array}
 
 \infer [B-App]
 { \opsemtrack{\openv{}}{\e{1}}{[\lambda \x{}. \e{}, \openvp{}]}{\res{1}} \\\\
@@ -203,13 +213,15 @@ The other cases are straightforward.
 { \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\unionresthree{\res{1}}{\res{2}}{\res{3}}}
 }
 
-\infer [B-Clos]
-{}
-{ \opsemtrack{\openv{}}{\lambda \xvar{}. \e{}}{[\lambda \ova{\xvar{}} . \e{}, \openv{} ]}{\emptyres{}}}
-
-\infer [B-Val]
-{}
-{ \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
+  \begin{array}{lll}
+    \infer [B-Clos]
+    {}
+    { \opsemtrack{\openv{}}{\lambda \xvar{}. \e{}}{[\lambda \ova{\xvar{}} . \e{}, \openv{} ]}{\emptyres{}}}
+    \\\\
+    \infer [B-Val]
+    {}
+    { \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
+  \end{array}
 
 %\infer [B-Get]
 %{ \opsemtrack{\openv{}}{\e{1}}{\{ \ova{\kw{}\ \v{}} \}}{\res{1}} \\
@@ -232,9 +244,9 @@ The other cases are straightforward.
 
 \infer [B-Delta]
 { \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{}}
-  \\
+  \\\\
   \ova{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
-  \\
+  \\\\
   \constantopsem{\const{}}{\ova{\v{}}} = \vp{}
 }
 { \opsemtrack {\openv{}}
@@ -248,9 +260,11 @@ The other cases are straightforward.
 \label{infer:fig:semantics}
 \end{figure*}
 
-\begin{figure*}
-\begin{mathpar}
-
+\begin{figure}
+  \ifdefined\PAPER
+  \footnotesize
+  \fi
+\[\arraycolsep=1.4pt
   \begin{array}{lllll}
     %\trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}\\\\
 
@@ -262,13 +276,19 @@ The other cases are straightforward.
     \\
     \trackmetaalign{\const{}}{\inferpath{}}{\const{}}{\emptyres{}}
     \\
-    \trackmetaalign{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
-                   {\inferpath{}}
-                   {\closure{\uabs{\y{}}
-                                  {\trackE{\appexp{\uabs{\x{}}{\e{}}}
-                                                  {\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}}}
-                                          {\appendone{\inferpath{}}{\rngpe{}}}}}
-                            {\openv{}}}
+    \trackmetalhs{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+                 {\inferpath{}}
+                 &=&
+                 \trackmetarhs
+                   {\closuresplice
+                     {\begin{array}{@{}ll}
+                         \uabs{\y{}}{\trackEAlignArray{\appexp{(\uabs{\x{}}{\e{}})}{\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}}}
+                         {\appendone{\inferpath{}}{\rngpe{}}}}
+                      \end{array}
+                      \begin{array}{@{}ll}
+                         , {\openv{}}
+                      \end{array}
+                      }}
                    {\emptyres{}}
                    % let's treat functions as opaque wrt arity as they are in clojure
                    %{\singletonres{\inferpath{}}
@@ -303,11 +323,10 @@ The other cases are straightforward.
                                             {\res{}}}
     \\
   \end{array}
-
-\end{mathpar}
+  \]
 \caption{Definition of \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}}
 \label{infer:fig:trackmeta}
-\end{figure*}
+\end{figure}
 
 Now we have sufficient pieces to describe the initial collection phase of our model.
 Given an expression \e{} and variables ${\ova{\x{}}}$ to track,

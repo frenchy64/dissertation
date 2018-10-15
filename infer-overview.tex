@@ -118,19 +118,20 @@ enumerate its entries as the name.
 Finally, for large keyword maps, we give an abbreviation
 of its keyset as a name.
 
-\begin{Verbatim}
-(defn f [x] (inc x))
-\end{Verbatim}
-
-\begin{figure*}
-\begin{cljlisting}
-(defn vertices [m]
-  (case (:op m)
-    :leaf 1
-    :node (+ 1 (:left m) (:right m))))
-\end{cljlisting}
-\label{code:vertices}
-\end{figure*}
+%\begin{Verbatim}
+%(defn f [x] (inc x))
+%\end{Verbatim}
+%
+%\begin{figure}
+%\begin{cljlisting}
+%(defn vertices [m]
+%  (case (:op m)
+%    :leaf 1
+%    :node (+ 1 (:left m)
+%               (:right m))))
+%\end{cljlisting}
+%\label{code:vertices}
+%\end{figure}
 
 %%%% An old introductory example %%%%%%
 
@@ -221,37 +222,37 @@ of its keyset as a name.
 %     [Num -> Num])
 %\end{verbatim}
 
-\begin{figure}
-\begin{tikzpicture}[level distance=0.8cm, scale=0.9]
-\tikzstyle{every node}=[font=\small]
-\tikzset{grow'=down}
-\tikzset{every tree node/.style={align=center,anchor=north}}
-\Tree [.\node[draw](P0){\texttt{P0 = (Pairof P1 P2)}};
-        [.\node[draw](P2){\texttt{P2 = (Pairof P3 N)}};
-          [ \texttt{N} ]
-          [.\node[draw](P3){\texttt{P3 = (Pairof N N)}};
-            [ \texttt{N} ] [ \texttt{N} ]]
-]
-        [.\node[fill=gray!80](P1){\texttt{P1 = (Pairof N N)}};
-          [ \texttt{N} ] [ \texttt{N} ] ]
- ]
-\end{tikzpicture}
+%\begin{figure}
+%\begin{tikzpicture}[level distance=0.8cm, scale=0.9]
+%\tikzstyle{every node}=[font=\small]
+%\tikzset{grow'=down}
+%\tikzset{every tree node/.style={align=center,anchor=north}}
+%\Tree [.\node[draw](P0){\texttt{P0 = (Pairof P1 P2)}};
+%        [.\node[draw](P2){\texttt{P2 = (Pairof P3 N)}};
+%          [ \texttt{N} ]
+%          [.\node[draw](P3){\texttt{P3 = (Pairof N N)}};
+%            [ \texttt{N} ] [ \texttt{N} ]]
+%]
+%        [.\node[fill=gray!80](P1){\texttt{P1 = (Pairof N N)}};
+%          [ \texttt{N} ] [ \texttt{N} ] ]
+% ]
+%\end{tikzpicture}
+%%
+%%\hspace{0.15cm}
+%%
+%\begin{tikzpicture}[level distance=0.8cm]
+%\tikzstyle{every node}=[font=\small]
+%\tikzset{grow'=down}
+%\tikzset{every tree node/.style={align=center,anchor=north}}
+%\Tree [.\node[fill=gray!80](P0){\texttt{P0 = (Pairof ($\cup$ N P0) ($\cup$ N P2))}};
+%        [.\node[draw](P2){\texttt{P2 = (Pairof P3 N)}};
+%          [ \texttt{N} ]
+%          [.\node[draw]{\texttt{P3 = (Pairof N N)}};
+%            [ \texttt{N} ] [ \texttt{N} ]]
+%]
+%          [ \texttt{N} ] [ \texttt{N} ] 
+% ]
+%%\draw[semithick,->] (P1)..controls +(west:1) and +(west:1)..(P0);
+%\end{tikzpicture}
+%\end{figure}
 %
-%\hspace{0.15cm}
-%
-\begin{tikzpicture}[level distance=0.8cm]
-\tikzstyle{every node}=[font=\small]
-\tikzset{grow'=down}
-\tikzset{every tree node/.style={align=center,anchor=north}}
-\Tree [.\node[fill=gray!80](P0){\texttt{P0 = (Pairof ($\cup$ N P0) ($\cup$ N P2))}};
-        [.\node[draw](P2){\texttt{P2 = (Pairof P3 N)}};
-          [ \texttt{N} ]
-          [.\node[draw]{\texttt{P3 = (Pairof N N)}};
-            [ \texttt{N} ] [ \texttt{N} ]]
-]
-          [ \texttt{N} ] [ \texttt{N} ] 
- ]
-%\draw[semithick,->] (P1)..controls +(west:1) and +(west:1)..(P0);
-\end{tikzpicture}
-\end{figure}
-

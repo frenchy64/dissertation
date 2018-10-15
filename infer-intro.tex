@@ -8,7 +8,7 @@ This paper starts to address a major usability flaw
 for gradually and optionally typed languages:
 writing type annotations is a manual process.
 
-Take \texttt{vertices} (Figure~\ref{vertices}),
+Take \texttt{vertices} (\figref{infer:fig:vertices}),
 written in Clojure.
 As is good style, it comes with a unit test.
 Our goal is to \textit{generate} Typed Clojure~\cite{bonnaire2016practical}
@@ -23,13 +23,13 @@ burden.
     :leaf 1
     :node (+ 1 (vertices (:left t))
                (vertices (:right t)))))
-(deftest vertices-test
-  (is (= 3 (vertices {:op :node 
-                      :left {:op :leaf :val 2}
-                      :right {:op :leaf :val 3}}))))
+(assert (= 3 (vertices
+               {:op :node 
+                :left {:op :leaf :val 2}
+                :right {:op :leaf :val 3}})))
 \end{cljlisting}
 \caption{A function counting vertices in a tree, with a test.}
-\label{vertices}
+\label{infer:fig:vertices}
 \end{figure}
 
 Our approach features several stages.
@@ -43,11 +43,9 @@ annotation:
 
 \begin{cljlisting}
 (ann vertices ['{:op ':node,
-                 :left '{:op ':leaf,
-                         :val Int},
-                 :right '{:op ':leaf,
-                          :val Int}}
-               -> Int]})
+                 :left '{:op ':leaf :val Int},
+                 :right '{:op ':leaf :val Int}}
+               -> Int])
 \end{cljlisting}
 
 This type is too specific---trees are recursively
@@ -106,11 +104,11 @@ Generating and running \textit{tests} improved the quality
 of type annotations by exercising more paths through the
 program (Section \ref{experiment3}).
 
-Several open questions remain.
-Automatically
-drawing the typed-untyped boundary in gradual typing
-would mean less manual casts are needed.
-(Section \ref{boundaries}).
+%Several open questions remain.
+%Automatically
+%drawing the typed-untyped boundary in gradual typing
+%would mean less manual casts are needed.
+%(Section \ref{boundaries}).
 
 %The Clojure programming language has several verification
 %systems that require annotating your programs.

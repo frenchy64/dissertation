@@ -9,6 +9,7 @@
 \newcommand\specialformfont[1]{\ma{\textbf{#1}}}
 \newcommand\trackEOp[0]{\ma{\specialformfont{track}}}
 \newcommand\trackE[2]{\ma{({\trackEOp{}}\ #1\ #2)}}
+\newcommand\trackEAlignArray[2]{\ma{(& \trackEOp{} \ \\&#1\\& #2)}}
 \newcommand\trackpolyE[3]{({\specialformfont{trackPoly}}\ #1\ #2\ #3)}
 \newcommand\genE[0]{({\specialformfont{genInt}})}
 \newcommand\inferletliteral[0]{{\specialformfont{let}}}
@@ -80,8 +81,10 @@
 \newcommand\generatetenv[0]{\ma{\infermetafnfont{toEnv}}}
 \newcommand\genupdate[0]{\ma{\infermetafnfont{genUpdate}}}
 \newcommand\trackmetaOp[0]{\ma{\infermetafnfont{track}}}
-\newcommand\trackmeta[4]{\ma{\trackmetaOp{}(#1, #2) = #3\ ; #4}}
-\newcommand\trackmetaalign[4]{\ma{\trackmetaOp{}(#1, #2) &=& #3\ ; #4}}
+\newcommand\trackmetalhs[2]{\ma{\trackmetaOp{}(#1, #2)}}
+\newcommand\trackmetarhs[2]{\ma{#1\ ; #2}}
+\newcommand\trackmeta[4]{\ma{\trackmetalhs{#1}{#2} = \trackmetarhs{#3}{#4}}}
+\newcommand\trackmetaalign[4]{\ma{\trackmetalhs{#1}{#2} &=& \trackmetarhs{#3}{#4}}}
 \newcommand\trackpolymeta[0]{\ma{\infermetafnfont{trackPoly}}}
 \newcommand\inferupdateOp[0]{\ma{\infermetafnfont{update}}}
 \newcommand\inferupdate[3]{\inferupdateOp{}(#1, \resentry{#2}{#3})}
