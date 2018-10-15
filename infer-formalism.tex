@@ -372,13 +372,13 @@ metafunction \inferanns{}(\res{}) = \atenv{} to produce an annotation environmen
   \end{array}
 \end{mathpar}
 
-The first pass $\generatetenv{} (\res{}) = \atenv{}$ generates an initial annotation environment
+The first pass $\generatetenv{} (\res{}) = \tenv{}$ generates an initial type environment
 from inference results \res{}.
 %It is defined (in \figref{infer:fig:generatetenv})
 %as a fold over \res{}, building a \tenv{} incrementally via the \inferupdateOp{}
 %metafunction.
 %
-The second pass $\squashlocal{}(\atenv{}) = \atenvp{}$ creates individual type aliases
+The second pass $\squashlocal{}(\tenv{}) = \atenvp{}$ creates individual type aliases
 for each HMap type in \tenv{} and then merges aliases that both occur inside the same
 nested type into possibly recursive types. % (\figref{infer:fig:squashlocal}).
 %
@@ -452,33 +452,33 @@ The first pass is given in \figref{infer:fig:generatetenv}.
       \text{where } \ova{\textsf{a}_i = \textsf{f}(\textsf{a}_{i-1}, \textsf{b}_{i})}^{1 \leq i \leq n}\\
     \end{array}
     \\\\
-    \generatetenv{} : \res{} \rightarrow \atenv{}\\
-    \generatetenv{} (\res{}) = \textsf{fold}(\inferupdateOp{}, \emptyatenv{}, \res{})\\
+    \generatetenv{} : \res{} \rightarrow \tenv{}\\
+    \generatetenv{} (\res{}) = \textsf{fold}(\inferupdateOp{}, \{\}, \res{})\\
   \end{array}
   \begin{array}{lllll}
-    \inferupdateOp : \atenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \atenv{} 
+    \inferupdateOp : \tenv{}, \resentry{\inferpath{}}{\t{}} \rightarrow  \tenv{} 
     \\
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\inferkeype{\{\ova{\kwp{}\ \s{}} \}}{\kw{}}}}{\t{}}
-            {\inferupdate{\atenv{}}{\inferpath{}}{\{\ova{\kwp{}\ \s{}}\ \kw{}\ \t{} \}}}
+    \inferupdatealign{\tenv{}}{\appendone{\inferpath{}}{\inferkeype{\{\ova{\kwp{}\ \s{}} \}}{\kw{}}}}{\t{}}
+            {\inferupdate{\tenv{}}{\inferpath{}}{\{\ova{\kwp{}\ \s{}}\ \kw{}\ \t{} \}}}
     \\
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
-                     {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
+    \inferupdatealign{\tenv{}}{\appendone{\inferpath{}}{\dompe{}}}{\t{}}
+                     {\inferupdate{\tenv{}}{\inferpath{}}{\arrow{\t{}}{\UnknownT{}}}}
     \\
-    \inferupdatealign{\atenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
-                {\inferupdate{\atenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
+    \inferupdatealign{\tenv{}}{\appendone{\inferpath{}}{\rngpe{}}}{\t{}}
+                {\inferupdate{\tenv{}}{\inferpath{}}{\arrow{\UnknownT{}}{\t{}}}}
     \\
-    \inferupdatealign{\updatemap{\atenv{}}{\x{}}{\s{}}}{[x]}{\t{}}
-                     {\updatemap{\atenv{}}
+    \inferupdatealign{\updatemap{\tenv{}}{\x{}}{\s{}}}{[x]}{\t{}}
+                     {\updatemap{\tenv{}}
                                 {\x{}}
                                 {\joinexpression{\t{}}{\s{}}}
                                  }
     \\
-    \inferupdatealign{\atenv{}}{[\xvar{}]}{\t{}}{\updatemap{\atenv{}}{\x{}}{\t{}}}
+    \inferupdatealign{\tenv{}}{[\xvar{}]}{\t{}}{\updatemap{\tenv{}}{\x{}}{\t{}}}
     \\
   \end{array}
 
 \end{mathpar}
-\caption{Definition of $\generatetenv{}(\res{}) = \atenv{}$}
+\caption{Definition of $\generatetenv{}(\res{}) = \tenv{}$}
 \label{infer:fig:generatetenv}
 \end{figure*}
 
@@ -521,7 +521,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \\
     \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
     \begin{array}{llll}
-      \textsf{if } \neg \shouldmergeOp{}(\atenv{}, \ova{\textsf{resolve}(\alias{})}) \textsf{ then } \atenv{}\\
+      \textsf{if } \neg \shouldmergeOp{}(\ova{\textsf{resolve}(\alias{})}) \textsf{ then } \atenv{}\\
       \textsf{else } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
                                {\alias{1}}
                                % this fixes the "too much garbage" issue
@@ -529,8 +529,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \end{array}\\
       \\
       %fold-based version
-    \squashlocal{} : \atenv{} \rightarrow \atenv{}\\
-    \squashlocal{}(\atenv{}) = \textbf{fold}(\steptwohelper{}, \atenv{}, \atenv{}[\tenv{}])\\
+    \squashlocal{} : \tenv{} \rightarrow \atenv{}\\
+    \squashlocal{}(\tenv{}) = \textbf{fold}(\steptwohelper{}, \emptyatenv{}, \tenv{})\\
     \begin{array}{lllll}
       \text{where} &\steptwohelper{} (\atenv{}, \hastype{\x{}}{\t{}}) = \updatemap{\atenv{2}}{\x{}}{\t{2}}\\
                    &\begin{array}{lllll}
@@ -592,7 +592,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \end{array}
 
 \end{mathpar}
-\caption{Definition of $\squashlocal{}(\atenv{}) = \atenv{}$
+\caption{Definition of $\squashlocal{}(\tenv{}) = \atenv{}$
 %\aliasesin{}(\t{}) returns the set of aliases that syntactically occur in \t{}.
 %  Step 2 summary: Create aliases for HMaps (graph nodes), then squash recursive types locally
 %(don't try to merge data examples from different paths). Omitted: follow-aliases call, that erases
@@ -606,11 +606,29 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \begin{array}{lllll}
     \squashglobal{} : \atenv{} \rightarrow \atenv{}\\
     \squashglobal{} = \squashhorizonally{} \circ \aliassinglehmap{}
-  \\
+    \\\\
+    \aliassinglehmap{} : \atenv{} \rightarrow \atenv{}\\
+    \aliassinglehmap{}(\atenv{}) = \textsf{fold}(\textsf{f}, \atenvp{}, \text{rng}(\atenvp{}[\aenv{}]))\\
+    \begin{array}{llll}
+      \text{where } &\atenvp{} = \textsf{fold}(\singlehmap{}, \atenv{}, \text{rng}(\atenv{}[\tenv{}]))\\
+                    &\textsf{f}(\atenv{0}, \t{}(\ova{\s{}}^n)) = (\atenv{n}, \t{}(\sp{})) \text{, if } \t{} = \HMaptwo{\HMapreq{}}{\HMapopt{}}\\
+                    &\begin{array}{lllll}
+                      \text{where } \ova{(\atenv{i}, \s{i}) = \singlehmap{}(\atenv{i-1}, \s{i})}
+                     \end{array}
+                    \\
+                    &\textsf{f}(\atenv{}, \t{}) = \singlehmap{}(\atenv{}, \t{}) \text{, otherwise}
+    \end{array}
+    \\\\
+    \singlehmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
+    \singlehmap{}(\atenv{}, \t{}) = \textsf{postwalk}(\atenv{}, \t{}, \textsf{f})\\
+    \begin{array}{lllll}
+      \text{where} &\textsf{f}(\atenv{}, {\HMaptwo{\HMapreq{1}}{\HMapreq{2}}}) = \register{}(\atenv{},\HMaptwo{\HMapreq{1}}{\HMapreq{2}})\\
+                   &\textsf{f}(\atenv{}, \t{}) = (\atenv{}, \t{}), \text{otherwise}
+    \end{array}
   \end{array}
 
   \begin{array}{lllll}
-    \inferrecOp{} : \atenv{} \rightarrow \atenv{}\\
+    \inferrecOp{} : \tenv{} \rightarrow \atenv{}\\
     \inferrecOp{} = \squashglobal{} \circ \squashlocal{}
   \end{array}
 \end{mathpar}
