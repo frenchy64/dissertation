@@ -280,22 +280,21 @@ The other cases are straightforward.
                  {\inferpath{}}
                  &=&
                  \trackmetarhs
-                   {\closuresplice
-                     {\begin{array}{@{}ll}
-                         \uabs{\y{}}{\trackEAlignArray{\appexp{(\uabs{\x{}}{\e{}})}{\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}}}
-                         {\appendone{\inferpath{}}{\rngpe{}}}}
-                      \end{array}
-                      \begin{array}{@{}ll}
-                         , {\openv{}}
-                      \end{array}
-                      }}
+                   {\closure{\ep{}}{\openv{}}}
                    {\emptyres{}}
                    % let's treat functions as opaque wrt arity as they are in clojure
                    %{\singletonres{\inferpath{}}
                    %              {\arrow{\UnknownT{}}{\UnknownT{}}}}
          \\
     &&
-    \text{where}\ \y{} \text{ is fresh}
+    \begin{array}{@{}llll}
+      \text{where } \y{} \text{ is fresh},\\
+       \text{ }    \begin{array}{@{}llll}
+                      \ep{} =
+                        \uabs{\y{}}{\trackE{&\appexp{(\uabs{\x{}}{\e{}})}{\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}}}
+                                           {\\&\appendone{\inferpath{}}{\rngpe{}}}}
+                   \end{array}
+    \end{array}
     \\
     \trackmetaalign{\{\}}
                    {\inferpath{}}
