@@ -1,7 +1,9 @@
 \documentclass[11pt]{iuthesis}
 %\documentclass[11pt,final]{iuthesis}
 
+% this is the dissertation, not the paper
 \newcommand{\DISSERTATION}{}
+\newcommand{\either}[2]{#1}
 
 %\usepackage[margin=1in]{geometry}
 \usepackage{savesym}
@@ -11,11 +13,10 @@
 \usepackage{infer-common}
 \usepackage{quals-common}
 
-\usepackage[doublespacing]{setspace}
+% related to typesetting theorems, moved here for compatibility with acmart.cls
+%\newcommand\@dotsep{12}
 
-\lstnewenvironment{cljlisting}
-{\singlespacing}
-{}
+\usepackage[doublespacing]{setspace}
 
 %\usepackage{hyperref}
 
@@ -147,6 +148,8 @@
 
 \part{Automatic Annotations for Typed Clojure}
 \label{part:autoann}
+
+%\chapter{Abstract}
 
 \input{infer-abstract}
 

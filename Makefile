@@ -29,5 +29,15 @@ prospectus:
 	bibtex prospectus
 	pdflatex prospectus.tex 
 
+pldi:
+	pdflatex pldi19.tex 
+	bibtex pldi19
+	pdflatex pldi19.tex 
+	bibtex pldi19
+	pdflatex pldi19.tex 
+
+fast-pldi:
+	pdflatex pldi19.tex 
+
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod *.loe

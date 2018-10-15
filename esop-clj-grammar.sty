@@ -481,7 +481,7 @@
 \newcommand\notequal[0]{\ma{\not=}}
 
 % objects
-\newcommand\path[2]{\ma{#1(#2)}}
+\newcommand\pth[2]{\ma{#1(#2)}}
 \newmeta\object{o}
 \newmeta\objectp{o'}
 \newmeta\emptyobject{\emptyset}
@@ -1107,7 +1107,7 @@
        }
 { \judgementrewrite {\propenv{}} {\getexp {\e{}} {\e{k}}} {\Unionsplice {{\overrightarrow {\t{}}}^i}}
              {\filterset {\topprop{}} {\topprop{}}}
-             {\replacefor {\path {\keype{k}} {\x{}}}
+             {\replacefor {\pth {\keype{k}} {\x{}}}
                           {\object{}}
                           {\x{}}}
                         {\getexp {\ep{}} {\ep{k}}}
@@ -1129,7 +1129,7 @@
                                     {\Nil{}}
              {\filterset {\topprop{}} {\topprop{}}}
              {\replacefor
-               {\path {\keype{k}} {\x{}}}
+               {\pth {\keype{k}} {\x{}}}
                           {\object{}}
                           {\x{}}}
                         {\getexp {\ep{}} {\ep{k}}}
@@ -1153,7 +1153,7 @@
                                     {\Top{}}
              {\filterset {\topprop{}} {\topprop{}}}
              {\replacefor
-               {\path {\keype{k}} {\x{}}}
+               {\pth {\keype{k}} {\x{}}}
                           {\object{}}
                           {\x{}}}
                         {\getexp {\ep{}} {\ep{k}}}
@@ -1202,8 +1202,8 @@
 
 % common Syntax
 \newcommand\occurrencetypingsyntax[0]{
-  \prop{}       &::=& {\isprop {\t{}} {\path {\pathelem{}} {\x{}}}}
-                      \alt {\notprop {\t{}} {\path {\pathelem{}} {\x{}}}}
+  \prop{}       &::=& {\isprop {\t{}} {\pth {\pathelem{}} {\x{}}}}
+                      \alt {\notprop {\t{}} {\pth {\pathelem{}} {\x{}}}}
                       \alt {\impprop {\prop{}} {\prop{}}}
                       \alt {\andprop {\prop{}} {\prop{}}}
                       \alt {\orprop {\prop{}} {\prop{}}}
@@ -1211,7 +1211,7 @@
                       \alt \botprop{}
                 &\mbox{Propositions} \\
 
-  \object{}     &::=& {\path {\pathelem{}} {\x{}}}
+  \object{}     &::=& {\pth {\pathelem{}} {\x{}}}
                       \alt \emptyobject{}
                 &\mbox{Objects} \\
   \pathelem{}   &::=& \overrightarrow{\pesyntax{}}
@@ -1842,9 +1842,9 @@ $$
 \newcommand\isapropsfigure[0]{
   \ma{
 \begin{array}{llll}
-  \isacomparealign{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
-             {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
-                        {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}
+  \isacomparealign{\s{}}{\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+             {\filterset{\isprop{\class{}} {\pth{\pathelem{}}{\x{}}}}
+                        {\notprop{\class{}}{\pth{\pathelem{}}{\x{}}}}}
                         \\
   \isacomparealign{\s{}}{\object{}}{\Value{\singletonmeta{}}}
              {\replacefor
@@ -2361,7 +2361,7 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
   if \judgementselfrewrite{}{\closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}}}{\t{}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
   and $\forall$ \objectp{} in \t{}, either 
   \objectp{} = \emptyobject{}, or 
-  \objectp{} = {\path{\pathelemp{}}{\x{}}},
+  \objectp{} = {\pth{\pathelemp{}}{\x{}}},
   or 
 \inopenvnoeq{\openv{}}{\objectp{}} = {\inopenvnoeq{\openv{1}}{\objectp{}}}.
 
@@ -2627,7 +2627,7 @@ $$
                                       {\Union{\nil{}}{\Class{}}}
                                       {\filterset {\topprop{}}
                                                   {\topprop{}}}
-                                      {\path {\classpe{}} {\x{}}}}\\
+                                      {\pth {\classpe{}} {\x{}}}}\\
   \constanttype{\numberhuh} &=& {\ArrowOne {\x{}} {\Top{}}
                                       {\Boolean{}}
                                       {\filterset {\isprop{\Number{}}{\x{}}}
@@ -2678,18 +2678,18 @@ $$
 % proof system
 \newcommand\LUpdate[0]{
 \infer [L-Update]
-{ \inpropenv {\propenv{}} {\isprop {\t{}} {\path {\pathelemp{}} {\x{}}}}
+{ \inpropenv {\propenv{}} {\isprop {\t{}} {\pth {\pathelemp{}} {\x{}}}}
 \\
-  \inpropenv {\propenv{}} {\isprop {\propisnotmeta{}} {{\pathelem{}}({\path {\pathelemp{}} {\x{}}})}}}
-{ \inpropenv {\propenv{}} {\isprop {\update {\t{}} {\propisnotmeta{}} {\pathelem{}}} {\path {\pathelemp{}} {\x{}}}}}
+  \inpropenv {\propenv{}} {\isprop {\propisnotmeta{}} {{\pathelem{}}({\pth {\pathelemp{}} {\x{}}})}}}
+{ \inpropenv {\propenv{}} {\isprop {\update {\t{}} {\propisnotmeta{}} {\pathelem{}}} {\pth {\pathelemp{}} {\x{}}}}}
 }
 
 \newcommand\LUpdatePos[0]{
 \infer [L-UpdatePos]
-{ \inpropenv {\propenv{}} {\isprop {\t{}} {\path {\pathelemp{}} {\x{}}}}
+{ \inpropenv {\propenv{}} {\isprop {\t{}} {\pth {\pathelemp{}} {\x{}}}}
 \\
-  \inpropenv {\propenv{}} {\isprop {\s{}} {{\pathelem{}}({\path {\pathelemp{}} {\x{}}})}}}
-{ \inpropenv {\propenv{}} {\isprop {\update {\t{}} {\s{}} {\pathelem{}}} {\path {\pathelemp{}} {\x{}}}}}
+  \inpropenv {\propenv{}} {\isprop {\s{}} {{\pathelem{}}({\pth {\pathelemp{}} {\x{}}})}}}
+{ \inpropenv {\propenv{}} {\isprop {\update {\t{}} {\s{}} {\pathelem{}}} {\pth {\pathelemp{}} {\x{}}}}}
 }
 
 \newcommand\TConst[0]{

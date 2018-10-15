@@ -25,23 +25,23 @@ $$
 \\\\
 {\withpolarity
   {\replacefor
-    {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
-    {\path {\pathelemp{}} {\y{}}}
+    {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
+    {\pth {\pathelemp{}} {\y{}}}
     {\x{}}}
   {\polaritymeta{}}}
 &=&
   {\isprop {({\withpolarity
               {\replacefor
                {\propisnotmeta{}}
-               {\path {\pathelemp{}} {\y{}}}
+               {\pth {\pathelemp{}} {\y{}}}
                {\x{}}}
               {\polaritymeta{}}})}
-           {{\pathelem{}}({\path {\pathelemp{}} {\y{}}})}}
+           {{\pathelem{}}({\pth {\pathelemp{}} {\y{}}})}}
            \\
 
 {\pluspolarity
 {\replacefor
-  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
   {\emptyobject{}}
   {\x{}}}
 }
@@ -50,7 +50,7 @@ $$
 \\
 {\minuspolarity
 {\replacefor
-  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
   {\emptyobject{}}
   {\x{}}}
 }
@@ -60,18 +60,18 @@ $$
 \\
 {\withpolarity
 {\replacefor
-  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
   {\object{}}
   {\z{}}}
 {\polaritymeta{}}}
 &=&
-  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
   & \x{} \not= \z{}\ \text{and}\ \z{} \not\in {\fv {\propisnotmeta{}}}
 
 \\
 {\pluspolarity
 {\replacefor
-  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
   {\object{}}
   {\z{}}}
 }
@@ -81,7 +81,7 @@ $$
 \\
 {\minuspolarity
 {\replacefor
-  {\isprop {\propisnotmeta{}} {\path {\pathelem{}} {\x{}}}}
+  {\isprop {\propisnotmeta{}} {\pth {\pathelem{}} {\x{}}}}
   {\object{}}
   {\z{}}}
 }
@@ -166,18 +166,18 @@ $$
 
 {\withpolarity
 {\replacefor
-  {\path {\pathelem{}} {\x{}}}
-  {\path {\pathelemp{}} {\y{}}}
+  {\pth {\pathelem{}} {\x{}}}
+  {\pth {\pathelemp{}} {\y{}}}
   {\x{}}}
 {\polaritymeta{}}}
            &=&
-{\path{\pathelem{}}{\path {\pathelemp{}} {\y{}}}}
+{\pth{\pathelem{}}{\pth {\pathelemp{}} {\y{}}}}
 
     \\
 
 {\withpolarity
 {\replacefor
-  {\path {\pathelem{}} {\x{}}}
+  {\pth {\pathelem{}} {\x{}}}
   {\emptyobject{}}
   {\x{}}}
 {\polaritymeta{}}}
@@ -188,12 +188,12 @@ $$
 
 {\withpolarity
 {\replacefor
-  {\path {\pathelem{}} {\x{}}}
+  {\pth {\pathelem{}} {\x{}}}
   {\object{}}
   {\z{}}}
 {\polaritymeta{}}}
            &=&
-{\path {\pathelem{}} {\x{}}}
+{\pth {\pathelem{}} {\x{}}}
 
 & \x{} \not= \z{}
     \\

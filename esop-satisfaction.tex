@@ -25,17 +25,17 @@
                    \\
 
 \infer [M-Type]
-{ \judgement {} {\openv{}({\path{\pathelem{}}{\x{}}})} {\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}}
-{ \satisfies{\openv{}}{\isprop{\t{}}{\path{\pathelem{}}{\x{}}}}
+{ \judgement {} {\openv{}({\pth{\pathelem{}}{\x{}}})} {\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}}
+{ \satisfies{\openv{}}{\isprop{\t{}}{\pth{\pathelem{}}{\x{}}}}
                    }
 
 \infer [M-NotType]
-{ \judgement {} {\openv{}({\path{\pathelem{}}{\x{}}})} {\s{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}
+{ \judgement {} {\openv{}({\pth{\pathelem{}}{\x{}}})} {\s{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}
 \\\\
 \text{there is no}\ \v{}\ \text{such that}\ \judgement{}{\v{}}{\t{}}{\filterset{\thenprop{\prop{1}}}{\elseprop{\prop{1}}}}{\object{1}}
 \ \text{and}\ \judgement{}{\v{}}{\s{}}{\filterset{\thenprop{\prop{2}}}{\elseprop{\prop{2}}}}{\object{2}}
 }
-{ \satisfies{\openv{}}{\notprop{\t{}}{\path{\pathelem{}}{\x{}}}}
+{ \satisfies{\openv{}}{\notprop{\t{}}{\pth{\pathelem{}}{\x{}}}}
                    }
 \end{mathpar}
 \caption{Satisfaction Relation}

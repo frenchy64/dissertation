@@ -84,9 +84,9 @@
 \end{lemma}
 
 \begin{lemma} \label{appendix:lemma:goodobjects+ve}
-  If \inpropenv{\propenv{}}{\isprop{\t{}}{\path{\pathelem{}}{\x{}}}},
+  If \inpropenv{\propenv{}}{\isprop{\t{}}{\pth{\pathelem{}}{\x{}}}},
   \satisfies{\openv{}}{\propenv{}}
-  and \inopenv{\openv{}}{\path{\pathelem{}}{\x{}}}{\v{}}
+  and \inopenv{\openv{}}{\pth{\pathelem{}}{\x{}}}{\v{}}
   then
   \judgementselfrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\propp{}}}}{\objectp{}}
   for some {\thenprop{\propp{}}}, {\elseprop{\propp{}}} and {\objectp{}}.
@@ -97,8 +97,8 @@
 
 \begin{lemma}[Paths are independent] \label{appendix:lemma:pathindependent}
   If \inopenvnoeq{\openv{}}{\object{}} = \inopenvnoeq{\openv{1}}{\objectp{}}
-  then \inopenvnoeq{\openv{}}{\path{\pathelem{}}{\object{}}} =
-       \inopenvnoeq{\openv{1}}{\path{\pathelem{}}{\objectp{}}}
+  then \inopenvnoeq{\openv{}}{\pth{\pathelem{}}{\object{}}} =
+       \inopenvnoeq{\openv{1}}{\pth{\pathelem{}}{\objectp{}}}
  \begin{proof}
    By induction on \pathelem{}.
    % FIXME
@@ -106,11 +106,11 @@
 %     \inopenvnoeq{\openv{}}{\object{}} = {\inopenvnoeq{\openv{}}{\objectp{}}}
 %
 %     As 
-%     \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\object{}}} = \inopenvnoeq{\openv{}}{\object{}}
+%     \inopenvnoeq{\openv{}}{\pth{\emptypath{}}{\object{}}} = \inopenvnoeq{\openv{}}{\object{}}
 %     and
-%     \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\objectp{}}} = \inopenvnoeq{\openv{}}{\objectp{}}
+%     \inopenvnoeq{\openv{}}{\pth{\emptypath{}}{\objectp{}}} = \inopenvnoeq{\openv{}}{\objectp{}}
 %     we can conclude 
-%     \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\object{}}} = \inopenvnoeq{\openv{}}{\path{\emptypath{}}{\objectp{}}}.
+%     \inopenvnoeq{\openv{}}{\pth{\emptypath{}}{\object{}}} = \inopenvnoeq{\openv{}}{\pth{\emptypath{}}{\objectp{}}}.
 %   \end{case}
 %   \begin{case}[\pathelem{} = {\destructpath{\pesyntax{}}{\pathelem{1}}}]
 %     \inopenvnoeq{\openv{}}{\object{}} = {\inopenvnoeq{\openv{}}{\objectp{}}}
@@ -123,12 +123,12 @@
 %
 %%     TODO
 %     By the induction hypothesis on {\pathelem{1}}
-%     we know {\inopenvnoeq{\openv{}}{\path{\pathelem{1}}{\object{}}}} =
-%             {\inopenvnoeq{\openv{1}}{\path{\pathelem{1}}{\objectp{}}}}.
-%             By the definition of path translation 
-%             {\inopenvnoeq{\openv{}}{\path{\pathelem{1}}{\object{}}}} = {\getexp {{\openv{}}(\object{})}{\k{}}}
+%     we know {\inopenvnoeq{\openv{}}{\pth{\pathelem{1}}{\object{}}}} =
+%             {\inopenvnoeq{\openv{1}}{\pth{\pathelem{1}}{\objectp{}}}}.
+%             By the definition of pth translation 
+%             {\inopenvnoeq{\openv{}}{\pth{\pathelem{1}}{\object{}}}} = {\getexp {{\openv{}}(\object{})}{\k{}}}
 %             and 
-%             {\inopenvnoeq{\openv{}}{\path{\pathelem{1}}{\objectp{}}}} = {\getexp {{\openv{}}(\objectp{})}{\k{}}}
+%             {\inopenvnoeq{\openv{}}{\pth{\pathelem{1}}{\objectp{}}}} = {\getexp {{\openv{}}(\objectp{})}{\k{}}}
 %   \end{subcase} 
 %     \end{itemize}
 %%     TODO
@@ -138,8 +138,8 @@
 
 \begin{lemma}[\classconst]\label{appendix:lemma:classconst}
   If
-  {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\class{}}} then
-  {\satisfies{\openv{}}{\isprop{\class{}}{\path{\pathelem{}}{\x{}}}}}.
+  {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\pth{\pathelem{}}{\x{}}})}}{\class{}}} then
+  {\satisfies{\openv{}}{\isprop{\class{}}{\pth{\pathelem{}}{\x{}}}}}.
 
   \begin{proof}
     Induction on the definition of {\classconst{}}.
@@ -212,30 +212,30 @@
               by cases on the definition of \isacompareliteral{}:
               \begin{itemize} % isacompare
                 \item[]
-                  \begin{subcase}[\isacompare{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
-                                 {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
-                                            {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}]
+                  \begin{subcase}[\isacompare{\s{}}{\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+                                 {\filterset{\isprop{\class{}} {\pth{\pathelem{}}{\x{}}}}
+                                            {\notprop{\class{}}{\pth{\pathelem{}}{\x{}}}}}]
                     \ 
 
 
-                    \object{1} = {\path{\classpe{}}{\path{\pathelem{}}{\x{}}}},
+                    \object{1} = {\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}},
                     \t{2} = {\Value{\class{}}},
-                    \inpropenv{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}}
+                    \inpropenv{\isprop{\class{}} {\pth{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}}
 
                     Unreachable by inversion on the typing relation, since \t{2} = {\Value{\class{}}},
                     yet \v{2} \notequal\ {\class{}}.
 
 %                    By inversion on the typing relation, since \classpe{} is the last path element of \object{1}
-%                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\v{1}}.
+%                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\pth{\pathelem{}}{\x{}}})}}{\v{1}}.
 %
 %                    Since {\v{1}} = {\v{2}} then {\t{1}} = {\t{2}}, and because {\t{2}} = {\Value{\class{}}}
 %                    then {\t{1}} = {\Value{\class{}}}.
 %
 %                    By inversion {\v{1}} = {\class{}}, via T-Class.
 %
-%                    Since {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\class{}}}
+%                    Since {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\pth{\pathelem{}}{\x{}}})}}{\class{}}}
 %                    we conclude by lemma~\ref{appendix:lemma:classconst}
-%                    with {\satisfies{\openv{}}{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}}.
+%                    with {\satisfies{\openv{}}{\isprop{\class{}} {\pth{\pathelem{}}{\x{}}}}}.
 
                   \end{subcase}
                 \item[]
@@ -270,14 +270,14 @@
                     we derive
                     {\satisfies{\openv{}}{\topprop{}}} with M-Top.
 
-                    Otherwise \object{1} = \path{\pathelem{}}{\x{}} and 
-                    \inpropenv{\isprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}},
+                    Otherwise \object{1} = \pth{\pathelem{}}{\x{}} and 
+                    \inpropenv{\isprop{\Value{\singletonmeta{}}}{\pth{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}},
                     and since
                     \judgementtwo {} {\v{1}} {\Value{\singletonmeta{}}}
                     then
-                    \judgementtwo {} {{\openv{}}(\path{\pathelem{}}{\x{}})} {\Value{\singletonmeta{}}},
+                    \judgementtwo {} {{\openv{}}(\pth{\pathelem{}}{\x{}})} {\Value{\singletonmeta{}}},
                     which we can use M-Type to derive
-                    {\satisfies{\openv{}}{\isprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}}.
+                    {\satisfies{\openv{}}{\isprop{\Value{\singletonmeta{}}}{\pth{\pathelem{}}{\x{}}}}}.
                   \end{subcase}
                 \item[]
                   \begin{subcase}[\isacompare{\s{}}{\object{}}{\t{}} {\filterset{\topprop{}} {\topprop{}}}]
@@ -302,32 +302,32 @@
               by cases on the definition of \isacompareliteral{}:
               \begin{itemize} % isacompare
                 \item[]
-                  \begin{subcase}[\isacompare{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
-                                 {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
-                                            {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}]
+                  \begin{subcase}[\isacompare{\s{}}{\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+                                 {\filterset{\isprop{\class{}} {\pth{\pathelem{}}{\x{}}}}
+                                            {\notprop{\class{}}{\pth{\pathelem{}}{\x{}}}}}]
                     \ 
 
 
-                    \object{1} = {\path{\classpe{}}{\path{\pathelem{}}{\x{}}}},
+                    \object{1} = {\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}},
                     \t{2} = {\Value{\class{2}}},
-                    \inpropenv{\isprop{\class{2}} {\path{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}}
+                    \inpropenv{\isprop{\class{2}} {\pth{\pathelem{}}{\x{}}}}{\thenprop{\prop{}}}
 
                     By inversion on the typing relation, since \classpe{} is the last path element of \object{1}
-                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\v{1}}.
+                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\pth{\pathelem{}}{\x{}}})}}{\v{1}}.
 
-                    Since {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\class{1}}},
+                    Since {\opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\pth{\pathelem{}}{\x{}}})}}{\class{1}}},
                     as {\v{1}} = {\class{1}},
                     we can derive from lemma~\ref{appendix:lemma:classconst}
-                    {\satisfies{\openv{}}{\isprop{\class{1}} {\path{\pathelem{}}{\x{}}}}}.
+                    {\satisfies{\openv{}}{\isprop{\class{1}} {\pth{\pathelem{}}{\x{}}}}}.
 
                     By the induction hypothesis we can derive 
-                    {\inpropenv{\propenv{}}{\isprop{\class{1}} {\path{\pathelem{}}{\x{}}}}},
+                    {\inpropenv{\propenv{}}{\isprop{\class{1}} {\pth{\pathelem{}}{\x{}}}}},
                     and with the fact {\issubtypein{}{\class{1}}{\class{2}}}
                     we can use L-Sub to conclude 
-                    {\inpropenv{\propenv{}}{\isprop{\class{2}} {\path{\pathelem{}}{\x{}}}}},
+                    {\inpropenv{\propenv{}}{\isprop{\class{2}} {\pth{\pathelem{}}{\x{}}}}},
                     and finally by lemma~\ref{appendix:lemma:satisfies}
                     we derive
-                    {\satisfies{\openv{}}{\isprop{\class{2}} {\path{\pathelem{}}{\x{}}}}}.
+                    {\satisfies{\openv{}}{\isprop{\class{2}} {\pth{\pathelem{}}{\x{}}}}}.
 
                   \end{subcase}
                 \item[]
@@ -373,40 +373,40 @@
               by cases on the definition of \isacompareliteral{}:
               \begin{itemize} % isacompare
                 \item[]
-                  \begin{subcase}[\isacompare{\s{}}{\path{\classpe{}}{\path{\pathelem{}}{\x{}}}}{\Value{\class{}}}
-                                 {\filterset{\isprop{\class{}} {\path{\pathelem{}}{\x{}}}}
-                                            {\notprop{\class{}}{\path{\pathelem{}}{\x{}}}}}]
+                  \begin{subcase}[\isacompare{\s{}}{\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}}{\Value{\class{}}}
+                                 {\filterset{\isprop{\class{}} {\pth{\pathelem{}}{\x{}}}}
+                                            {\notprop{\class{}}{\pth{\pathelem{}}{\x{}}}}}]
                     \ 
 
 
-                    \object{1} = {\path{\classpe{}}{\path{\pathelem{}}{\x{}}}},
+                    \object{1} = {\pth{\classpe{}}{\pth{\pathelem{}}{\x{}}}},
                     \t{2} = {\Value{\class{}}},
-                    \inpropenv{\notprop{\class{}} {\path{\pathelem{}}{\x{}}}}{\elseprop{\prop{}}}
+                    \inpropenv{\notprop{\class{}} {\pth{\pathelem{}}{\x{}}}}{\elseprop{\prop{}}}
 
                     By inversion on the typing relation, since \classpe{} is the last path element of \object{1}
-                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\path{\pathelem{}}{\x{}}})}}{\v{1}}.
+                    then \opsem{\openv{}}{\appexp{\classconst{}}{\openv{}({\pth{\pathelem{}}{\x{}}})}}{\v{1}}.
                     
                     By the definition of {\classconst{}} either {\v{1}} = {\class{}} or {\v{1}} = \nil{}.
 
                     If {\v{1}} = \nil{}, then we know from the definition of \isaopsemliteral that 
-                    {\openv{}({\path{\pathelem{}}{\x{}}})} = \nil{}.
+                    {\openv{}({\pth{\pathelem{}}{\x{}}})} = \nil{}.
 
-                    Since \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\Nil},
-                    and there is no \v{1} such that both \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\class} and
-                    \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\Nil{}},
+                    Since \judgementtwo{}{\openv{}({\pth{\pathelem{}}{\x{}}})}{\Nil},
+                    and there is no \v{1} such that both \judgementtwo{}{\openv{}({\pth{\pathelem{}}{\x{}}})}{\class} and
+                    \judgementtwo{}{\openv{}({\pth{\pathelem{}}{\x{}}})}{\Nil{}},
                     we use M-NotType to derive 
-                    \satisfies{\openv{}}{\notprop{\class{}} {\path{\pathelem{}}{\x{}}}}.
+                    \satisfies{\openv{}}{\notprop{\class{}} {\pth{\pathelem{}}{\x{}}}}.
 
                     Similarly if {\v{1}} = \class{1}, by the definition of \isacompareliteral
                     we know {\notsubtypein{}{\class{1}}{\class{}}} and 
-                    {\openv{}({\path{\pathelem{}}{\x{}}})} = \class{1}.
+                    {\openv{}({\pth{\pathelem{}}{\x{}}})} = \class{1}.
 
-                    Since \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\class{1}},
+                    Since \judgementtwo{}{\openv{}({\pth{\pathelem{}}{\x{}}})}{\class{1}},
                     and there is no \v{1} such that both 
                     \judgementtwo{}{\v{1}}{\class{}} and
                     \judgementtwo{}{\v{1}}{\class{1}},
                     we use M-NotType to derive 
-                    \satisfies{\openv{}}{\notprop{\class{}} {\path{\pathelem{}}{\x{}}}}.
+                    \satisfies{\openv{}}{\notprop{\class{}} {\pth{\pathelem{}}{\x{}}}}.
 
 
                   \end{subcase}
@@ -438,16 +438,16 @@
                     we derive
                     {\satisfies{\openv{}}{\topprop{}}} with M-Top.
 
-                    Otherwise \object{1} = \path{\pathelem{}}{\x{}} and 
-                    \inpropenv{\notprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}{\elseprop{\prop{}}}.
+                    Otherwise \object{1} = \pth{\pathelem{}}{\x{}} and 
+                    \inpropenv{\notprop{\Value{\singletonmeta{}}}{\pth{\pathelem{}}{\x{}}}}{\elseprop{\prop{}}}.
                     Noting that \v{1} \notequal\ \v{2},
-                    we know \judgementtwo{}{\openv{}({\path{\pathelem{}}{\x{}}})}{\s{}}
+                    we know \judgementtwo{}{\openv{}({\pth{\pathelem{}}{\x{}}})}{\s{}}
                     where \s{} \notequal\ {\Value{\singletonmeta{}}},
                     and there is no \v{1} such that both 
                     \judgementtwo{}{\v{1}}{\Value{\singletonmeta{}}} and
                     \judgementtwo{}{\v{1}}{\s{}}
                     so we can use M-NotType to derive
-                    {\satisfies{\openv{}}{\notprop{\Value{\singletonmeta{}}}{\path{\pathelem{}}{\x{}}}}}.
+                    {\satisfies{\openv{}}{\notprop{\Value{\singletonmeta{}}}{\pth{\pathelem{}}{\x{}}}}}.
                   \end{subcase}
                 \item[]
                   \begin{subcase}[\isacompare{\s{}}{\object{}}{\t{}} {\filterset{\topprop{}} {\topprop{}}}]
@@ -1370,7 +1370,7 @@ by noting \judgementtwo {} {\v{d}} {\t{d}},
                                       {\Union{\Nil}{\Class}}
                                       {\filterset {\topprop{}}
                                                   {\topprop{}}}
-                                      {\path {\classpe{}} {\x{}}}}
+                                      {\pth {\classpe{}} {\x{}}}}
     {\ArrowOne {\x{}} {\s{}}
                                                        {\t{f}}
                                                        {\filterset {\thenprop {\prop{f}}}
@@ -1386,12 +1386,12 @@ by noting \judgementtwo {} {\v{d}} {\t{d}},
                     To prove part 1,
                     note
                     \issubobjin{}{\replacefor {\object{f}} {\object{2}} {\x{}}} {\object{}},
-                    and \issubobjin{}{\path {\classpe{}} {\x{}}}{\object{f}}.
+                    and \issubobjin{}{\pth {\classpe{}} {\x{}}}{\object{f}}.
                     Then either \object{} = \emptyobject{} and we are done,
-                    or \object{} = {\path {\classpe{}}{\object{2}}} and
+                    or \object{} = {\pth {\classpe{}}{\object{2}}} and
                     by the induction hypothesis on \e{2} we know \inopenv {\openv{}} {\object{2}} {\v{2}}
                     and by the definition of path translation we know
-                    {\openv{}}({\path {\classpe{}} {\object{2}}}) = {\appexp {\classconst{}} {{\openv{}}(\object{2})}},
+                    {\openv{}}({\pth {\classpe{}} {\object{2}}}) = {\appexp {\classconst{}} {{\openv{}}(\object{2})}},
                     which evaluates to \v{}.
 
                     Part 2 is trivial since both propositions can only be \topprop{}.
@@ -1865,7 +1865,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
   \issubtypein{}{\Unionsplice {\overrightarrow {\t{i}}}}{\t{}} ,
   \thenprop{\prop{}} = {\topprop{}},
   \elseprop{\prop{}} = {\topprop{}},
-  \issubobjin{}{\replacefor {\path {\keype{k}} {\x{}}}
+  \issubobjin{}{\replacefor {\pth {\keype{k}} {\x{}}}
                           {\object{m}}
                           {\x{}}}
                         {\object{}}
@@ -1877,10 +1877,10 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
          if {\object{m}} = \emptyobject{}
          then \object{} = \emptyobject{} by substitution, which gives the desired result;
            \item
-         if \object{m} = {\path {\pathelem{m}} {\x{m}}}
-         then \issubobjin{}{\path {\keype{k}} {\object{m}}}{\object{}} by substitution.
+         if \object{m} = {\pth {\pathelem{m}} {\x{m}}}
+         then \issubobjin{}{\pth {\keype{k}} {\object{m}}}{\object{}} by substitution.
          We note by the definition of path translation
-         {\openv{}}({\path {\keype{k}} {\object{m}}}) =
+         {\openv{}}({\pth {\keype{k}} {\object{m}}}) =
          {\getexp {{\openv{}}(\object{m})}{\k{}}}
          and by the induction hypothesis on \e{m}
          {{\openv{}}(\object{m})} = {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}},
@@ -1918,7 +1918,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
   \thenprop{\prop{}} = {\topprop{}},
   \elseprop{\prop{}} = {\topprop{}},
   \issubobjin{}{\replacefor
-               {\path {\keype{k}} {\x{}}}
+               {\pth {\keype{k}} {\x{}}}
                           {\object{m}}
                           {\x{}}}
                         {\object{}}
@@ -1943,7 +1943,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
   \thenprop{\prop{}} = {\topprop{}},
   \elseprop{\prop{}} = {\topprop{}},
   \issubobjin{}{\replacefor
-               {\path {\keype{k}} {\x{}}}
+               {\pth {\keype{k}} {\x{}}}
                           {\object{m}}
                           {\x{}}}{\object{}}
 
@@ -1974,7 +1974,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
   \issubtypein{}{\Unionsplice {\overrightarrow {\t{i}}}}{\t{}},
   \thenprop{\prop{}} = {\topprop{}},
   \elseprop{\prop{}} = {\topprop{}},
-  \issubobjin{}{\replacefor {\path {\keype{k}} {\x{}}}
+  \issubobjin{}{\replacefor {\pth {\keype{k}} {\x{}}}
                           {\object{m}}
                           {\x{}}}{\object{}}
 
@@ -1996,7 +1996,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
   \thenprop{\prop{}} = {\topprop{}},
   \elseprop{\prop{}} = {\topprop{}},
   \issubobjin{}{\replacefor
-               {\path {\keype{k}} {\x{}}}
+               {\pth {\keype{k}} {\x{}}}
                           {\object{m}}
                           {\x{}}}{\object{}}
 
@@ -2006,10 +2006,10 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
          if {\object{m}} = \emptyobject{}
          then \object{} = \emptyobject{} by substitution, which gives the desired result;
            \item
-         if \object{m} = {\path {\pathelem{m}} {\x{m}}}
-         then \issubobjin{}{\path {\keype{k}} {\object{m}}}{\object{}} by substitution.
+         if \object{m} = {\pth {\pathelem{m}} {\x{m}}}
+         then \issubobjin{}{\pth {\keype{k}} {\object{m}}}{\object{}} by substitution.
          We note by the definition of path translation
-         {\openv{}}({\path {\keype{k}} {\object{m}}}) =
+         {\openv{}}({\pth {\keype{k}} {\object{m}}}) =
          {\getexp {{\openv{}}(\object{m})}{\k{}}}
          and by the induction hypothesis on \e{m}
          {{\openv{}}(\object{m})} = {\curlymap{\overrightarrow{({\v{a}}\ {\v{b}})}}},
@@ -2046,7 +2046,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
   \thenprop{\prop{}} = {\topprop{}},
   \elseprop{\prop{}} = {\topprop{}},
   \issubobjin{}{\replacefor
-               {\path {\keype{k}} {\x{}}}
+               {\pth {\keype{k}} {\x{}}}
                           {\object{m}}
                           {\x{}}}{\object{}}
 

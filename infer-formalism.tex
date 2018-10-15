@@ -1,4 +1,4 @@
-\chapter{Formalism}
+\Dchapter{Formalism}
 
 We present \lambdatrack{}, an untyped $\lambda$-calculus
 that describes the essense of our approach to automatic annotations.
@@ -51,7 +51,7 @@ $$
 \annotatenoalign{\appexp{f}{\curlymap{\makekw{a}\ 42}}}{[f]}{\{\hastype{f}{[\{\makekw{a}\ \IntT{}\} \rightarrow \IntT{}]}\}}
 $$
 
-\section{Collection phase}
+\Dsection{Collection phase}
 
 Now that we have a high-level picture of how these phases interact,
 we describe the syntax and semantics of \lambdatrack{}, before
@@ -360,7 +360,7 @@ Here is the full derivation:
 Notice that intermediate values can have inference results (colored) attached to them with a semicolon,
 and the final value has inference results about both $f$'s domain and range.
 
-\section{Inference phase}
+\Dsection{Inference phase}
 
 After the collection phase, we have a collection of inference results \res{}
 which can be passed to the 
@@ -385,7 +385,7 @@ nested type into possibly recursive types. % (\figref{infer:fig:squashlocal}).
 The third pass $\squashglobal{} (\atenv{}) = \atenvp{}$
 merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:squashglobal}).
 
-\subsection{Pass 1: Generating initial type environment}
+\Dsubsection{Pass 1: Generating initial type environment}
 
 The first pass is given in \figref{infer:fig:generatetenv}.
 
@@ -641,23 +641,23 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \end{array}
     \\\\
     \textsf{groupSimilarReq} : \atenv{} \rightarrow \ova{\ova{\alias{}}}\\
-    \textsf{groupSimilarReq}(\atenv{}) = \textsf{r}'\\
+    \textsf{groupSimilarReq}(\atenv{}) = 
+                   [\ova{\alias{}} | \ova{\kw{}} \in \textsf{dom}(\textsf{r}),
+                                     \ova{\alias{}} = \textsf{remDiffTag}(\textsf{similarReq}(\ova{\kw{}}))
+                                     ]\\
     \begin{array}{lllll}
-      \text{where} &\textsf{r} = [(\ova{\kw{}}, \ova{\alias{}}) | \HMaptwo{\{\ova{\kw{}\ \t{}}\}}{\HMapopt{}} \in \textsf{rng}(\atenv{}[\aenv{}]),
-                                                                              \ova{\alias{}} = \textsf{matchingReq}(\ova{\kw{}})]\\
-                   &\textsf{r}' = [(\ova{\kw{}}, \ova{\alias{}}) | \ova{\kw{}} \in \textsf{dom}(\textsf{r}),
-                                                                              \ova{\alias{}} = \textsf{remDiffTag}(\textsf{similarReq}(\ova{\kw{}}))
-                                                                              ]\\
+      \text{where} &\textsf{r} = \{(\ova{\kw{}}, \ova{\alias{}}) | \HMaptwo{\{\ova{\kw{}\ \t{}}\}}{\HMapopt{}} \in \textsf{rng}(\atenv{}[\aenv{}]),
+                                                                              \ova{\alias{}} = \textsf{matchingReq}(\ova{\kw{}})\}\\
                    &\textsf{matchingReq}(\ova{\kw{}}) = [\alias{} | (\alias{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) \in \atenv{}]\\
                    &\textsf{similarReq}(\ova{\kw{}}) = [\alias{} | \ova{\kwp{}}^n \subseteq \ova{\kw{}}^m,
-                                                                   n \leq \textsf{thres}(m),
+                                                                   m-n \leq \textsf{thres}(m),
                                                                    \alias{} \in \textsf{r}[\ova{\kwp{}}]]\\
                    &\textsf{remDiffTag}(\ova{\alias{}}) = [\aliasp{} | \aliasp{} \in \ova{\alias{}},
                                                                        \text{ if } (\kw{}, \kwp{}) \in \textsf{req}(\atenv{}, \aliasp{})
                                                                        \text{ and } 
                                                                        \bigvee\ova{(\kw{}, \kwpp{}) \in \textsf{req}(\atenv{}, \alias{})}
                                                                        \text{ then }
-                                                                       \kwp{} = \kwpp{}
+                                                                       \ova{\kwp{} = \kwpp{}}
                                                                       ]
     \end{array}
     \\\\
@@ -671,6 +671,14 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   \begin{array}{lllll}
     \inferrecOp{} : \tenv{} \rightarrow \atenv{}\\
     \inferrecOp{} = \squashglobal{} \circ \squashlocal{}
+  \end{array}
+  \begin{array}{lllll}
+    \\\\
+    \squashhorizonally{} : \atenv{} \rightarrow \atenv{}\\
+    \squashhorizonally{}(\atenv{}) = \atenvp{}\\
+    \begin{array}{lllll}
+      \text{where } &\atenvp{} = \textsf{fold}(\mergealiases{}, \atenv{}, \textsf{groupSimilarReq}(\atenv{}))\\
+    \end{array}
   \end{array}
 \end{mathpar}
 \caption{

@@ -140,32 +140,47 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
   stringstyle=\color{stringgray}\textit,     % string literal style
 }
 
+\lstnewenvironment{cljlisting}
+{\either{\singlespacing}{}}
+{}
+
 \usepackage{amsmath}
 \DeclareMathSymbol{\Gamma}{\mathalpha}{operators}{0}
 
 \newcommand\smallsection[1]{\textbf{\emph{#1}}}
 
 \usepackage{amsthm}
-\newcommand{\@dotsep}{12}
-\usepackage{thmtools}
 
-% commented out to use thmtools instead
-%\newtheorem{assumption}{Assumption}
-%\newtheorem{lemma}{Lemma}
-%\newtheorem{theorem}{Theorem}
-%\newtheorem{corollary}{Corollary}
-%\newtheorem{definition}{Definition}
+\usepackage{suffix}
 
-\declaretheorem[numberwithin=chapter]{assumption}
-\declaretheorem[numberwithin=chapter]{lemma}
-\declaretheorem[numberwithin=chapter]{theorem}
-\declaretheorem[numberwithin=chapter]{corollary}
-\declaretheorem[numberwithin=chapter]{definition}
-%\declaretheorem[numberwithin=chapter, name=Assumption]{assumption}
-%\declaretheorem[numberwithin=chapter, name={Lemma}]{lemma}
-%\declaretheorem[numberwithin=chapter, name={Theorem}]{theorem}
-%\declaretheorem[numberwithin=chapter, name={Corollary}]{corollary}
-%\declaretheorem[numberwithin=chapter, name={Definition}]{definition}
+\newcommand\Dchapter[1]{\either{\chapter{#1}}{\section{#1}}}
+\newcommand\Dsection[1]{\either{\section{#1}}{\subsection{#1}}}
+\WithSuffix\newcommand\Dsection*[1]{\either{\section*{#1}}{\subsection*{#1}}}
+\newcommand\Dsubsection[1]{\either{\subsection{#1}}{\subsubsection{#1}}}
+
+\ifdefined\DISSERTATION
+  \newcommand{\@dotsep}{12}
+  \usepackage{thmtools}
+
+  % commented out to use thmtools instead
+  %\newtheorem{assumption}{Assumption}
+  %\newtheorem{lemma}{Lemma}
+  %\newtheorem{theorem}{Theorem}
+  %\newtheorem{corollary}{Corollary}
+  %\newtheorem{definition}{Definition}
+
+  \declaretheorem[numberwithin=chapter]{assumption}
+  \declaretheorem[numberwithin=chapter]{lemma}
+  \declaretheorem[numberwithin=chapter]{theorem}
+  \declaretheorem[numberwithin=chapter]{corollary}
+  \declaretheorem[numberwithin=chapter]{definition}
+
+  %\declaretheorem[numberwithin=chapter, name=Assumption]{assumption}
+  %\declaretheorem[numberwithin=chapter, name={Lemma}]{lemma}
+  %\declaretheorem[numberwithin=chapter, name={Theorem}]{theorem}
+  %\declaretheorem[numberwithin=chapter, name={Corollary}]{corollary}
+  %\declaretheorem[numberwithin=chapter, name={Definition}]{definition}
+\fi
 
 \theoremstyle{remark}
 \newtheorem*{case}{Case}

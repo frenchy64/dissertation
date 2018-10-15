@@ -77,10 +77,10 @@ called an \emph{object}.
 %with respect to the current lexical environment. 
 For example,
   variable \makelocal{m} has object \makelocal{m};
-  $\appexpone{\ccclass{\appexp{\makekw{lunch}}{\makelocal{m}}}}$ has object ${\path{\classpe{}}{\path{\keype{\makekw{lunch}}}{\makelocal{m}}}}$; and $42$ has the \emph{empty} object \emptyobject{} since it is unimportant in our system.
+  $\appexpone{\ccclass{\appexp{\makekw{lunch}}{\makelocal{m}}}}$ has object ${\pth{\classpe{}}{\pth{\keype{\makekw{lunch}}}{\makelocal{m}}}}$; and $42$ has the \emph{empty} object \emptyobject{} since it is unimportant in our system.
 %
 \figref{main:figure:termsyntax} gives the syntax for objects \object{}---non-empty objects 
-\path{\pathelem{}}{\x{}} combine of a root variable \x{} and a \emph{path} \pathelem{},
+\pth{\pathelem{}}{\x{}} combine of a root variable \x{} and a \emph{path} \pathelem{},
 which consists of
 a possibly-empty sequence of \emph{path elements} (\pesyntax{}) applied right-to-left from the root variable.
 We use two path elements---{\classpe{}} and {\keype{k}}---representing the results
@@ -148,7 +148,7 @@ $
 { \inpropenv {\propenv{}} {\isprop {\t{}}{\x{}}}}
 $
 appeals to the proof system to solve for \t{}.
-%says under logical assumptions {\propenv{}}, object {\path{\pathelem{}}{\x{}}} is of type \t{}.
+%says under logical assumptions {\propenv{}}, object {\pth{\pathelem{}}{\x{}}} is of type \t{}.
 %We later define the more general T-Local.
 
 \begin{figure}[t!]
@@ -198,9 +198,9 @@ We further extend logical statements to \emph{propositional logic}.
 \figref{main:figure:termsyntax} describes the syntax
 for propositions \prop{},
 consisting of positive and negative \emph{type propositions} 
-about non-empty objects---{\isprop {\t{}} {\path {\pathelem{}} {\x{}}}}
-and {\notprop {\t{}} {\path {\pathelem{}} {\x{}}}}
-respectively---the latter pronounced ``the object {\path {\pathelem{}} {\x{}}} is \emph{not} of type \t{}''.
+about non-empty objects---{\isprop {\t{}} {\pth {\pathelem{}} {\x{}}}}
+and {\notprop {\t{}} {\pth {\pathelem{}} {\x{}}}}
+respectively---the latter pronounced ``the object {\pth {\pathelem{}} {\x{}}} is \emph{not} of type \t{}''.
 The other propositions are standard logical connectives: implications, conjunctions,
 disjunctions, and the trivial (\topprop{}) and impossible (\botprop{}) propositions.
 %
@@ -229,7 +229,7 @@ as a proposition.
 In the ${\makekw{combo}}$ method, we know
 ${\appexp{\makekw{Meal}}{\makelocal{o}}}$ is ${\makekw{combo}}$,
 based on multimethod dispatch rules. This is written
-  {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}},
+  {\isprop{\Value{\makekw{combo}}}{\pth{\keype{\makekw{Meal}}}{\makelocal{o}}}},
 pronounced ``the ${\makekw{Meal}}$ path of variable \makelocal{o} is of type
 {\Value{\makekw{combo}}}''.
 
@@ -244,7 +244,7 @@ $,
 under proposition environment
 $
 \propenv{} = {{\isprop{\Order}{\makelocal{o}}},
-    {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
+    {\isprop{\Value{\makekw{combo}}}{\pth{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
 $
 which deduces \t{} to be a {\makekw{combo}} meal.
 The logical
@@ -1043,7 +1043,7 @@ rules that rewrite to reflective calls.
 %We refer to parts of the runtime environment via 
 %a \emph{path} that consists of a series of
 %\emph{path elements} applied right-to-left to a variable
-%written \path{\pathelem{}}{\x{}}.
+%written \pth{\pathelem{}}{\x{}}.
 %\cite{TF10} introduce the path elements \carpe{} and \cdrpe{}
 %to reason about selector operations on cons cells.
 %We instead want to reason about HMap lookups and calls to \classconst{}.
@@ -1075,16 +1075,16 @@ rules that rewrite to reflective calls.
 %We start with proposition environment \propenv{} = {\isprop{\Expr{}}{m}}.
 %Since {\Expr{}} is a union of HMaps, each with the entry \makekw{op}, we can use T-GetHMap.
 %$$
-%\judgement{\propenv{}}{\getexp{m}{\makekw{op}}}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\path{\keype{\makekw{op}}}{m}}
+%\judgement{\propenv{}}{\getexp{m}{\makekw{op}}}{\Keyword}{\filterset{\topprop{}}{\topprop{}}}{\pth{\keype{\makekw{op}}}{m}}
 %$$
 %Using our intuitive definition of \equivliteral{} above, we know
 %$$
-%\judgement{\propenv{}}{\equivapp{\getexp{m}{\makekw{op}}}{\makekw{if}}}{\Boolean}{\filterset{\isprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}{\notprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}}{\emptyobject{}}
+%\judgement{\propenv{}}{\equivapp{\getexp{m}{\makekw{op}}}{\makekw{if}}}{\Boolean}{\filterset{\isprop{\Value{\makekw{if}}}{\pth{\keype{\makekw{op}}}{m}}}{\notprop{\Value{\makekw{if}}}{\pth{\keype{\makekw{op}}}{m}}}}{\emptyobject{}}
 %$$
 %Going down the then branch gives us the extended environment
-%\propenvp{} = {\isprop{\Expr{}}{m}},{\isprop{\Value{\makekw{if}}}{\path{\keype{\makekw{op}}}{m}}}.
+%\propenvp{} = {\isprop{\Expr{}}{m}},{\isprop{\Value{\makekw{if}}}{\pth{\keype{\makekw{op}}}{m}}}.
 %Using L-Update we can combine what we know about object $m$ and object
-%{\path{\keype{\makekw{op}}}{m}}
+%{\pth{\keype{\makekw{op}}}{m}}
 %to derive
 %$$
 %\inpropenv{\propenvp{}}{\isprop{\HMapp{\mandatoryset{{\mandatoryentrykwnoarrow{op}{\makekw{if}}}, {\mandatoryentrykwnoarrow{test}{\Expr{}}},
@@ -1137,11 +1137,11 @@ the expression
 \isaapp{\appexp{\classconst{}}{\x{}}}{\Keyword}
 is true if \x{} is a keyword, otherwise false.
 When checked with T-IsA,
-the object of the left subexpression \object{} = {\path{\classpe{}}{\x{}}}
+the object of the left subexpression \object{} = {\pth{\classpe{}}{\x{}}}
 (which starts with the {\classpe{}} path element)
 and the type of the right subexpression \t{} = {\Value{\Keyword}} (a singleton class type)
 together trigger the first \isacompareliteral{} case
-\isacompare{\s{}}{\path{\classpe{}}{\x{}}}{\Value{\Keyword}}{\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}},
+\isacompare{\s{}}{\pth{\classpe{}}{\x{}}}{\Value{\Keyword}}{\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}},
 giving propositions that correspond to our informal description {\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}} = {\filterset{\isprop{\Keyword}{\x{}}}{\notprop{\Keyword}{\x{}}}}.
 
 The second \isacompareliteral{} case captures the simple equality mode for non-class singleton types.
@@ -1351,7 +1351,7 @@ method is checked independently based on local type information.
 %  {\MultiFntype {\s{}}{\sp{}}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
 %$$
 %where \s{}  = {\ArrowOne {\x{}} {\Top{}} {\t{}} {\filterset {\topprop{}} {\topprop{}}} {\emptyobject{}}}
-%  and \sp{} = {\ArrowOne {\x{}} {\Top{}} {\Union{\Nil}{\Class}} {\filterset {\topprop{}} {\topprop{}}} {\path{\classpe{}}{\x{}}}}.
+%  and \sp{} = {\ArrowOne {\x{}} {\Top{}} {\Union{\Nil}{\Class}} {\filterset {\topprop{}} {\topprop{}}} {\pth{\classpe{}}{\x{}}}}.
 %  Since the parameter types agree, this is well-typed.
 %
 %The T-DefMethod rule requires a syntactic lambda expression as the method.
@@ -1379,7 +1379,7 @@ method is checked independently based on local type information.
 %%This is checked by T-Local since {\inpropenv{\propenv{},{\isprop{\Top}{\x{}}},{\isprop{\String}{\x{}}}}{\isprop{\String}{\x{}}}}.
 %The new proposition {\isprop{\String}{\x{}}} is derived by 
 %$$
-%  \isacompare{\Top{}}{\path{\classpe{}}{\x{}}}{\Value{\File{}}}
+%  \isacompare{\Top{}}{\pth{\classpe{}}{\x{}}}{\Value{\File{}}}
 %             {\filterset{\isprop{\String}{\x{}}}
 %                        {\notprop{\String}{\x{}}}}.
 %$$
@@ -1508,18 +1508,18 @@ A mandatory lookup is checked by T-GetHMap.
 $$
 \abs{\makelocal{b}}{\Breakfast}{\getexp{\makelocal{b}}{\makekw{en}}}
 $$
-The result type is \String, and the return object is \path{\keype{\makekw{en}}}{\makelocal{b}}.
-The object {\replacefor {\path {\keype{k}} {\x{}}} {\object{}} {\x{}}}
+The result type is \String, and the return object is \pth{\keype{\makekw{en}}}{\makelocal{b}}.
+The object {\replacefor {\pth {\keype{k}} {\x{}}} {\object{}} {\x{}}}
 is a symbolic representation for a keyword lookup of $k$ in \object{}.
 The substitution for {\x{}} handles the case where \object{} is empty.
 
 \begin{mathpar}
 \begin{array}{rcl}
-{\replacefor {\path {\keype{k}} {\x{}}} {\y{}} {\x{}}} &=& {\path {\keype{k}} {\y{}}} \\
+{\replacefor {\pth {\keype{k}} {\x{}}} {\y{}} {\x{}}} &=& {\pth {\keype{k}} {\y{}}} \\
 \end{array}
 \ \ \ \ \ \ \ 
 \begin{array}{rcl}
-{\replacefor {\path {\keype{k}} {\x{}}} {\emptyobject{}} {\x{}}} &=& \emptyobject{}
+{\replacefor {\pth {\keype{k}} {\x{}}} {\emptyobject{}} {\x{}}} &=& \emptyobject{}
 \end{array}
 \end{mathpar}
 
@@ -1527,14 +1527,14 @@ An absent lookup is checked by T-GetHMapAbsent.
 $$
 \abs{\makelocal{b}}{\Breakfast}{\getexp{\makelocal{b}}{\makekw{bocce}}}
 $$
-The result type is \Nil---since \Breakfast is fully specified---with return object \path{\keype{\makekw{bocce}}}{\makelocal{b}}.
+The result type is \Nil---since \Breakfast is fully specified---with return object \pth{\keype{\makekw{bocce}}}{\makelocal{b}}.
 
 A lookup that is not present or absent is checked by
 T-GetHMapPartialDefault.
 $$
 \abs{\makelocal{u}}{\Lunch}{\getexp{\makelocal{u}}{\makekw{bocce}}}
 $$
-The result type is \Top---since {\Lunch} has an unknown \makekw{bocce} entry---with return object \path{\keype{\makekw{bocce}}}{\makelocal{u}}.
+The result type is \Top---since {\Lunch} has an unknown \makekw{bocce} entry---with return object \pth{\keype{\makekw{bocce}}}{\makelocal{u}}.
 Notice propositions are erased once they enter a HMap type.
 
 For presentational reasons, lookups on unions of HMaps are only supported in T-GetHMap
@@ -1542,7 +1542,7 @@ and each element of the union must contain the relevant key.
 $$
 \abs{\makelocal{u}}{\Unionsplice{\Breakfast \Lunch}}{\getexp{\makelocal{u}}{\makekw{en}}}
 $$
-The result type is \String, and the return object is \path{\keype{\makekw{en}}}{\makelocal{u}}.
+The result type is \String, and the return object is \pth{\keype{\makekw{en}}}{\makelocal{u}}.
 However, lookups of \makekw{bocce} on {\Unionsplice{\Breakfast \Lunch}} maps are unsupported.
 This restriction still allows us to check many of the examples in \secref{sec:overview}---in
 particular we can check 
@@ -1626,12 +1626,12 @@ $$
 }
 
 It says
-under \propenv{}, if object \path{\pathelemp{}}{\x{}} is of type \t{}, and 
+under \propenv{}, if object \pth{\pathelemp{}}{\x{}} is of type \t{}, and 
 an extension
-\path{\pathelem{}}{\path{\pathelemp{}}{\x{}}}
+\pth{\pathelem{}}{\pth{\pathelemp{}}{\x{}}}
 is of possibly-negative type \propisnotmeta{}, then
 {\update{\t{}}{\propisnotmeta{}}{\pathelem{}}}
-is \path{\pathelemp{}}{\x{}}'s type under \propenv{}.
+is \pth{\pathelemp{}}{\x{}}'s type under \propenv{}.
 
 Recall \egref{example:desserts-on-meal}.
 %, resuming from
@@ -1640,7 +1640,7 @@ Solving
 $
 { \inpropenv 
   {{\isprop{\Order}{\makelocal{o}}},
-    {\isprop{\Value{\makekw{combo}}}{\path{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
+    {\isprop{\Value{\makekw{combo}}}{\pth{\keype{\makekw{Meal}}}{\makelocal{o}}}}}
   {\isprop {\t{}} {\makelocal{o}}}}
 $
 uses L-Update, where \pathelem{} = {\emptypath{}} and \pathelemp{} = [{\keype{\makekw{Meal}}}].
