@@ -266,7 +266,7 @@ The other cases are straightforward.
                    {\inferpath{}}
                    {\closure{\uabs{\y{}}
                                   {\trackE{\appexp{\uabs{\x{}}{\e{}}}
-                                                  {\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}})}}
+                                                  {\trackE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}}}
                                           {\appendone{\inferpath{}}{\rngpe{}}}}}
                             {\openv{}}}
                    {\emptyres{}}
@@ -491,8 +491,9 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \begin{array}{lllll}
       \text{where} %&\textsf{f} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
                    &\textsf{f}(\atenv{}, {\HMaptwo{\HMapreq{1}}{\HMapreq{2}}}) = \register{}(\atenv{},\HMaptwo{\HMapreq{1}}{\HMapreq{2}})\\
-                   &\textsf{f}(\atenv{}, \Unionsplice{\ova{\t{}}}) = \register{}(\atenv{},\Unionsplice{\ova{\textsf{resolve}(\t{})}}) \text{,}\\
-                   &\text{ if } \exists\t{}(\ova{\s{}}^m) \in\ova{\t{}} .\ m > 0\\
+                   &\textsf{f}(\atenv{}, \Unionsplice{\ova{\t{}}}) = \register{}(\atenv{},\Unionsplice{\ova{\fullyresolve{}(\t{})}}) \text{,}\\
+                   %&\text{ if } \exists\t{}(\ova{\s{}}^m) \in\ova{\t{}} .\ m > 0\\
+                   &\text{ if } \alias{} \in\ova{\t{}}\\
                    &\textsf{f}(\atenv{}, \t{}) = (\atenv{}, \t{}), \text{otherwise}
     \end{array}
   \end{array}
@@ -500,9 +501,9 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \register{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
     \register{}(\atenv{}, \t{}) = (\updatemap{\atenv{}}{\alias{}}{\t{}}, \alias{}), \text{ where } \alias{} \text{ is fresh}
     \\\\
-    \textsf{resolve} : \atenv{}, \t{} \rightarrow \t{}\\
-    \textsf{resolve}(\atenv{}, \alias{}) = \textsf{resolve}(\atenv{}[\alias{}])\\
-    \textsf{resolve}(\atenv{}, \t{}) = \t{}  \text{, otherwise}
+    \fullyresolve{} : \atenv{}, \t{} \rightarrow \t{}\\
+    \fullyresolve{}(\atenv{}, \alias{}) = \fullyresolve{}(\atenv{}[\alias{}])\\
+    \fullyresolve{}(\atenv{}, \t{}) = \t{}  \text{, otherwise}
   \end{array}
 
   \begin{array}{lllll}
@@ -521,7 +522,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
     \\
     \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
     \begin{array}{llll}
-      \textsf{if } \neg \shouldmergeOp{}(\ova{\textsf{resolve}(\alias{})}) \textsf{ then } \atenv{}\\
+      \textsf{if } \neg \shouldmergeOp{}(\ova{\fullyresolve{}(\atenv{}, \alias{})}) \textsf{ then } \atenv{}\\
       \textsf{else } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
                                {\alias{1}}
                                % this fixes the "too much garbage" issue
@@ -619,11 +620,37 @@ The first pass is given in \figref{infer:fig:generatetenv}.
                     &\textsf{f}(\atenv{}, \t{}) = \singlehmap{}(\atenv{}, \t{}) \text{, otherwise}
     \end{array}
     \\\\
+    \mergealiases{} : \atenv{}, \ova{\alias{}} \rightarrow \atenv{}\\
+    \mergealiases{}(\atenv{}, []) = \atenv{}\\
+    \mergealiases{}(\atenv{}, \append{\alias{}}{\ova{\aliasp{}}}) =
+        \updatemap{\updatemapmulti{\atenv{}}{\aliasp{i}}{\alias{}}}{\alias{}}{\s{}}\\\
+    \begin{array}{llll}
+      \text{where } &\s{} = \joinexpression{\joinstarexpression{\ova{\textsf{f}(\fullyresolve{}(\atenv{},\aliasp{}))}}}
+                                           {\textsf{f}(\fullyresolve{}(\atenv{},\alias{}))}
+                    \\
+                    &\textsf{f}(\aliaspp{}) = \EmptyUnion{}, \text{ if } \aliaspp{} \in \append{\alias{}}{\ova{\aliasp{}}}\\
+                    &\textsf{f}(\Unionsplice{\ova{\t{}}}) = \Unionsplice{\ova{\textsf{f}(\t{})}}\\
+                    &\textsf{f}(\t{}) = \t{} \text{, otherwise}
+    \end{array}
+    \\\\
     \singlehmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
     \singlehmap{}(\atenv{}, \t{}) = \textsf{postwalk}(\atenv{}, \t{}, \textsf{f})\\
     \begin{array}{lllll}
       \text{where} &\textsf{f}(\atenv{}, {\HMaptwo{\HMapreq{1}}{\HMapreq{2}}}) = \register{}(\atenv{},\HMaptwo{\HMapreq{1}}{\HMapreq{2}})\\
                    &\textsf{f}(\atenv{}, \t{}) = (\atenv{}, \t{}), \text{otherwise}
+    \end{array}
+    \\\\
+    \textsf{groupSimilarReq} : \atenv{} \rightarrow \ova{\ova{\alias{}}}\\
+    \textsf{groupSimilarReq}(\atenv{}) = \textsf{r}'\\
+    \begin{array}{lllll}
+      \text{where} &\textsf{r} = [(\ova{\kw{}}, \ova{\alias{}}) | \HMaptwo{\{\ova{\kw{}\ \t{}}\}}{\HMapopt{}} \in \textsf{rng}(\atenv{}[\aenv{}]),
+                                                                              \ova{\alias{}} = \textsf{matchingReq}(\ova{\kw{}})]\\
+                   &\textsf{r}' = [(\ova{\kw{}}, \ova{\aliasp{}}) | (\ova{\kw{}}, \ova{\alias{}}) \in \textsf{r},
+                                                                              \ova{\aliasp{}} = \textsf{similarReq}(\ova{\kw{}})]\\
+                   &\textsf{matchingReq}(\ova{\kw{}}) = [\alias{} | (\alias{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) \in \atenv{}]\\
+                   &\textsf{similarReq}(\ova{\kw{}}) = [\alias{} | \ova{\kwp{}}^n \subseteq \ova{\kw{}}^m,
+                                                                   n \leq \textsf{thres}(m),
+                                                                   \alias{} \in \textsf{r}[\ova{\kwp{}}]]
     \end{array}
   \end{array}
 

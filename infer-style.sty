@@ -54,6 +54,7 @@
 
 %env update
 \newcommand\updatemap[3]{\ma{#1 [#2 \mapsto #3]}}
+\newcommand\updatemapmulti[3]{\ma{#1 [\ova{#2 \mapsto #3}]}}
 
 % algorithm
 \newcommand\infermetafnfont[1]{\ma{\mathsf{#1}}}
@@ -64,11 +65,13 @@
 \newcommand\inferrecOp[0]{\infermetafnfont{inferRec}}
 \newcommand\squashall[0]{\infermetafnfont{squashAll}}
 \newcommand\squash[0]{\infermetafnfont{squash}}
-\newcommand\trymergealias[0]{\infermetafnfont{mrgAlias}}
+\newcommand\trymergealias[0]{\infermetafnfont{tryMerge}}
+\newcommand\mergealiases[0]{\infermetafnfont{mergeAliases}}
 \newcommand\deepkeysets[0]{\infermetafnfont{keysets}}
 \newcommand\aliasesin[0]{\infermetafnfont{aliases}}
 \newcommand\shouldmergeOp[0]{\infermetafnfont{merge?}}
 \newcommand\register[0]{\infermetafnfont{reg}}
+\newcommand\fullyresolve[0]{\infermetafnfont{resolve}}
 \newcommand\squashhorizonally[0]{squashHorizontally} %% TODO needs definition!
 \newcommand\aliassinglehmap[0]{\infermetafnfont{aliasSingleHMap}}
 \newcommand\singlehmap[0]{\infermetafnfont{singleHMap}}
