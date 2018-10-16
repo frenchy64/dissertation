@@ -2460,7 +2460,7 @@ $$
 
 % constants syntax
 \newcommand\constantssyntax[0]{
-  {\const{}}           &::=& \classconst \alt \numberhuh
+  {\const{}}           &::=& \classconst{} \alt \numberhuh{}
 
                 &\mbox{Constants}
               }
@@ -2624,19 +2624,19 @@ $$
 
 \newcommand\constanttypefigure[0]{
 \begin{array}{lllr}
-  \constanttype{\classconst} &=& {\ArrowOne {\x{}} {\Top{}}
+  \constanttype{\classconst{}} &=& {\ArrowOne {\x{}} {\Top{}}
                                       {\Union{\nil{}}{\Class{}}}
                                       {\filterset {\topprop{}}
                                                   {\topprop{}}}
                                       {\pth {\classpe{}} {\x{}}}}\\
-  \constanttype{\numberhuh} &=& {\ArrowOne {\x{}} {\Top{}}
+  \constanttype{\numberhuh{}} &=& {\ArrowOne {\x{}} {\Top{}}
                                       {\Boolean{}}
                                       {\filterset {\isprop{\Number{}}{\x{}}}
                                                   {\notprop{\Number{}}{\x{}}}}
                                       {\emptyobject{}}}
 %                                      \\
 %
-%  \constanttype{\throwconst} &=& {\ArrowOne {\x{}} {\Top{}}
+%  \constanttype{\throwconst{}} &=& {\ArrowOne {\x{}} {\Top{}}
 %                                      {\Bot{}}
 %                                      {\filterset {\botprop{}}
 %                                                  {\botprop{}}}
@@ -2650,23 +2650,23 @@ $$
 \begin{mathpar}
 
 \begin{array}{lllr}
-\constantopsem{\classconst}{\classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}} &=& \class{}\\
-\constantopsem{\classconst}{\class{}} &=& \Class{}\\
-\constantopsem{\classconst}{\closure {\openv{}} {\abs {\x{}} {\t{}} {\e{}}}} &=& \IFn{}\\
-\constantopsem{\classconst}{\multi {\v{d}} {\disptable{}}} &=& \PMulti{}\\
-\constantopsem{\classconst}{\mapval{}} &=& \HMapInstance{}\\
-\constantopsem{\classconst}{\k{}} &=& \Keyword{}\\
-\constantopsem{\classconst}{\num{}} &=& \Number{}
+\constantopsem{\classconst{}}{\classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}} &=& \class{}\\
+\constantopsem{\classconst{}}{\class{}} &=& \Class{}\\
+\constantopsem{\classconst{}}{\closure {\openv{}} {\abs {\x{}} {\t{}} {\e{}}}} &=& \IFn{}\\
+\constantopsem{\classconst{}}{\multi {\v{d}} {\disptable{}}} &=& \PMulti{}\\
+\constantopsem{\classconst{}}{\mapval{}} &=& \HMapInstance{}\\
+\constantopsem{\classconst{}}{\k{}} &=& \Keyword{}\\
+\constantopsem{\classconst{}}{\num{}} &=& \Number{}
 \end{array}
 \begin{array}{lllr}
-\constantopsem{\classconst}{\true{}} &=& \Boolean{}\\
-\constantopsem{\classconst}{\false{}} &=& \Boolean{}\\
-\constantopsem{\classconst}{\nil{}} &=& \nil{}
+\constantopsem{\classconst{}}{\true{}} &=& \Boolean{}\\
+\constantopsem{\classconst{}}{\false{}} &=& \Boolean{}\\
+\constantopsem{\classconst{}}{\nil{}} &=& \nil{}
 % never is wrong
-  %\constantopsem{\classconst}{\v{}} &=& \wrong{} & otherwise\\
+%\constantopsem{\classconst{}}{\v{}} &=& \wrong{} & otherwise\\
   \\\\
-\constantopsem{\numberhuh}{\num{}} &=& \true{}\\
-\constantopsem{\numberhuh}{\e{}} &=& \false{} \\
+\constantopsem{\numberhuh{}}{\num{}} &=& \true{}\\
+\constantopsem{\numberhuh{}}{\e{}} &=& \false{} \\
 \ \ \ \ otherwise\\
 %  \\\\
 \end{array}

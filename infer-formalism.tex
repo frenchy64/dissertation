@@ -69,7 +69,7 @@ The special form
 observes {\e{}} as related to path {\inferpath{}}.
 Paths \inferpath{} 
 record the source of a runtime value with respect
-to a sequence of path elements \pth{}, which always starts with
+to a sequence of path elements \inferpth{}, which always starts with
 a variable \x{}, and are read left-to-right.
 Other path elements are
 a function domain \dompe{}, 
@@ -114,13 +114,13 @@ them to have optional entries in later phases.
        &\mbox{Expressions} \\
     \openv{} &::=& \{\ova{x \mapsto \val{}}\}
        &\mbox{Runtime environments} \\
-   \pth{}
+   \inferpth{}
       &::=& \x{}
        \alt \dompe{}
        \alt \rngpe{}
        \alt {\inferkeype{\HMapreq{}}{\kw{}}}
        &\mbox{Path Elements} \\
-   \inferpath{} &::=& \ova{\pth{}}
+   \inferpath{} &::=& \ova{\inferpth{}}
        &\mbox{Paths} \\
        \res{}
       &::=& \restwoarrow{\inferpath{}}{\tau{}}
@@ -193,13 +193,8 @@ The other cases are straightforward.
 % track is inserted manually
 
   \begin{array}{llll}
-    \infer [B-Var]
-    {}
-    { \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
-    }
-    \\\\
     \infer [B-Track]
-    { \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\
+    { \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\\\
     \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\resp{}}}
     { \opsemtrack{\openv{}}{\trackE{\e{}}{\inferpath{}}}{\vp{}}{\unionres{\res{}}{\resp{}}}
     }
@@ -210,7 +205,7 @@ The other cases are straightforward.
   \opsemtrack{\openv{}}{\e{2}}{\v{}}{\res2} \\\\
   \opsemtrack{\extendopenv{\openvp{}}{\x{}}{\v{}}}{\e{}}{\vp{}}{\res{3}} \\
 }
-{ \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\unionresthree{\res{1}}{\res{2}}{\res{3}}}
+{ \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\bigunionres{\ova{\res{i}}}}
 }
 
   \begin{array}{lll}
@@ -221,6 +216,12 @@ The other cases are straightforward.
     \infer [B-Val]
     {}
     { \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
+    \ \ \ \ \ \ \ 
+
+    \infer [B-Var]
+    {}
+    { \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
+    }
   \end{array}
 
 %\infer [B-Get]
@@ -252,7 +253,7 @@ The other cases are straightforward.
 { \opsemtrack {\openv{}}
               {\appexp {\e{}} {\ova{\ep{}}}}
               {\vp{}}
-              {\unionres{\bigunionres{\resp{}}}{\res{}}}
+              {\unionres{\bigunionres{\ova{\resp{}}}}{\res{}}}
        }
 
 \end{mathpar}
@@ -264,7 +265,8 @@ The other cases are straightforward.
   \ifdefined\PAPER
   \footnotesize
   \fi
-\[\arraycolsep=1.4pt
+\begin{mathpar}
+  \arraycolsep=1.4pt
   \begin{array}{lllll}
     %\trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}\\\\
 
@@ -322,7 +324,12 @@ The other cases are straightforward.
                                             {\res{}}}
     \\
   \end{array}
-  \]
+  
+  \arraycolsep=1.4pt
+  \begin{array}{lllr}
+    \constantopsem{\classconst{}}{\classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}} &=& \class{}\\
+  \end{array}
+\end{mathpar}
 \caption{Definition of \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}}
 \label{infer:fig:trackmeta}
 \end{figure}

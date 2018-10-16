@@ -28,8 +28,20 @@
 \newcommand\HMappretty[1]{\ma{\{#1\}}}
 \newcommand\appendone[2]{#1 :: [#2]}
 \newcommand\append[2]{#1 :: #2}
-\newcommand\Proxy[0]{\specialformfont{Prx}}
-\newcommand\ProxyV[3]{(\Proxy{}\ #1\ #2\ #3)}
+
+% proxy
+\newcommand\proxyextdiffcolor{red}
+\newcommand\proxyextdiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{\proxyextdiffcolor}{#1}}\color{thecurrentcolour}}
+\newcommand\proxyextsame[1]{\colorlet{thecurrentcolour}{.}\ma{\color{black}{#1}}\color{thecurrentcolour}}
+\newcommand\ovadiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{red}\ova{\color{thecurrentcolour}#1}}\color{thecurrentcolour}}
+\newcommand\Proxy[0]{\specialformfont{FPx}}
+% #1 = original fn
+% #2 = wrapped fn
+% #3 = rho
+\newcommand\ProxyV[3]{\ma{{#2}^{#1}_{#3}}}
+\newcommand\ProxyVdiff[3]{\ma{\proxyextdiff{\ProxyV{#1}{\proxyextsame{#2}}{#3}}}}
+\newcommand\MProxy[0]{\specialformfont{MPx}}
+\newcommand\MProxyV[3]{(\MProxy{}\ #1\ #2\ #3)}
 % types
 \newcommand\arrow[2]{\ma{[#1 \rightarrow #2]}}
 \newmeta\ty{\tau}
@@ -128,7 +140,7 @@
 \newmeta\num{n}
 
 % abstract syntax for pathelem
-\newmeta\pth{l}
+\newmeta\inferpth{l}
 \newcommand\inferpefont[1]{\textbf{#1}}
 \newcommand\keypeOp[0]{\ma{\inferpefont{key}}}
 \newcommand\inferkeype[2]{\ma{\keypeOp{}_{#1}(#2)}}
@@ -151,14 +163,10 @@
 \newcommand\resflatcolor[1]{\ma{\textcolor{red}{\resflat{#1}}}}
 \newcommand\restwoarrow[2]{\ma{\{\ova{\resentry{#1}{#2}}\}}}
 \newcommand\rescombineOp[0]{\ma{\cup}}
-\newcommand\bigrescombineOp[0]{\ma{\cup}}
+\newcommand\bigrescombineOp[0]{\ma{\bigcup}}
 \newcommand\unionres[2]{\ma{{#1 \rescombineOp{} #2}}}
 \newcommand\bigunionres[1]{\ma{\bigrescombineOp{}\ #1}}
 \newcommand\unionresthree[3]{\ma{{#1 \rescombineOp{} \unionres{#2}{#3}}}}
 
 \newcommand\lambdatrack[0]{\ma{\lambda_{\trackmetaOp{}}}}
 
-\newcommand\proxyextdiffcolor{red}
-\newcommand\proxyextdiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{\proxyextdiffcolor}{#1}}\color{thecurrentcolour}}
-\newcommand\proxyextsame[1]{\colorlet{thecurrentcolour}{.}\ma{\color{black}{#1}}\color{thecurrentcolour}}
-\newcommand\ovadiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{red}\ova{\color{thecurrentcolour}#1}}\color{thecurrentcolour}}
