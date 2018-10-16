@@ -100,9 +100,12 @@ for the global configuration map.
 \begin{cljlisting}
 (defalias CurrentKlingonsCurrentSectorEnterpriseMap
   (HMap :mandatory
-    {:current-klingons (Vec EnergySectorMap), :current-sector (Vec Int), 
-     :enterprise EnergyIsDockedQuadrantMap, :quads (Vec BasesKlingonsQuadrantMap), 
-     :stardate CurrentEndStartMap, :starting-klingons Int}
+    {:current-klingons (Vec EnergySectorMap),
+     :current-sector (Vec Int), 
+     :enterprise EnergyIsDockedQuadrantMap,
+     :quads (Vec BasesKlingonsQuadrantMap), 
+     :stardate CurrentEndStartMap,
+     :starting-klingons Int}
     :optional 
 		{:lrs-history (Vec Str)}))
 \end{cljlisting}
@@ -110,7 +113,9 @@ for the global configuration map.
 So we amend the signature as
 
 \begin{cljlisting}
-(ann game-over-out-of-time [(Atom1 CurrentKlingonsCurrentSectorEnterpriseMap) :-> Boolean])
+(ann game-over-out-of-time
+  [(Atom1 CurrentKlingonsCurrentSectorEnterpriseMap) 
+   -> Boolean])
 \end{cljlisting}
 
 
@@ -127,7 +132,9 @@ this functions with collections of integers, atoms,
 keywords, and characters.
 
 \begin{cljlisting}
-(ann all-different? [(Coll (U Int (Atom1 Int) ':a ':b Character)) :-> Boolean])
+(ann all-different?
+  [(Coll (U Int (Atom1 Int) ':a ':b Character)) 
+   -> Boolean])
 \end{cljlisting}
 
 In our experience, the union is very rarely a good candidate
@@ -151,13 +158,15 @@ The generated type shows only a frequency map where
 the values are integers are exercised.
 
 \begin{cljlisting}
-(ann initial-perm-numbers [(Map Int Int) :-> (Coll Int)])
+(ann initial-perm-numbers
+  [(Map Int Int) -> (Coll Int)])
 \end{cljlisting}
 
 A more appropriate type signature is instead
 
 \begin{cljlisting}
-(ann initial-perm-numbers [(Map Any Int) :-> (Coll Int)])
+(ann initial-perm-numbers
+  [(Map Any Int) -> (Coll Int)])
 \end{cljlisting}
 
 In many examples of overprecision, while the generated
@@ -185,7 +194,8 @@ and the manually amended type only requires a few
 keystrokes.
 
 \begin{cljlisting}
-(ann remove-nth (All [a] [(Coll a) Int :-> (Vec a)]))
+(ann remove-nth
+  (All [a] [(Coll a) Int :-> (Vec a)]))
 \end{cljlisting}
 
 Similarly, \clj{iter-perm} could be polymorphic, 
@@ -201,7 +211,9 @@ the fact that the elements of the output collection
 are from the input collection.
 
 \begin{cljlisting}
-(ann iter-perm (All [a] [(Vec (I a Num)) :-> (U nil (Vec (I a Num)))]))
+(ann iter-perm
+  (All [a]
+    [(Vec (I a Num)) -> (U nil (Vec (I a Num)))]))
 \end{cljlisting}
 %
 %\paragraph{Missing return}
@@ -249,15 +261,18 @@ arguments.
 
 \begin{cljlisting}
 (ann lex-partitions-H
-	(IFn [Int :-> (Coll (Coll (Vec Int)))]
-		   [Int ':min Int ':max Int :-> (Coll (Coll (Coll Int)))]))
+	(IFn [Int -> (Coll (Coll (Vec Int)))]
+		   [Int ':min Int ':max Int 
+        -> (Coll (Coll (Coll Int)))]))
 \end{cljlisting}
 
 While the arity of the generated type is too specific,
 we can conceivably use the type to help us write a better one.
 
 \begin{cljlisting}
-(ann lex-partitions-H [Int & :optional {:min Int :max Int} :-> (Coll (Coll (Coll Int)))])
+(ann lex-partitions-H
+  [Int & :optional {:min Int :max Int}
+   -> (Coll (Coll (Coll Int)))])
 \end{cljlisting}
 
 \paragraph{Weaknesses in Typed Clojure}

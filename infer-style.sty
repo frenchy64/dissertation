@@ -10,7 +10,7 @@
 \newcommand\trackEOp[0]{\ma{\specialformfont{track}}}
 \newcommand\trackE[2]{\ma{({\trackEOp{}}\ #1\ #2)}}
 \newcommand\trackEAlignArray[2]{\ma{(& \trackEOp{} \ \\&#1\\& #2)}}
-\newcommand\trackpolyE[3]{({\specialformfont{trackPoly}}\ #1\ #2\ #3)}
+\newcommand\trackpolyE[3]{(\trackEOp{}\ #1\ #2\ #3)}
 \newcommand\genE[0]{({\specialformfont{genInt}})}
 \newcommand\inferletliteral[0]{{\specialformfont{let}}}
 \newcommand\PairOfT[1]{{\mathsf{PairOf}}}
@@ -28,15 +28,15 @@
 \newcommand\HMappretty[1]{\ma{\{#1\}}}
 \newcommand\appendone[2]{#1 :: [#2]}
 \newcommand\append[2]{#1 :: #2}
-\newcommand\Proxy[0]{\specialformfont{Proxy}}
-\newcommand\ProxyE[3]{(\Proxy{}\ #1\ #2\ #3)}
+\newcommand\Proxy[0]{\specialformfont{Prx}}
+\newcommand\ProxyV[3]{(\Proxy{}\ #1\ #2\ #3)}
 % types
 \newcommand\arrow[2]{\ma{[#1 \rightarrow #2]}}
 \newmeta\ty{\tau}
 
 % semantics
-\newcommand\opsemtrack[4]{\ma{#1 \vdash #2 \Downarrow #3\ ; #4}}
-\newcommand\bigstepgen[6]{\ma{#1 ; #2 \vdash #3 \Downarrow #4\ ; #5 ; #6}}
+\newcommand\opsemtrack[4]{\ma{#1 \vdash #2 \Downarrow #3\ ;\ #4}}
+\newcommand\bigstepgen[6]{\ma{#1 ; #2 \vdash #3 \Downarrow #4\ ;\ #5\ ;\ #6}}
 
 % environments
 \newmeta\aenv{\ma{A}}
@@ -84,8 +84,9 @@
 \newcommand\trackmetalhs[2]{\ma{\trackmetaOp{}(#1, #2)}}
 \newcommand\trackmetarhs[2]{\ma{#1\ ; #2}}
 \newcommand\trackmeta[4]{\ma{\trackmetalhs{#1}{#2} = \trackmetarhs{#3}{#4}}}
-\newcommand\trackmetaalign[4]{\ma{\trackmetalhs{#1}{#2} &=& \trackmetarhs{#3}{#4}}}
-\newcommand\trackpolymeta[0]{\ma{\infermetafnfont{trackPoly}}}
+\newcommand\trackmetaalignsplice[3]{\ma{\trackmetalhs{#1}{#2} &=& #3}}
+\newcommand\trackmetaalign[4]{\ma{\trackmetaalignsplice{#1}{#2}{\trackmetarhs{#3}{#4}}}}
+\newcommand\trackpolymeta[0]{\ma{\trackmetaOp{}}}
 \newcommand\inferupdateOp[0]{\ma{\infermetafnfont{update}}}
 \newcommand\inferupdate[3]{\inferupdateOp{}(#1, \resentry{#2}{#3})}
 \newcommand\inferupdatecommon[5]{\inferupdate{#1}{#2}{#3} #4  #5} % takes the = sign to allow extra alignment
@@ -137,6 +138,7 @@
 
 % abstract syntax for paths
 \newmeta\inferpath{\ma{\pi}}
+\newmeta\inferpathp{\ma{\pi'}}
 
 % inference results
 \newmeta\res{\ma{r}}
@@ -147,9 +149,16 @@
 \newcommand\singletonres[2]{\ma{\{\resentry{#1}{#2}\}}}
 \newcommand\resflat[1]{\ma{\{#1\}}}
 \newcommand\resflatcolor[1]{\ma{\textcolor{red}{\resflat{#1}}}}
-\newcommand\restwoarrow[2]{\ma{\{\overrightarrow{\resentry{#1}{#2}}\}}}
-\newcommand\unionres[2]{\ma{{#1 \sqcup #2}}}
-\newcommand\bigunionres[1]{\ma{\overrightarrow{\sqcup\ #1}}}
-\newcommand\unionresthree[3]{\ma{{#1 \sqcup \unionres{#2}{#3}}}}
+\newcommand\restwoarrow[2]{\ma{\{\ova{\resentry{#1}{#2}}\}}}
+\newcommand\rescombineOp[0]{\ma{\cup}}
+\newcommand\bigrescombineOp[0]{\ma{\cup}}
+\newcommand\unionres[2]{\ma{{#1 \rescombineOp{} #2}}}
+\newcommand\bigunionres[1]{\ma{\bigrescombineOp{}\ #1}}
+\newcommand\unionresthree[3]{\ma{{#1 \rescombineOp{} \unionres{#2}{#3}}}}
 
 \newcommand\lambdatrack[0]{\ma{\lambda_{\trackmetaOp{}}}}
+
+\newcommand\proxyextdiffcolor{red}
+\newcommand\proxyextdiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{\proxyextdiffcolor}{#1}}\color{thecurrentcolour}}
+\newcommand\proxyextsame[1]{\colorlet{thecurrentcolour}{.}\ma{\color{black}{#1}}\color{thecurrentcolour}}
+\newcommand\ovadiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{red}\ova{\color{thecurrentcolour}#1}}\color{thecurrentcolour}}

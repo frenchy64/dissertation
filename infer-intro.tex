@@ -53,29 +53,29 @@ defined---we \textit{squash} types to be
 recursive from example unrollings (Section \ref{recursive-TODO}):
 
 \begin{cljlisting}
-(defalias NodeLeaf 
-  (U '{:op ':node, :left NodeLeaf, :right NodeLeaf}
+(defalias Op 
+  (U '{:op ':node, :left Op, :right Op}
      '{:op ':leaf, :val Int}))
-(ann vertices [NodeLeaf -> Int])
+(ann vertices [Op -> Int])
 \end{cljlisting}
 
 %\begin{Verbatim}
 %(declare Node Leaf)
-%(defalias NodeLeaf (U Node Leaf))
+%(defalias Op (U Node Leaf))
 %(defalias Node 
-%  '{:op ':node :left NodeLeaf :right NodeLeaf})
+%  '{:op ':node :left Op :right Op})
 %(defalias Leaf '{:op ':leaf :val int})
-%(ann verbatim [NodeLeaf -> Int]})
+%(ann verbatim [Op -> Int]})
 %\end{Verbatim}
 %
-If \texttt{NodeLeaf} is used in multiple positions
+If \texttt{Op} is used in multiple positions
 in the program, local recursive types are redundant.
 In this paper, we name and \textit{merge} recursive
 types, reusing them in annotations.
  
 \begin{cljlisting}
-(ann vertices [NodeLeaf -> Int])
-(ann sum-tree [NodeLeaf NodeLeaf -> NodeLeaf])
+(ann vertices [Op -> Int])
+(ann sum-tree [Op Op -> Op])
 \end{cljlisting}
  
 If minor variants of the recursive types occur
@@ -84,8 +84,8 @@ we use \textit{optional} entries%~\cite{typed-clojure}
 to reduce redundancy (Section \ref{optional-merge-TODO}).
  
 \begin{cljlisting}
-(defalias NodeLeaf 
-  (U '{:op ':node, :left NodeLeaf, :right NodeLeaf}
+(defalias Op 
+  (U '{:op ':node, :left Op, :right Op}
      (HMap :mandatory {:op ':leaf :val Int}
            :optional {:label Str})))
 \end{cljlisting}

@@ -2,27 +2,30 @@
 
 \Dsection{Polymorphic types}
 
-\begin{figure*}
+\begin{figure}
+  \ifdefined\PAPER
+  \footnotesize
+  \fi
 \begin{mathpar}
   \begin{altgrammar}
    \e{} &::=& ...
        \alt \trackpolyE{\e{}}{\inferpath{}}{\e{}}
        \alt \genE{}
+       &\mbox{Expressions}
   \end{altgrammar}
 
   \infer [B-Gen]
-  { \num{}' = \num{} + 1
+  { \num{} \text{ is fresh}
   }
-  { \bigstepgen{\opsem{}}{\num{}}{\genE{}}{\num{}'}{\{\}}{\num{}'}}
-
+  { \opsemtrack{\openv{}}{\genE{}}{\num{}}{\emptyres{}}}
 
   \infer [B-TrackPoly]
-  { \bigstepgen{\opsem{}}{\num0}{\e{}}{\v{}}{\res{}}{\num1} 
+  { \bigstepgen{\openv{}}{\num0}{\e{}}{\v{}}{\res{1}}{\num1} 
     \\\\
-    \bigstepgen{\opsem{}}{\num1}{\ep{}}{\num{}}{\res{}'}{\num2}
+    \bigstepgen{\openv{}}{\num1}{\ep{}}{\num{}}{\res{2}}{\num2}
     \\\\
-    \trackpolymeta{}(\v{}, \inferpath{}, {\num{}}) = \vp{}\ ; \res{}'' }
-  { \bigstepgen{\opsem{}}{\num0}{\trackpolyE{\e{}}{\inferpath{}}{\ep{}}}{\vp{}}{\res{} \sqcup \res{}' \sqcup \res{}''}{\num2} }
+    \trackpolymeta{}(\v{}, \inferpath{}, {\num{}}) = \vp{}\ ; \res{3} }
+  { \bigstepgen{\openv{}}{\num0}{\trackpolyE{\e{}}{\inferpath{}}{\ep{}}}{\vp{}}{\bigunionres{\ova{\res{}}}}{\num2} }
 
   \begin{array}{lllll}
     \trackpolymeta{}(\v{}, \inferpath{}, \num{}) = \v{}\ ;\ \res{}\\\\
@@ -31,33 +34,34 @@
     &=&
     n\ ; \{\inferpath{} : \IntT{}\}
     \\
-    \trackpolymeta{}([\lambda \xvar{}. \e{}, \opsem{}], \inferpath{}, \num{})
+    \trackpolymeta{}([\lambda \xvar{}. \e{}, \openv{}], \inferpath{}, \num{})
     &=&
     [
     \lambda \yvar{}.
     \inferletliteral (\xvar{n} \genE{})
     \\&&
-      \trackpolyE{((\lambda \xvar{}. \e{}) \trackpolyE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}{\xvar{n}})}
-             {\appendone{\inferpath{}}{\rngpe{}}}{\xvar{n}}
-         , \opsem{}]
-         \ ; \{\inferpath{} : [\UnknownT{} \rightarrow \UnknownT{}] \}
+    FIXME
+      %\trackpolyE{((\lambda \xvar{}. \e{}) \trackpolyE{\yvar{}}{\appendone{\inferpath{}}{\dompe{}}}{\xvar{n}})}
+      %       {\appendone{\inferpath{}}{\rngpe{}}}{\xvar{n}}
+      %   , \openv{}]
+      %   \ ; \{\inferpath{} : [\UnknownT{} \rightarrow \UnknownT{}] \}
          \\
     &&
     \text{where}\ \yvar{} \text{ is fresh}
     \\
-    \trackpolymeta{}(\{\overrightarrow{\val1\ \val2}\}, \inferpath{}, \num{})
+    \trackpolymeta{}(\{\ova{\val1\ \val2}\}, \inferpath{}, \num{})
     &=&
-    \{\overrightarrow{\val1\ \val2{}'}\}
-    \ ;\ \overrightarrow{\sqcup\ \res{}}
+    \{\ova{\val1\ \val2{}'}\}
+    \ ;\ \ova{\sqcup\ \res{}}
       \sqcup
-    \{\inferpath{} : \{\overrightarrow{\val1\ \UnknownT{}}\} \}
+    \{\inferpath{} : \{\ova{\val1\ \UnknownT{}}\} \}
     \\
     &&
-    \text{where}\ \overrightarrow{\trackpolymeta{}(\val2, \appendone{\inferpath{}}{\inferkeype{\overrightarrow{\val1}}{\val1}}) = \val2{}'\ ;\ \res{}}
+    \text{where}\ \ova{\trackpolymeta{}(\val2, \appendone{\inferpath{}}{\inferkeype{\ova{\val1}}{\val1}}) = \val2{}'\ ;\ \res{}}
   \end{array}
 \end{mathpar}
-\caption{Polymorphic type tracking extensions}
-\end{figure*}
+  \caption{Polymorphic type tracking extensions }
+\end{figure}
 
 \Dsection{Space efficient tracking}
 
@@ -71,49 +75,53 @@ When a tracked value flows into another tracked position,
 we extract the unwrapped value, and then our new tracked value
 tracks the paths that is the set of the old paths with the new path.
 
-To model this, we introduce a new kind of value $\ProxyE{\val1{}}{\val2{}}{\overrightarrow{\inferpath{}}}$
+To model this, we introduce a new kind of value $\ProxyV{\val1{}}{\val2{}}{\overrightarrow{\inferpath{}}}$
 that tracks old value $\val1{}$ as new value $\val2{}$ with the paths $\overrightarrow{\inferpath{}}$.
 Proxy expressions are introduced when tracking functions, where instead of just returning
-a new wrapped function, we return a $\ProxyE{}$.
+a new wrapped function, we return a $\Proxy{}$.
 
-\begin{figure*}
+\begin{figure}
+  \ifdefined\PAPER
+  \footnotesize
+  \fi
 \begin{mathpar}
   \begin{altgrammar}
-    \v{} &::=& ... \alt \ProxyE{\v{}}{\v{}}{\overrightarrow{\inferpath{}}}
+    \v{} &::=& ... \alt \ProxyV{\v{}}{\v{}}{\overrightarrow{\inferpath{}}}
        &\mbox{Values}
   \end{altgrammar}
-  \\
 
-  \begin{array}{lllll}
-    \trackmetaOp{}([\lambda \xvar{}. \e{}, \opsem{}], \overrightarrow{\inferpath{}})
-    &=&
-    \ProxyE{[\lambda \xvar{}. \e{}, \opsem{}]}
-    {[
-    \lambda \yvar{}.
-      \trackE{((\lambda \xvar{}. \e{}) \trackE{\yvar{}}{\overrightarrow{\appendone{\inferpath{}}{\dompe{}}}})}
-             {\overrightarrow{\appendone{\inferpath{}}{\rngpe{}}}}
-         , \opsem{}]}
-         {\overrightarrow{\inferpath{}}}
-         \ ; \overrightarrow{\{\inferpath{} : [\UnknownT{} \rightarrow \UnknownT{}] \}}
-         \\
-    &&
-    \text{where}\ \yvar{} \text{ is fresh}
-    \\
-    \trackmetaOp{}(\ProxyE{\val1{}}{\val2{}}{\overrightarrow{\inferpath{}'}}, \overrightarrow{\inferpath{}})
-    &=&
-    \ProxyE{\val1{}}{\val3{}}{(\inferpath{} \cup \inferpath{}')}
-         \ ; \res{}
-         \\
-    &&
-    \text{where}\ \trackmetaOp{}(\val1{},\ \overrightarrow{\appendone{(\inferpath{} \cup \inferpath{}')}{\dompe{}}}) = \val3{} ;\ \res{}
-  \end{array}
-
-  \\
 \infer [B-ProxyApp]
-{ \opsemtrack{\opsem{}}{\exp1}{\ProxyE{\vpp{}}{\v{}}{\overrightarrow{\inferpath{}}}}{\res{1}} \\\\
-  \opsemtrack{\opsem{}}{\appexp{\v{}}{\exp{2}}}{\vp{}}{\res{2}}\\
+{ \opsemtrack{\openv{}}{\e{1}}{\ProxyV{\vpp{}}{\v{}}{\overrightarrow{\inferpath{}}}}{\res{1}} \\
+  \opsemtrack{\openv{}}{\appexp{\v{}}{\e{2}}}{\vp{}}{\res{2}}
 }
-{ \opsemtrack{\opsem{}}{\appexp{\exp{1}}{\exp{2}}}{\vp{}}{\res{1} \sqcup \res{2}}}
+{ \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\bigunionres{\ova{\res{}}}}}
+
+  \arraycolsep=1.4pt
+  \begin{array}{lllll}
+    \trackmetaalign{\num{}}{\ovadiff{\inferpath{}}}{\num{}}{\proxyextdiff{\bigunionres{\ovadiff{\proxyextsame{\singletonres{\inferpath{}}{\IntT{}}}}}}}\\
+    \trackmetaalign{\kw{}}{\ovadiff{\inferpath{}}}{\kw{}}
+                   {\proxyextdiff{\bigunionres{\ovadiff{\proxyextsame{\singletonres{\inferpath{}}{\Keyword{}}}}}}}\\
+    \trackmetaalign{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+                   {\ovadiff{\inferpath{}}}
+                   {\proxyextdiff{\ProxyV{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
+                                         {\proxyextsame{{\closure{\ep{}}{\openv{}}}}}
+                                         {\ova{\inferpath{}}}}}
+                   {\emptyres{}}
+         \\
+    &&
+    \begin{array}{@{}llll}
+      \text{ where } \yvar{} \text{ is fresh},\\
+                    \begin{array}{lllll}
+                        \ep{} =
+                          \uabs{\y{}}{\trackE{&\appexp{(\uabs{\x{}}{\e{}})}{\trackE{\yvar{}}{\ovadiff{\appendone{\inferpath{}}{\dompe{}}}}}}
+                                             {\\&\ovadiff{\appendone{\inferpath{}}{\rngpe{}}}}}
+                     \end{array}
+    \end{array}
+                
+    \\
+    \trackmetaalignsplice{\ProxyV{\val1{}}{\val2{}}{\ova{\inferpathp{}}}}{\ova{\inferpath{}}}
+                         {\trackmetaOp{}(\val1{},\ \ova{\appendone{(\inferpath{} \cup \inferpath{}')}{\dompe{}}})}
+  \end{array}
 \end{mathpar}
-\caption{Space efficient tracking extensions}
-\end{figure*}
+  \caption{Space efficient tracking extensions (\textcolor{red}{changes})}
+\end{figure}
