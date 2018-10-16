@@ -48,10 +48,10 @@
 % semantics
 \newcommand\opsemtrack[4]{\ma{#1 \vdash #2 \Downarrow #3\ ;\ #4}}
 \newcommand\bigstepgen[6]{\ma{#1 ; #2 \vdash #3 \Downarrow #4\ ;\ #5\ ;\ #6}}
-\newcommand\inferconstantopsem[4]{\ma{{\constantopsemliteral}(#1, #2) = #3\ ;\ #4}}
-\newcommand\inferconstantopsemalign[4]{\ma{{\constantopsemliteral}(#1, #2) &=& #3\ ;\ #4}}
-\newcommand\inferconstantopsemalignnospace[4]{\ma{{\constantopsemliteral}(#1, #2) &=& #3  ;  #4}}
-\newcommand\inferconstantopsemalignsplice[3]{\ma{{\constantopsemliteral}(#1, #2) &=& #3}}
+\newcommand\inferconstantopsem[4]{\ma{{\constantopsemliteral{}}(#1, #2) = #3\ ;\ #4}}
+\newcommand\inferconstantopsemalign[4]{\ma{{\constantopsemliteral{}}(#1, #2) &=& #3\ ;\ #4}}
+\newcommand\inferconstantopsemalignnospace[4]{\ma{{\constantopsemliteral{}}(#1, #2) &=& #3  ;  #4}}
+\newcommand\inferconstantopsemalignsplice[3]{\ma{{\constantopsemliteral{}}(#1, #2) &=& #3}}
 
 % environments
 \newmeta\aenv{\ma{A}}
@@ -103,7 +103,8 @@
 \newcommand\trackmetaalign[4]{\ma{\trackmetaalignsplice{#1}{#2}{\trackmetarhs{#3}{#4}}}}
 \newcommand\trackpolymeta[0]{\ma{\trackmetaOp{}}}
 \newcommand\inferupdateOp[0]{\ma{\infermetafnfont{update}}}
-\newcommand\inferupdate[3]{\inferupdateOp{}(#1, \resentry{#2}{#3})}
+\newcommand\inferupdatetwo[2]{\ma{\inferupdateOp{}(#1, #2)}}
+\newcommand\inferupdate[3]{\ma{\inferupdatetwo{#1}{\resentry{#2}{#3}}}}
 \newcommand\inferupdatecommon[5]{\inferupdate{#1}{#2}{#3} #4  #5} % takes the = sign to allow extra alignment
 \newcommand\inferupdatenoalign[4]{\ma{\inferupdatecommon{#1}{#2}{#3}{=}{#4}}}
 \newcommand\inferupdatealign[4]{\inferupdatecommon{#1}{#2}{#3}{&=&}{#4}}

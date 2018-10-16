@@ -138,7 +138,60 @@ via the previous rule.
 
 \Dsection{Lazy tracking}
 
+Building further on the extension of space efficient functions,
+we apply a similar idea for tracking maps.
+In practice, eagerly walking data structures to gather inference
+results is expensive.
+Instead,
+waiting until a data structure is used and tracking its contents
+lazily can help ease this tradeoff, with the side-effect that
+less inference results are discovered.
 
+\figref{fig:infer:lazy} extends our system with lazy maps.
+We add a new kind of value 
+\MProxyV{\curlymap{\ova{\kw{}\ \v{}}}}{\curlymap{\ova{\kwp{}\ \curlymap{\ova{\HMapreq{}\ \ova{\inferpath{}}}}}}}
+that wraps a map \curlymap{\ova{\kw{}\ \v{}}} with tracking information.
+Keyword entries \kwp{} are associated with pairs of type information \HMapreq{}
+with paths \ova{\inferpath{}}.
+The first \trackEOp{} rule demonstrates how to create
+a lazily tracked map.
+We calculate the possibly tagged entries in our type information in advance,
+much like the equivalent rule in \figref{infer:fig:trackmeta}, and stores
+them for later use. Notice that non-keyword entries are not yet traversed,
+and thus no inference results are derived from them.
+The second \trackEOp{} rule adds new paths to track.
+
+The subtleties of lazily tracking maps lie in the \constantopsemliteral{}
+rules.
+The \assocliteral{} and \dissocliteral{} rules ensure we no longer track overwritten entries.
+Then, the \getliteral{} rules perform the tracking that was deffered
+from the \trackEOp{} rule for maps in \figref{infer:fig:trackmeta}
+(if the entry is still tracked).
+
+In our experience, some combination of lazy and eager tracking of
+maps strike a good balance between performance overhead and
+quantity of inference results.
+Intuitively, if a function does not access parts of its argument,
+they should not contribute to that function's type signature.
+However, our inference algorithm combines information 
+\emph{across} function signatures to deduce useful, recursive
+type aliases.
+Some eager tracking helps normalize the quality of function annotations
+with respect to unit test coverage.
+
+For example, say functions \textsf{f} and \textsf{g} operate on the same
+types of (deeply nested) arguments, and \textsf{f} has complete test coverage (but does not
+traverse all of its arguments), and \textsf{g} has incomplete test coverage
+(but fully traverses its arguments).
+Eagerly tracking \textsf{f} would give better inference results,
+but lazily tracking \textsf{g} is more efficient.
+Forcing several layers of tracking helps strike this balance, which
+our implementation exposes as a parameter.
+
+This can be achieved in our formal system
+by adding fuel arguments to \trackEOp{}
+that contain depth and breadth tracking limits, and
+defer to lazy tracking when out of fuel.
 
 \begin{figure}
   \ifdefined\PAPER
@@ -152,15 +205,15 @@ via the previous rule.
 
   \arraycolsep=1.4pt
   \begin{array}{lllll}
-    \trackmetaalign{\curlymap{\ova{\kw{i}\ \kwp{i}}^{1 \leq i \leq n}\ \ova{\kw{j}\ \v{j}}^{n < j \leq p}}}
+    \trackmetaalign{\curlymap{\ova{\kw{}\ \kwp{}}\ \ova{\kwpp{}\ \v{}}}}
                    {\ovadiff{\inferpath{}}}
-                   {\MProxyVdiff{\curlymap{\ova{\kw{i}\ \kwp{i}}^{1 \leq i \leq n}\ \ova{\kw{j}\ \proxyextdiff{\v{j}}}^{n < j \leq p}}}
-                                {\curlymap{\ova{\kw{}\ \{\HMapreq{}\ \ova{\inferpath{}}\}}}}}
+                   {\MProxyVdiff{\curlymap{\ova{\kw{}\ \kwp{}}\ \ova{\kwpp{}\ \proxyextdiff{\v{}}}}}
+                                {\curlymap{\ova{\kw{}\ \textsf{t}}\ \ova{\kwpp{}\ \textsf{t}}}}}
                    {\proxyextdiff{\emptyres{}}}
                    \\
                    &&
     \begin{array}{@{}llll}
-      \text{where } \HMapreq{} = {\curlymap{\ova{\kw{i}\ \kwp{i}}^{1 \leq i \leq n}\ \ova{\kw{j}\ \UnknownT{}}^{n < j \leq p}}}
+      \text{where } \textsf{t} = \{\curlymap{\ova{\kw{}\ \kwp{}}\ \ova{\kwpp{}\ \UnknownT{}}}\ \ova{\inferpath{}}\}
     \end{array}
     \\
     \trackmetaalign{\MProxyVdiff{\curlymap{\ova{\kw{}\ \v{}}}}
@@ -204,6 +257,12 @@ via the previous rule.
                                            \big]
       \end{array}
       \\
+    \inferconstantopsemalignsplice
+      {\getliteral{}}
+      {\MProxyVdiff{\curlymap{\kw{}\ \v{}, \ova{\kwp{}\ \vp{}}}}
+                   {\curlymap{\ova{\kwpp{}\ \textsf{t}'}}}
+       , \kw{}}
+      {\v{}}\\
     \inferconstantopsemalign
       {\dissocliteral{}}
       {\MProxyVdiff{\curlymap{\kw{}\ \v{}, \ova{\kwp{}\ \vp{}}}}
@@ -224,4 +283,5 @@ via the previous rule.
   \end{array}
 \end{mathpar}
   \caption{Lazy tracking extensions (\textcolor{red}{changes})}
+  \label{fig:infer:lazy}
 \end{figure}

@@ -171,15 +171,17 @@ says if value \v{} occurs at path {\inferpath{}}, then return a possibly-instrum
 \vp{} paired with inference results {\res{}} that can be immediately derived
 from the knowledge that \v{} occurs at path {\inferpath{}}.
 It has a case for every kind of value.
-The first case records the number input as type {\IntT{}}.
-The second case, for closures, returns a wrapped value
+The first three cases records the number input as type {\IntT{}}.
+The forth case, for closures, returns a wrapped value
 resembling higher-order function contracts~\cite{findler2002contracts},
 but we track the domain and range rather than verify them.
-The third case, for maps, recursively tracks each map value,
+The remaining rules case, for maps, recursively tracks each map value,
 and returns a map with possibly wrapped values.
 Immediately accessible inference results are combined
 and returned.
-The other cases are straightforward.
+A specific rule for the empty map is needed because we otherwise only rely on
+recursive calls to \trackEOp{} to gather inference results---in the empty case,
+we have no data to recur on.
 
 \begin{figure*}
   \ifdefined\PAPER
@@ -393,6 +395,38 @@ merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:
 \Dsubsection{Pass 1: Generating initial type environment}
 
 The first pass is given in \figref{infer:fig:generatetenv}.
+The entry point \generatetenv{} folds over inference results
+to create an initial type environment via \inferupdateOp{}.
+This style is inspired by occurrence typing~\cite{TF10},
+from which we also borrow the concepts of paths into types.
+
+We process paths right-to-left in \inferupdateOp{}, building
+up types from leaves to root, before joining the fully constructed type with the existing
+type environment via \joinOp{}.
+The first case handles the \keypeOp{} path element.
+The extra map of type information preserves both keyset
+information and any entries that might represent tags
+(populated by the final case of \trackEOp{}, \figref{infer:fig:trackmeta}).
+This information helps us avoid prematurely collapsing tagged maps,
+by the side condition of the HMap \joinOp{} case.
+The \joinHMapOp{} metafunction aggressively combines two HMap's---required
+keys in both maps are joined and stay required, otherwise keys
+become optional.
+
+The second and third \inferupdateOp{} cases update the domain and range of a function type,
+respectively.
+The \joinOp{} case for function types joins covariantly on the domain to yield more useful
+annotations. For example, if a function accepts \IntT{} and \Keyword{},
+it will have type
+\joinnoalign{\arrow{\IntT{}}{\UnknownT{}}}{\arrow{\Keyword{}}{\UnknownT{}}}
+{\arrow{\Union{\IntT{}}{\Keyword{}}}{\UnknownT{}}}.
+
+Returning to our running example, we now want to convert our inference results
+$$
+\res{} = \{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}\}.
+$$
+into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
+\inferupdate{\{\}}{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}
 
 %\begin{figure*}
 %\begin{mathpar}
@@ -487,6 +521,7 @@ The first pass is given in \figref{infer:fig:generatetenv}.
 \label{infer:fig:generatetenv}
 \end{figure*}
 
+\Dsubsection{Pass 2: Squash locally}
 
 \begin{figure*}
 \begin{mathpar}
@@ -606,6 +641,8 @@ The first pass is given in \figref{infer:fig:generatetenv}.
   }
   \label{infer:fig:squashlocal}
 \end{figure*}
+
+\Dsubsection{Pass 3: Squash globally}
 
 \begin{figure*}
 \begin{mathpar}
