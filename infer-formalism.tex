@@ -101,7 +101,7 @@ them to have optional entries in later phases.
     \val{} &::=& \num{}
        \alt {\kw{}}
        \alt {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
-       \alt {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}
+       \alt {\curlymap{\ova{\kw{}\ {\val{}}}}}
        \alt {\const{}}
        &\mbox{Values} \\
    \e{} &::=& \x{}
@@ -186,12 +186,6 @@ The other cases are straightforward.
   \footnotesize
   \fi
 \begin{mathpar}
-%\infer [B-Var]
-%{ track(\openv{}(x), [x]) = v\ ; res }
-%{ \openv{} \vdash x \Downarrow v\ ; res}
-
-% track is inserted manually
-
   \begin{array}{llll}
     \infer [B-Track]
     { \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\\\
@@ -201,8 +195,8 @@ The other cases are straightforward.
   \end{array}
 
 \infer [B-App]
-{ \opsemtrack{\openv{}}{\e{1}}{[\lambda \x{}. \e{}, \openvp{}]}{\res{1}} \\\\
-  \opsemtrack{\openv{}}{\e{2}}{\v{}}{\res2} \\\\
+{ \opsemtrack{\openv{}}{\e{1}}{\closure{\uabs{\x{}}{\e{}}}{\openvp{}}}{\res{1}} \\\\
+  \opsemtrack{\openv{}}{\e{2}}{\v{}}{\res{2}} \\\\
   \opsemtrack{\extendopenv{\openvp{}}{\x{}}{\v{}}}{\e{}}{\vp{}}{\res{3}} \\
 }
 { \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\bigunionres{\ova{\res{i}}}}
@@ -211,12 +205,12 @@ The other cases are straightforward.
   \begin{array}{lll}
     \infer [B-Clos]
     {}
-    { \opsemtrack{\openv{}}{\lambda \xvar{}. \e{}}{[\lambda \ova{\xvar{}} . \e{}, \openv{} ]}{\emptyres{}}}
+    { \opsemtrack{\openv{}}{\uabs{\x{}}{\e{}}}{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\emptyres{}}}
     \\\\
     \infer [B-Val]
     {}
     { \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
-    \ \ \ \ \ \ \ 
+    \ \ \ \ \ \ 
 
     \infer [B-Var]
     {}
@@ -224,36 +218,17 @@ The other cases are straightforward.
     }
   \end{array}
 
-%\infer [B-Get]
-%{ \opsemtrack{\openv{}}{\e{1}}{\{ \ova{\kw{}\ \v{}} \}}{\res{1}} \\
-%  \opsemtrack{\openv{}}{\e{2}}{\kw1}{\res{2}} \\
-%}
-%{ \opsemtrack{\openv{}}{\getexp{\e{1}}{\e{2}}}{\getmap{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\kw{1}}}{\unionres{\res{1}}{\res{2}}}
-%}
-%
-%\infer [B-Assoc]
-%{ 
-%  \opsemtrack{\openv{}}{\e{1}}{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\res{1}} \\
-%  \opsemtrack{\openv{}}{\e{2}}{\kw{1}}{\res{2}} \\
-%  \opsemtrack{\openv{}}{\e{3}}{\v{}}{\res{3}} \\
-%}
-%{ \opsemtrack{\openv{}}
-%             {\assocexp{\e{1}}{\e{2}}{\e{3}}}
-%             {\extendmap{\curlymapvaloverrightnoarrow{\kw{}}{\v{}}}{\kw{1}}{\v{}}}
-%             {\unionresthree{\res{1}}{\res{2}}{\res{3}}}
-%}
-
 \infer [B-Delta]
-{ \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{}}
+{ \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{1}}
   \\\\
-  \ova{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
+  \overrightarrow{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
   \\\\
-  \constantopsem{\const{}}{\ova{\v{}}} = \vp{}
+  \inferconstantopsem{\const{}}{\ova{\v{}}}{\vp{}}{\res{2}}
 }
 { \opsemtrack {\openv{}}
-              {\appexp {\e{}} {\ova{\ep{}}}}
+              {\appexp {\e{}} {\overrightarrow{\ep{}}}}
               {\vp{}}
-              {\unionres{\bigunionres{\ova{\resp{}}}}{\res{}}}
+              {\overrightarrow{\unionres{\res{}}{\resp{}}}}
        }
 
 \end{mathpar}
@@ -314,7 +289,7 @@ The other cases are straightforward.
                    {\bigunionres{\res{}}}
     \\
     &&
-    \text{where}\ \ova{\trackmeta{\v{}}
+    \text{where } \ova{\trackmeta{\v{}}
                                             {\appendone{\inferpath{}}
                                                        {\inferkeype{\{\ova{\kw{1}\ {\kw{2}}}\ 
                                                                       \ova{\kw{}\ {\UnknownT{}}}
@@ -327,10 +302,15 @@ The other cases are straightforward.
   
   \arraycolsep=1.4pt
   \begin{array}{lllr}
-    \constantopsem{\classconst{}}{\classvalue{\class{}} {\overrightarrow {\classfieldpair{\fld{}} {\v{}}}}} &=& \class{}\\
+    \inferconstantopsemalign{\assocliteral{}}{\curlymap{\ova{\kw{}\ \v{}}}, \kwp{}, \vp{}}{\updatemap{\curlymap{\ova{\kw{}\ \v{}}}}{\kwp{}}{\vp{}}}
+                            {\emptyres{}}\\
+    \inferconstantopsemalign{\getliteral{}}{\curlymap{\kw{}\ \v{}, \ova{\kwp{}\ \vp{}}}, \kw{}}{\v{}}
+                            {\emptyres{}}\\
+    \inferconstantopsemalign{\dissocliteral{}}{\curlymap{\kw{}\ \v{}, \ova{\kwp{}\ \vp{}}}, \kw{}}{\curlymap{\ova{\kwp{}\ \vp{}}}}
+                            {\emptyres{}}\\
   \end{array}
 \end{mathpar}
-\caption{Definition of \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}}
+\caption{Definition of \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}} and constants}
 \label{infer:fig:trackmeta}
 \end{figure}
 

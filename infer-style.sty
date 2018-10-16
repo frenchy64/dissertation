@@ -34,14 +34,13 @@
 \newcommand\proxyextdiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{\proxyextdiffcolor}{#1}}\color{thecurrentcolour}}
 \newcommand\proxyextsame[1]{\colorlet{thecurrentcolour}{.}\ma{\color{black}{#1}}\color{thecurrentcolour}}
 \newcommand\ovadiff[1]{\colorlet{thecurrentcolour}{.}\ma{\color{red}\ova{\color{thecurrentcolour}#1}}\color{thecurrentcolour}}
-\newcommand\Proxy[0]{\specialformfont{FPx}}
 % #1 = original fn
 % #2 = wrapped fn
 % #3 = rho
 \newcommand\ProxyV[3]{\ma{{#2}^{#1}_{#3}}}
 \newcommand\ProxyVdiff[3]{\ma{\proxyextdiff{\ProxyV{#1}{\proxyextsame{#2}}{#3}}}}
-\newcommand\MProxy[0]{\specialformfont{MPx}}
-\newcommand\MProxyV[3]{(\MProxy{}\ #1\ #2\ #3)}
+\newcommand\MProxyV[2]{\ma{{#1}^{#2}}}
+\newcommand\MProxyVdiff[2]{\ma{\proxyextdiff{\MProxyV{\proxyextsame{#1}}{#2}}}}
 % types
 \newcommand\arrow[2]{\ma{[#1 \rightarrow #2]}}
 \newmeta\ty{\tau}
@@ -49,6 +48,10 @@
 % semantics
 \newcommand\opsemtrack[4]{\ma{#1 \vdash #2 \Downarrow #3\ ;\ #4}}
 \newcommand\bigstepgen[6]{\ma{#1 ; #2 \vdash #3 \Downarrow #4\ ;\ #5\ ;\ #6}}
+\newcommand\inferconstantopsem[4]{\ma{{\constantopsemliteral}(#1, #2) = #3\ ;\ #4}}
+\newcommand\inferconstantopsemalign[4]{\ma{{\constantopsemliteral}(#1, #2) &=& #3\ ;\ #4}}
+\newcommand\inferconstantopsemalignnospace[4]{\ma{{\constantopsemliteral}(#1, #2) &=& #3  ;  #4}}
+\newcommand\inferconstantopsemalignsplice[3]{\ma{{\constantopsemliteral}(#1, #2) &=& #3}}
 
 % environments
 \newmeta\aenv{\ma{A}}
@@ -151,10 +154,12 @@
 % abstract syntax for paths
 \newmeta\inferpath{\ma{\pi}}
 \newmeta\inferpathp{\ma{\pi'}}
+\newmeta\inferpathpp{\ma{\pi''}}
 
 % inference results
 \newmeta\res{\ma{r}}
 \newmeta\resp{\ma{r'}}
+\newmeta\respp{\ma{r''}}
 \newcommand\emptyres[0]{\ma{\{\}}}
 \newcommand\resentry[2]{\ma{{#2}_{#1}}}
 %\newcommand\resentry[2]{\ma{#1 : #2}}

@@ -78,7 +78,7 @@ tracks the paths that is the set of the old paths with the new path.
 To model this, we introduce a new kind of value $\ProxyV{\val1{}}{\val2{}}{\overrightarrow{\inferpath{}}}$
 that tracks old value $\val1{}$ as new value $\val2{}$ with the paths $\overrightarrow{\inferpath{}}$.
 Proxy expressions are introduced when tracking functions, where instead of just returning
-a new wrapped function, we return a $\Proxy{}$.
+a new wrapped function, we return a proxy.
 
 \begin{figure}
   \ifdefined\PAPER
@@ -86,7 +86,7 @@ a new wrapped function, we return a $\Proxy{}$.
   \fi
 \begin{mathpar}
   \begin{altgrammar}
-    \v{} &::=& ... \alt \ProxyV{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\ova{\inferpath{}}}
+    \v{} &::=& ... \alt \ProxyVdiff{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\ova{\inferpath{}}}
        &\mbox{Values}
   \end{altgrammar}
 %
@@ -128,48 +128,79 @@ a new wrapped function, we return a $\Proxy{}$.
 
 \Dsection{Lazy tracking}
 
-%\begin{figure}
-%  \ifdefined\PAPER
-%  \footnotesize
-%  \fi
-%\begin{mathpar}
-%  \begin{altgrammar}
-%    \v{} &::=& ... \alt \MProxyV{\v{}}{\v{}}{\overrightarrow{\inferpath{}}}
-%       &\mbox{Values}
-%  \end{altgrammar}
-%
-%\infer [B-ProxyApp]
-%{ \opsemtrack{\openv{}}{\e{1}}{\ProxyV{\vpp{}}{\v{}}{\overrightarrow{\inferpath{}}}}{\res{1}} \\
-%  \opsemtrack{\openv{}}{\appexp{\v{}}{\e{2}}}{\vp{}}{\res{2}}
-%}
-%{ \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\bigunionres{\ova{\res{}}}}}
-%
-%  \arraycolsep=1.4pt
-%  \begin{array}{lllll}
-%    \trackmetaalign{\num{}}{\ovadiff{\inferpath{}}}{\num{}}{\proxyextdiff{\bigunionres{\ovadiff{\proxyextsame{\singletonres{\inferpath{}}{\IntT{}}}}}}}\\
-%    \trackmetaalign{\kw{}}{\ovadiff{\inferpath{}}}{\kw{}}
-%                   {\proxyextdiff{\bigunionres{\ovadiff{\proxyextsame{\singletonres{\inferpath{}}{\Keyword{}}}}}}}\\
-%    \trackmetaalign{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
-%                   {\ovadiff{\inferpath{}}}
-%                   {\proxyextdiff{\ProxyV{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}
-%                                         {\proxyextsame{{\closure{\ep{}}{\openv{}}}}}
-%                                         {\ova{\inferpath{}}}}}
-%                   {\emptyres{}}
-%         \\
-%    &&
-%    \begin{array}{@{}llll}
-%      \text{ where } \yvar{} \text{ is fresh},\\
-%                    \begin{array}{lllll}
-%                        \ep{} =
-%                          \uabs{\y{}}{\trackE{&\appexp{(\uabs{\x{}}{\e{}})}{\trackE{\yvar{}}{\ovadiff{\appendone{\inferpath{}}{\dompe{}}}}}}
-%                                             {\\&\ovadiff{\appendone{\inferpath{}}{\rngpe{}}}}}
-%                     \end{array}
-%    \end{array}
-%                
-%    \\
-%    \trackmetaalignsplice{\ProxyV{\val1{}}{\val2{}}{\ova{\inferpathp{}}}}{\ova{\inferpath{}}}
-%                         {\trackmetaOp{}(\val1{},\ \ova{\appendone{(\inferpath{} \cup \inferpath{}')}{\dompe{}}})}
-%  \end{array}
-%\end{mathpar}
-%  \caption{Space efficient tracking extensions (\textcolor{red}{changes})}
-%\end{figure}
+\begin{figure}
+  \ifdefined\PAPER
+  \footnotesize
+  \fi
+\begin{mathpar}
+  \begin{altgrammar}
+    \v{} &::=& ... \alt \MProxyVdiff{\curlymap{\ova{\kw{}\ \v{}}}}{\curlymap{\ova{\kw{}\ \curlymap{\ova{\HMapreq{}\ \ova{\inferpath{}}}}}}}
+       &\mbox{Values}
+  \end{altgrammar}
+
+  \arraycolsep=1.4pt
+  \begin{array}{lllll}
+    \trackmetaalign{\curlymap{\ova{\kw{i}\ \kwp{i}}^{1 \leq i \leq n}\ \ova{\kw{j}\ \v{j}}^{n < j \leq p}}}
+                   {\ovadiff{\inferpath{}}}
+                   {\MProxyVdiff{\curlymap{\ova{\kw{i}\ \kwp{i}}^{1 \leq i \leq n}\ \ova{\kw{j}\ \proxyextdiff{\v{j}}}^{n < j \leq p}}}
+                                {\curlymap{\ova{\kw{}\ \{\HMapreq{}\ \ova{\inferpath{}}\}}}}}
+                   {\proxyextdiff{\emptyres{}}}
+                   \\
+                   &&
+    \begin{array}{@{}llll}
+      \text{where } \HMapreq{} = {\curlymap{\ova{\kw{i}\ \kwp{i}}^{1 \leq i \leq n}\ \ova{\kw{j}\ \UnknownT{}}^{n < j \leq p}}}
+    \end{array}
+    \\
+    \trackmetaalign{\MProxyVdiff{\curlymap{\ova{\kw{}\ \v{}}}}
+                                {\curlymap{\ova{\kwp{}\ \{\HMapreq{}\ \ova{\inferpathp{}}\}}}}}
+                   {\ovadiff{\inferpath{}}}
+                   {\MProxyVdiff{\curlymap{\ova{\kw{}\ \v{}}}}
+                                {\curlymap{\ova{\kwp{}\ \{\HMapreq{}\ (\ova{\inferpath{} \cup}\ \cup\ {\ova{\inferpathp{} \cup}})\}}}}}
+                   {\emptyres{}}
+  \end{array}
+
+  \arraycolsep=1.4pt
+  \begin{array}{lllr}
+    \inferconstantopsemalignnospace
+      {\assocliteral{}}
+      {\MProxyVdiff{\curlymap{\ova{\kw{}\ \v{}}}}{\curlymap{\kwp{}\ \textsf{t}', \ova{\kwpp{}\ \textsf{t}}}}
+       , \kwp{}
+       , \vp{}}
+      {\MProxyVdiff{\updatemap{\curlymap{\ova{\kw{}\ \v{}}}}{\kwp{}}{\vp{}}}
+               {\curlymap{\ova{\kwpp{}\ \textsf{t}}}}}
+      {\emptyres{}}\\
+    \inferconstantopsemalignnospace
+      {\assocliteral{}}
+      {\MProxyVdiff{\curlymap{\ova{\kw{}\ \v{}}}}
+                   {\curlymap{\ova{\kwpp{}\ \textsf{t}}}}
+       , \kwp{}
+       , \vp{}}
+      {\MProxyVdiff{\updatemap{\curlymap{\ova{\kw{}\ \v{}}}}{\kwp{}}{\vp{}}}
+                   {\curlymap{\ova{\kwpp{}\ \textsf{t}}}}}
+      {\emptyres{}}\\
+    \inferconstantopsemalignsplice
+      {\getliteral{}}
+      {\MProxyVdiff{\curlymap{\kw{}\ \v{}, \ova{\kwp{}\ \vp{}}}}
+                   {\curlymap{\kw{}\ \textsf{t}, \ova{\kwpp{}\ \textsf{t}'}}}
+       , \kw{}}
+      {\proxyextdiff{\trackmetalhs{\proxyextsame{\v{}}}{\ova{\inferpath{}}}}}\\
+      \begin{array}{lllll}
+        \text{ where } \ova{\inferpath{}} = \big[\appendone{\inferpath{}}{\inferkeype{\HMapreq{}}{\kw{}}}
+                                                \ |\
+                                                (\HMapreq{}, \ova{\inferpath{}}) \in \textsf{t}, 
+                                                \inferpath{} \in \ova{\inferpath{}}
+                                           \big]
+      \end{array}
+      \\
+    \inferconstantopsemalign
+      {\dissocliteral{}}
+      {\MProxyVdiff{\curlymap{\kw{}\ \v{}, \ova{\kwp{}\ \vp{}}}}
+                   {\curlymap{\kw{}\ \textsf{t}, \ova{\kwpp{}\ \textsf{t}'}}}
+       , \kw{}}
+      {\MProxyVdiff{\curlymap{\ova{\kwp{}\ \vp{}}}}
+                   {\curlymap{\ova{\kwpp{}\ \textsf{t}'}}}}
+      {\emptyres{}}
+  \end{array}
+\end{mathpar}
+  \caption{Lazy tracking extensions (\textcolor{red}{changes})}
+\end{figure}
