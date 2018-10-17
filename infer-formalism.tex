@@ -774,9 +774,8 @@ Then, for every keyset \ova{\kw{}}, \textsf{similarReq} adds aliases to the grou
 whose keysets are a subset of \ova{\kw{}}. The number of missing
 keys permitted is determined by \textsf{thres}, which we do not provide a
 definition.
-Finally, \textsf{remDiffTag} removes differently-tagged HMaps from each group.
-
-The merging 
+Finally, \textsf{remDiffTag} removes differently-tagged HMaps from each group,
+and the groups are merged via \mergealiases{} as before.
 
 \Dsubsection{Implementation}
 
