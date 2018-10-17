@@ -176,68 +176,6 @@
 
 \input{infer-related-work}
 
-\paragraph{Automatic annotations}
-There are two common implementation strategies for such tools. The first
-strategy, ``ruling-out'' (for invariant detection), assumes all invariants are true 
-and then use runtime analysis results to rule out
-impossible invariants. The second ``building-up'' strategy (for dynamic type inference)
-assumes nothing and then uses runtime analysis results to build up invariant/type knowledge.
-
-Examples of invariant detection tools include Daikon \cite{Ernst06thedaikon},
-DIDUCE \cite{hangal2002tracking}, and Carrot \cite{pytlik2003automated}, and
-typically enhance statically typed languages with more expressive types or contracts.
-Examples of dynamic type inference include Rubydust \cite{An10dynamicinference},
-JSTrace \cite{saftoiu2010jstrace}, and TypeDevil \cite{pradel2015typedevil},
-and typically target untyped languages.
-
-Both strategies have different space behavior with respect to representing
-the set of known invariants.
-The ruling-out strategy typically uses a lot of memory at the beginning,
-but then can free memory as it rules out invariants. For example, if
-\texttt{odd(x)} and \texttt{even(x)} are assumed, observing \texttt{x = 1}
-means we can delete and free the memory recording \texttt{even(x)}.
-Alternatively, the building-up strategy uses the least memory storing
-known invariants/types at the beginning, but increases memory usage
-as more the more samples are collected. For example, if we know
-\texttt{x : Bottom}, and we observe \texttt{x = "a"} and \texttt{x = 1}
-at different points in the program, we must use more memory to
-store the union \texttt{x : String $\cup$ Integer} in our set of known invariants.
-
-\paragraph{Daikon}
-Daikon can reason about very expressive relationships between variables
-using properties like ordering ($x < y$), linear relationships ($y = ax + b$),
-and containment ($x \in y$). It also supports reasoning with ``derived variables''
-like fields ($x.f$), and array accesses ($a[i]$).
-
-Typed Clojure's dynamic inference can record heterogeneous data structures
-like vectors and hash-maps, but otherwise cannot express relationships
-between variables.
-
-There are several reasons for this. The most prominent is that Daikon
-primarily targets Java-like languages, so inferring simple type information
-would be redundant with the explicit typing disciplines of these languages.
-On the other hand, the process of moving from Clojure to Typed Clojure
-mostly involves writing simple type signatures without dependencies
-between variables. Typed Clojure recovers relevant dependent information
-via occurrence typing, and gives the option to manually annotate necessary
-dependencies in function signatures when needed.
-
-
-% Inference and Evolution of TypeScript Declaration Files
-% - they submit pull requests from their tool's output
-% https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
-\paragraph{TypeScript Annotation Generation}
-Kristensen and M{\o}ller~\cite{kristensen2017inference}
-present TSInfer and TSEvolve that generate TypeScript annotation
-files using static analysis of JavaScript code. They
-submitted corrections back to libraries they found descrepancies in,
-which were accepted with little to no changes in the tool's output.
-
-NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
-is used, and automatically runs the tests of downstream projects to
-improve test coverage. Its concept of representing a program sample as
-a path paired with a type is very similar to Typed Clojure's approach.
-
 \paragraph{How dynamic languages are used}
 Several languages have seen similar investigations
 into their idioms as I am proposing for Clojure.

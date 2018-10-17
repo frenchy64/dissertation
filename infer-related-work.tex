@@ -1,75 +1,151 @@
 \Dchapter{Related work}
 
-The field of dynamic analysis has a rich history.
-Ball~\cite{ball1999concept}
-introduces frequency spectrum analysis,
-an approach that observes a running program
-that is similar to our instrumentation approach.
-Mock~\cite{mock2003dynamic}
-makes the case for efficient profiling of programs
-to better facilitate usage of instrumentation.
+%The field of dynamic analysis has a rich history.
+%Ball~\cite{ball1999concept}
+%introduces frequency spectrum analysis,
+%an approach that observes a running program
+%that is similar to our instrumentation approach.
+%Mock~\cite{mock2003dynamic}
+%makes the case for efficient profiling of programs
+%to better facilitate usage of instrumentation.
+%
+%Value Profiling is another related area which characterises
+%programs based on their running entities.
+%
+%Daikon~\cite{ernst2001dynamically}
+%uses dynamic analysis to recover likely program invariants
+%in C programs.
+%
+%Dynamic type inference has been attempted in many different
+%areas.
+%Rubydust~\cite{An10dynamicinference}
+%infers static types for Ruby. They prove the generated types
+%sound, which we do not. 
+%\begin{verbatim}
+%Conversely, they do not generate
+%recursive types, but recursive types in ruby are probably
+%nominal, so how different are we?
+%\end{verbatim}
+%
+%In the context of JavaScript, several usages of this technique
+%can be found.
+%JSTrace~\cite{saftoiu2010jstrace}
+%generates types for (?).
+%Separately, work has been done to generate JSDoc-like annotations~\cite{odgaard2014}.
+%TypeDevil~\cite{pradel2015typedevil}
+%uses dynamic analysis to warn JavaScript programmers of possible inconsistencies
+%in their programs.
+%
+%Work in recovering context-free grammars is most related to our algorithm
+%to recover recursive types.
+%% TODO Shamir~\cite{shamir1962remark} notes that it is impossible
+%% TODO \cite{knobe1976method}
+%
+%In the context of machine learning, 
+%this area is called grammar induction or language learning.  % according to vcrepinvsek2005inferring
+%% TODO Wang\cite{wang1998grammar} summarises 
+%{\v{C}}repin{\v{s}}ek et. al~\cite{vcrepinvsek2005inferring}
+%use genetic programming to infer context-free grammars
+%for domain-specific languages.
+%Most work in this area assume both positive and negative
+%examples. We cannot distinguish between these two in
+%our system, so we assume all examples are positive.
+%
+%Chen~\cite{chen1995bayesian} uses Bayesian inference to converge
+%on a suitable grammar, given examples.
+%
+%There has been recent interest in approximate type inference.
+%
+%Pluquet et. al~\cite{marot2009fast} investigate heuristics
+%to quickly infer types in dynamic programs.
+%So does Milojkovi{\'c}
+%\cite{milojkovic2016exploring}.
+%Spasojevi{\'c} et. al~\cite{spasojevic2014mining}
+%compare types across a cross section of projects to improve
+%inference.
+%
+%Adamsen et. al~\cite{adamsen2016analyzing} verify test suite completeness using a hybrid approach of lightweight dependency analysis, static type checking and dynamic instrumentation.
+%
+%% Inference and Evolution of TypeScript Declaration Files
+%% - they submit pull requests from their tool's output
+%% https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
+%
+%% Automatic TS annotations from JSON (including recursive types)
+%% https://github.com/shakyShane/json-ts
 
-Value Profiling is another related area which characterises
-programs based on their running entities.
+\paragraph{Automatic annotations}
+There are two common implementation strategies for such tools. The first
+strategy, ``ruling-out'' (for invariant detection), assumes all invariants are true 
+and then use runtime analysis results to rule out
+impossible invariants. The second ``building-up'' strategy (for dynamic type inference)
+assumes nothing and then uses runtime analysis results to build up invariant/type knowledge.
 
-Daikon~\cite{ernst2001dynamically}
-uses dynamic analysis to recover likely program invariants
-in C programs.
+Examples of invariant detection tools include Daikon~\cite{ernst2001dynamically},
+DIDUCE \cite{hangal2002tracking}, and Carrot \cite{pytlik2003automated}, and
+typically enhance statically typed languages with more expressive types or contracts.
+Examples of dynamic type inference include Rubydust \cite{An10dynamicinference},
+JSTrace \cite{saftoiu2010jstrace}, and TypeDevil \cite{pradel2015typedevil},
+and typically target untyped languages.
 
-Dynamic type inference has been attempted in many different
-areas.
-Rubydust~\cite{An10dynamicinference}
-infers static types for Ruby. They prove the generated types
-sound, which we do not. 
-\begin{verbatim}
-Conversely, they do not generate
-recursive types, but recursive types in ruby are probably
-nominal, so how different are we?
-\end{verbatim}
+Both strategies have different space behavior with respect to representing
+the set of known invariants.
+The ruling-out strategy typically uses a lot of memory at the beginning,
+but then can free memory as it rules out invariants. For example, if
+\texttt{odd(x)} and \texttt{even(x)} are assumed, observing \texttt{x = 1}
+means we can delete and free the memory recording \texttt{even(x)}.
+Alternatively, the building-up strategy uses the least memory storing
+known invariants/types at the beginning, but increases memory usage
+as more the more samples are collected. For example, if we know
+\texttt{x : Bottom}, and we observe \texttt{x = "a"} and \texttt{x = 1}
+at different points in the program, we must use more memory to
+store the union \texttt{x : String $\cup$ Integer} in our set of known invariants.
 
-In the context of JavaScript, several usages of this technique
-can be found.
-JSTrace~\cite{saftoiu2010jstrace}
-generates types for (?).
-Separately, work has been done to generate JSDoc-like annotations~\cite{odgaard2014}.
-TypeDevil~\cite{pradel2015typedevil}
-uses dynamic analysis to warn JavaScript programmers of possible inconsistencies
-in their programs.
+\paragraph{Daikon}
+Daikon can reason about very expressive relationships between variables
+using properties like ordering ($x < y$), linear relationships ($y = ax + b$),
+and containment ($x \in y$). It also supports reasoning with ``derived variables''
+like fields ($x.f$), and array accesses ($a[i]$).
 
-Work in recovering context-free grammars is most related to our algorithm
-to recover recursive types.
-% TODO Shamir~\cite{shamir1962remark} notes that it is impossible
-% TODO \cite{knobe1976method}
+Typed Clojure's dynamic inference can record heterogeneous data structures
+like vectors and hash-maps, but otherwise cannot express relationships
+between variables.
 
-In the context of machine learning, 
-this area is called grammar induction or language learning.  % according to vcrepinvsek2005inferring
-% TODO Wang\cite{wang1998grammar} summarises 
-{\v{C}}repin{\v{s}}ek et. al~\cite{vcrepinvsek2005inferring}
-use genetic programming to infer context-free grammars
-for domain-specific languages.
-Most work in this area assume both positive and negative
-examples. We cannot distinguish between these two in
-our system, so we assume all examples are positive.
-
-Chen~\cite{chen1995bayesian} uses Bayesian inference to converge
-on a suitable grammar, given examples.
-
-There has been recent interest in approximate type inference.
-
-Pluquet et. al~\cite{marot2009fast} investigate heuristics
-to quickly infer types in dynamic programs.
-So does Milojkovi{\'c}
-\cite{milojkovic2016exploring}.
-Spasojevi{\'c} et. al~\cite{spasojevic2014mining}
-compare types across a cross section of projects to improve
-inference.
-
-Adamsen et. al~\cite{adamsen2016analyzing} verify test suite completeness using a hybrid approach of lightweight dependency analysis, static type checking and dynamic instrumentation.
+There are several reasons for this. The most prominent is that Daikon
+primarily targets Java-like languages, so inferring simple type information
+would be redundant with the explicit typing disciplines of these languages.
+On the other hand, the process of moving from Clojure to Typed Clojure
+mostly involves writing simple type signatures without dependencies
+between variables. Typed Clojure recovers relevant dependent information
+via occurrence typing, and gives the option to manually annotate necessary
+dependencies in function signatures when needed.
 
 
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
+\paragraph{TypeScript Annotation Generation}
+Kristensen and M{\o}ller~\cite{kristensen2017inference}
+present TSInfer and TSEvolve that generate TypeScript annotation
+files using static analysis of JavaScript code. They
+submitted corrections back to libraries they found descrepancies in,
+which were accepted with little to no changes in the tool's output.
 
-% Automatic TS annotations from JSON (including recursive types)
-% https://github.com/shakyShane/json-ts
+NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
+is used, and automatically runs the tests of downstream projects to
+improve test coverage. Their \emph{dynamic access paths} represented as
+a series of \emph{actions} are analogous to our paths of path elements.
+% distinguishes public/private API
+
+% Python
+% - MaxSMT-Based Type Inference for Python 3
+%  - cites other python based projects
+%  - https://link.springer.com/content/pdf/10.1007%2F978-3-319-96142-2_2.pdf
+% - pytype
+%  - static analysis to generate python annotations
+%  - https://github.com/google/pytype
+% - pyannotate
+%   - dynamic analysis
+%   - https://github.com/dropbox/pyannotate
+
+% A Survey of Dynamic Analysis and Test Generation for JavaScript
+%  - http://mp.binaervarianz.de/js_survey_2017.pdf

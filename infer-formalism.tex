@@ -485,7 +485,7 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
   \end{array}
 
   \begin{array}{lllll}
-    \textsf{fold} : (\alpha, \beta \rightarrow \alpha), \alpha, \ova{\beta} \rightarrow \alpha\\
+    \textsf{fold} : \forall \alpha, \beta. (\alpha, \beta \rightarrow \alpha), \alpha, \ova{\beta} \rightarrow \alpha\\
     \textsf{fold}(\textsf{f}, \textsf{a}_0, \ova{\textsf{b}}^n) = \textsf{a}_n\\
     \begin{array}{llll}
       \text{where } \ova{\textsf{a}_i = \textsf{f}(\textsf{a}_{i-1}, \textsf{b}_{i})}^{1 \leq i \leq n}\\
@@ -523,6 +523,79 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
 
 \Dsubsection{Pass 2: Squash locally}
 
+We now describe the algorithm for generating recursive type aliases.
+The first step \squashlocal{} creates recursive types from directly nested types.
+It folds over each type in the type environment, first
+creating aliases with \aliashmap{}, and then
+attempting to merge these aliases by \squashall{}.
+
+A type is aliased by \aliashmap{} either if it is a union containing a HMap,
+or a HMap that is not a member of a union.
+While we will use the structure of HMaps to determine when to create a recursive
+type, keeping surrounding type information close to HMaps helps create more
+compact and readable recursive types.
+The implementation uses a post-order traversal via \textsf{postwalk},
+which also threads an annotation environment as it applies
+the provided function.
+
+Then, \squashall{} follows each alias \alias{i} reachable from the type environment
+and attempts to merge it with any alias reachable from \alias{i}.
+The \squash{} function maintains 
+a set of already visited aliases to avoid infinite loops.
+
+The logic for merging aliases is contained in \mergealiases{}.
+Merging \alias{2} into \alias{1} involves mapping \alias{2}
+to \alias{1} and \alias{1} to the join of both definitions.
+Crucially before joining, we rename occurrences of 
+\alias{2} to \alias{1}. This avoids a linear increase in the
+width of union types, proportional to the number of merged aliases.
+Without this, if we further merge \alias{3} into \alias{1},
+like \Unionsplice{{\alias{1}}\ {\alias{2}}\ {\alias{3}}} occur
+instead of simply \alias{1}.
+The running time of our algorithm is proportional to the
+width of union types, due to the quadtratic combination of
+unions in the join function, and this optimization greatly
+helped the running time of several benchmarks.
+To avoid introducing infinite types,
+top-level references to other aliases we are merging with
+are erased with the helper \textsf{f}.
+
+The \shouldmergeOp{} function determines whether two types are related enough
+to warrant being merged. We present our current implementation, which is simplistic,
+but is fast and effective in practice, but many variations are possible.
+Aliases are merged if they are all HMap's (not contained in unions), that
+contain a keyword key in common, with possibly disjoint mapped values.
+For example, our opening example has the \clj{:op} key mapped to either
+\clj{:leaf} or \clj{:node}, and so aliases for each map would be merged.
+Notice again, however, the join operator does not collapse differently-tagged
+maps, so they will occur recursively in the resulting alias, but separated by union.
+
+Even though this implementation of \shouldmergeOp{} does not directly utilize the aliased
+union types carefully created by \aliashmap{}, they still affect the final types.
+For example, squashing \clj{T} in
+\begin{cljlisting}
+(defalias T 
+  (U nil
+     '{:op :node :left '{:op :leaf ...} ...}))
+\end{cljlisting}
+results in 
+\begin{cljlisting}
+(defalias T 
+  (U nil
+     '{:op :node :left T ...}
+     '{:op :leaf ...}))
+\end{cljlisting}
+rather than
+\begin{cljlisting}
+(defalias T2 (U '{:op :node :left T ...}
+                '{:op :leaf ...}))
+(defalias T (U nil T2))
+\end{cljlisting}
+An alternative implementation of \shouldmergeOp{} we experimented with included computing sets of keysets
+for each alias, and merging if the keysets overlapped. This, and many of our early experimentations,
+required expensive computations of keyset combinations and traversals over them that could be emulated
+with cruder heuristics like the current implementation.
+
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
@@ -547,6 +620,10 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
   \end{array}
 
   \begin{array}{lllll}
+    \aliasesin{} : \t{} \rightarrow \ova{\alias{}}\\
+    \aliasesin{}(\alias{}) = [\alias{}]\\
+    \aliasesin{}(\t{}(\ova{\s{}})) = \bigcup{\ova{\aliasesin{}(\s{})}}
+    \\\\
     \textsf{postwalk} : \atenv{}, \t{}, (\atenv{}, \t{} \rightarrow (\atenv{}, \t{})) \rightarrow (\atenv{}, \t{})\\
     \textsf{postwalk}(\atenv{0}, \t{}(\ova{\s{}}^n), \textsf{w}) = \textsf{w}(\atenv{n}, \t{}(\ova{\sp{}}))\\
     \begin{array}{lllll}
@@ -554,21 +631,28 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
         &\ova{(\atenv{i}, \sp{i}) = \textsf{postwalk}(\atenv{i-1}, \s{i}, \textsf{w})}\\
     \end{array}
     \\\\
-    \shouldmergeOp{} : \ova{\t{}} \rightarrow \textbf{Bool}\\
-    \shouldmergeOp{}(\ova{\HMaptwo{\HMapreq{i}}{\HMapopt{i}}}) = \exists\kw{}. \ova{(\kw{}, \kw{i}) \in \HMapreq{i}}\\
-    \shouldmergeOp{}(\ova{\t{}}) = \textbf{F}, \text{ otherwise}\\
-    \\
-    \trymergealias{} : \atenv{}, \alias{}, \alias{} \rightarrow \atenv{}
-    \\
-    \trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
+    \mergealiases{} : \atenv{}, \ova{\alias{}} \rightarrow \atenv{}\\
+    \mergealiases{}(\atenv{}, []) = \atenv{}\\
+    \mergealiases{}(\atenv{}, [\alias{1} ... \alias{n}]) =
+        \updatemap{\updatemapmulti{\atenv{}}{\alias{i}}{\alias{1}}}{\alias{1}}{\s{}}\\\
     \begin{array}{llll}
-      \textsf{if } \neg \shouldmergeOp{}(\ova{\fullyresolve{}(\atenv{}, \alias{})}) \textsf{ then } \atenv{}\\
-      \textsf{else } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
-                               {\alias{1}}
-                               % this fixes the "too much garbage" issue
-                               {\joinstarexpression{\ova{\replacefor{\atenv{}[\alias{i}]}{\alias{1}}{\alias{2}}}}}\\
-    \end{array}\\
-      \\
+      \text{where } &\s{} = \joinstarexpression{\ova{\replacefor{\textsf{f}(\fullyresolve{}(\atenv{},\alias{i}))}{\alias{1}}{\alias{i}}}}
+                    \\
+                    &\textsf{f}(\aliasp{}) = \EmptyUnion{}, \text{ if } \aliasp{} \in \ova{\alias{}}\\
+                    &\textsf{f}(\Unionsplice{\ova{\t{}}}) = \Unionsplice{\ova{\textsf{f}(\t{})}}\\
+                    &\textsf{f}(\t{}) = \t{} \text{, otherwise}
+    \end{array}
+    \\\\
+    %\trymergealias{} : \atenv{}, \alias{}, \alias{} \rightarrow \atenv{}
+    %\\
+    %\trymergealias{}(\atenv{}, \alias{1}, \alias{2}) =\\
+    %\begin{array}{llll}
+    %  \textsf{if } \neg \shouldmergeOp{}(\ova{\fullyresolve{}(\atenv{}, \alias{})}) \textsf{ then } \atenv{}\\
+    %  \textsf{else } \updatemap{\updatemap{\atenv{}}{\alias{2}}{\alias{1}}}
+    %                           {\alias{1}}
+    %                           % this fixes the "too much garbage" issue
+    %                           {\joinstarexpression{\ova{\replacefor{\atenv{}[\alias{i}]}{\alias{1}}{\alias{2}}}}}\\
+    %\end{array}\\
       %fold-based version
     \squashlocal{} : \tenv{} \rightarrow \atenv{}\\
     \squashlocal{}(\tenv{}) = \textbf{fold}(\steptwohelper{}, \emptyatenv{}, \tenv{})\\
@@ -601,35 +685,37 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
   \begin{array}{llll}
     \squashall{} : \atenv{}, \t{} \rightarrow \atenv{}\\
     \squashall{}(\atenv{0}, \t{}) = \atenv{n} \\
+    \begin{array}{llll}
+      \text{where }
+      &\ova{\alias{}}^n = \aliasesin{}(\t{})\\
+      &\ova{\atenv{i} = \squash{}(\atenv{i-1}, [\alias{i}], [])}\\
+    \end{array}
+    \\\\
+    \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
+    \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
+    \squash(\atenv{}, \alias{1} :: \textsf{w}, \textsf{d}) = 
+      \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{1}\})\\
     \begin{array}{lllll}
       \begin{array}{@{}llll}
-        \text{where}\\
-        \begin{array}{llll}
-          \ova{\alias{}}^n = \aliasesin{}(\t{})\\
-          \ova{\atenv{i} = \squash{}(\atenv{i-1}, [\alias{i}], [])}\\
-          \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
-          \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
-          \squash(\atenv{}, \alias{} :: \textsf{w}, \textsf{d}) = \\
-          \begin{array}{lllll}
-            \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{}\})\\
-            \begin{array}{@{}llll}
-              \text{where }
-              &\textsf{as} = \aliasesin{}(\atenv{}[\alias{}]) \setminus \textsf{d}\\
-              &\textsf{ap} = \textsf{d} \setminus \{\alias{}\}\\
-              &\textsf{f}(\atenv{}, \aliasp{}) = \trymergealias{}(\atenv{}, \aliasp{}, \alias{})\\
-              &\begin{array}{@{}llll}
-                \atenvp{} &= \textsf{if } \alias{} \in \textsf{d} \textsf{, then } \atenv{} \text{,}\\
-                          &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
-              \end{array}
-            \end{array}
-          \end{array}
+        \text{where }
+        &\textsf{as} = \aliasesin{}(\atenv{}[\alias{1}]) \setminus \textsf{d}\\
+        &\textsf{ap} = \textsf{d} \setminus \{\alias{1}\}\\
+        &\begin{array}{@{}llll}
+           \textsf{f}(\atenv{}, \alias{2}) = 
+             &\textsf{if } \neg \shouldmergeOp{}(\ova{\fullyresolve{}(\atenv{}, \alias{})}),\\
+             &\textsf{then } \atenv{}\\
+             &\textsf{else } \mergealiases{}(\atenv{}, \ova{\alias{i}})\\
+        \end{array}\\
+        &\begin{array}{@{}llll}
+          \atenvp{} = &\textsf{if } \alias{} \in \textsf{d} \textsf{, then } \atenv{} \text{,}\\
+          &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
         \end{array}
       \end{array}
     \end{array}
     \\\\
-    \aliasesin{} : \t{} \rightarrow \ova{\alias{}}\\
-    \aliasesin{}(\alias{}) = [\alias{}]\\
-    \aliasesin{}(\t{}(\ova{\s{}})) = \bigcup{\ova{\aliasesin{}(\s{})}}
+    \shouldmergeOp{} : \ova{\t{}} \rightarrow \textbf{Bool}\\
+    \shouldmergeOp{}(\ova{\HMaptwo{\HMapreq{i}}{\HMapopt{i}}}) = \exists\kw{}. \ova{(\kw{}, \kw{i}) \in \HMapreq{i}}\\
+    \shouldmergeOp{}(\ova{\t{}}) = \textbf{F}, \text{ otherwise}
   \end{array}
 
 \end{mathpar}
@@ -644,16 +730,85 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
 
 \Dsubsection{Pass 3: Squash globally}
 
+The final step combines aliases
+without restriction on whether they occur ``together''.
+This step combines type information between different positions
+(such as in different arguments or functions) so that any deficiencies
+in unit testing coverage are massaged away.
+
+Our key hypothesis is, in Clojure programs, functions in the same
+namespace operate on related data. Our inference is built
+to be per-namespace (i.e., per-file), aggressively merging
+all apparently-related HMap types often to yields useful types
+in our benchmarks.
+This approach does not work well for libraries providing polymorphic
+functions, since unit tests may use sample data that are unrelated
+to the details of the function, but our algorithm merges and displays
+them as an ``important'' top-level type alias.
+Our algorithm excels
+with programs that mainly operate on one or two recursive data representations,
+which, outside of polymorphic libraries, are common in the Clojure ecosystem
+in our experience.
+
+The \squashglobal{} function is the entry point in this pass,
+and is similar in structure to the previous pass.
+It first creates aliases for each HMap via \aliassinglehmap{}.
+Then, HMap aliases are grouped and merged in \squashhorizonally{}.
+
+The \aliassinglehmap{} function first traverses the type environment
+and creates alises for any HMaps via \singlehmap{}, and binds the resulting
+envionment as \atenvp{}.
+Then, the we update alias environment entries with \textsf{f}, whose first
+case prevents re-aliasing a top-level HMap before we call \singlehmap{}
+(\singlehmap{}'s second argument works with both \x{} and \alias{}).
+The \t{}(\ova{\s{}}) syntax represents a type \t{} whose constructor
+takes types \ova{\s{}}.
+
+After that, \squashhorizonally{} creates groups of related
+aliases with \textsf{groupSimilarReq}.
+Each group contains HMap aliases whose required keysets are similar,
+but are never differently-tagged.
+The code creates a map \textsf{r} from keysets to groups of HMap
+aliases with that (required) keyset.
+Then, for every keyset \ova{\kw{}}, \textsf{similarReq} adds aliases to the group
+whose keysets are a subset of \ova{\kw{}}. The number of missing
+keys permitted is determined by \textsf{thres}, which we do not provide a
+definition.
+Finally, \textsf{remDiffTag} removes differently-tagged HMaps from each group.
+
+The merging 
+
+\Dsubsection{Implementation}
+
+Further passes are used in the implementation.
+In particular, we trim unreachable aliases and remove aliases
+that simply point to another alias (like \alias{2} in \mergealiases{})
+between each pass.
+
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
+    \textsf{req}: \atenv{}, \alias{} \rightarrow \HMapreq{}\\
+    \textsf{req}(\atenv{}, \alias{}) = \textsf{req}(\atenv{}, \alias{})\\
+    \textsf{req}(\atenv{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) = \HMapreq{}\\
+    \\\\
+    %\textsf{req}: \atenv{}, \alias{} \rightarrow \ova{\HMapreq{}}\\
+    %\textsf{req}(\atenv{}, \alias{}) = \textsf{req}(\atenv{}, \alias{})\\
+    %\textsf{req}(\atenv{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) = [\HMapreq{}]\\
+    %\textsf{req}(\atenv{}, \Unionsplice{\ova{\t{}}}) = \bigcup\ova{\textsf{req}(\atenv{},\t{})}\\
+    %\textsf{req}(\atenv{}, \t{}) = [] \text{, otherwise}
+    \squashhorizonally{} : \atenv{} \rightarrow \atenv{}\\
+    \squashhorizonally{}(\atenv{}) =
+      \textsf{fold}(\mergealiases{}, \atenv{}, \textsf{groupSimilarReq}(\atenv{}))\\
+    \\\\
     \squashglobal{} : \atenv{} \rightarrow \atenv{}\\
     \squashglobal{} = \squashhorizonally{} \circ \aliassinglehmap{}
-    \\\\
+  \end{array}
+  \begin{array}{lllll}
     \aliassinglehmap{} : \atenv{} \rightarrow \atenv{}\\
-    \aliassinglehmap{}(\atenv{}) = \textsf{fold}(\textsf{f}, \atenvp{}, \text{rng}(\atenvp{}[\aenv{}]))\\
+    \aliassinglehmap{}(\atenv{}) = \textsf{fold}(\textsf{f}, \atenvp{}, \atenvp{}[\aenv{}])\\
     \begin{array}{llll}
-      \text{where } &\atenvp{} = \textsf{fold}(\singlehmap{}, \atenv{}, \text{rng}(\atenv{}[\tenv{}]))\\
+      \text{where } &\atenvp{} = \textsf{fold}(\singlehmap{}, \atenv{}, \atenv{}[\tenv{}])\\
                     &\textsf{f}(\atenv{0}, \t{}(\ova{\s{}}^n)) = (\atenv{n}, \t{}(\sp{})) \text{, if } \t{} = \HMaptwo{\HMapreq{}}{\HMapopt{}}\\
                     &\begin{array}{lllll}
                       \text{where } \ova{(\atenv{i}, \s{i}) = \singlehmap{}(\atenv{i-1}, \s{i})}
@@ -662,26 +817,19 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
                     &\textsf{f}(\atenv{}, \t{}) = \singlehmap{}(\atenv{}, \t{}) \text{, otherwise}
     \end{array}
     \\\\
-    \mergealiases{} : \atenv{}, \ova{\alias{}} \rightarrow \atenv{}\\
-    \mergealiases{}(\atenv{}, []) = \atenv{}\\
-    \mergealiases{}(\atenv{}, \append{\alias{}}{\ova{\aliasp{}}}) =
-        \updatemap{\updatemapmulti{\atenv{}}{\aliasp{i}}{\alias{}}}{\alias{}}{\s{}}\\\
-    \begin{array}{llll}
-      \text{where } &\s{} = \joinexpression{\joinstarexpression{\ova{\textsf{f}(\fullyresolve{}(\atenv{},\aliasp{}))}}}
-                                           {\textsf{f}(\fullyresolve{}(\atenv{},\alias{}))}
-                    \\
-                    &\textsf{f}(\aliaspp{}) = \EmptyUnion{}, \text{ if } \aliaspp{} \in \append{\alias{}}{\ova{\aliasp{}}}\\
-                    &\textsf{f}(\Unionsplice{\ova{\t{}}}) = \Unionsplice{\ova{\textsf{f}(\t{})}}\\
-                    &\textsf{f}(\t{}) = \t{} \text{, otherwise}
-    \end{array}
-    \\\\
-    \singlehmap{} : \atenv{}, \t{} \rightarrow (\atenv{}, \t{})\\
-    \singlehmap{}(\atenv{}, \t{}) = \textsf{postwalk}(\atenv{}, \t{}, \textsf{f})\\
+    \singlehmap{} : \forall \alpha. \atenv{}, (\alpha, \t{}) \rightarrow \atenv{}\\
+    \singlehmap{}(\atenv{}, (\textsf{x}, \t{})) = \updatemap{\atenv{}}{\textsf{x}}{\s{}}\\
     \begin{array}{lllll}
-      \text{where} &\textsf{f}(\atenv{}, {\HMaptwo{\HMapreq{1}}{\HMapreq{2}}}) = \register{}(\atenv{},\HMaptwo{\HMapreq{1}}{\HMapreq{2}})\\
+      \text{where} &(\atenvp{}, \s{}) = \textsf{postwalk}(\atenv{}, \t{}, \textsf{f})\\
+                   &\textsf{f}(\atenv{}, {\HMaptwo{\HMapreq{1}}{\HMapreq{2}}}) = \register{}(\atenv{},\HMaptwo{\HMapreq{1}}{\HMapreq{2}})\\
                    &\textsf{f}(\atenv{}, \t{}) = (\atenv{}, \t{}), \text{otherwise}
     \end{array}
-    \\\\
+    %\\\\
+    %\inferrecOp{} : \atenv{} \rightarrow \atenv{}\\
+    %\inferrecOp{} = \squashglobal{} \circ \squashlocal{}
+  \end{array}
+
+  \begin{array}{lllll}
     \textsf{groupSimilarReq} : \atenv{} \rightarrow \ova{\ova{\alias{}}}\\
     \textsf{groupSimilarReq}(\atenv{}) = 
                    [\ova{\alias{}} | \ova{\kw{}} \in \textsf{dom}(\textsf{r}),
@@ -702,28 +850,10 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
                                                                        \ova{\kwp{} = \kwpp{}}
                                                                       ]
     \end{array}
-    \\\\
-    \textsf{req}: \atenv{}, \alias{} \rightarrow \ova{\HMapreq{}}\\
-    \textsf{req}(\atenv{}, \alias{}) = \textsf{req}(\atenv{}, \alias{})\\
-    \textsf{req}(\atenv{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) = [\HMapreq{}]\\
-    \textsf{req}(\atenv{}, \Unionsplice{\ova{\t{}}}) = \bigcup\ova{\textsf{req}(\atenv{},\t{})}\\
-    \textsf{req}(\atenv{}, \t{}) = [] \text{, otherwise}
-  \end{array}
-
-  \begin{array}{lllll}
-    \inferrecOp{} : \tenv{} \rightarrow \atenv{}\\
-    \inferrecOp{} = \squashglobal{} \circ \squashlocal{}
-  \end{array}
-  \begin{array}{lllll}
-    \\\\
-    \squashhorizonally{} : \atenv{} \rightarrow \atenv{}\\
-    \squashhorizonally{}(\atenv{}) = \atenvp{}\\
-    \begin{array}{lllll}
-      \text{where } &\atenvp{} = \textsf{fold}(\mergealiases{}, \atenv{}, \textsf{groupSimilarReq}(\atenv{}))\\
-    \end{array}
   \end{array}
 \end{mathpar}
 \caption{
+    Definition of $\squashglobal{}(\atenv{}) = \atenvp{}$\\
 %  Step 3 summary: First ensure all HMaps correspond to an alias. Then merge
 %aliases that point to a HMaps with identical required keysets (aliases must point to exactly one
 %top-level HMap, no unions).
