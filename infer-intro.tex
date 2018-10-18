@@ -1,8 +1,91 @@
 \Dchapter{Introduction}
 
+Transitioning to an optional type system
+requires adding type annotations,
+a significant manual burden.
+There has been significant interest in 
+tooling to help create~\cite{saftoiu2010jstrace,pyannotate,typette18,An10dynamicinference,pytype} and
+evolve~\cite{kristensen2017inference}
+these annotations.
+
+In common with most of these tools are
+object orientation, % (JavaScript, Ruby, and Python)
+and accessible class declarations.
+Recursive types are then naturally inferred from local class invariants,
+like a \texttt{Tree} class containing fields of type \texttt{Tree}.
+Unfortunately, these approaches are dependent on these names to infer
+further structure to their types, and so
+do not extend to annotating plain recursive data
+such as JSON or heterogeneous dictionaries.
+
+Such recursive data is particularly common in Clojure programs.
+For example, take \clj{nodes}, a Clojure function that counts
+the nodes in a tree represented by nested maps.
+\begin{cljlisting}
+(defn nodes [t]
+  (case (:op t)
+    :leaf 1
+    :node (+ 1 (nodes (:left t))
+               (nodes (:right t)))))
+(assert (= 3 (nodes
+               {:op :node 
+                :left {:op :leaf :val 2}
+                :right {:op :leaf :val 3}})))
+\end{cljlisting}
+%
+Existing automated annotation approaches cannot derive
+any further structure to the input of \clj{nodes}, other
+than its explicit runtime representation:
+%
+\begin{cljlisting}
+(ann vertices ['{:op Keyword,
+                 :left '{:op Keyword :val Int},
+                 :right '{:op Keyword :val Int}}
+               -> Int])
+\end{cljlisting}
+%
+Our tool instead recognizes that the programmer
+%
+\begin{cljlisting}
+(defalias Op 
+  (U '{:op ':node, :left Op, :right Op}
+     '{:op ':leaf, :val Int}))
+(ann vertices [Op -> Int])
+\end{cljlisting}
+
+%, where plain
+%heterogeneous hash-maps are idiomatic over predefined classes or records.
+%Typed Clojure, in turn, has extensive support for specifying and checking
+%heterogeneous maps.
+%However, the high annotation burden has put off industrial users in practice.
+%
+
 % - set the scene for inferring types
 %   - Typed Clojure
 %   - optional/gradual typing requires annotations
+
+% Typed Clojure has interesting idioms.
+% Similarly we have to take into account specific idioms,
+% Must deal with same realities as ESOP
+% - need HMap's because we know.
+% What does TypeScript auto ann do with `vertices`?
+% - not class based
+% - try python systems
+% 
+% - need to guess nominal names
+% - need to guess grouping
+% - nominal types: don't need to think about recursion
+%  - just give a name, indirection is directed in a big table of names
+%  - humans are used to referring things by name
+
+% other 
+
+% a class invariant is a recursive property "for free"
+% - check locally, get recursion for free
+
+% nothing for free in our setting
+
+% we have names but not nominal types
 
 This paper starts to address a major usability flaw
 for gradually and optionally typed languages:
@@ -16,21 +99,31 @@ annotations
 for this function, relieving most of the annotation
 burden.
 
-\begin{figure}
-\begin{cljlisting}
-(defn vertices [t]
-  (case (:op t)
-    :leaf 1
-    :node (+ 1 (vertices (:left t))
-               (vertices (:right t)))))
-(assert (= 3 (vertices
-               {:op :node 
-                :left {:op :leaf :val 2}
-                :right {:op :leaf :val 3}})))
-\end{cljlisting}
-\caption{A function counting vertices in a tree, with a test.}
-\label{infer:fig:vertices}
-\end{figure}
+%\begin{figure}
+%\begin{cljlisting}
+%(defn nodes [t]
+%  (case (:op t)
+%    :leaf 1
+%    :node (+ 1 (nodes (:left t))
+%               (nodes (:right t)))))
+%(assert (= 3 (nodes
+%               {:op :node 
+%                :left {:op :leaf :val 2}
+%                :right {:op :leaf :val 3}})))
+%\end{cljlisting}
+%\caption{A Clojure function counting tree nodes, with test.}
+%\label{infer:fig:vertices}
+%\end{figure}
+
+%\begin{figure}
+%\begin{cljlisting}
+%(defalias Op (U '{:op ':node ':left Op ':right Op}
+%                '{:op ':leaf ':val Int}))
+%(ann nodes [Op -> Int])
+%\end{cljlisting}
+%\caption{Automatically inferred Typed Clojure annotations.}
+%\label{infer:fig:verticestype}
+%\end{figure}
 
 Our approach features several stages.
 First, we \textit{instrument} top-level functions
