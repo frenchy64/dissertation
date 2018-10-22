@@ -25,7 +25,7 @@ aset-boolean,aset-byte,aset-char,aset-double,aset-float,aset-int,aset-long,aset-
 assoc,assoc!,assoc-in,associative?,atom,await,await-for,await1,bases,bean,bigdec,bigint,binding,%
 bit-and,bit-and-not,bit-clear,bit-flip,bit-not,bit-or,bit-set,bit-shift-left,bit-shift-right,%
 bit-test,bit-xor,boolean,boolean-array,booleans,bound-fn,bound-fn*,butlast,byte,byte-array,%
-bytes,cast,char,char-array,char-escape-string,char-name-string,char?,chars,chunk,chunk-append,%
+bytes,case,cast,char,char-array,char-escape-string,char-name-string,char?,chars,chunk,chunk-append,%
 chunk-buffer,chunk-cons,chunk-first,chunk-next,chunk-rest,chunked-seq?,class,class?,%
 clear-agent-errors,clojure-version,coll?,comment,commute,comp,comparator,compare,compare-and-set!,%
 compile,complement,concat,cond,condp,conj,conj!,cons,constantly,construct-proxy,contains?,count,%
@@ -72,6 +72,19 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
    morecomment=[l];,%
    morestring=[b]"%
   }[keywords,comments,strings]%
+
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, class, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true,
+  basicstyle=\ttfamily\color{black},
+  moredelim=**[is][\color{red}]{@}{@},
+  literate={},
+  stringstyle=\color{stringgray}\textit     % string literal style
+}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -194,6 +207,7 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 
 \newcommand{\clj}[1]{\lstinline{#1}}
+\newcommand{\js}[1]{\lstinline{#1}}
 \newcommand{\java}[1]{\lstinline{#1}}
 \newcommand{\rkt}[1]{\lstinline{#1}}
 

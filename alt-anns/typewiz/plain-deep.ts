@@ -7,5 +7,7 @@ function nodes(t) {
   }
 }
 console.log(nodes({op: "node",
-                   left: {op: "leaf", val: 1},
+                   left: {op: "node",
+                          left: {op: "leaf", val: 1},
+                          right: {op: "leaf", val: 2}},
                    right: {op: "leaf", val: 2}}));

@@ -1,4 +1,4 @@
-function nodes(t) {
+function nodes(t: { left: { op: string, val: number }, op: string, right: { op: string, val: number } }|{ op: string, val: number }) {
   switch t.op {
     case "node": 
       return 1 + nodes(t.left) + nodes(t.right);
