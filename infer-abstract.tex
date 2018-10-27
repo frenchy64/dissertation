@@ -1,54 +1,54 @@
-This paper shows how to
-generate recursive heterogeneous type annotations for
-programs that manipulate plain data.
-Our approach includes observing an instrumented running program,
-and using a novel algorithm to ``squash'' the observed structure
-of program values into named recursive types.
-
-We apply this approach to generate Typed Clojure annotations,
-and report on experience in using our tool to generate annotations for real-world
-Clojure programs, and enumerate the remaining changes needed to fully port
-them to Typed Clojure.
+%This paper shows how to
+%generate recursive heterogeneous type annotations for
+%programs that manipulate plain data.
+%Our approach includes observing an instrumented running program,
+%and using a novel algorithm to ``squash'' the observed structure
+%of program values into named recursive types.
+%
+%We apply this approach to generate Typed Clojure annotations,
+%and report on experience in using our tool to generate annotations for real-world
+%Clojure programs, and enumerate the remaining changes needed to fully port
+%them to Typed Clojure.
 
 %%%% V1
 
-%The untyped-typed porting process is costly, but tools to smooth
-%this transition are scarce.  Moving from a dynamically-typed program
-%to a statically typed one requires the programmer to add potentially
-%numerous type annotations. This burden can discourage migration to
-%types, and has put off real users of existing gradual and optional
-%type systems. When not discouraged, programmers often end up
-%manually annotating tens of thousands of lines of code.
-%
-%We present an approach to lighten the load on programmers moving to
-%gradual and optional types. The only requirement we place on existing
-%programs is that they be runnable, with a suite of tests or
-%examples. Given a running program, we instrument the execution, record
-%type information, summarize it, and annotate the existing program with
-%the recovered types.
-%
-%We test our approach in Clojure, a dynamically typed
-%language with a culture of unit testing as well as an  existing
-%optional type system and a contract system. Given a component under
-%consideration, we instrument the source and analyze the behavior of the
-%program while running unit tests, generating a wealth of data about
-%the values flowing through the program.
-%
-%Equipped with this information, we can summarize it by generating compact
-%type specifications for all the functions in the component, including
-%well-named type defintions. Our tool can also automatically generates
-%behavioral contracts using the Clojure spec tool. Since Clojure relies
-%heavily on ad-hoc data structures in the Lisp tradition, we describe
-%an algorithm for automatically inferring recursive structural types
-%from data examples.
-%
-%Our approach, as must be the case for a testing-driven tool, is
-%incomplete---programs may have too few unit tests, and untested
-%execution paths can have differing type behavior. We therefore
-%evaluate our tool by running it on real Clojure programs and then
-%completing the porting to Typed Clojure. We find that while
-%significant changes are usually needed, the generated types are
-%extremely valuable and the effort reduction is immense.
+The untyped-typed porting process is costly, but tools to smooth
+this transition are scarce.  Moving from a dynamically-typed program
+to a statically typed one requires the programmer to add potentially
+numerous type annotations. This burden can discourage migration to
+types, and has put off real users of existing gradual and optional
+type systems. When not discouraged, programmers often end up
+manually annotating tens of thousands of lines of code.
+
+We present an approach to lighten the load on programmers moving to
+gradual and optional types. The only requirement we place on existing
+programs is that they be runnable, with a suite of tests or
+examples. Given a running program, we instrument the execution, record
+type information, summarize it, and annotate the existing program with
+the recovered types.
+
+We test our approach in Clojure, a dynamically typed
+language with a culture of unit testing as well as an  existing
+optional type system and a contract system. Given a component under
+consideration, we instrument the source and analyze the behavior of the
+program while running unit tests, generating a wealth of data about
+the values flowing through the program.
+
+Equipped with this information, we can summarize it by generating compact
+type specifications for all the functions in the component, including
+well-named type defintions. Our tool can also automatically generates
+behavioral contracts using the Clojure spec tool. Since Clojure relies
+heavily on ad-hoc data structures in the Lisp tradition, we describe
+an algorithm for automatically inferring recursive structural types
+from data examples.
+
+Our approach, as must be the case for a testing-driven tool, is
+incomplete---programs may have too few unit tests, and untested
+execution paths can have differing type behavior. We therefore
+evaluate our tool by running it on real Clojure programs and then
+completing the porting to Typed Clojure. We find that while
+significant changes are usually needed, the generated types are
+extremely valuable and the effort reduction is immense.
 
 %%%% OLD
 %  The untyped-typed porting process is costly, but

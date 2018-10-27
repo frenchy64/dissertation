@@ -285,3 +285,54 @@ defer to lazy tracking when out of fuel.
   \caption{Lazy tracking extensions (\textcolor{red}{changes})}
   \label{fig:infer:lazy}
 \end{figure}
+
+\Dsection{Automatic contracts with clojure.spec}
+
+While we originally designed our tool to generate Typed Clojure annotations,
+it also supports generating ``specs'' for clojure.spec, Clojure's runtime
+verification system.
+There are many similarities between Typed Clojure's types and clojure.spec's specs,
+but there are key differences that complicate this translation.
+
+As they are checked at runtime, specs are naturally more expressive than types. However,
+our generated specs are roughly the same as types in their precision.
+
+\paragraph{Registered Specs}
+Central to spec's design is a global registry of named specs.
+The form \clj{(s/def k s)} registers spec \clj{s} under name \clj{k}.
+To avoid conflicts, \emph{namespaced keywords} are used. The \clj{::a} reader syntax
+auto-resolves the keyword under the current namespace, like \clj{:this-ns/a}.
+
+\paragraph{HMaps}
+Heterogeneous map keyword specs are called ``entity maps'' in spec, 
+and are defined as collections
+of registered specs with \clj{s/keys}, and has quite different
+syntax and semantics than many other runtime verification systems.
+
+The Typed Clojure type
+\begin{cljlisting}
+(defalias M (HMap :mandatory {:a Int, ::a Bool}
+                  :optional  {:b Int, ::b Bool}))
+\end{cljlisting}
+is equivalent to
+\begin{cljlisting}
+(s/def :int/a integer?)
+(s/def ::a boolean?)
+(s/def :int/b integer?)
+(s/def ::b boolean?)
+(s/def ::M (s/keys :req-un [:int/a], :req [::a],
+                   :opt-un [:int/b], :opt [::b]))
+\end{cljlisting}
+The \clj{:req-un} and \clj{:opt-un} options
+(\clj{un}[qualified] keyword \clj{req}[uired] and \clj{opt}[ional] entries)
+take vectors of registered specs and, for
+each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
+to verify values at \clj{:name}.
+
+The \clj{:req} and \clj{:opt} options
+(qualified keyword \clj{req}[uired] and \clj{opt}[ional] entries)
+take vectors of registered specs and, for
+each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
+to verify values at \clj{:ns/name}.
+
+\paragraph{Tagged maps}
