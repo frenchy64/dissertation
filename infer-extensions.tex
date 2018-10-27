@@ -291,8 +291,10 @@ defer to lazy tracking when out of fuel.
 While we originally designed our tool to generate Typed Clojure annotations,
 it also supports generating ``specs'' for clojure.spec, Clojure's runtime
 verification system.
-There are many similarities between Typed Clojure's types and clojure.spec's specs,
-but there are key differences that complicate this translation.
+There are key similarities between Typed Clojure and clojure.spec,
+such as extensive support for potentially-tagged keyword maps.
+
+However, specs have fundamental differences.
 
 As they are checked at runtime, specs are naturally more expressive than types. However,
 our generated specs are roughly the same as types in their precision.
@@ -336,3 +338,5 @@ each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
 to verify values at \clj{:ns/name}.
 
 \paragraph{Tagged maps}
+
+\paragraph{Functions}
