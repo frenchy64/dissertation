@@ -61,6 +61,8 @@ on several axes.
   \paragraph{Organization} Have we chosen good recursive types?
       Do they have good names?
 
+
+\figref{infer:fig:gentype} shows our results.
 Our first program is an implementation of a
 1971 Star Trek game.
 It comes with minimal tests, so to complete this experiment,
@@ -75,7 +77,8 @@ we instead played the game for 30 seconds.
 In this experiment, we first generated types with our algorithm
 by running the tests, then amended the program so that it
 type checks.
-We observed some frequent reasons for why changes were needed.
+We observed some frequent reasons for why changes were needed
+(summarized in \figref{infer:fig:manualchanges}).
 
 \paragraph{Uncalled functions}
 Some functions not called at all in the unit tests.
@@ -142,7 +145,7 @@ type, like \clj{Any}.
 In this case, we manually amend the signature as
 
 \begin{cljlisting}
-(ann all-different? [(Coll Any) :-> Boolean])
+(ann all-different? [(Coll Any) -> Boolean])
 \end{cljlisting}
 
 Another example of overprecision is the generated type
@@ -184,7 +187,7 @@ Here we can see the tests only exercise this function with
 collections of integers.
 
 \begin{cljlisting}
-(ann remove-nth [(Coll Int) Int :-> (Vec Int)])
+(ann remove-nth [(Coll Int) Int -> (Vec Int)])
 \end{cljlisting}
 
 However, the overall shape of the function is intact,
@@ -193,14 +196,14 @@ keystrokes.
 
 \begin{cljlisting}
 (ann remove-nth
-  (All [a] [(Coll a) Int :-> (Vec a)]))
+  (All [a] [(Coll a) Int -> (Vec a)]))
 \end{cljlisting}
 
 Similarly, \clj{iter-perm} could be polymorphic, 
 but its type is generated as
 
 \begin{cljlisting}
-(ann iter-perm [(Vec Int) :-> (U nil (Vec Int))])
+(ann iter-perm [(Vec Int) -> (U nil (Vec Int))])
 \end{cljlisting}
 
 We decided this function actually works over any number,
@@ -231,9 +234,9 @@ and 7 arguments.
 
 \begin{cljlisting}
 (ann plus
-  (IFn [Int Int Int Int Int Int Int :-> Int]
-       [Int Int Int Int Int Int :-> Int]
-       [Int Int :-> Int]))
+  (IFn [Int Int Int Int Int Int Int -> Int]
+       [Int Int Int Int Int Int -> Int]
+       [Int Int -> Int]))
 \end{cljlisting}
 
 Instead, \clj{plus} is actually variadic and works over any number of arguments.
@@ -241,14 +244,14 @@ It is better annotated as the following, which is easy to guess based on
 both the annotated type and manually viewing the function implementation.
 
 \begin{cljlisting}
-(ann plus [Int * :-> Int])
+(ann plus [Int * -> Int])
 \end{cljlisting}
 
 A similar issue occurs with \clj{mult}.
 
 \begin{cljlisting}
-(ann mult [Int Int :-> Int]) ;; generated
-(ann mult [Int * :-> Int])   ;; amended
+(ann mult [Int Int -> Int]) ;; generated
+(ann mult [Int * -> Int])   ;; amended
 \end{cljlisting}
 
 A similar issue is inferring keyword arguments. Clojure implements
@@ -259,8 +262,8 @@ arguments.
 
 \begin{cljlisting}
 (ann lex-partitions-H
-	(IFn [Int -> (Coll (Coll (Vec Int)))]
-		   [Int ':min Int ':max Int 
+  (IFn [Int -> (Coll (Coll (Vec Int)))]
+       [Int ':min Int ':max Int 
         -> (Coll (Coll (Coll Int)))]))
 \end{cljlisting}
 
@@ -283,13 +286,16 @@ strongly updated the global mutable configuration map on the first
 time we play the game. We instead initialized the map with a dummy
 value when it is first created.
 
-\begin{verbatim}
-  - get/get-in
-  - apply + kw args
-  - strong updates
-\end{verbatim}
+ClojureScript uses many polymorphic idioms that Typed Clojure is
+poor at checking, so it too difficult to port.
 
-\paragraph{Possible errors in programs}
+%\begin{verbatim}
+%  - get/get-in
+%  - apply + kw args
+%  - strong updates
+%\end{verbatim}
+
+%\paragraph{Possible errors in programs}
 
 \begin{figure*}
 \begin{tabular}{| l | l | l | l | l | l |}
@@ -301,16 +307,23 @@ value when it is first created.
   data.json          & 168             & 9                 & +94 -125 \\
   mini.occ           & 49              & 1                 & +46 -26\\
   %data.xml           & \\
-  %clojurescript & \\
+  clojurescript      & 448             & 4                 & N/A (Type system shortcomings)\\
 \end{tabular}
-\caption{Generated types}
+\caption{The number of global and local type annotations generated for each program.
+  The last column shows manual amendments from inferred annotations needed
+  type check with Typed Clojure (unless it was too difficult to port).
+  }
+\caption{
+  Number of manual changes needed to type check, and why they were needed.
+  }
+  \label{infer:fig:gentype}
 \end{figure*}
 
 \begin{figure*}
 \begin{tabular}{| l | l | l | l | l | l | l | l |}
   Library            & Casts & Instantiation & Poly & Local ann & Shortcoming & Overprecise arg \\
   \hline
-  startrek-clojure   & 5     & 0             & 0    & 2         & 13          &               \\
+  %startrek-clojure   & 5     & 0             & 0    & 2         & 13          &               \\
   math.combinatorics & 23    & 1             & 11   & 19        & 2           & 5             \\
   fs                 & 50    & 0             & 0    & 2         & 3           & 4             \\
   %data.json          & & & \\
@@ -321,7 +334,7 @@ value when it is first created.
 \begin{tabular}{| l | l | l | l | l | l | l | l |}
   Library            & Uncalled & Nocheck & Var args & Overprecise return & kw args & added filter & Erase HVec\\
   \hline
-  startrek-clojure   & & & & & &               & \\
+  %startrek-clojure   & & & & & &               & \\
   math.combinatorics & 0        & 9       & 3        & 2                  & 4       & 1            & 3\\
   fs                 & 4        & 11      & 2        & 9                  & 0       & 0            & 0\\
   %data.json          & & & \\
@@ -329,7 +342,10 @@ value when it is first created.
   %data.xml           & \\
   %clojurescript & \\
 \end{tabular}
-\caption{Number of changes needed to type check}
+\caption{
+  Number of manual changes needed to type check, and why they were needed.
+  }
+  \label{infer:fig:manualchanges}
 \end{figure*}
 
 
@@ -337,8 +353,11 @@ value when it is first created.
 \Dsection{Experiment 3: Specs pass unit tests}
 
 For our experiment, we generated specs using our algorithm and enabled
-the generated specs.
-
+the generated specs. \figref{infer:fig:genspec} shows
+our preliminary results. All inferred specs pass the unit
+tests when enforced, which tells us they are at least well formed.
+Since hundreds of invariants are checked, we can also be more confident
+that the specs are useful.
 
 
 \begin{figure*}
@@ -348,12 +367,13 @@ the generated specs.
   startrek-clojure   & 25            & 0                   & 10             & 0                & Yes\\
   math.combinatorics & 601           & 0                   & 320            & 0                & Yes\\
   fs                 & 543           & 0                   & 215            & 0                & Yes \\
-  data.json          & 401 \\
-  data.xml           & \\
-  mini.occ           & \\
+%  data.json          & 401 \\
+%  data.xml           & \\
+%  mini.occ           & \\
   %clojurescript & \\
 \end{tabular}
 \caption{Generated specs}
+  \label{infer:fig:genspec}
 \end{figure*}
 
 

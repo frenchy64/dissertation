@@ -293,11 +293,11 @@ it also supports generating ``specs'' for clojure.spec, Clojure's runtime
 verification system.
 There are key similarities between Typed Clojure and clojure.spec,
 such as extensive support for potentially-tagged keyword maps.
+However, there are several non-trivial details to manage.
+% specs have fundamental differences.
 
-However, specs have fundamental differences.
-
-As they are checked at runtime, specs are naturally more expressive than types. However,
-our generated specs are roughly the same as types in their precision.
+%As they are checked at runtime, specs are naturally more expressive than types.
+%However, our generated specs are roughly the same as types in their precision.
 
 \paragraph{Registered Specs}
 Central to spec's design is a global registry of named specs.
@@ -337,6 +337,9 @@ take vectors of registered specs and, for
 each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
 to verify values at \clj{:ns/name}.
 
-\paragraph{Tagged maps}
+Spec has several other subtleties we must account for, but omit
+for brevity.
 
-\paragraph{Functions}
+%\paragraph{Tagged maps}
+%
+%\paragraph{Functions}

@@ -25,7 +25,7 @@ object orientation, % (JavaScript, Ruby, and Python)
 and accessible class declarations.
 Recursive types are then naturally inferred from local class invariants,
 like a \texttt{Tree} class containing fields of type \texttt{Tree}.
-Unfortunately, these approaches are dependent on these names to infer
+Unfortunately, these approaches depend on these names to infer
 further structure to their types, and so
 do not extend to annotating plain recursive data
 such as JSON or heterogeneous dictionaries.
@@ -55,7 +55,13 @@ maps, with multimethods providing open extension.
                 :left {:op :leaf, :val 2},
                 :right {:op :leaf, :val 3}})))
 \end{cljlisting}
-\caption{A typical use of maps in Clojure.}
+\caption{A typical use of maps in Clojure
+that requires type annotations
+to check with Typed Clojure.
+Our tool \texttt{core.typed.annotator}
+will automatically annotate this program
+with a useful recursive type (\figref{fig:infer:nodestype}).
+}
 \label{fig:infer:nodes}
 \end{figure}
 
@@ -75,7 +81,7 @@ respectively.
 To model all possible trees,
 ad-hoc union types and
 equirecursive type aliases are combined with HMaps
-in the following type:
+in the type:
 \begin{cljlisting}
 (defalias Tree
   (U '{:op ':node, :left Tree, :right Tree}
@@ -93,8 +99,8 @@ do not help annotating these kinds of programs.
 To demonstrate the current state-of-the-art in automatic annotation tools for optional type systems,
 we transliterate \figref{fig:infer:nodes} to JavaScript using plain objects. 
 We use TypeWiz~\cite{typewiz} to generate TypeScript annotations via dynamic analysis,
-as it is well maintained and generates similar or better annotations
-as similar tools~\cite{saftoiu2010jstrace,pyannotate,typette18,An10dynamicinference,pytype,kristensen2017inference}.
+as it is well maintained and generates comparable annotations
+to similar tools~\cite{saftoiu2010jstrace,pyannotate,typette18,An10dynamicinference,pytype,kristensen2017inference}.
 
 \begin{figure}
 \begin{lstlisting}[language=JavaScript]
@@ -238,7 +244,8 @@ entry in a \clj{:node} yields the annotation
 
 Furthermore, we aggressively combine recursive data used
 in the same file. Say \clj{nodes'}
-is an alternative implementation of \clj{nodes},
+is similar to \clj{nodes},
+but
 whose unit tests also use a 3-way node \clj{:node3}.
 %\begin{cljlisting}
 %(nodes' {:op :node3,
