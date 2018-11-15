@@ -319,30 +319,32 @@ poor at checking, so it too difficult to port.
 \end{figure*}
 
 \begin{figure*}
-\begin{tabular}{| l | l | l | l | l | l | l | l |}
-  Library            & Casts & Instantiation & Poly & Local ann & Shortcoming & Overprecise arg \\
+\begin{tabular}{| l | l | l | l | l | l | l | l | l | l | l | l | l | l | l |}
+  Library            & C  & I & P & L & S & O & U & N & V & R & K & F & H\\
   \hline
-  %startrek-clojure   & 5     & 0             & 0    & 2         & 13          &               \\
-  math.combinatorics & 23    & 1             & 11   & 19        & 2           & 5             \\
-  fs                 & 50    & 0             & 0    & 2         & 3           & 4             \\
-  %data.json          & & & \\
-  %mini.occ           & & & \\
-  %data.xml           & \\
-  %clojurescript & \\
-\end{tabular}
-\begin{tabular}{| l | l | l | l | l | l | l | l |}
-  Library            & Uncalled & Nocheck & Var args & Overprecise return & kw args & added filter & Erase HVec\\
-  \hline
-  %startrek-clojure   & & & & & &               & \\
-  math.combinatorics & 0        & 9       & 3        & 2                  & 4       & 1            & 3\\
-  fs                 & 4        & 11      & 2        & 9                  & 0       & 0            & 0\\
-  %data.json          & & & \\
-  %mini.occ           & & & \\
-  %data.xml           & \\
-  %clojurescript & \\
+ %startrek-clojure   & 5  & 0 & 0 & 2 & 13&   &   &   &   &   &   &   & \\
+  math.combinatorics & 23 & 1 & 11& 19& 2 & 5 & 0 & 9 & 3 & 2 & 4 & 1 & 3\\
+  fs                 & 50 & 0 & 0 & 2 & 3 & 4 & 4 & 11& 2 & 9 & 0 & 0 & 0\\
+ %data.json          & & & \\
+ %mini.occ           & & & \\
+ %data.xml           & \\
+ %clojurescript & \\
 \end{tabular}
 \caption{
   Number of manual changes needed to type check, and why they were needed.
+  C = Casts,
+  I = Instantiation,
+  P = Polymorphic annotation,
+  L = Local annotation,
+  S = Work around type system Shortcoming,
+  O = Overprecise argument type,
+  U = Uncalled function due to bad test coverage,
+  N = Add No-check annotation to skip checking function,
+  V = Add Variable arity argument type,
+  R = Overprecise return type,
+  K = Add Keyword argument types,
+  F = Added filter annotation,
+  H = Erase/upcast HVec annotation.
   }
   \label{infer:fig:manualchanges}
 \end{figure*}
