@@ -125,11 +125,12 @@ dependencies in function signatures when needed.
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
 \paragraph{Annotation Generation}
 Static analyzers
-TSInfer~\cite{kristensen2017inference}
+TSInfer~\cite{kristensen2017inference}, Typpete~\cite{typette18}
 and Pytype~\cite{pytype}
 automatically annotate JavaScript and Python code,
 respectively.
-We were unable to install TSInfer.
+We were unable to install TSInfer, and unable to run Typpete
+without a runtime error.
 Pytype inferred \texttt{nodes} in \figref{fig:infer:nodes}
 as \texttt{(? -> int)}---our tool generates a compact recursive
 type (\figref{fig:infer:nodestype}).
