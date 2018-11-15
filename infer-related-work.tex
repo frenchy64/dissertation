@@ -123,12 +123,22 @@ dependencies in function signatures when needed.
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
-\paragraph{TypeScript Annotation Generation}
-Kristensen and M{\o}ller~\cite{kristensen2017inference}
-present TSInfer and TSEvolve that generate TypeScript annotation
-files using static analysis of JavaScript code. They
-submitted corrections back to libraries they found descrepancies in,
-which were accepted with little to no changes in the tool's output.
+\paragraph{Annotation Generation}
+TSInfer~\cite{kristensen2017inference}
+and Pytype~\cite{pytype}
+automatically annotate JavaScript and Python code
+respectively, using static analysis.
+We were unable to install TSInfer.
+Out of the box, Pytype inferred \texttt{nodes} (\figref{fig:infer:nodes})
+as \texttt{(? -> int)} and
+its class-based translation typed fields
+\texttt{left}, \texttt{right}, and
+\texttt{val} as \texttt{Any}, and method
+\texttt{nodes} as \texttt{(self -> int)} on \texttt{Leaf},
+and
+\texttt{(self -> Any)} on \texttt{Node}
+
+
 
 NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
 is used, and automatically runs the tests of downstream projects to
