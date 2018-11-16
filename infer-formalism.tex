@@ -173,7 +173,7 @@ says if value \v{} occurs at path {\inferpath{}}, then return a possibly-instrum
 from the knowledge that \v{} occurs at path {\inferpath{}}.
 It has a case for every kind of value.
 The first three cases records the number input as type {\IntT{}}.
-The forth case, for closures, returns a wrapped value
+The fourth case, for closures, returns a wrapped value
 resembling higher-order function contracts~\cite{findler2002contracts},
 but we track the domain and range rather than verify them.
 The remaining rules case, for maps, recursively tracks each map value,
@@ -351,7 +351,8 @@ $$
 \instrumentnoalign{\appexp{f}{\curlymap{\makekw{a}\ 42}}}{[f]}{\appexp{\trackE{f}{[f]}}{\curlymap{\makekw{a}\ 42}}}
 $$
 
-Then we evaluate the instrumented program and derive two inference results:
+Then we evaluate the instrumented program and derive two inference results
+(colored in red for readability):
 $$
 \opsemtrack{}{\appexp{\trackE{f}{[f]}}{\curlymap{\makekw{a}\ 42}}}{42}{\resflatcolor{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}}}
 $$
@@ -387,7 +388,9 @@ from inference results \res{}.
 %as a fold over \res{}, building a \tenv{} incrementally via the \inferupdateOp{}
 %metafunction.
 %
-The second pass $\squashlocal{}(\tenv{}) = \atenvp{}$ creates individual type aliases
+The second pass
+$$\squashlocal{}(\tenv{}) = \atenvp{}$$
+creates individual type aliases
 for each HMap type in \tenv{} and then merges aliases that both occur inside the same
 nested type into possibly recursive types. % (\figref{infer:fig:squashlocal}).
 %
@@ -411,7 +414,7 @@ information and any entries that might represent tags
 (populated by the final case of \trackEOp{}, \figref{infer:fig:trackmeta}).
 This information helps us avoid prematurely collapsing tagged maps,
 by the side condition of the HMap \joinOp{} case.
-The \joinHMapOp{} metafunction aggressively combines two HMap's---required
+The \joinHMapOp{} metafunction aggressively combines two HMaps---required
 keys in both maps are joined and stay required, otherwise keys
 become optional.
 
@@ -548,15 +551,16 @@ a set of already visited aliases to avoid infinite loops.
 The logic for merging aliases is contained in \mergealiases{}.
 Merging \alias{2} into \alias{1} involves mapping \alias{2}
 to \alias{1} and \alias{1} to the join of both definitions.
-Crucially before joining, we rename occurrences of 
+Crucially, before joining, we rename occurrences of 
 \alias{2} to \alias{1}. This avoids a linear increase in the
 width of union types, proportional to the number of merged aliases.
-Without this, if we further merge \alias{3} into \alias{1},
-like \Unionsplice{{\alias{1}}\ {\alias{2}}\ {\alias{3}}} occur
-instead of simply \alias{1}.
+%For example,
+%without this, if we further merge \alias{3} into \alias{1},
+%like \Unionsplice{{\alias{1}}\ {\alias{2}}\ {\alias{3}}} occur
+%instead of simply \alias{1}.
 The running time of our algorithm is proportional to the
-width of union types, due to the quadtratic combination of
-unions in the join function, and this optimization greatly
+width of union types (due to the quadratic combination of
+unions in the join function) and this optimization greatly
 helped the running time of several benchmarks.
 To avoid introducing infinite types,
 top-level references to other aliases we are merging with
@@ -565,7 +569,7 @@ are erased with the helper \textsf{f}.
 The \shouldmergeOp{} function determines whether two types are related enough
 to warrant being merged. We present our current implementation, which is simplistic,
 but is fast and effective in practice, but many variations are possible.
-Aliases are merged if they are all HMap's (not contained in unions), that
+Aliases are merged if they are all HMaps (not contained in unions), that
 contain a keyword key in common, with possibly disjoint mapped values.
 For example, our opening example has the \clj{:op} key mapped to either
 \clj{:leaf} or \clj{:node}, and so aliases for each map would be merged.
@@ -737,20 +741,6 @@ without restriction on whether they occur ``together''.
 This step combines type information between different positions
 (such as in different arguments or functions) so that any deficiencies
 in unit testing coverage are massaged away.
-
-Our key hypothesis is, in Clojure programs, functions in the same
-namespace operate on related data. Our inference is built
-to be per-namespace (i.e., per-file), aggressively merging
-all apparently-related HMap types often to yields useful types
-in our benchmarks.
-This approach does not work well for libraries providing polymorphic
-functions, since unit tests may use sample data that are unrelated
-to the details of the function, but our algorithm merges and displays
-them as an ``important'' top-level type alias.
-Our algorithm excels
-with programs that mainly operate on one or two recursive data representations,
-which, outside of polymorphic libraries, are common in the Clojure ecosystem
-in our experience.
 
 The \squashglobal{} function is the entry point in this pass,
 and is similar in structure to the previous pass.

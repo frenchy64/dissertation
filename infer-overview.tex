@@ -5,12 +5,12 @@ we can flesh out our philosophy and overall
 approach.
 %
 At a high level, there are two phases to
-generating types---\textbf{collection} then
+generating types---\textbf{collection} and
 \textbf{inference}.
 
 The collection phase (described in \secref{infer:sec:formal:collection-phase}),
 gathers observations about a running program.
-This is achieved by instrumenting the program, and exercising
+This is achieved by instrumenting the program and exercising
 it, usually by running its unit tests.
 
 The inference phase (\secref{infer:sec:formal:inference-phase})
@@ -89,14 +89,14 @@ based on the \clj{:op} entry since it is common to all cases.
        :shadow (U nil @Op@),
        :tag Any})
     '{@:op ':const@,
-      :env context-statement-tmp-HMap-alias20275,
+      :env HMap49305,
       :form (U nil Int ':a),
       :tag Sym,
       :val (U nil Int ':a)}
     '{@:op ':do@,
       :body? Any,
       :children Any,
-      :env context-statement-tmp-HMap-alias20275,
+      :env HMap49305,
       :form (Coll Any),
       :ret @Op@,
       :statements (Vec Nothing),
@@ -104,7 +104,7 @@ based on the \clj{:op} entry since it is common to all cases.
     '{@:op ':fn-method@,
       :body @Op@,
       :children '[':params ':body],
-      :env context-statement-tmp-HMap-alias20275,
+      :env HMap49305,
       :fixed-arity Int,
       :form (Coll (Coll Any)),
       :name @Op@,
@@ -121,6 +121,8 @@ based on the \clj{:op} entry since it is common to all cases.
          It has 14 distinct operators, 5 inferred
          to have optional entries (like \clj{:op ':binding})
          and 22 inferred recursive references to \clj{Op}.
+         While imperfect, this acts as an invaluable starting
+         point for further annotations.
 }
 \label{infer:fig:cljs}
 %    '{:op ':host-call,
@@ -275,9 +277,12 @@ for an environment being functionally threaded through
 the program.
 
 Similarly, types that occur as values in configuration
-maps often have descriptive keys. In the Star Trek 
-game, the configuration map maps \textbf{:stardate}
-to a map that contains three number entries: 
+maps often have descriptive keys.
+For example, one of our case studies, a Star Trek 
+game written in Clojure,
+features a configuration map with a \textbf{:stardate}
+entry containing
+a map that of three number entries: 
 \textbf{:start},
 \textbf{:current}, and
 \textbf{:end}.
@@ -291,10 +296,26 @@ to naming.
 First, if we are naming a keyword map which is part of a tagged
 union, we use the tag as the name. For example, if the tagged entry
 maps \textbf{:op} to \textbf{:fn}, we name this map \textbf{FnOp}.
-Failing that, for maps with less than three entries, we simply
+Otherwise, for maps with less than three entries, we simply
 enumerate its entries as the name.
 Finally, for large keyword maps, we give an abbreviation
 of its keyset as a name.
+
+\Dsection{Algorithm}
+
+Our key hypothesis is, in Clojure programs, functions in the same
+namespace operate on related data. Our inference is built
+to be per-namespace (i.e., per-file), aggressively merging
+all apparently-related HMap types often to yields useful types
+in our benchmarks.
+This approach does not work well for libraries providing polymorphic
+functions, since unit tests may use sample data that are unrelated
+to the details of the function, but our algorithm merges and displays
+them as an ``important'' top-level type alias.
+Our algorithm excels
+with programs that mainly operate on one or two recursive data representations,
+which, outside of polymorphic libraries, are common in the Clojure ecosystem
+in our experience.
 
 %\begin{Verbatim}
 %(defn f [x] (inc x))

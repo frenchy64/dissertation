@@ -1,0 +1,14 @@
+- imperfect annotations are ok, should be higher up in the prose
+- Typed Clojure vs this?
+  - is this Typed Clojure? shortcomings
+- Clojure vs ClojureScript? Use cljs.compiler
+- "learn about their programs"
+  - state our hypothesis early on
+  - need to tie together a theme
+    - reduce annotation burden
+    - feedback tool "learning"
+    - imperfect types still being worthwhile
+- "analogous" paths
+  - not a strong relationship
+- categorize our tool between Daikon and 
+- our tool points towards
