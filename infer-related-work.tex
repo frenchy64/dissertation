@@ -105,7 +105,7 @@ Daikon can reason about very expressive relationships between variables
 using properties like ordering ($x < y$), linear relationships ($y = ax + b$),
 and containment ($x \in y$). It also supports reasoning with ``derived variables''
 like fields ($x.f$), and array accesses ($a[i]$).
-
+%
 Typed Clojure's dynamic inference can record heterogeneous data structures
 like vectors and hash-maps, but otherwise cannot express relationships
 between variables.
@@ -116,14 +116,14 @@ would be redundant with the explicit typing disciplines of these languages.
 On the other hand, the process of moving from Clojure to Typed Clojure
 mostly involves writing simple type signatures without dependencies
 between variables. Typed Clojure recovers relevant dependent information
-via occurrence typing, and gives the option to manually annotate necessary
+via occurrence typing~\cite{TF10}, and gives the option to manually annotate necessary
 dependencies in function signatures when needed.
 
 
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
-\paragraph{Annotation Generation}
+\paragraph{Other Annotation Tools}
 Static analyzers
 TSInfer~\cite{kristensen2017inference}, Typpete~\cite{typette18}
 and Pytype~\cite{pytype}
@@ -144,7 +144,8 @@ and
 
 NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
 is used, and automatically runs the tests of downstream projects to
-improve test coverage. Their \emph{dynamic access paths} represented as
+improve test coverage.
+Their \emph{dynamic access paths} represented as
 a series of \emph{actions} are analogous to our paths of path elements.
 
 % distinguishes public/private API
