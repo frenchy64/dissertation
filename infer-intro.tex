@@ -88,16 +88,14 @@ Porting \figref{fig:infer:nodes} to Typed Clojure involves writing a type defini
 \begin{cljlisting}
 (ann nodes [Tree -> Int])
 \end{cljlisting}
-Existing approaches to automatically inferring this information
-do not help annotating these kinds of programs.
-In common with most of these tools is
-object orientation, % (JavaScript, Ruby, and Python)
-and accessible class declarations.
-Recursive types are then naturally inferred from local class invariants,
+Existing approaches to automatically annotations
+cannot usefully annotate these kinds of programs, since
+they usually rely on the existence of named classes.
+Recursive types are naturally inferred from local class invariants,
 like a \texttt{Tree} class containing fields of type \texttt{Tree}.
 Unfortunately, these approaches depend on these names to infer
 further structure to their types, and so
-do not extend to annotating plain recursive data
+cannot infer recursive types for plain data,
 such as JSON or heterogeneous dictionaries.
 
 To demonstrate the current state-of-the-art in automatic annotation tools for optional type systems,

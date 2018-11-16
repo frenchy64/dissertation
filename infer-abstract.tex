@@ -14,16 +14,17 @@
 
 %The untyped-typed porting process is costly, but tools to smooth
 %this transition are scarce.
-Moving from a dynamically-typed program
-to a statically typed one requires the programmer to add potentially
-numerous type annotations. This burden has put off real users 
+To type check a dynamically-typed program
+with an optional type system,
+type annotations must be added.
+This burden is sometimes large, and has put off real users 
 attempting to migrate to
-existing gradual and optional
+existing optional
 type systems. When not discouraged, programmers often
 annotate tens of thousands of lines of code without assistance.
 
 We present an approach to lighten the load on programmers moving to
-gradual and optional types. The only requirement we place on existing
+optional types. The only requirement we place on existing
 programs is that they be runnable, with a suite of tests or
 examples. Given a running program, we instrument the execution, record
 type information, summarize it, and annotate the existing program with
