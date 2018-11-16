@@ -59,19 +59,21 @@ with a useful recursive type (\figref{fig:infer:nodestype}).
 \label{fig:infer:nodes}
 \end{figure}
 
-Maps in Clojure also replace records or objects in many situations.
-Where \texttt{Node} and \texttt{Leaf} classes would be declared to create a binary tree
-in an object-oriented language, Clojure programs instead encode these in maps,
-with an explicit keyword \emph{dispatch entry} (e.g., \clj{:op}) to distinguish the
+Maps in Clojure often replace records or objects,
+demonstrated in \figref{fig:infer:nodes}:
+instead of representing a binary tree with \texttt{Node} and \texttt{Leaf} classes,
+they are encoded in maps
+with an explicit keyword \emph{dispatch entry} (e.g., \clj{:op}) to distinguish
 cases---\clj{\{:op :leaf, :val ...\}} for instances of \texttt{Leaf}, and
 \clj{\{:op :node, :left ..., :right ...\}} for \texttt{Node}.
 
-This emphasis on maps has far-reaching implications for
+This emphasis on maps has far-reaching
+implications for
 Typed Clojure. %~\cite{bonnaire2016practical}, an optional type system for Clojure.
-Types for maps---written
+Types for maps (written
 \clj{'\{:op ':leaf, :val ...\}} and
-\clj{'\{:op ':node, :left ..., :right ...\}},
-for our examples---combine with
+\clj{'\{:op ':node, :left ..., :right ...\}}
+for our examples) combine with
 ad-hoc union types and
 equirecursive type aliases
 in the type:
@@ -81,7 +83,7 @@ in the type:
      '{:op ':leaf, :val Int}))
 \end{cljlisting}
 
-Porting this program to Typed Clojure involves writing a type definition
+Porting \figref{fig:infer:nodes} to Typed Clojure involves writing a type definition
 \clj{Tree}, and annotating \clj{nodes} as
 \begin{cljlisting}
 (ann nodes [Tree -> Int])
@@ -133,12 +135,12 @@ function nodes(t: {left: {op: string, val: number},
 
 \figref{fig:infer:typewiz} shows the actual output of TypeWiz for a JavaScript translation of \figref{fig:infer:nodes}.
 Unfortunately, the annotation is too specific: it only accepts trees of height 1 or 2.
-For comparison, a more traditional class-based translation to JavaScript with
-a common \js{nodes} method yields a similarly shallow annotation:
+For fair comparison, even a class-based translation to JavaScript with
+a common \js{nodes} method yields a shallow annotation:
 \begin{lstlisting}[language=JavaScript]
 class Node {               class Leaf { 
-  public left: @Leaf@;         public data: @number@;
-  public right: @Leaf@;
+  public left: Leaf;         public data: number;
+  public right: Leaf;
   ...                        ...
 }                          }
 \end{lstlisting}
@@ -161,14 +163,14 @@ providing the exact types that are observed at runtime.
 Unfortunately, incrementally better test coverage does not quickly converge
 to useful annotations.
 For example, if we add an example of a nested \js{Node}
-on the left branch
-\begin{lstlisting}[language=JavaScript]
-new Node(new Node(...), new Leaf(...)).nodes();
-\end{lstlisting}
-the annotation for \figref{fig:infer:nodes} is still not recursive (alarmingly, it instead
+on the just the left branch
+%\begin{lstlisting}[language=JavaScript]
+%new Node(new Node(...), new Leaf(...)).nodes();
+%\end{lstlisting}
+the annotation for the plain objects version is still not recursive (alarmingly, it instead
 grows linearly in the number of nodes), and the class-based
-example updates the type of \js{left} to \js{Leaf|Node},
-but \js{right} is still \js{Leaf}.
+version helpfully updates the type of \js{left} to \js{Leaf|Node},
+but \js{right} still remains \js{Leaf}.
 %\begin{lstlisting}[language=JavaScript]
 %class Node {               class Leaf { 
 %  public left: Leaf@|Node@;    public data: number;
@@ -248,7 +250,7 @@ Furthermore, we aggressively combine recursive data used
 in the same file.
 Given a 3-way node example with the key \clj{:node3},
 used as inut to a distinct function \clj{nodes'},
-our tool generates the combined type shown in \figref{fig:infer:node3}
+our tool generates the combined type shown in \figref{fig:infer:node3}.
 %Say \clj{nodes'}
 %is similar to \clj{nodes},
 %but
@@ -468,18 +470,20 @@ our tool generates the combined type shown in \figref{fig:infer:node3}
 \Dsection*{Contributions}
 \begin{itemize}
 \item We outline a generalized approach to automatically
-    generating type annotations.
+  generating type annotations (\secref{infer:sec:overview}).
 %\item
 %  Our main contribution is a robust, easy to use, open source tool that 
 %  Clojure programmers can use to help learn about and specify 
 %  their programs.
 \item
   We describe a novel approach to reconstructing recursively
-  defined structural records from fully unrolled examples.
+  defined structural records from fully unrolled examples
+  in a formal model of our inference algorithm (\secref{infer:sec:formalism}).
+\item
+  We show how to extend our approach with space-efficient and lazy
+  runtime tracking (\secref{infer:sec:extensions}).
 \item
   We report our experience using this algorithm to generate
   types, tests, and contracts on several
-  Clojure libraries and programs.
-\item
-  We include a formal model of our inference algorithm.
+  Clojure libraries and programs (\secref{infer:chap:evaluation}).
 \end{itemize}
