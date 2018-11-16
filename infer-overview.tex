@@ -7,16 +7,16 @@ Now that we have introduced the problem,
 we can flesh out our philosophy and overall
 approach. To concretize our discussion,
 \figref{infer:fig:cljs} demonstrates real-world usage of our tool
-generating types for cljs.compiler.
+generating types for a 1,776 line file cljs.compiler.
 
 It provides \clj{emit}, a function taking a map-based
 AST from cljs.analyzer (4,366 lines of Clojure) and
-emitting JavaScript as a side effect.
-Line \ref{infer:listing:cljs:emit} shows our annotation.
+emitting JavaScript as a side effect
+(annotated on line \ref{infer:listing:cljs:emit}).
 %
-Similar to our opening example, it uses the \clj{:op}
-key to disambiguate between (16) cases, and has recursive
-references (\clj{Op}).
+%Similar to our opening example, it uses the \clj{:op}
+%key to disambiguate between (16) cases, and has recursive
+%references (\clj{Op}).
 
 %We just present the first 4 cases.
 %The first case \clj{':binding} has 4 required
@@ -164,13 +164,12 @@ with recursive types, optional entries, and good names.
               :local (U ':arg ':let ':fn),
               :name Sym}
              :optional(*@\label{infer:listing:cljs:Op:optional}@*)
-             {:arg-id Int,
-              :binding-form? Boolean,
+             {:arg-id Int, :binding-form? Boolean,
               :column Int,
               :env ColumnLineContextMap,
-              :init Op,
+              :init Op,(*@\label{infer:listing:cljs:Op:optional:init:Op}@*)
               :line Int,
-              :shadow (U nil Op),
+              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*)
               :tag Any})
       '{:op ':const,(*@\label{infer:listing:cljs:Op:op:const}@*)
         :env HMap49305,
@@ -180,8 +179,8 @@ with recursive types, optional entries, and good names.
         :body? Any, :children Any,
         :env HMap49305,
         :form (Coll Any),
-        :ret Op, :statements (Vec Nothing),
-        :tag Any}
+        :ret Op,(*@\label{infer:listing:cljs:Op:op:do:Op}@*)
+        :statements (Vec Nothing), :tag Any}
       ; omitted 11 cases
       ...))
   (defalias ColumnLineContextMap(*@\label{infer:listing:cljs:ColumnLineContextMap}@*)
@@ -208,7 +207,8 @@ with recursive types, optional entries, and good names.
          %It describes the AST format for a compiler called cljs.compiler
          %(\secref{infer:chap:evaluation})
          %, and
-         Its AST format (line \ref{infer:listing:cljs:Op}) is inferred to have 22 recursive references to \clj{Op},
+         Its AST format (line \ref{infer:listing:cljs:Op}) is inferred to have 22 recursive references to \clj{Op}
+         (like lines \ref{infer:listing:cljs:Op:optional:init:Op}, \ref{infer:listing:cljs:Op:optional:shadow:Op}, \ref{infer:listing:cljs:Op:op:do:Op})
          with 14 cases distinguished by \clj{:op} (like lines \ref{infer:listing:cljs:Op:op:binding},
          \ref{infer:listing:cljs:Op:op:const}, \ref{infer:listing:cljs:Op:op:do}),
          5 of which have optional entries (like line \ref{infer:listing:cljs:Op:optional}).
