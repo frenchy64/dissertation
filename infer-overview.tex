@@ -6,13 +6,18 @@
 Now that we have introduced the problem,
 we can flesh out our philosophy and overall
 approach. To concretize our discussion,
-\figref{infer:fig:cljs} demonstrates real-world usage of our tool
-generating types for a 1,776 line file cljs.compiler.
+\figref{infer:fig:cljs} demonstrates our tool's output
+when generating types for a 1,776 line Clojure file, cljs.compiler.
 
-It provides \clj{emit}, a function taking a map-based
-AST from cljs.analyzer (4,366 lines of Clojure) and
-emitting JavaScript as a side effect
-(annotated on line \ref{infer:listing:cljs:emit}).
+Its main function is \clj{emit}, which
+effectfully converts a map-based AST
+to JavaScript.
+The AST is created by functions in cljs.analyzer,
+a significantly larger 4,366 line Clojure file.
+Without inspecting cljs.analyzer,
+our tool annotates \clj{emit} on line \ref{infer:listing:cljs:emit}
+with a recursive AST type \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}).
+
 %
 %Similar to our opening example, it uses the \clj{:op}
 %key to disambiguate between (16) cases, and has recursive
@@ -35,17 +40,21 @@ emitting JavaScript as a side effect
 An important question to answer is ``how accurate are these annotations?''.
 Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
 in our generated types. 
-Our main contribution is a tool that Clojure programmers
+An important contribution of our work is a tool that Clojure programmers
 can use to help learn about and specify their programs.
-In that spirit, annotations should meet several criteria.
+In that spirit, we strive to generate annotations meeting more qualitative criteria,
+which we outline along with a commentary
+judging \figref{infer:fig:cljs} along these lines.
 
 \paragraph{Good names}
 Typed Clojure and clojure.spec annotations are abundant
-with useful names for types. A good name often increases
-readability.
-Good names can sometimes be reconstructed from the program source,
-like function or parameter names, and other times 
-we can use the shape of a type to summarize it.
+with useful names for types. A good name increases
+readability by succincting conveying its purpose.
+
+
+%Good names can sometimes be reconstructed from the program source,
+%like function or parameter names, and other times 
+%we can use the shape of a type to summarize it.
 
 \paragraph{Compact}
 Idiomatic Clojure code rarely mixes certain types in the same position,
@@ -106,8 +115,8 @@ approximation of this type.
 %\Dsection{Approach}
 
 %
-At a high level, there are two phases to
-generating types---\textbf{collection} and
+Our general approach to generating types
+is separated into two phases---\textbf{collection} and
 \textbf{inference}.
 %
 The collection phase (\secref{infer:sec:formal:collection-phase}),
@@ -182,7 +191,7 @@ with recursive types, optional entries, and good names.
         :ret Op,(*@\label{infer:listing:cljs:Op:op:do:Op}@*)
         :statements (Vec Nothing), :tag Any}
       ; omitted 11 cases
-      ...))
+      ...))(*@\label{infer:listing:cljs:Op-End}@*)
   (defalias ColumnLineContextMap(*@\label{infer:listing:cljs:ColumnLineContextMap}@*)
     (HMap :mandatory {:column Int, :line Int}
           :optional {:context ':expr}))
@@ -207,9 +216,10 @@ with recursive types, optional entries, and good names.
          %It describes the AST format for a compiler called cljs.compiler
          %(\secref{infer:chap:evaluation})
          %, and
-         Its AST format (line \ref{infer:listing:cljs:Op}) is inferred to have 22 recursive references to \clj{Op}
+         Its AST format is inferred as \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End})
+         with 22 recursive references
          (like lines \ref{infer:listing:cljs:Op:optional:init:Op}, \ref{infer:listing:cljs:Op:optional:shadow:Op}, \ref{infer:listing:cljs:Op:op:do:Op})
-         with 14 cases distinguished by \clj{:op} (like lines \ref{infer:listing:cljs:Op:op:binding},
+         and 14 cases distinguished by \clj{:op} (like lines \ref{infer:listing:cljs:Op:op:binding},
          \ref{infer:listing:cljs:Op:op:const}, \ref{infer:listing:cljs:Op:op:do}),
          5 of which have optional entries (like line \ref{infer:listing:cljs:Op:optional}).
          To improve inference time,
