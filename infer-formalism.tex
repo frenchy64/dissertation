@@ -10,7 +10,7 @@ an inference phase
 that derives type annotations from these observations
 that can be used to automatically annotate the program.
 
-Before getting into details, we define the top-level driver function \annotateOp{} that connects
+We define the top-level driver function \annotateOp{} that connects
 both pieces.
 It says, given a program \e{}
 and top-level variables $\ova{\x{}}$ to infer annotations for,
@@ -764,7 +764,7 @@ The code creates a map \textsf{r} from keysets to groups of HMap
 aliases with that (required) keyset.
 Then, for every keyset \ova{\kw{}}, \textsf{similarReq} adds aliases to the group
 whose keysets are a subset of \ova{\kw{}}. The number of missing
-keys permitted is determined by \textsf{thres}, which we do not provide a
+keys permitted is determined by \textsf{thres}, for which we do not provide a
 definition.
 Finally, \textsf{remDiffTag} removes differently-tagged HMaps from each group,
 and the groups are merged via \mergealiases{} as before.

@@ -1,7 +1,7 @@
 \Dchapter{Evaluation}
 \label{infer:chap:evaluation}
 
-We performed a qualitative evaluation of our algorithm
+We performed a quantitative evaluation of our algorithm
 on several open source programs.
 
 \paragraph{startrek-clojure}
@@ -28,11 +28,11 @@ current paper. It utilizes three mutually recursive
 ad-hoc structures to represent expressions, types,
 and propositions.
 
-\paragraph{clojurescript}
-ClojureScript is a Clojure variant that runs on JavaScript
-virtual machines. We infer types for the compiler, the final
-stage in compilation, which takes in a recursively
-defined abstract syntax tree and emits JavaScript strings.
+\paragraph{cljs.compiler}
+ClojureScript (CLJS) is a Clojure variant that runs on JavaScript
+virtual machines. We infer types for its compiler (written in Clojure)
+which emits JavaScript from
+a recursively defined map-based abstract syntax tree format.
 
 Our approach is to carry out three experiments.
 
@@ -140,9 +140,11 @@ keywords, and characters.
 
 In our experience, the union is very rarely a good candidate
 for a Typed Clojure type signature, so a useful heuristic to improve
-the generated types might be to upcast such unions to a more permissive
-type, like \clj{Any}. 
-In this case, we manually amend the signature as
+the generated types would be to upcast such unions to a more permissive
+type, like \clj{Any}.
+When we performed that case study, we did not yet add that heuristic
+to our tool,
+so in this case, we manually amend the signature as
 
 \begin{cljlisting}
 (ann all-different? [(Coll Any) -> Boolean])
@@ -222,7 +224,7 @@ are from the input collection.
 %or exceptions.
 
 \paragraph{Missing argument counts}
-Often variable argument functions are given very precise types.
+Often, variable argument functions are given very precise types.
 Our algorithm does not apply any heuristics to approximate
 variable arguments --- instead we emit types that reflect
 only the arities that were called during the unit tests.
@@ -257,7 +259,7 @@ A similar issue occurs with \clj{mult}.
 A similar issue is inferring keyword arguments. Clojure implements
 keyword arguments with normal variadic arguments. Notice
 the generated type for \clj{lex-partitions-H},
-which takes a fixed argument then some optional integer keyword
+which takes a fixed argument, followed by some optional integer keyword
 arguments. 
 
 \begin{cljlisting}
@@ -286,7 +288,7 @@ strongly updated the global mutable configuration map on the first
 time we play the game. We instead initialized the map with a dummy
 value when it is first created.
 
-ClojureScript uses many polymorphic idioms that Typed Clojure is
+cljs.compiler uses many polymorphic idioms that Typed Clojure is
 poor at checking, so it too difficult to port.
 
 %\begin{verbatim}
@@ -309,7 +311,7 @@ poor at checking, so it too difficult to port.
   dj            & 528  & 168 & 9  & 94/125 \\
   mo            & 530  & 49  & 1  & 46/26\\
  %data.xml      &      & \\
-  cs            & 1776 & 448 & 4  & N/A 
+  cc            & 1776 & 448 & 4  & N/A 
   \\
 \end{tabular}
   \caption{\emph{The number of type annotations generated for each program}:

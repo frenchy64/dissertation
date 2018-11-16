@@ -63,13 +63,13 @@
 %  \caption{Polymorphic type tracking extensions }
 %\end{figure}
 
-\Dsection{Space efficient tracking}
+\Dsection{Space-efficient tracking}
 
 To reduce the overhead of runtime tracking, we can borrow
-the concept of ``space efficient'' contract checking from
+the concept of ``space-efficient'' contract checking from
 the gradual typing literature~\cite{Herman:2010}.
 %
-Instead of tracking just one path at once, a space efficient
+Instead of tracking just one path at once, a space-efficient
 implementation of track threads through a set of paths.
 When a tracked value flows into another tracked position,
 we extract the unwrapped value, and then our new tracked value
@@ -132,20 +132,20 @@ via the previous rule.
                          {\trackmetalhs{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\ova{\inferpath{}} \cup \ova{\inferpathp{}}}}
   \end{array}
 \end{mathpar}
-  \caption{Space efficient tracking extensions (\textcolor{red}{changes})}
+  \caption{Space-efficient tracking extensions (\textcolor{red}{changes})}
   \label{fig:infer:proxyext}
 \end{figure}
 
 \Dsection{Lazy tracking}
 
-Building further on the extension of space efficient functions,
+Building further on the extension of space-efficient functions,
 we apply a similar idea for tracking maps.
 In practice, eagerly walking data structures to gather inference
 results is expensive.
 Instead,
 waiting until a data structure is used and tracking its contents
 lazily can help ease this tradeoff, with the side-effect that
-less inference results are discovered.
+fewer inference results are discovered.
 
 \figref{fig:infer:lazy} extends our system with lazy maps.
 We add a new kind of value 
@@ -156,7 +156,7 @@ with paths \ova{\inferpath{}}.
 The first \trackEOp{} rule demonstrates how to create
 a lazily tracked map.
 We calculate the possibly tagged entries in our type information in advance,
-much like the equivalent rule in \figref{infer:fig:trackmeta}, and stores
+much like the equivalent rule in \figref{infer:fig:trackmeta}, and store
 them for later use. Notice that non-keyword entries are not yet traversed,
 and thus no inference results are derived from them.
 The second \trackEOp{} rule adds new paths to track.
@@ -164,12 +164,12 @@ The second \trackEOp{} rule adds new paths to track.
 The subtleties of lazily tracking maps lie in the \constantopsemliteral{}
 rules.
 The \assocliteral{} and \dissocliteral{} rules ensure we no longer track overwritten entries.
-Then, the \getliteral{} rules perform the tracking that was deffered
+Then, the \getliteral{} rules perform the tracking that was deferred
 from the \trackEOp{} rule for maps in \figref{infer:fig:trackmeta}
 (if the entry is still tracked).
 
 In our experience, some combination of lazy and eager tracking of
-maps strike a good balance between performance overhead and
+maps strikes a good balance between performance overhead and
 quantity of inference results.
 Intuitively, if a function does not access parts of its argument,
 they should not contribute to that function's type signature.

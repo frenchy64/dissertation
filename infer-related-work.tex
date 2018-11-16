@@ -74,7 +74,7 @@
 %% https://github.com/shakyShane/json-ts
 
 \paragraph{Automatic annotations}
-There are two common implementation strategies for such tools. The first
+There are two common implementation strategies for automatic annotation tools. The first
 strategy, ``ruling-out'' (for invariant detection), assumes all invariants are true 
 and then use runtime analysis results to rule out
 impossible invariants. The second ``building-up'' strategy (for dynamic type inference)
@@ -83,7 +83,7 @@ assumes nothing and then uses runtime analysis results to build up invariant/typ
 Examples of invariant detection tools include Daikon~\cite{ernst2001dynamically},
 DIDUCE~\cite{hangal2002tracking}, and Carrot~\cite{pytlik2003automated}, and
 typically enhance statically typed languages with more expressive types or contracts.
-Examples of dynamic type inference include Rubydust \cite{An10dynamicinference},
+Examples of dynamic type inference include our tool, Rubydust \cite{An10dynamicinference},
 JSTrace~\cite{saftoiu2010jstrace}, and TypeDevil~\cite{pradel2015typedevil},
 and typically target untyped languages.
 
@@ -146,6 +146,7 @@ NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
 is used, and automatically runs the tests of downstream projects to
 improve test coverage. Their \emph{dynamic access paths} represented as
 a series of \emph{actions} are analogous to our paths of path elements.
+
 % distinguishes public/private API
 
 % Python
