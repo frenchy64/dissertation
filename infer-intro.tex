@@ -136,11 +136,11 @@ Unfortunately, the annotation is too specific: it only accepts trees of height 1
 For fair comparison, even a class-based translation to JavaScript with
 a common \js{nodes} method yields a shallow annotation:
 \begin{lstlisting}[language=JavaScript]
-class Node {               class Leaf { 
-  public left: Leaf;         public data: number;
+class Node {              class Leaf { 
+  public left: Leaf;        public data: number;
   public right: Leaf;
-  ...                        ...
-}                          }
+  ...                       ...
+}                         }
 \end{lstlisting}
 %\begin{lstlisting}[language=JavaScript]
 %class Node {                class Leaf { 
