@@ -1,26 +1,15 @@
 \Dchapter{Overview}
 \label{infer:sec:overview}
 
+%
+
 Now that we have introduced the problem,
 we can flesh out our philosophy and overall
-approach.
-%
-At a high level, there are two phases to
-generating types---\textbf{collection} and
-\textbf{inference}.
-%
-The collection phase (\secref{infer:sec:formal:collection-phase}),
-gathers observations about a running program.
-This is achieved by instrumenting the program and exercising
-it, usually by running its unit tests.
-%
-The inference phase (\secref{infer:sec:formal:inference-phase})
-uses these runtime observations to generate the final type annotations,
-with recursive types, optional entries, and good names.
-
-\figref{infer:fig:cljs} demonstrates sample output from our
-tool. It shows the (inferred) recursively defined type
-for the ClojureScript compiler's AST format.
+approach. To concretize our discussion,
+\figref{infer:fig:cljs} demonstrates output from our
+tool.
+%It shows the (inferred) recursively defined type
+%for the ClojureScript compiler's AST format.
 Similar to our opening example, it uses the \clj{:op}
 key to disambiguate between (16) cases, and has recursive
 references (\clj{Op}).
@@ -36,6 +25,95 @@ type,
 however our tool wisely chose to cluster types 
 based on the \clj{:op} entry since it is common to all cases.
 
+
+%\Dsection{Philosophy}
+
+An important question to answer is ``how accurate are these annotations?''.
+Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
+in our generated types. 
+Our main contribution is a tool that Clojure programmers
+can use to help learn about and specify their programs.
+In that spirit, annotations should meet several criteria.
+
+\paragraph{Good names}
+Typed Clojure and clojure.spec annotations are abundant
+with useful names for types. A good name often increases
+readability.
+Good names can sometimes be reconstructed from the program source,
+like function or parameter names, and other times 
+we can use the shape of a type to summarize it.
+
+\paragraph{Compact}
+Idiomatic Clojure code rarely mixes certain types in the same position,
+unless the program is polymorphic. Using this knowledge---which we observed
+by the annotations and specs assigned to idiomatic Clojure 
+code---we can rule out certain combinations of types to compact our
+resulting output, without losing information that would help us
+type check our programs.
+
+\paragraph{Recursive}
+Maps in Clojure are often heterogeneous, and recursively defined.
+Typed Clojure and clojure.spec supplies mechanisms for the most
+common case: maps of known keyword entries.
+We strategically \textbf{squash} flat types to be recursive
+based on their unrolled shape.
+For example, a recursively defined union of maps almost always
+contains a known keyword ``tag'' mapped to a keyword.
+By identifying this tag, we can reconstruct a good recursive
+approximation of this type.
+
+%\Dsection{Naming}
+%
+%For a type to be immediately useful to a programmer, it helps
+%to have a great name. We explored several avenues for
+%generating good names.
+%
+%For types that occured as function arguments, the name of
+%the argument often indicated its role in the program.
+%Names like \clj{config} or \clj{env} are often used
+%for an environment being functionally threaded through
+%the program.
+%
+%Similarly, types that occur as values in configuration
+%maps often have descriptive keys.
+%For example, one of our case studies, a Star Trek 
+%game written in Clojure,
+%features a configuration map with a \clj{:stardate}
+%entry containing
+%a map that of three number entries: 
+%\clj{:start},
+%\clj{:current}, and
+%\clj{:end}.
+%
+%What if a type occurs in the return position of a function?
+%Sometimes these are named by \textbf{let} binding the result
+%of the computation.
+%
+%Failing these heuristics, we fall back of several approaches
+%to naming.
+%First, if we are naming a keyword map which is part of a tagged
+%union, we use the tag as the name. For example, if the tagged entry
+%maps \textbf{:op} to \textbf{:fn}, we name this map \textbf{FnOp}.
+%Otherwise, for maps with less than three entries, we simply
+%enumerate its entries as the name.
+%Finally, for large keyword maps, we give an abbreviation
+%of its keyset as a name.
+
+%\Dsection{Approach}
+
+%
+At a high level, there are two phases to
+generating types---\textbf{collection} and
+\textbf{inference}.
+%
+The collection phase (\secref{infer:sec:formal:collection-phase}),
+gathers observations about a running program.
+This is achieved by instrumenting the program and exercising
+it, usually by running its unit tests.
+%
+The inference phase (\secref{infer:sec:formal:inference-phase})
+uses these runtime observations to generate the final type annotations,
+with recursive types, optional entries, and good names.
 
 %is split into 
 %\textbf{instrumentation}, involves
@@ -75,22 +153,21 @@ based on the \clj{:op} entry since it is common to all cases.
   % indented so line numbers can line up more tastefully
 \begin{cljlistingnumbered}
   (defalias Op
-    (U (HMap
-        :mandatory
-        {:op ':binding,
-         :info (U NameShadowMap
-                  FnScopeFnSelfNameNsMap),
-         :local (U ':arg ':let ':fn),
-         :name Sym}
-        :optional
-        {:arg-id Int,
-         :binding-form? Boolean,
-         :column Int,
-         :env ColumnLineContextMap,
-         :init Op,
-         :line Int,
-         :shadow (U nil Op),
-         :tag Any})
+    (U (HMap :mandatory
+             {:op ':binding,
+              :info (U NameShadowMap
+                       FnScopeFnSelfNameNsMap),
+              :local (U ':arg ':let ':fn),
+              :name Sym}
+             :optional
+             {:arg-id Int,
+              :binding-form? Boolean,
+              :column Int,
+              :env ColumnLineContextMap,
+              :init Op,
+              :line Int,
+              :shadow (U nil Op),
+              :tag Any})
       '{:op ':const,
         :env HMap49305,
         :form (U nil Int ':a),
@@ -104,21 +181,23 @@ based on the \clj{:op} entry since it is common to all cases.
         :ret Op,
         :statements (Vec Nothing),
         :tag Any}
-      '{:op ':fn-method,
-        :body Op,
-        :children '[':params ':body],
-        :env HMap49305,
-        :fixed-arity Int,
-        :form (Coll (Coll Any)),
-        :name Op,
-        :params '[Op],
-        :recurs nil,
-        :type nil,
-        :variadic? false}
-      ; omitted 10 cases
+      ; omitted 11 cases
       ...))
+  (defalias ColumnLineContextMap
+    (HMap :mandatory {:column Int, :line Int}
+          :optional {:context ':expr}))
+  (defalias HMap49305
+    (U nil
+       '{:context ':statement, :column Int, ...}
+       '{:context ':return, :column Int, ...}
+       (t/HMap :mandatory
+               {:context ':expr, :column Int, ...}
+               :optional {...})))
+  (ann emit [Op -> nil])
+  (ann emit-dot [Op -> nil])
+  (ann emit-let [Op Any -> Any])
 \end{cljlistingnumbered}
-\caption{While imperfect, this recursive type generated by our tool 
+\caption{While imperfect, the recursive type \clj{Op} generated by our tool 
          is an invaluable starting
          point for further annotations.
          It describes the AST format for a compiler called cljs.compiler
@@ -128,6 +207,17 @@ based on the \clj{:op} entry since it is common to all cases.
          with 22 recursive references.
 }
 \label{infer:fig:cljs}
+%    '{:op ':fn-method,
+%      :body Op,
+%      :children '[':params ':body],
+%      :env HMap49305,
+%      :fixed-arity Int,
+%      :form (Coll (Coll Any)),
+%      :name Op,
+%      :params '[Op],
+%      :recurs nil,
+%      :type nil,
+%      :variadic? false}
 %    '{:op ':host-call,
 %      :args '[Op],
 %      :children Any,
@@ -233,78 +323,7 @@ based on the \clj{:op} entry since it is common to all cases.
 \end{figure}
 
 
-An important question to answer is ``how accurate are these annotations?''.
-Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
-in our generated types. 
-Our main contribution is a tool that Clojure programmers
-can use to help learn about and specify their programs.
-In that spirit, annotations should meet several criteria.
-
-\paragraph{Good names}
-Typed Clojure and clojure.spec annotations are abundant
-with useful names for types. A good name often increases
-readability.
-Good names can sometimes be reconstructed from the program source,
-like function or parameter names, and other times 
-we can use the shape of a type to summarize it.
-
-\paragraph{Compact}
-Idiomatic Clojure code rarely mixes certain types in the same position,
-unless the program is polymorphic. Using this knowledge---which we observed
-by the annotations and specs assigned to idiomatic Clojure 
-code---we can rule out certain combinations of types to compact our
-resulting output, without losing information that would help us
-type check our programs.
-
-\paragraph{Recursive}
-Maps in Clojure are often heterogeneous, and recursively defined.
-Typed Clojure and clojure.spec supplies mechanisms for the most
-common case: maps of known keyword entries.
-We strategically \textbf{squash} flat types to be recursive
-based on their unrolled shape.
-For example, a recursively defined union of maps almost always
-contains a known keyword ``tag'' mapped to a keyword.
-By identifying this tag, we can reconstruct a good recursive
-approximation of this type.
-
-\Dsection{Naming}
-
-For a type to be immediately useful to a programmer, it helps
-to have a great name. We explored several avenues for
-generating good names.
-
-For types that occured as function arguments, the name of
-the argument often indicated its role in the program.
-Names like \clj{config} or \clj{env} are often used
-for an environment being functionally threaded through
-the program.
-
-Similarly, types that occur as values in configuration
-maps often have descriptive keys.
-For example, one of our case studies, a Star Trek 
-game written in Clojure,
-features a configuration map with a \clj{:stardate}
-entry containing
-a map that of three number entries: 
-\clj{:start},
-\clj{:current}, and
-\clj{:end}.
-
-What if a type occurs in the return position of a function?
-Sometimes these are named by \textbf{let} binding the result
-of the computation.
-
-Failing these heuristics, we fall back of several approaches
-to naming.
-First, if we are naming a keyword map which is part of a tagged
-union, we use the tag as the name. For example, if the tagged entry
-maps \textbf{:op} to \textbf{:fn}, we name this map \textbf{FnOp}.
-Otherwise, for maps with less than three entries, we simply
-enumerate its entries as the name.
-Finally, for large keyword maps, we give an abbreviation
-of its keyset as a name.
-
-\Dsection{Algorithm}
+%\Dsection{Algorithm}
 
 A key hypothesis in our algorithm is that functions in the same
 namespace operate on related data. Our inference is built
