@@ -12,8 +12,9 @@
 
 %%%% V1
 
-The untyped-typed porting process is costly, but tools to smooth
-this transition are scarce.  Moving from a dynamically-typed program
+%The untyped-typed porting process is costly, but tools to smooth
+%this transition are scarce.
+Moving from a dynamically-typed program
 to a statically typed one requires the programmer to add potentially
 numerous type annotations. This burden can discourage migration to
 types, and has put off real users of existing gradual and optional
@@ -27,28 +28,29 @@ examples. Given a running program, we instrument the execution, record
 type information, summarize it, and annotate the existing program with
 the recovered types.
 
-We test our approach in Clojure, a dynamically typed
-language with a culture of unit testing as well as an  existing
+We apply our approach to Clojure, a dynamically typed
+language with a culture of unit testing as well as both an existing
 optional type system and a contract system. Given a component under
 consideration, we instrument the source and analyze the behavior of the
-program while running unit tests, generating a wealth of data about
-the values flowing through the program.
-
-Equipped with this information, we can summarize it by generating compact
+program while running unit tests.
+%, generating a wealth of data about
+%the values flowing through the program.
+%
+Equipped with this information, we summarize it by generating compact
 type specifications for all the functions in the component, including
 well-named type definitions. Our tool can also automatically generate
 contracts using the Clojure spec tool. Since Clojure relies
 heavily on ad-hoc data structures in the Lisp tradition, we describe
 an algorithm for automatically inferring recursive structural types
-from data examples.
+from data examples, a challenge not considered in prior work.
 
 Our approach, as must be the case for a testing-driven tool, is
 incomplete---programs may have too few unit tests, and untested
 execution paths can have differing type behavior. We therefore
 evaluate our tool by running it on real Clojure programs and then
 completing the porting to Typed Clojure. We find that while
-significant changes are usually needed, the generated types are
-extremely valuable and the effort reduction is immense.
+some changes are always needed, the generated types are
+valuable and the effort reduction is substantial.
 
 %%%% OLD
 %  The untyped-typed porting process is costly, but
