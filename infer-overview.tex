@@ -125,7 +125,7 @@ based on the \clj{:op} entry since it is common to all cases.
          (\secref{infer:chap:evaluation}), and
          has 14 distinct operators, 5 inferred
          to have optional entries,
-         and 22 recursive references.
+         with 22 recursive references.
 }
 \label{infer:fig:cljs}
 %    '{:op ':host-call,
@@ -275,7 +275,7 @@ generating good names.
 
 For types that occured as function arguments, the name of
 the argument often indicated its role in the program.
-Names like \textbf{config} or \textbf{env} are often used
+Names like \clj{config} or \clj{env} are often used
 for an environment being functionally threaded through
 the program.
 
@@ -283,12 +283,12 @@ Similarly, types that occur as values in configuration
 maps often have descriptive keys.
 For example, one of our case studies, a Star Trek 
 game written in Clojure,
-features a configuration map with a \textbf{:stardate}
+features a configuration map with a \clj{:stardate}
 entry containing
 a map that of three number entries: 
-\textbf{:start},
-\textbf{:current}, and
-\textbf{:end}.
+\clj{:start},
+\clj{:current}, and
+\clj{:end}.
 
 What if a type occurs in the return position of a function?
 Sometimes these are named by \textbf{let} binding the result

@@ -67,11 +67,13 @@ var,var-get,var-set,var?,vary-meta,vec,vector,vector?,when,when-first,when-let,w
 while,with-bindings,with-bindings*,with-in-str,with-loading-context,with-local-vars,%
 with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 % Typed Clojure
-,defalias,ann,HMap,Nothing,Sym,Int,Boolean,nil,U,Coll,Any,:mandatory,:optional
+,defalias,ann,HMap,Nothing,Sym,Int,Boolean,U,Coll,Any,:mandatory,:optional,Vec,Str,AnyFunction,Atom1,Character,Map,All%
+% spec
+,s/def,number?,boolean?,s/keys,:req,:req-un,:opt,:opt-un
 },%
    sensitive,% ???
    alsodigit=-,%
-   alsoletter=:,% don't highling keywords
+   alsoletter=:/?,% don't highlight keywords, or namespaced keywords, consider predicates
    morecomment=[l];,%
    morestring=[b]"%
   }[keywords,comments,strings]%
