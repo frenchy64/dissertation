@@ -35,21 +35,68 @@ with a recursive AST type \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer
 
 %\Dsection{Philosophy}
 
+An important question to address is ``how accurate are these annotations?''.
+Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
+in our generated types. 
+A significant contribution of our work is a tool that Clojure programmers
+can use to help learn about and specify their programs.
+In that spirit, we strive to generate annotations meeting more qualitative criteria.
+Each guideline by itself helps generate more useful annotations and,
+as we discuss in \secref{infer:sec:experiment1},
+they combine in interesting ways help to make up for shortcomings
+in generated annotations.
+%which we outline along with a commentary
+%judging \figref{infer:fig:cljs} along these lines.
+
+\paragraph{Choose recognizable names}
+%Typed Clojure and clojure.spec annotations are abundant
+%with useful names for types.
+Assigning a good name for a type increases
+readability by succincting conveying its purpose.
+Along those lines, a good name for the AST representation
+on lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}
+might be \clj{AST} or \clj{Expr}.
+However, these kinds of names can be very misleading when incorrect, so
+instead of guessing them,
+our tool takes a more consistent approach and generates \emph{easily recognizable}
+names based on the type the name points to.
+Then, those with a passing familiarity with the data flowing through the program
+can quickly identify and rename them.
+For example,
+\begin{itemize}
+  \item
+    \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End})
+    is chosen because \clj{:op} is
+    clearly the dispatch key (the \clj{:op} entry is also helpfully placed
+    as the first entry in each case to aid discoverability),
+  \item
+    \clj{ColumnLineContextMap} (lines \ref{infer:listing:cljs:ColumnLineContextMap}-\ref{infer:listing:cljs:ColumnLineContextMapEnd})
+    enumerates the keys of the map type it points to,
+  \item
+    \clj{NameShadowMap} and \clj{FnScopeFnSelfNameNsMap} (referenced on lines
+    \ref{infer:listing:cljs:Op:op:binding:NameShadowMap} and \ref{infer:listing:cljs:Op:op:binding:FnScopeFnSelfNameNsMap})
+    similarly, and
+  \item
+    \clj{HMap49305} (lines \ref{infer:listing:cljs:HMap49305}-\ref{infer:listing:cljs:HMap49305End})
+    shows how our tool fails to give names to certain combinations
+    of types (we discuss the severity of this particular situation in
+    \secref{infer:sec:experiment1}).
+\end{itemize}
+
 \begin{figure}
   % indented so line numbers can line up more tastefully
 \begin{cljlistingnumbered}
-  (defalias Op(*@\label{infer:listing:cljs:Op}@*) ; omitted some entries
-    (U (HMap :mandatory
+  (defalias Op(*@\label{infer:listing:cljs:Op}@*) ; omitted some entries and 11 cases
+    (U (HMap :mandatory(*@\label{infer:listing:cljs:Op:op:bindingStart}@*)
              {:op ':binding,(*@\label{infer:listing:cljs:Op:op:binding}@*)
               :info (U NameShadowMap(*@\label{infer:listing:cljs:Op:op:binding:NameShadowMap}@*)
                        FnScopeFnSelfNameNsMap(*@\label{infer:listing:cljs:Op:op:binding:FnScopeFnSelfNameNsMap}@*)), ...}
              :optional(*@\label{infer:listing:cljs:Op:optional}@*)
              {:env ColumnLineContextMap, :init Op,(*@\label{infer:listing:cljs:Op:optional:init:Op}@*)
-              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*) ...})(*@\label{infer:listing:cljs:Op:optionalEnd}@*)
+              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*) ...})(*@\label{infer:listing:cljs:Op:optionalEnd}@*)(*@\label{infer:listing:cljs:Op:op:bindingEnd}@*)
       '{:op ':const,(*@\label{infer:listing:cljs:Op:op:const}@*) :env HMap49305,(*@\label{infer:listing:cljs:Op:op:const:HMap49305}@*) ...}
       '{:op ':do,(*@\label{infer:listing:cljs:Op:op:do}@*) :env HMap49305,(*@\label{infer:listing:cljs:Op:op:do:HMap49305}@*)
         :ret Op,(*@\label{infer:listing:cljs:Op:op:do:Op}@*) :statements (Vec Nothing)(*@\label{infer:listing:cljs:Op:op:do:statements}@*), ...}
-      ; omitted 11 cases
       ...))(*@\label{infer:listing:cljs:Op-End}@*)
   (defalias ColumnLineContextMap(*@\label{infer:listing:cljs:ColumnLineContextMap}@*)
     (HMap :mandatory {:column Int, :line Int}
@@ -205,60 +252,13 @@ with a recursive AST type \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer
 \end{figure}
 
 
-An important question to address is ``how accurate are these annotations?''.
-Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
-in our generated types. 
-A significant contribution of our work is a tool that Clojure programmers
-can use to help learn about and specify their programs.
-In that spirit, we strive to generate annotations meeting more qualitative criteria.
-Each guideline by itself helps generate more useful annotations and,
-as we discuss in \secref{infer:sec:experiment1},
-they combine in interesting ways help to make up for shortcomings
-in generated annotations.
-%which we outline along with a commentary
-%judging \figref{infer:fig:cljs} along these lines.
-
-\paragraph{Choose recognizable names}
-%Typed Clojure and clojure.spec annotations are abundant
-%with useful names for types.
-Assigning a good name for a type increases
-readability by succincting conveying its purpose.
-Along those lines, a good name for the AST representation
-on lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}
-might be \clj{AST} or \clj{Expr}.
-However, these kinds of names can be very misleading when incorrect, so
-instead of guessing them,
-our tool takes a more consistent approach and generates \emph{easily recognizable}
-names based on the type the name points to.
-Then, those with a passing familiarity with the data flowing through the program
-can quickly identify and rename them.
-For example,
-\begin{itemize}
-  \item
-    \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End})
-    is chosen because \clj{:op} is
-    clearly the dispatch key (the \clj{:op} entry is also helpfully placed
-    as the first entry in each case to aid discoverability),
-  \item
-    \clj{ColumnLineContextMap} (lines \ref{infer:listing:cljs:ColumnLineContextMap}-\ref{infer:listing:cljs:ColumnLineContextMapEnd})
-    enumerates the keys of the map type it points to,
-  \item
-    \clj{NameShadowMap} and \clj{FnScopeFnSelfNameNsMap} (referenced on lines
-    \ref{infer:listing:cljs:Op:op:binding:NameShadowMap} and \ref{infer:listing:cljs:Op:op:binding:FnScopeFnSelfNameNsMap})
-    similarly, and
-  \item
-    \clj{HMap49305} (lines \ref{infer:listing:cljs:HMap49305}-\ref{infer:listing:cljs:HMap49305End})
-    shows how our tool fails to give names to certain combinations
-    of types (we discuss the severity of this particular situation in
-    \secref{infer:sec:experiment1}).
-\end{itemize}
-
 %Good names can sometimes be reconstructed from the program source,
 %like function or parameter names, and other times 
 %we can use the shape of a type to summarize it.
 
 \paragraph{Favor compact annotations}
-
+To 
+We making a type smaller where possible.
 Brevity is just as 
 %Idiomatic Clojure code rarely mixes certain types in the same position,
 %unless the program is polymorphic. Using this knowledge---which we observed

@@ -296,53 +296,78 @@ While we originally designed our tool to generate Typed Clojure annotations,
 it also supports generating ``specs'' for clojure.spec, Clojure's runtime
 verification system.
 There are key similarities between Typed Clojure and clojure.spec,
-such as extensive support for potentially-tagged keyword maps.
-However, there are several non-trivial details to manage.
+such as extensive support for potentially-tagged keyword maps,
+however spec features a global registry of names
+via \clj{s/def} and
+an explicit way declare unions of maps with a common
+dispatch key in \clj{s/multi-spec}.
+These require differences in both type and name generation.
+
+The following generated specs 
+correspond to the first \clj{Op} case
+of \figref{infer:fig:cljs}
+(lines \ref{infer:listing:cljs:Op:op:bindingStart}-\ref{infer:listing:cljs:Op:op:bindingEnd}).
+\begin{cljlistingnumbered}
+  (defmulti op-multi-spec :op) ;dispatch on :op key
+  (defmethod op-multi-spec :binding ;match :binding
+    [_] ;s/keys matches keyword maps
+    (s/keys :req-un [::op ...] ;required keys
+            :opt-un [::column ...])) ;optional keys
+  (s/def ::op #{:js :let ...}) ;:op key maps to keywords
+  (s/def ::column int?) ;:column key maps to ints
+  ; register ::Op as union dispatching on :op entry
+  (s/def ::Op (s/multi-spec op-multi-spec :op))
+  ; emit's first argument :ast has spec ::Op
+  (s/fdef emit :args (s/cat :ast ::Op) :ret nil?)
+\end{cljlistingnumbered}
+
+
+%However, there are several non-trivial details to manage.
 % specs have fundamental differences.
 
 %As they are checked at runtime, specs are naturally more expressive than types.
 %However, our generated specs are roughly the same as types in their precision.
 
-\paragraph{Registered Specs}
-Central to spec's design is a global registry of named specs.
-The form \clj{(s/def k s)} registers spec \clj{s} under name \clj{k}.
-To avoid conflicts, \emph{namespaced keywords} are used. The \clj{::a} reader syntax
-auto-resolves the keyword under the current namespace, like \clj{:this-ns/a}.
+%\paragraph{Registered Specs}
+%Central to spec's design is a global registry of named specs.
+%The form \clj{(s/def k s)} registers spec \clj{s} under name \clj{k}.
+%To avoid conflicts, \emph{namespaced keywords} are used. The \clj{::a} reader syntax
+%auto-resolves the keyword under the current namespace, like \clj{:this-ns/a}.
+%
+%\paragraph{HMaps}
+%Heterogeneous map keyword specs are called ``entity maps'' in spec, 
+%and are defined as collections
+%of registered specs with \clj{s/keys}, and has quite different
+%syntax and semantics than many other runtime verification systems.
 
-\paragraph{HMaps}
-Heterogeneous map keyword specs are called ``entity maps'' in spec, 
-and are defined as collections
-of registered specs with \clj{s/keys}, and has quite different
-syntax and semantics than many other runtime verification systems.
-
-The Typed Clojure type
-\begin{cljlisting}
-(defalias M (HMap :mandatory {:a Int, ::a Bool}
-                  :optional  {:b Int, ::b Bool}))
-\end{cljlisting}
-is equivalent to
-\begin{cljlisting}
-(s/def :int/a integer?)
-(s/def ::a boolean?)
-(s/def :int/b integer?)
-(s/def ::b boolean?)
-(s/def ::M (s/keys :req-un [:int/a], :req [::a],
-                   :opt-un [:int/b], :opt [::b]))
-\end{cljlisting}
-The \clj{:req-un} and \clj{:opt-un} options
-(\clj{un}[qualified] keyword \clj{req}[uired] and \clj{opt}[ional] entries)
-take vectors of registered specs and, for
-each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
-to verify values at \clj{:name}.
-
-The \clj{:req} and \clj{:opt} options
-(qualified keyword \clj{req}[uired] and \clj{opt}[ional] entries)
-take vectors of registered specs and, for
-each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
-to verify values at \clj{:ns/name}.
-
-Spec has several other subtleties we must account for, but omit
-for brevity.
+%The Typed Clojure type
+%\begin{cljlisting}
+%(defalias M (HMap :mandatory {:a Int, ::a Bool}
+%                  :optional  {:b Int, ::b Bool}))
+%\end{cljlisting}
+%is equivalent to
+%\begin{cljlisting}
+%(s/def :int/a integer?)
+%(s/def ::a boolean?)
+%(s/def :int/b integer?)
+%(s/def ::b boolean?)
+%(s/def ::M (s/keys :req-un [:int/a], :req [::a],
+%                   :opt-un [:int/b], :opt [::b]))
+%\end{cljlisting}
+%The \clj{:req-un} and \clj{:opt-un} options
+%(\clj{un}[qualified] keyword \clj{req}[uired] and \clj{opt}[ional] entries)
+%take vectors of registered specs and, for
+%each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
+%to verify values at \clj{:name}.
+%
+%The \clj{:req} and \clj{:opt} options
+%(qualified keyword \clj{req}[uired] and \clj{opt}[ional] entries)
+%take vectors of registered specs and, for
+%each spec \clj{:ns/name}, uses the registered spec \clj{:ns/name}
+%to verify values at \clj{:ns/name}.
+%
+%Spec has several other subtleties we must account for, but omit
+%for brevity.
 
 %\paragraph{Tagged maps}
 %
