@@ -393,10 +393,18 @@ with recursive types, optional entries, and good names.
 
 %\Dsection{Algorithm}
 
+The first pass in the inference phase generates a naive type environment
+from runtime observations (described in \secref{infer:sec:formal:inference-phase:genenv}). Types are fully unrolled, appearing
+similar to TypeWiz's final annotation for \clj{nodes}
+(\figref{fig:infer:typewiz})---except it is the starting point of
+our algorithm.
+
 A key hypothesis in our algorithm is that functions in the same
-namespace operate on related data. Our inference is built
-to be per-namespace (i.e., per-file),
-and aggressively merges all apparently-related HMap types.
+file operate on related data. Our inference is built
+to be used per-file and aggressively merges all apparently-related HMap types,
+first types immediately nested within each other (\secref{infer:sec:formal:inference-phase:squash-local}),
+then across type aliases
+(\secref{infer:sec:formal:inference-phase:squash-global}).
 This often yields useful types in our benchmarks.
 This approach does not work well for libraries providing polymorphic
 functions, since unit tests may use sample data that are unrelated

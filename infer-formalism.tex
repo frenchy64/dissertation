@@ -399,6 +399,7 @@ The third pass $\squashglobal{} (\atenv{}) = \atenvp{}$
 merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:squashglobal}).
 
 \Dsubsection{Pass 1: Generating initial type environment}
+\label{infer:sec:formal:inference-phase:genenv}
 
 The first pass is given in \figref{infer:fig:generatetenv}.
 The entry point \generatetenv{} folds over inference results
@@ -528,6 +529,7 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
 \end{figure*}
 
 \Dsubsection{Pass 2: Squash locally}
+\label{infer:sec:formal:inference-phase:squash-local}
 
 We now describe the algorithm for generating recursive type aliases.
 The first step \squashlocal{} creates recursive types from directly nested types.
@@ -736,6 +738,7 @@ with cruder heuristics like the current implementation.
 \end{figure*}
 
 \Dsubsection{Pass 3: Squash globally}
+\label{infer:sec:formal:inference-phase:squash-global}
 
 The final step combines aliases
 without restriction on whether they occur ``together''.
