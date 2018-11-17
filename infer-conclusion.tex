@@ -1,12 +1,55 @@
 \Dchapter{Conclusion}
 
-Our approach to automatically
-generate recursive types from unrolled examples,
-has proven
-even with the challenge of 
+This paper shows how to
+generate recursive heterogeneous type annotations for
+untyped programs that manipulate plain data.
+We use a novel algorithm to ``squash'' the observed structure
+of program values into named recursive types suitable for
+optional type systems,
+all without the assistance of record, structure, or class
+definitions.
 
-We have tested our approach on thousands of lines
-of Clojure code,
-Typed Clojure types for Clojure
-programs. Despite the fact that Clojure programs
-declare minimal structure, we successfully 
+We test this approach on thousands of lines of Clojure code,
+optimizing generated annotations
+for programmer comprehensibility over soundness.
+In our experience, our guidelines
+to automatically name, group, and reuse
+types yields annotations
+immediately workable for those with some familiarity with
+the original programs,
+even if the initial annotations are imprecise, incomplete,
+and always require some changes to type check.
+
+Instead of the daunting task of annotating untyped programs
+from scratch, our generated annotations
+serve as a valuable starting point for programs
+who rely on plain data.
+
+%We indend to convey to programmers
+%to understand 
+%
+%and report on experience in using our tool to generate annotations for real-world
+%Clojure programs, and enumerate the remaining changes needed to fully port
+%them to Typed Clojure.
+%
+%Optional type systems 
+%were created on the observation
+%that even dynamic programming languages have a 
+%
+%We tackle the problem of 
+%Our approach to automatically
+%generate recursive types from unrolled examples,
+%has proven
+%even with the challenge of 
+%
+%% key insights
+%% - recursive annotations for records and classes without declarations.
+%% - how to recover the structure from class definitions
+%%   without programmer intervention?
+%% - generalized types 
+%
+%We have tested our approach on thousands of lines
+%of Clojure code,
+%Typed Clojure types for Clojure
+%programs. Despite the fact that Clojure programs
+%declare minimal structure, we successfully 
