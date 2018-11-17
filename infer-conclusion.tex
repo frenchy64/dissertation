@@ -2,28 +2,31 @@
 
 This paper shows how to
 generate recursive heterogeneous type annotations for
-untyped programs that manipulate plain data.
+untyped programs that use plain data.
 We use a novel algorithm to ``squash'' the observed structure
 of program values into named recursive types suitable for
 optional type systems,
 all without the assistance of record, structure, or class
 definitions.
-
 We test this approach on thousands of lines of Clojure code,
 optimizing generated annotations
 for programmer comprehensibility over soundness.
+
 In our experience, our guidelines
 to automatically name, group, and reuse
-types yields annotations
-immediately workable for those with some familiarity with
+types yield insightful annotations
+for those with some familiarity with
 the original programs,
 even if the initial annotations are imprecise, incomplete,
 and always require some changes to type check.
+Most importantly, many of these changes will involve simply rearranging or changing parts
+of existing annotations, so programmers are no longer left alone
+with the daunting task of reverse-engineering such programs
+completely from scratch.
 
-Instead of the daunting task of annotating untyped programs
-from scratch, our generated annotations
-serve as a valuable starting point for programs
-who rely on plain data.
+%Our generated annotations
+%serve as a valuable starting point for annotating untyped programs
+%who rely on plain data, especially
 
 %We indend to convey to programmers
 %to understand 
