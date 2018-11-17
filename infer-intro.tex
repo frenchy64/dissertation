@@ -221,7 +221,12 @@ entry (\figref{fig:infer:nodestype}).
      '{:op ':leaf, :val Int}))
 (ann nodes [Op -> Int])
 \end{cljlisting}
-  \caption{Our tool's Typed Clojure annotation of \figref{fig:infer:nodes}}
+  \caption{Our tool's Typed Clojure annotation of \figref{fig:infer:nodes}.
+  \clj{defalias} introduces an equirecursive type alias,
+  \clj{U} is a set-theoretic union type constructor,
+  and \clj{':node} is a singleton type containing just the keyword value
+  \clj{:node}.
+}
 \label{fig:infer:nodestype}
 \end{figure}
 
@@ -247,7 +252,7 @@ entry in a \clj{:node} yields the annotation
 Furthermore, we aggressively combine recursive data used
 in the same file.
 Given a 3-way node example with the key \clj{:node3},
-used as inut to a distinct function \clj{nodes'},
+used as input to a distinct function \clj{nodes'},
 our tool generates the combined type shown in \figref{fig:infer:node3}.
 %Say \clj{nodes'}
 %is similar to \clj{nodes},
@@ -274,7 +279,10 @@ our tool generates the combined type shown in \figref{fig:infer:node3}.
 (ann nodes [Op -> Int])
 (ann nodes' [Op -> Int])
 \end{cljlisting}
-\caption{Optional entries and combined information across functions.}
+\caption{Optional entries and combined information across functions.
+  \clj{HMap} is the expanded heterogeneous map type constructor, specifying both
+  mandatory and optional entries.
+  }
 \label{fig:infer:node3}
 \end{figure}
 
