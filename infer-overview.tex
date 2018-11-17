@@ -42,15 +42,38 @@ Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for
 in our generated types. 
 A significant contribution of our work is a tool that Clojure programmers
 can use to help learn about and specify their programs.
-In that spirit, we strive to generate annotations meeting more qualitative criteria,
-which we outline along with a commentary
-judging \figref{infer:fig:cljs} along these lines.
+In that spirit, we strive to generate annotations meeting more qualitative criteria.
+%which we outline along with a commentary
+%judging \figref{infer:fig:cljs} along these lines.
 
-\paragraph{Good names}
-Typed Clojure and clojure.spec annotations are abundant
-with useful names for types. A good name increases
+\paragraph{Recognizable names}
+%Typed Clojure and clojure.spec annotations are abundant
+%with useful names for types.
+Choosing a good name for a type increases
 readability by succincting conveying its purpose.
-
+Along those lines, a good name for the AST representation
+on lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}
+might be \clj{AST} or \clj{Expr}.
+Guessing these kinds of names can be very misleading when incorrect, so
+our tool instead takes a more consistent approach, generating easily recognizable
+names based on local information, particularly from the types names point to.
+Then, those with a passing familiarity with the data flowing through the program
+can quickly identify and rename them.
+For example,
+\begin{itemize}
+  \item
+    \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}))
+    is chosen because \clj{:op} is
+    clearly the dispatch key (the \clj{:op} entry is also helpfully placed
+    as the first entry in each case),
+  \item
+    \clj{ColumnLineContextMap} (lines \ref{infer:listing:cljs:ColumnLineContextMap}-\ref{infer:listing:cljs:ColumnLineContextMapEnd})
+    enumerates the keys of the map type it points to, and
+  \item
+    \clj{HMap49305} (lines \ref{infer:listing:cljs:HMap49305}-\ref{infer:listing:cljs:HMap49305End})
+    shows how our tool fails to give names to certain combinations
+    of types.
+\end{itemize}
 
 %Good names can sometimes be reconstructed from the program source,
 %like function or parameter names, and other times 
@@ -172,7 +195,7 @@ with recursive types, optional entries, and good names.
                        FnScopeFnSelfNameNsMap), ...}
              :optional(*@\label{infer:listing:cljs:Op:optional}@*)
              {:env ColumnLineContextMap, :init Op,(*@\label{infer:listing:cljs:Op:optional:init:Op}@*)
-              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*) ...})
+              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*) ...})(*@\label{infer:listing:cljs:Op:optionalEnd}@*)
       '{:op ':const,(*@\label{infer:listing:cljs:Op:op:const}@*) :env HMap49305, ...}
       '{:op ':do,(*@\label{infer:listing:cljs:Op:op:do}@*) :env HMap49305,
         :ret Op,(*@\label{infer:listing:cljs:Op:op:do:Op}@*) :statements (Vec Nothing), ...}
@@ -180,14 +203,14 @@ with recursive types, optional entries, and good names.
       ...))(*@\label{infer:listing:cljs:Op-End}@*)
   (defalias ColumnLineContextMap(*@\label{infer:listing:cljs:ColumnLineContextMap}@*)
     (HMap :mandatory {:column Int, :line Int}
-          :optional {:context ':expr}))
+          :optional {:context ':expr}))(*@\label{infer:listing:cljs:ColumnLineContextMapEnd}@*)
   (defalias HMap49305 ; omitted some extries(*@\label{infer:listing:cljs:HMap49305}@*)
     (U nil
        '{:context ':statement, :column Int, ...}
        '{:context ':return, :column Int, ...}
        (t/HMap :mandatory
                {:context ':expr, :column Int, ...}
-               :optional {...})))
+               :optional {...})))(*@\label{infer:listing:cljs:HMap49305End}@*)
   (ann emit [Op -> nil])(*@\label{infer:listing:cljs:emit}@*)
   (ann emit-dot [Op -> nil])(*@\label{infer:listing:cljs:emit-dot}@*)
 \end{cljlistingnumbered}
@@ -207,7 +230,7 @@ with recursive types, optional entries, and good names.
          (like lines \ref{infer:listing:cljs:Op:optional:init:Op}, \ref{infer:listing:cljs:Op:optional:shadow:Op}, \ref{infer:listing:cljs:Op:op:do:Op})
          and 14 cases distinguished by \clj{:op} (like lines \ref{infer:listing:cljs:Op:op:binding},
          \ref{infer:listing:cljs:Op:op:const}, \ref{infer:listing:cljs:Op:op:do}),
-         5 of which have optional entries (like line \ref{infer:listing:cljs:Op:optional}).
+         5 of which have optional entries (like lines \ref{infer:listing:cljs:Op:optional}-\ref{infer:listing:cljs:Op:optionalEnd}).
          To improve inference time,
          only the code emission unit tests were exercised (299 lines containing 39 assertions),
          generating 448 lines of types % and 517 lines specs
