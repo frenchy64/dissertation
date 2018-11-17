@@ -37,36 +37,70 @@ a recursively defined map-based abstract syntax tree format.
 Our approach is to carry out three experiments.
 
 \Dsection{Experiment 1: Manual inspection}
+\label{infer:sec:experiment1}
 
-In the first experiment, we simply run our 
-type inferencer on each program after executing
-their tests.
-We then manually inspect the resulting
-types and compare them to some ideal
+In the first experiment, we generate types for
+a program and manually inspect the resulting
 annotations.
+We follow the criteria 
+outlined in \secref{infer:sec:overview}
+to judge the quality of our output, namely:
+\begin{itemize}
+  \item using recognizable names,
+  \item favoring compact annotations, and
+  \item not overspecifying types.
+\end{itemize}
 
-We rate the quality of generated annotations
-on several axes.
+Since it is our largest benchmark with 448 lines
+of generated type annotations,
+we concentrated on manually inspecting cljs.compiler's
+generated types.
+We briefly commented
+in \secref{infer:sec:overview}
+about how successfully the code in \figref{infer:fig:cljs}
+follows our goals.
+Here, we further elaborate on \figref{infer:fig:cljs}
+(with line references), and contextualize them
+with the elided annotations.
 
-\paragraph{Compactness} Type annotations should be succinct,
-        but without sacrificing too much accuracy.
-        Are our type aliases intelligently combined
-        with good choices for optional keys?
+The most glaring failure of cljs.compiler's
+generated types was the \clj{HMap49305} type annotation.
+It clearly fails to be a recognizable name.
+However, all is not lost:
+the compactness and recognizable names of other adjacent annotations
+makes it plausible for a programmer with some
+knowledge of the AST representation to 
+recover.
+In particular 10/11 cases in \clj{Op}
+have entries from \clj{:env} to \clj{HMap49305}, 
+(like lines \ref{infer:listing:cljs:Op:op:const:HMap49305} and \ref{infer:listing:cljs:Op:op:do:HMap49305}),
+and the only exception (line \ref{infer:listing:cljs:Op:optional:init:Op})
+maps to \clj{ColumnLineContextMap}. From this information the user can
+decide to combine these aliases.
 
-  \paragraph{Accuracy} Would executing a program with these
-      type annotations cause an error?
-      Have we too eagerly erased information in favor
-      of compactness?
-
-  \paragraph{Organization} Have we chosen good recursive types?
-      Do they have good names?
-
-
-\figref{infer:fig:gentype} shows our results.
-Our first program is an implementation of a
-1971 Star Trek game.
-It comes with minimal tests, so to complete this experiment,
-we instead played the game for 30 seconds.
+%
+%We rate the quality of generated annotations
+%on several axes.
+%
+%\paragraph{Compactness} Type annotations should be succinct,
+%        but without sacrificing too much accuracy.
+%        Are our type aliases intelligently combined
+%        with good choices for optional keys?
+%
+%  \paragraph{Accuracy} Would executing a program with these
+%      type annotations cause an error?
+%      Have we too eagerly erased information in favor
+%      of compactness?
+%
+%  \paragraph{Organization} Have we chosen good recursive types?
+%      Do they have good names?
+%
+%
+%\figref{infer:fig:gentype} shows our results.
+%Our first program is an implementation of a
+%1971 Star Trek game.
+%It comes with minimal tests, so to complete this experiment,
+%we instead played the game for 30 seconds.
 
 \Dsection{Experiment 2: Delta needed to type check}
 % TODO examples for all kinds of things
