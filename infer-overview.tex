@@ -100,7 +100,7 @@ For example,
       ...))(*@\label{infer:listing:cljs:Op-End}@*)
   (defalias ColumnLineContextMap(*@\label{infer:listing:cljs:ColumnLineContextMap}@*)
     (HMap :mandatory {:column Int, :line Int}
-          :optional {:context ':expr}))(*@\label{infer:listing:cljs:ColumnLineContextMapEnd}@*)
+          :optional {:context ':expr}(*@\label{infer:listing:cljs:ColumnLineContextMap:optional}@*)))(*@\label{infer:listing:cljs:ColumnLineContextMapEnd}@*)
   (defalias HMap49305 ; omitted some extries(*@\label{infer:listing:cljs:HMap49305}@*)
     (U nil
        '{:context ':statement, :column Int, ...}
@@ -257,23 +257,26 @@ For example,
 %we can use the shape of a type to summarize it.
 
 \paragraph{Favor compact annotations}
-To 
-We making a type smaller where possible.
-Brevity is just as 
+Literally translating runtime observations into
+annotations without compacting them
+leads to unmaintainable and impractical types resembling
+TypeWiz's annotation for \clj{nodes} (\figref{fig:infer:typewiz}).
+To avoid this, we
+\begin{itemize}
+  \item use optional keys where possible, like line \ref{infer:listing:cljs:ColumnLineContextMap:optional},
+  \item infer recursive types like \clj{Op}, and
+  \item reuse type aliases in function annotations, like
+    \clj{emit} and \clj{emit-dot} (lines \ref{infer:listing:cljs:emit}, \ref{infer:listing:cljs:emit-dot}).
+\end{itemize}
+These processes of compacting annotations often makes them more general,
+which leads into our next goal.
+
 %Idiomatic Clojure code rarely mixes certain types in the same position,
 %unless the program is polymorphic. Using this knowledge---which we observed
 %by the annotations and specs assigned to idiomatic Clojure 
 %code---we can rule out certain combinations of types to compact our
 %resulting output, without losing information that would help us
 %type check our programs.
-For example,
-\begin{itemize}
-  \item
-    % move this to Experiment 1
-    19 functions in cljs.compiler are annotated to take and/or return \clj{Op}
-    (like lines \ref{infer:listing:cljs:emit} and \ref{infer:listing:cljs:emit-dot})
-  \item
-\end{itemize}
 
 \paragraph{Don't overspecify types}
 Poor test coverage can easily skew the results of dynamic analysis tools,
