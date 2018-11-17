@@ -197,27 +197,34 @@ conditions, one of which is running out of time.
 Since the tests do not specifically call this function,
 nor play the game long enough to invoke this condition,
 no useful type is inferred.
-
+%
 \begin{cljlisting}
 (ann game-over-out-of-time AnyFunction)
 \end{cljlisting}
-
-In this case, very little effort is needed to amend this
-type signature, since we generated a useful type alias
-for the global configuration map.
-
+%
+In this case, minimal effort is needed to amend this
+type signature: the appropriate type alias
+already exists:
+%
 \begin{cljlisting}
 (defalias CurrentKlingonsCurrentSectorEnterpriseMap
   (HMap :mandatory
     {:current-klingons (Vec EnergySectorMap),
-     :current-sector (Vec Int), 
-     :enterprise EnergyIsDockedQuadrantMap,
-     :quads (Vec BasesKlingonsQuadrantMap), 
-     :stardate CurrentEndStartMap,
-     :starting-klingons Int}
+     :current-sector (Vec Int), ...}
     :optional {:lrs-history (Vec Str)}))
 \end{cljlisting}
-
+%\begin{cljlisting}
+%(defalias CurrentKlingonsCurrentSectorEnterpriseMap
+%  (HMap :mandatory
+%    {:current-klingons (Vec EnergySectorMap),
+%     :current-sector (Vec Int), 
+%     :enterprise EnergyIsDockedQuadrantMap,
+%     :quads (Vec BasesKlingonsQuadrantMap), 
+%     :stardate CurrentEndStartMap,
+%     :starting-klingons Int}
+%    :optional {:lrs-history (Vec Str)}))
+%\end{cljlisting}
+%
 So we amend the signature as
 
 \begin{cljlisting}

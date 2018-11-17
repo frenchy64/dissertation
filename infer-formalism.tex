@@ -53,45 +53,6 @@ $$
 \Dsection{Collection phase}
 \label{infer:sec:formal:collection-phase}
 
-Now that we have a high-level picture of how these phases interact,
-we describe the syntax and semantics of \lambdatrack{}, before
-presenting the details of \collectOp{}.
-%
-\figref{infer:fig:syntax} presents the syntax of \lambdatrack{}.
-Values \v{} consist of numbers \num{}, Clojure-style keywords {\kw{}},
-closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}, constants \const{},
-and keyword keyed hash maps {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}.
-
-Expressions \e{} consist of variables \x{}, values,
-functions, maps, and function applications.
-The special form
-\trackE{\e{}}{\inferpath{}}
-observes {\e{}} as related to path {\inferpath{}}.
-Paths \inferpath{} 
-record the source of a runtime value with respect
-to a sequence of path elements \inferpth{}, always starting with
-a variable \x{}, and are read left-to-right.
-Other path elements are
-a function domain \dompe{}, 
-a function range \rngpe{},
-and a map entry {\inferkeype{\ova{\kw{1}}}{\kw{2}}}
-which represents the result of looking up {\kw{2}}
-in a map with keyset ${\ova{\kw{1}}}$.
-
-Inference results \restwoarrow{\inferpath{}}{\t{}}
-are pairs of paths {\inferpath{}} and types \t{}
-that say the path \inferpath{} was observed to be 
-type \t{}.
-Types \t{} are numbers \IntT{}, function types \arrow{\t{}}{\t{}},
-ad-hoc union types \Union{\t{}}{\t{}},
-type aliases \alias{},
-%top type \Top{},
-and unknown type \UnknownT{} that represents
-a temporary lack of knowledge during the inference process.
-Heterogeneous keyword map types \HMappretty{\ova{\kw{}\ \t{}}}
-for now represent a series of required keyword entries---we will extend
-them to have optional entries in later phases.
-
 \begin{figure}
   \ifdefined\PAPER
   \footnotesize
@@ -154,9 +115,103 @@ them to have optional entries in later phases.
 \label{infer:fig:syntax}
 \end{figure}
 
+%\begin{figure*}
+%  \ifdefined\PAPER
+%  \footnotesize
+%  \fi
+%\begin{mathpar}
+%  \begin{array}{llll}
+%    \infer [B-Track]
+%    { \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\\\
+%    \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\resp{}}}
+%    { \opsemtrack{\openv{}}{\trackE{\e{}}{\inferpath{}}}{\vp{}}{\unionres{\res{}}{\resp{}}}
+%    }
+%  \end{array}
+%
+%\infer [B-App]
+%{ \opsemtrack{\openv{}}{\e{1}}{\closure{\uabs{\x{}}{\e{}}}{\openvp{}}}{\res{1}} \\\\
+%  \opsemtrack{\openv{}}{\e{2}}{\v{}}{\res{2}} \\\\
+%  \opsemtrack{\extendopenv{\openvp{}}{\x{}}{\v{}}}{\e{}}{\vp{}}{\res{3}} \\
+%}
+%{ \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\bigunionres{\ova{\res{i}}}}
+%}
+%
+%  \begin{array}{lll}
+%    \infer [B-Clos]
+%    {}
+%    { \opsemtrack{\openv{}}{\uabs{\x{}}{\e{}}}{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\emptyres{}}}
+%    \\\\
+%    \infer [B-Val]
+%    {}
+%    { \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
+%    \ \ \ \ \ \ 
+%
+%    \infer [B-Var]
+%    {}
+%    { \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
+%    }
+%  \end{array}
+%
+%\infer [B-Delta]
+%{ \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{1}}
+%  \\
+%  \overrightarrow{\opsemtrack {\openv{}}{\ep{}}{\v{}}{\resp{}}}
+%  \\\\
+%  \inferconstantopsem{\const{}}{\ova{\v{}}}{\vp{}}{\res{2}}
+%}
+%{ \opsemtrack {\openv{}}
+%              {\appexp {\e{}} {\overrightarrow{\ep{}}}}
+%              {\vp{}}
+%              {\overrightarrow{\unionres{\res{}}{\resp{}}}}
+%       }
+%
+%\end{mathpar}
+%\caption{Operational Semantics for \lambdatrack{}}
+%\label{infer:fig:semantics}
+%\end{figure*}
+
+Now that we have a high-level picture of how these phases interact,
+we describe the syntax and semantics of \lambdatrack{}, before
+presenting the details of \collectOp{}.
+%
+\figref{infer:fig:syntax} presents the syntax of \lambdatrack{}.
+Values \v{} consist of numbers \num{}, Clojure-style keywords {\kw{}},
+closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}, constants \const{},
+and keyword keyed hash maps {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}.
+
+Expressions \e{} consist of variables \x{}, values,
+functions, maps, and function applications.
+The special form
+\trackE{\e{}}{\inferpath{}}
+observes {\e{}} as related to path {\inferpath{}}.
+Paths \inferpath{} 
+record the source of a runtime value with respect
+to a sequence of path elements \inferpth{}, always starting with
+a variable \x{}, and are read left-to-right.
+Other path elements are
+a function domain \dompe{}, 
+a function range \rngpe{},
+and a map entry {\inferkeype{\ova{\kw{1}}}{\kw{2}}}
+which represents the result of looking up {\kw{2}}
+in a map with keyset ${\ova{\kw{1}}}$.
+
+Inference results \restwoarrow{\inferpath{}}{\t{}}
+are pairs of paths {\inferpath{}} and types \t{}
+that say the path \inferpath{} was observed to be 
+type \t{}.
+Types \t{} are numbers \IntT{}, function types \arrow{\t{}}{\t{}},
+ad-hoc union types \Union{\t{}}{\t{}},
+type aliases \alias{},
+%top type \Top{},
+and unknown type \UnknownT{} that represents
+a temporary lack of knowledge during the inference process.
+Heterogeneous keyword map types \HMappretty{\ova{\kw{}\ \t{}}}
+for now represent a series of required keyword entries---we will extend
+them to have optional entries in later phases.
+
 The big-step operational semantics
 {\opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}}}
-(\figref{infer:fig:semantics})
+(\figref{infer:fig:trackmeta})
 says under runtime environment \openv{}
 expression \e{} evaluates to value \v{}
 with inference results \res{}.
@@ -183,7 +238,7 @@ A specific rule for the empty map is needed because we otherwise only rely on
 recursive calls to \trackEOp{} to gather inference results---in the empty case,
 we have no data to recur on.
 
-\begin{figure*}
+\begin{figure}
   \ifdefined\PAPER
   \footnotesize
   \fi
@@ -219,7 +274,7 @@ we have no data to recur on.
     { \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
     }
   \end{array}
-
+%
 \infer [B-Delta]
 { \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{1}}
   \\
@@ -233,16 +288,6 @@ we have no data to recur on.
               {\overrightarrow{\unionres{\res{}}{\resp{}}}}
        }
 
-\end{mathpar}
-\caption{Operational Semantics for \lambdatrack{}}
-\label{infer:fig:semantics}
-\end{figure*}
-
-\begin{figure}
-  \ifdefined\PAPER
-  \footnotesize
-  \fi
-\begin{mathpar}
   \arraycolsep=1.4pt
   \begin{array}{lllll}
     %\trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}}\\\\
@@ -312,7 +357,7 @@ we have no data to recur on.
                             {\emptyres{}}\\
   \end{array}
 \end{mathpar}
-\caption{Definition of \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}} and constants}
+\caption{Operational semantics, \trackmeta{\v{}}{\inferpath{}}{\v{}}{\res{}} and constants}
 \label{infer:fig:trackmeta}
 \end{figure}
 
@@ -399,54 +444,6 @@ merges type aliases in \atenv{} based on their similarity. % (\figref{infer:fig:
 \Dsubsection{Pass 1: Generating initial type environment}
 \label{infer:sec:formal:inference-phase:genenv}
 
-The first pass is given in \figref{infer:fig:generatetenv}.
-The entry point \generatetenv{} folds over inference results
-to create an initial type environment via \inferupdateOp{}.
-This style is inspired by occurrence typing~\cite{TF10},
-from which we also borrow the concepts of paths into types.
-
-We process paths right-to-left in \inferupdateOp{}, building
-up types from leaves to root, before joining the fully constructed type with the existing
-type environment via \joinOp{}.
-The first case handles the \keypeOp{} path element.
-The extra map of type information preserves both keyset
-information and any entries that might represent tags
-(populated by the final case of \trackEOp{}, \figref{infer:fig:trackmeta}).
-This information helps us avoid prematurely collapsing tagged maps,
-by the side condition of the HMap \joinOp{} case.
-The \joinHMapOp{} metafunction aggressively combines two HMaps---required
-keys in both maps are joined and stay required, otherwise keys
-become optional.
-
-The second and third \inferupdateOp{} cases update the domain and range of a function type,
-respectively.
-The \joinOp{} case for function types joins covariantly on the domain to yield more useful
-annotations. For example, if a function accepts \IntT{} and \Keyword{},
-it will have type
-\joinnoalign{\arrow{\IntT{}}{\UnknownT{}}}{\arrow{\Keyword{}}{\UnknownT{}}}
-{\arrow{\Union{\IntT{}}{\Keyword{}}}{\UnknownT{}}}.
-
-Returning to our running example, we now want to convert our inference results
-$$
-\res{} = \{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}\}.
-$$
-into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
-\inferupdate{\{\}}{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}
-
-%\begin{figure*}
-%\begin{mathpar}
-%  \begin{array}{lllll}
-%    \inferanns{} : \res{} \rightarrow \atenv{}\\
-%    \inferanns{} = \squashglobal{} \circ \squashlocal{} \circ \generatetenv{}\\
-%  \end{array}
-%\end{mathpar}
-%\caption{Algorithm summary: Generate an initial type environment from inference results.
-%Then generate an updated type environment paired with a type alias environment by 1: creating
-%a recursive type if a HMap contains another HMap whose keysets have a non-empty intersection, 2:
-%globally merging type aliases based on identical HMap keysets, 3: cleaning up redundant aliases.}
-%\label{infer:fig:inferanns}
-%\end{figure*}
-
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{rllll}
@@ -526,79 +523,56 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
 \label{infer:fig:generatetenv}
 \end{figure*}
 
+The first pass is given in \figref{infer:fig:generatetenv}.
+The entry point \generatetenv{} folds over inference results
+to create an initial type environment via \inferupdateOp{}.
+This style is inspired by occurrence typing~\cite{TF10},
+from which we also borrow the concepts of paths into types.
+
+We process paths right-to-left in \inferupdateOp{}, building
+up types from leaves to root, before joining the fully constructed type with the existing
+type environment via \joinOp{}.
+The first case handles the \keypeOp{} path element.
+The extra map of type information preserves both keyset
+information and any entries that might represent tags
+(populated by the final case of \trackEOp{}, \figref{infer:fig:trackmeta}).
+This information helps us avoid prematurely collapsing tagged maps,
+by the side condition of the HMap \joinOp{} case.
+The \joinHMapOp{} metafunction aggressively combines two HMaps---required
+keys in both maps are joined and stay required, otherwise keys
+become optional.
+
+The second and third \inferupdateOp{} cases update the domain and range of a function type,
+respectively.
+The \joinOp{} case for function types joins covariantly on the domain to yield more useful
+annotations. For example, if a function accepts \IntT{} and \Keyword{},
+it will have type
+\joinnoalign{\arrow{\IntT{}}{\UnknownT{}}}{\arrow{\Keyword{}}{\UnknownT{}}}
+{\arrow{\Union{\IntT{}}{\Keyword{}}}{\UnknownT{}}}.
+
+Returning to our running example, we now want to convert our inference results
+$$
+\res{} = \{\resentry{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}, \resentry{[f, \rngpe{}]}{\IntT{}}\}.
+$$
+into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
+\inferupdate{\{\}}{[f, \dompe{}, \inferkeypenokeyset{[\makekw{a}]}{\makekw{a}}]}{\IntT{}}
+
+%\begin{figure*}
+%\begin{mathpar}
+%  \begin{array}{lllll}
+%    \inferanns{} : \res{} \rightarrow \atenv{}\\
+%    \inferanns{} = \squashglobal{} \circ \squashlocal{} \circ \generatetenv{}\\
+%  \end{array}
+%\end{mathpar}
+%\caption{Algorithm summary: Generate an initial type environment from inference results.
+%Then generate an updated type environment paired with a type alias environment by 1: creating
+%a recursive type if a HMap contains another HMap whose keysets have a non-empty intersection, 2:
+%globally merging type aliases based on identical HMap keysets, 3: cleaning up redundant aliases.}
+%\label{infer:fig:inferanns}
+%\end{figure*}
+
 \Dsubsection{Pass 2: Squash locally}
 \label{infer:sec:formal:inference-phase:squash-local}
-
-We now describe the algorithm for generating recursive type aliases.
-The first step \squashlocal{} creates recursive types from directly nested types.
-It folds over each type in the type environment, first
-creating aliases with \aliashmap{}, and then
-attempting to merge these aliases by \squashall{}.
-
-A type is aliased by \aliashmap{} either if it is a union containing a HMap,
-or a HMap that is not a member of a union.
-While we will use the structure of HMaps to determine when to create a recursive
-type, keeping surrounding type information close to HMaps helps create more
-compact and readable recursive types.
-The implementation uses a post-order traversal via \textsf{postwalk},
-which also threads an annotation environment as it applies
-the provided function.
-
-Then, \squashall{} follows each alias \alias{i} reachable from the type environment
-and attempts to merge it with any alias reachable from \alias{i}.
-The \squash{} function maintains 
-a set of already visited aliases to avoid infinite loops.
-
-The logic for merging aliases is contained in \mergealiases{}.
-Merging \alias{2} into \alias{1} involves mapping \alias{2}
-to \alias{1} and \alias{1} to the join of both definitions.
-Crucially, before joining, we rename occurrences of 
-\alias{2} to \alias{1}. This avoids a linear increase in the
-width of union types, proportional to the number of merged aliases.
-%For example,
-%without this, if we further merge \alias{3} into \alias{1},
-%like \Unionsplice{{\alias{1}}\ {\alias{2}}\ {\alias{3}}} occur
-%instead of simply \alias{1}.
-The running time of our algorithm is proportional to the
-width of union types (due to the quadratic combination of
-unions in the join function) and this optimization greatly
-helped the running time of several benchmarks.
-To avoid introducing infinite types,
-top-level references to other aliases we are merging with
-are erased with the helper \textsf{f}.
-
-The \shouldmergeOp{} function determines whether two types are related enough
-to warrant being merged. We present our current implementation, which is simplistic,
-but is fast and effective in practice, but many variations are possible.
-Aliases are merged if they are all HMaps (not contained in unions), that
-contain a keyword key in common, with possibly disjoint mapped values.
-For example, our opening example has the \clj{:op} key mapped to either
-\clj{:leaf} or \clj{:node}, and so aliases for each map would be merged.
-Notice again, however, the join operator does not collapse differently-tagged
-maps, so they will occur recursively in the resulting alias, but separated by union.
-
-Even though this implementation of \shouldmergeOp{} does not directly utilize the aliased
-union types carefully created by \aliashmap{}, they still affect the final types.
-For example, squashing \clj{T} in
-\begin{cljlisting}
-(defalias T 
-  (U nil '{:op :node :left '{:op :leaf ...} ...}))
-\end{cljlisting}
-results in 
-\begin{cljlisting}
-(defalias T 
-  (U nil '{:op :node :left T ...} '{:op :leaf ...}))
-\end{cljlisting}
-rather than
-\begin{cljlisting}
-(defalias T2 (U '{:op :node :left T ...}
-                '{:op :leaf ...}))
-(defalias T (U nil T2))
-\end{cljlisting}
-An alternative implementation of \shouldmergeOp{} we experimented with included computing sets of keysets
-for each alias, and merging if the keysets overlapped. This, and many of our early experimentations,
-required expensive computations of keyset combinations and traversals over them that could be emulated
-with cruder heuristics like the current implementation.
 
 \begin{figure*}
 \begin{mathpar}
@@ -732,49 +706,6 @@ with cruder heuristics like the current implementation.
   \label{infer:fig:squashlocal}
 \end{figure*}
 
-\Dsubsection{Pass 3: Squash globally}
-\label{infer:sec:formal:inference-phase:squash-global}
-
-The final step combines aliases
-without restriction on whether they occur ``together''.
-This step combines type information between different positions
-(such as in different arguments or functions) so that any deficiencies
-in unit testing coverage are massaged away.
-
-The \squashglobal{} function is the entry point in this pass,
-and is similar in structure to the previous pass.
-It first creates aliases for each HMap via \aliassinglehmap{}.
-Then, HMap aliases are grouped and merged in \squashhorizonally{}.
-
-The \aliassinglehmap{} function first traverses the type environment
-to create HMap aliases via \singlehmap{}, and binds the resulting
-envionment as \atenvp{}.
-Then, alias environment entries are updated with \textsf{f}, whose first
-case prevents re-aliasing a top-level HMap, before we call \singlehmap{}
-(\singlehmap{}'s second argument accepts both \x{} and \alias{}).
-The \t{}(\ova{\s{}}) syntax represents a type \t{} whose constructor
-takes types \ova{\s{}}.
-
-After that, \squashhorizonally{} creates groups of related
-aliases with \textsf{groupSimilarReq}.
-Each group contains HMap aliases whose required keysets are similar,
-but are never differently-tagged.
-The code creates a map \textsf{r} from keysets to groups of HMap
-aliases with that (required) keyset.
-Then, for every keyset \ova{\kw{}}, \textsf{similarReq} adds aliases to the group
-whose keysets are a subset of \ova{\kw{}}. The number of missing
-keys permitted is determined by \textsf{thres}, for which we do not provide a
-definition.
-Finally, \textsf{remDiffTag} removes differently-tagged HMaps from each group,
-and the groups are merged via \mergealiases{} as before.
-
-\Dsubsection{Implementation}
-
-Further passes are used in the implementation.
-In particular, we trim unreachable aliases and remove aliases
-that simply point to another alias (like \alias{2} in \mergealiases{})
-between each pass.
-
 \begin{figure*}
 \begin{mathpar}
   \begin{array}{lllll}
@@ -850,6 +781,121 @@ between each pass.
   }
   \label{infer:fig:squashglobal}
 \end{figure*}
+
+
+We now describe the algorithm for generating recursive type aliases.
+The first step \squashlocal{} creates recursive types from directly nested types.
+It folds over each type in the type environment, first
+creating aliases with \aliashmap{}, and then
+attempting to merge these aliases by \squashall{}.
+
+A type is aliased by \aliashmap{} either if it is a union containing a HMap,
+or a HMap that is not a member of a union.
+While we will use the structure of HMaps to determine when to create a recursive
+type, keeping surrounding type information close to HMaps helps create more
+compact and readable recursive types.
+The implementation uses a post-order traversal via \textsf{postwalk},
+which also threads an annotation environment as it applies
+the provided function.
+
+Then, \squashall{} follows each alias \alias{i} reachable from the type environment
+and attempts to merge it with any alias reachable from \alias{i}.
+The \squash{} function maintains 
+a set of already visited aliases to avoid infinite loops.
+
+The logic for merging aliases is contained in \mergealiases{}.
+Merging \alias{2} into \alias{1} involves mapping \alias{2}
+to \alias{1} and \alias{1} to the join of both definitions.
+Crucially, before joining, we rename occurrences of 
+\alias{2} to \alias{1}. This avoids a linear increase in the
+width of union types, proportional to the number of merged aliases.
+%For example,
+%without this, if we further merge \alias{3} into \alias{1},
+%like \Unionsplice{{\alias{1}}\ {\alias{2}}\ {\alias{3}}} occur
+%instead of simply \alias{1}.
+The running time of our algorithm is proportional to the
+width of union types (due to the quadratic combination of
+unions in the join function) and this optimization greatly
+helped the running time of several benchmarks.
+To avoid introducing infinite types,
+top-level references to other aliases we are merging with
+are erased with the helper \textsf{f}.
+
+The \shouldmergeOp{} function determines whether two types are related enough
+to warrant being merged. We present our current implementation, which is simplistic,
+but is fast and effective in practice, but many variations are possible.
+Aliases are merged if they are all HMaps (not contained in unions), that
+contain a keyword key in common, with possibly disjoint mapped values.
+For example, our opening example has the \clj{:op} key mapped to either
+\clj{:leaf} or \clj{:node}, and so aliases for each map would be merged.
+Notice again, however, the join operator does not collapse differently-tagged
+maps, so they will occur recursively in the resulting alias, but separated by union.
+
+Even though this implementation of \shouldmergeOp{} does not directly utilize the aliased
+union types carefully created by \aliashmap{}, they still affect the final types.
+For example, squashing \clj{T} in
+\begin{cljlisting}
+(defalias T 
+  (U nil '{:op :node :left '{:op :leaf ...} ...}))
+\end{cljlisting}
+results in 
+\begin{cljlisting}
+(defalias T 
+  (U nil '{:op :node :left T ...} '{:op :leaf ...}))
+\end{cljlisting}
+rather than
+\begin{cljlisting}
+(defalias T2 (U '{:op :node :left T ...}
+                '{:op :leaf ...}))
+(defalias T (U nil T2))
+\end{cljlisting}
+An alternative implementation of \shouldmergeOp{} we experimented with included computing sets of keysets
+for each alias, and merging if the keysets overlapped. This, and many of our early experimentations,
+required expensive computations of keyset combinations and traversals over them that could be emulated
+with cruder heuristics like the current implementation.
+
+\Dsubsection{Pass 3: Squash globally}
+\label{infer:sec:formal:inference-phase:squash-global}
+
+The final step combines aliases
+without restriction on whether they occur ``together''.
+This step combines type information between different positions
+(such as in different arguments or functions) so that any deficiencies
+in unit testing coverage are massaged away.
+
+The \squashglobal{} function is the entry point in this pass,
+and is similar in structure to the previous pass.
+It first creates aliases for each HMap via \aliassinglehmap{}.
+Then, HMap aliases are grouped and merged in \squashhorizonally{}.
+
+The \aliassinglehmap{} function first traverses the type environment
+to create HMap aliases via \singlehmap{}, and binds the resulting
+envionment as \atenvp{}.
+Then, alias environment entries are updated with \textsf{f}, whose first
+case prevents re-aliasing a top-level HMap, before we call \singlehmap{}
+(\singlehmap{}'s second argument accepts both \x{} and \alias{}).
+The \t{}(\ova{\s{}}) syntax represents a type \t{} whose constructor
+takes types \ova{\s{}}.
+
+After that, \squashhorizonally{} creates groups of related
+aliases with \textsf{groupSimilarReq}.
+Each group contains HMap aliases whose required keysets are similar,
+but are never differently-tagged.
+The code creates a map \textsf{r} from keysets to groups of HMap
+aliases with that (required) keyset.
+Then, for every keyset \ova{\kw{}}, \textsf{similarReq} adds aliases to the group
+whose keysets are a subset of \ova{\kw{}}. The number of missing
+keys permitted is determined by \textsf{thres}, for which we do not provide a
+definition.
+Finally, \textsf{remDiffTag} removes differently-tagged HMaps from each group,
+and the groups are merged via \mergealiases{} as before.
+
+\Dsubsection{Implementation}
+
+Further passes are used in the implementation.
+In particular, we trim unreachable aliases and remove aliases
+that simply point to another alias (like \alias{2} in \mergealiases{})
+between each pass.
 
 % Things we could prove:
 % - update is commutative

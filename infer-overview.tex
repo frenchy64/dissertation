@@ -43,8 +43,8 @@ can use to help learn about and specify their programs.
 In that spirit, we strive to generate annotations meeting more qualitative criteria.
 Each guideline by itself helps generate more useful annotations and,
 as we discuss in \secref{infer:sec:experiment1},
-they combine in interesting ways help to make up for shortcomings
-in generated annotations.
+they combine in interesting ways help to make up for shortcomings.
+%in generated annotations.
 %which we outline along with a commentary
 %judging \figref{infer:fig:cljs} along these lines.
 
@@ -52,7 +52,7 @@ in generated annotations.
 %Typed Clojure and clojure.spec annotations are abundant
 %with useful names for types.
 Assigning a good name for a type increases
-readability by succincting conveying its purpose.
+readability by succinctly conveying its purpose.
 Along those lines, a good name for the AST representation
 on lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}
 might be \clj{AST} or \clj{Expr}.
@@ -421,15 +421,14 @@ our algorithm.
 
 A key hypothesis in our algorithm is that functions in the same
 file operate on related data. Our inference is built
-to be used per-file and aggressively merges all apparently-related HMap types,
-first types immediately nested within each other (\secref{infer:sec:formal:inference-phase:squash-local}),
-then across type aliases
+to be used per-file and aggressively merges all apparently-related HMap
+types---firstly types immediately nested within each other (\secref{infer:sec:formal:inference-phase:squash-local}),
+and then across type aliases
 (\secref{infer:sec:formal:inference-phase:squash-global}).
 This often yields useful types in our benchmarks.
-This approach does not work well for libraries providing polymorphic
+This approach has limited success for libraries providing polymorphic
 functions, since unit tests may use sample data that are unrelated
-to the details of the function, but our algorithm merges and displays
-them as an ``important'' top-level type alias.
+to the details of a function.
 Our algorithm excels
 with programs that mainly operate on one or two (possibly recursive) map-based
 data representations,
