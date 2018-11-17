@@ -84,7 +84,7 @@ with a recursive AST type \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer
          To improve inference time,
          only the code emission unit tests were exercised (299 lines containing 39 assertions)
          which normally take 40 seconds to run, from which we
-         generated 448 lines of types % and 517 lines specs
+         generated 448 lines of types and 517 lines of specs
          in 2.5 minutes on a 2011 MacBook Pro (16GB RAM, 2.4GHz i5).
 }
 \label{infer:fig:cljs}
@@ -258,6 +258,7 @@ For example,
 %we can use the shape of a type to summarize it.
 
 \paragraph{Favor compact annotations}
+
 Brevity is just as 
 %Idiomatic Clojure code rarely mixes certain types in the same position,
 %unless the program is polymorphic. Using this knowledge---which we observed

@@ -40,10 +40,10 @@ returns its {\makekw{a}} entry,
 based on the following usage.
 %
 \begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
-define $f$ = \uabs{m}{\getexp{m}{\makekw{a}}}
-
-\appexp{f}{\curlymap{\makekw{a} 42}}
-=> 42
+  define $f$ = \uabs{m}{\getexp{m}{\makekw{a}}}
+  
+  \appexp{f}{\curlymap{\makekw{a} 42}}
+  => 42
 \end{Verbatim}
 %
 Plugging this example into our driver function
