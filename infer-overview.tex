@@ -54,15 +54,15 @@ readability by succincting conveying its purpose.
 Along those lines, a good name for the AST representation
 on lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}
 might be \clj{AST} or \clj{Expr}.
-Guessing these kinds of names can be very misleading when incorrect, so
-our tool instead takes a more consistent approach, generating easily recognizable
-names based on local information, particularly from the types names point to.
+However, guessing these kinds of names can be very misleading when incorrect, so
+our tool instead takes a more consistent approach, and generates easily recognizable
+names based on the type the name points to.
 Then, those with a passing familiarity with the data flowing through the program
 can quickly identify and rename them.
 For example,
 \begin{itemize}
   \item
-    \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End}))
+    \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End})
     is chosen because \clj{:op} is
     clearly the dispatch key (the \clj{:op} entry is also helpfully placed
     as the first entry in each case),
