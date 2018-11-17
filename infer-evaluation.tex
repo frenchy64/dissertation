@@ -63,6 +63,16 @@ Here, we further elaborate on \figref{infer:fig:cljs}
 (with line references), and contextualize them
 with the elided annotations.
 
+One remarkable success in the generated types
+was the automatic inference \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer:listing:cljs:Op-End})
+with 14 distinct cases, and other features described in \figref{infer:fig:cljs}.
+Further investigation reveals that
+the compiler actually features 36 distinct AST nodes---unsurprisingly, 39 assertions was not sufficient
+test coverage to discover them all.
+However, because of the recognizable name and organization of
+\clj{Op}, it's clear where to add the missing nodes
+manually if no further tests are available.
+
 The most glaring failure of cljs.compiler's
 generated types was the \clj{HMap49305} type annotation.
 It clearly fails to be a recognizable name.
@@ -77,6 +87,22 @@ have entries from \clj{:env} to \clj{HMap49305},
 and the only exception (line \ref{infer:listing:cljs:Op:optional:init:Op})
 maps to \clj{ColumnLineContextMap}. From this information the user can
 decide to combine these aliases.
+
+Several instances of overspecification are evident,
+such as the \clj{:statements} entry of a \clj{:do} AST node being inferred as an always-empty vector
+(line \ref{infer:listing:cljs:Op:op:do:statements}).
+In some ways, this is useful information, showing that
+test coverage for \clj{:do} nodes could be improved.
+To fix the annotation, we could rerun the tool with better tests.
+If no such test exists, we would have to fall back
+to reverse-engineering code to identify the correct
+type of \clj{:statements}, which is \clj{(Vec Op)}.
+
+Finally, 19 functions in cljs.compiler are annotated to 
+take and/or return \clj{Op} (like lines \ref{infer:listing:cljs:emit} and \ref{infer:listing:cljs:emit-dot}).
+This kind of type alias reuse enables the type annotations
+to be relatively compact (16 type aliases are used to annotate the
+49 functions that were exercised).
 
 %
 %We rate the quality of generated annotations
