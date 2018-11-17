@@ -274,11 +274,32 @@ so we choose to err on the side of generalizing types
 where possible.
 Our opening example \clj{nodes} (\figref{fig:infer:nodes})
 is a good example of this---our inferred type (\figref{fig:infer:nodestype})
-was recursive, despite \clj{nodes} only being tested with a tree of height 2.
-Combining this tactic with recognizable names is a particularly good combination,
-giving the programmer many options while presenting types as clearly as we can.
+is recursive, despite \clj{nodes} only being tested with a tree of height 2.
+This has several benefits.
+\begin{itemize}
+  \item We avoid exhausting the pool of easily recognizable names
+    by generalizing types to communicate the general role
+    of an argument or return position.
+    For example, \clj{emit-dot} (line \ref{infer:listing:cljs:emit-dot})
+    is annotated to take \clj{Op}, but in reality accepts only a subset
+    of \clj{Op}.
+    Programmers can combine the recognizability of \clj{Op} with the
+    suggestive name of \clj{emit-dot} to decide whether, for instance,
+    to split \clj{Op} into smaller type aliases
+    or add type casts in the definition of \clj{emit-dot} to please 
+    the type checker
+    (some libraries require more casts than others to type check, as discussed in \secref{infer:sec:experiment2}).
+  \item Generated Clojure spec annotations (an extension discussed in \secref{infer:sec:spec-extension})
+        are more likely to accept valid input with specs enabled, even with incomplete unit tests
+        (we enable generated specs on several libraries in \secref{infer:sec:experiment3}),
+\end{itemize}
 For example,
-This has several benefits
+%Combining this tactic with recognizable names is a particularly good combination,
+%giving the programmer many options while presenting types as clearly as we can.
+%\begin{itemize}
+%  \item \clj{emit-dot} (line \ref{infer:listing:cljs:emit-dot})
+%    is annotated 
+%\end{itemize}
 % - helps contract checking
 % - can simply add a type cast to please type checker
 %   - particularly cheap due to occurrence typing here (assert (= :dot (:op ast)))
