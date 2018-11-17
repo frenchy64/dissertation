@@ -2,8 +2,8 @@
 \label{infer:sec:formalism}
 
 We present \lambdatrack{}, an untyped $\lambda$-calculus
-that describes the essense of our approach to automatic annotations.
-Our model is split into two phases: the collection phase 
+describing the essense of our approach to automatic annotations.
+We split our model into two phases: the collection phase 
 \collectOp{}
 that runs an instrumented program and collects observations, and
 an inference phase 
@@ -41,9 +41,7 @@ based on the following usage.
 %
 \begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`$=3\catcode`^=7}]
   define $f$ = \uabs{m}{\getexp{m}{\makekw{a}}}
-  
-  \appexp{f}{\curlymap{\makekw{a} 42}}
-  => 42
+  \appexp{f}{\curlymap{\makekw{a} 42}} => 42
 \end{Verbatim}
 %
 Plugging this example into our driver function
@@ -65,19 +63,19 @@ closures {\closure{\uabs{\x{}}{\e{}}}{\openv{}}}, constants \const{},
 and keyword keyed hash maps {\curlymapvaloverrightnoarrow{\kw{}}{\val{}}}.
 
 Expressions \e{} consist of variables \x{}, values,
-functions, hash-maps, and function applications.
+functions, maps, and function applications.
 The special form
 \trackE{\e{}}{\inferpath{}}
 observes {\e{}} as related to path {\inferpath{}}.
 Paths \inferpath{} 
 record the source of a runtime value with respect
-to a sequence of path elements \inferpth{}, which always starts with
+to a sequence of path elements \inferpth{}, always starting with
 a variable \x{}, and are read left-to-right.
 Other path elements are
 a function domain \dompe{}, 
 a function range \rngpe{},
 and a map entry {\inferkeype{\ova{\kw{1}}}{\kw{2}}}
-which represents the result of looking up key {\kw{2}}
+which represents the result of looking up {\kw{2}}
 in a map with keyset ${\ova{\kw{1}}}$.
 
 Inference results \restwoarrow{\inferpath{}}{\t{}}
@@ -382,7 +380,7 @@ metafunction \inferanns{}(\res{}) = \atenv{} to produce an annotation environmen
     \inferanns{} = \inferrecOp{} \circ \generatetenv{}\\\\
   \end{array}
 \end{mathpar}
-
+%
 The first pass $\generatetenv{} (\res{}) = \tenv{}$ generates an initial type environment
 from inference results \res{}.
 %It is defined (in \figref{infer:fig:generatetenv})
@@ -584,15 +582,12 @@ union types carefully created by \aliashmap{}, they still affect the final types
 For example, squashing \clj{T} in
 \begin{cljlisting}
 (defalias T 
-  (U nil
-     '{:op :node :left '{:op :leaf ...} ...}))
+  (U nil '{:op :node :left '{:op :leaf ...} ...}))
 \end{cljlisting}
 results in 
 \begin{cljlisting}
 (defalias T 
-  (U nil
-     '{:op :node :left T ...}
-     '{:op :leaf ...}))
+  (U nil '{:op :node :left T ...} '{:op :leaf ...}))
 \end{cljlisting}
 rather than
 \begin{cljlisting}
@@ -752,11 +747,11 @@ It first creates aliases for each HMap via \aliassinglehmap{}.
 Then, HMap aliases are grouped and merged in \squashhorizonally{}.
 
 The \aliassinglehmap{} function first traverses the type environment
-and creates alises for any HMaps via \singlehmap{}, and binds the resulting
+to create HMap aliases via \singlehmap{}, and binds the resulting
 envionment as \atenvp{}.
-Then, the we update alias environment entries with \textsf{f}, whose first
-case prevents re-aliasing a top-level HMap before we call \singlehmap{}
-(\singlehmap{}'s second argument works with both \x{} and \alias{}).
+Then, alias environment entries are updated with \textsf{f}, whose first
+case prevents re-aliasing a top-level HMap, before we call \singlehmap{}
+(\singlehmap{}'s second argument accepts both \x{} and \alias{}).
 The \t{}(\ova{\s{}}) syntax represents a type \t{} whose constructor
 takes types \ova{\s{}}.
 

@@ -262,12 +262,10 @@ annotations without compacting them
 leads to unmaintainable and impractical types resembling
 TypeWiz's annotation for \clj{nodes} (\figref{fig:infer:typewiz}).
 To avoid this, we
-\begin{itemize}
-  \item use optional keys where possible, like line \ref{infer:listing:cljs:ColumnLineContextMap:optional},
-  \item infer recursive types like \clj{Op}, and
-  \item reuse type aliases in function annotations, like
+  use optional keys where possible, like line \ref{infer:listing:cljs:ColumnLineContextMap:optional},
+  infer recursive types like \clj{Op}, and
+  reuse type aliases in function annotations, like
     \clj{emit} and \clj{emit-dot} (lines \ref{infer:listing:cljs:emit}, \ref{infer:listing:cljs:emit-dot}).
-\end{itemize}
 These processes of compacting annotations often makes them more general,
 which leads into our next goal.
 
