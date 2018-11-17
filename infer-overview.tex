@@ -7,7 +7,7 @@ Now that we have introduced the problem,
 we can flesh out our philosophy and overall
 approach. To concretize our discussion,
 \figref{infer:fig:cljs} demonstrates our tool's output
-when generating types for a 1,776 line Clojure file, cljs.compiler.
+when generating types for the 1,776 line file cljs.compiler.
 
 Its main function is \clj{emit}, which
 effectfully converts a map-based AST
@@ -37,10 +37,10 @@ with a recursive AST type \clj{Op} (lines \ref{infer:listing:cljs:Op}-\ref{infer
 
 %\Dsection{Philosophy}
 
-An important question to answer is ``how accurate are these annotations?''.
+An important question to address is ``how accurate are these annotations?''.
 Unlike previous work in this area~\cite{An10dynamicinference}, we do not aim for soundness guarantees
 in our generated types. 
-An important contribution of our work is a tool that Clojure programmers
+A significant contribution of our work is a tool that Clojure programmers
 can use to help learn about and specify their programs.
 In that spirit, we strive to generate annotations meeting more qualitative criteria,
 which we outline along with a commentary
@@ -165,37 +165,23 @@ with recursive types, optional entries, and good names.
 \begin{figure}
   % indented so line numbers can line up more tastefully
 \begin{cljlistingnumbered}
-  (defalias Op(*@\label{infer:listing:cljs:Op}@*)
+  (defalias Op(*@\label{infer:listing:cljs:Op}@*) ; omitted some entries
     (U (HMap :mandatory
              {:op ':binding,(*@\label{infer:listing:cljs:Op:op:binding}@*)
               :info (U NameShadowMap
-                       FnScopeFnSelfNameNsMap),
-              :local (U ':arg ':let ':fn),
-              :name Sym}
+                       FnScopeFnSelfNameNsMap), ...}
              :optional(*@\label{infer:listing:cljs:Op:optional}@*)
-             {:arg-id Int, :binding-form? Boolean,
-              :column Int,
-              :env ColumnLineContextMap,
-              :init Op,(*@\label{infer:listing:cljs:Op:optional:init:Op}@*)
-              :line Int,
-              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*)
-              :tag Any})
-      '{:op ':const,(*@\label{infer:listing:cljs:Op:op:const}@*)
-        :env HMap49305,
-        :form (U nil Int ':a), :tag Sym,
-        :val (U nil Int ':a)}
-      '{:op ':do,(*@\label{infer:listing:cljs:Op:op:do}@*)
-        :body? Any, :children Any,
-        :env HMap49305,
-        :form (Coll Any),
-        :ret Op,(*@\label{infer:listing:cljs:Op:op:do:Op}@*)
-        :statements (Vec Nothing), :tag Any}
+             {:env ColumnLineContextMap, :init Op,(*@\label{infer:listing:cljs:Op:optional:init:Op}@*)
+              :shadow (U nil Op),(*@\label{infer:listing:cljs:Op:optional:shadow:Op}@*) ...})
+      '{:op ':const,(*@\label{infer:listing:cljs:Op:op:const}@*) :env HMap49305, ...}
+      '{:op ':do,(*@\label{infer:listing:cljs:Op:op:do}@*) :env HMap49305,
+        :ret Op,(*@\label{infer:listing:cljs:Op:op:do:Op}@*) :statements (Vec Nothing), ...}
       ; omitted 11 cases
       ...))(*@\label{infer:listing:cljs:Op-End}@*)
   (defalias ColumnLineContextMap(*@\label{infer:listing:cljs:ColumnLineContextMap}@*)
     (HMap :mandatory {:column Int, :line Int}
           :optional {:context ':expr}))
-  (defalias HMap49305 ; omitted extra fields(*@\label{infer:listing:cljs:HMap49305}@*)
+  (defalias HMap49305 ; omitted some extries(*@\label{infer:listing:cljs:HMap49305}@*)
     (U nil
        '{:context ':statement, :column Int, ...}
        '{:context ':return, :column Int, ...}
