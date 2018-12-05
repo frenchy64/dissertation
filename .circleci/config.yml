@@ -1,0 +1,10 @@
+version: 2
+jobs:
+   build:
+    working_directory: ~/dissertation
+     docker:
+       - image: koppor/texlive
+     steps:
+       - checkout
+       - run: make
+       - run: make pldi
