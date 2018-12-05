@@ -10,7 +10,7 @@ jobs:
        - run: make pldi
        - store_artifacts:
            path: ~/dissertation/thesis.pdf
-           destination: thesis.pdf
+           destination: thesis-draft.pdf
        - store_artifacts:
            path: ~/dissertation/pldi19.pdf
            destination: pldi19-submission.pdf
