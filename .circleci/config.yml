@@ -8,3 +8,9 @@ jobs:
        - checkout
        - run: make
        - run: make pldi
+       - store_artifacts:
+           path: ~/dissertation/thesis.pdf
+           destination: thesis.pdf
+       - store_artifacts:
+           path: ~/dissertation/pldi19.pdf
+           destination: pldi19-submission.pdf
