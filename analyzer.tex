@@ -1,3 +1,27 @@
+\chapter{Background}
+
+{
+\singlespacing
+\begin{verbatim}
+- Problem
+  - Clojure is a Lisp with macros
+  - don't want to write typing rules for each macro
+    - don't want to burden users
+    - so we expand them before checking
+    - but sometimes it's really helpful to write custom rules
+- Possible solutions
+  - pre expansion
+  - interleaved analysis and evaluation
+- Constraints
+  - Soundness?
+    - tension between soundness and user extensibility
+  - advantages of pre-expanding
+    - can't have "wrong" expansion in pre-expanded code
+      - we check the actual expansion that gets wr
+  - wrapper macros needed in all of these systems
+\end{verbatim}
+}
+
 \chapter{Typed Clojure's initial design}
 
 Typed Clojure's initial design was inspired by Typed Racket.
@@ -35,10 +59,10 @@ is called before we traverse an AST node.
 The second is a post-traversal \texttt{post-passes} which
 is called after we traverse an AST node.
 
-\begin{figure*}
+\begin{figure}
 \singlespacing
 \begin{verbatim}
-time | (LV1        | (LV2        | (LV3)))
+time | (let [...]  | (cond ...   | (+ ...)))
  |   | ---------------------------------------
  v   | analyze    >|             |
      |             | analyze >   |
@@ -63,7 +87,7 @@ time | (LV1        | (LV2        | (LV3)))
   Three levels of nesting are used as an example.
   }
   \label{fig:analyzer:control-flow-pre-expand}
-\end{figure*}
+\end{figure}
 
 \chapter{Extensibility in Pre-expanded checking}
 
@@ -84,7 +108,12 @@ time | (LV1        | (LV2        | (LV3)))
 {
 \singlespacing
 \begin{verbatim}
-- This is the Turnstile approach
+- Goals
+  1. Build a better tools.analyzer
+     - too slow
+  2. Extensibility
+     - we want custom rules for syntax BEFORE expansion
+- (This is the Turnstile approach)
   - Except we don't have syntax objects, how to do it?
 - Create a single-pass tools.analyzer variant that can be paused in
   the middle of analysis
@@ -116,7 +145,7 @@ time | (LV1        | (LV2        | (LV3)))
 \begin{figure*}
 \singlespacing
 \begin{verbatim}
-time | (LV1        | (LV2        | (LV3)))
+time | (let [...]  | (cond ...   | (+ ...)))
  |   | ---------------------------------------
  v   | check      >|             |
      | analyze    >|             |
@@ -182,13 +211,16 @@ time | (LV1        | (LV2        | (LV3)))
               - but if args depend on fn body to expand, then we are forced
                 to fully expand (ie. CHECK) the fn before checking the args.
                 - very restrictive
+- Relevant reading:
+  - Flatt, "You want it, when?"
+  - SamTH, Scheme 2011 (good for lispy background), PLDI 2011 (general audience)
 \end{verbatim}
 }
 
 \begin{figure*}
 \singlespacing
 \begin{verbatim}
-time | (do          | (LV1.1)     | (LV1.2))
+time | (do          | (defn a ...)| (defn b ...))
  |   | ----------------------------------------
  v   | analyze+eval>|             |
      | analyze     >|             |
@@ -221,7 +253,7 @@ time | (do          | (LV1.1)     | (LV1.2))
 \begin{figure*}
 \singlespacing
 \begin{verbatim}
-time | (do         | (LV1.1)     | (LV1.2))
+time | (do         | (defn a ...)| (defn b ...))
  |   | ---------------------------------------
  v   | check       |             |
      | analyze     |             |
