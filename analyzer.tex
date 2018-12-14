@@ -36,6 +36,7 @@ The second is a post-traversal \texttt{post-passes} which
 is called after we traverse an AST node.
 
 \begin{figure*}
+\singlespacing
 \begin{verbatim}
 time | (LV1        | (LV2        | (LV3)))
  |   | ---------------------------------------
@@ -66,10 +67,54 @@ time | (LV1        | (LV2        | (LV3)))
 
 \chapter{Extensibility in Pre-expanded checking}
 
+{
+\singlespacing
+\begin{verbatim}
+- how to communicate to type system via expanded code?
+  - eg. tc-ignore, ann-form
+  - (do :special-form ...)
+- how to define custom rules?
+  - Approach 1: custom expansions for embedding typing rules in expansion
+  - Approach 2: "typing rules by analogy"
+\end{verbatim}
+}
 
 \chapter{Interleaved expansion and checking}
 
+{
+\singlespacing
+\begin{verbatim}
+- This is the Turnstile approach
+  - Except we don't have syntax objects, how to do it?
+- Create a single-pass tools.analyzer variant that can be paused in
+  the middle of analysis
+  - `analyze` now expands absolute minimum (usually 1 macro)
+- now `check` has access to the raw Clojure forms before they are expanded
+  - much power = much reponsibility
+    - top-level evaluation side effects
+    - expansion side effects
+      - talk about that in a different chapter
+    - must manually manage local scope
+    - avoiding double macro expansion
+    - avoiding double evaluation
+    - double analysis is OK though, no side effects
+      - so we can "reinsert" a fully analyzed AST back into
+        a macro call so it can be expanded as usual.
+        - eg. (my-macro (unexpanded))
+            =>
+              (my-macro ~(check (unexpanded) ...))
+- Pros
+  - now have access to original macro forms for higher-level reasoning
+- Cons
+  - no longer checking the implementation of macros
+    - although were we ever, really?
+      - wrapper macros are copied implementation details
+  - must carefully manage compile-time side effects
+\end{verbatim}
+}
+
 \begin{figure*}
+\singlespacing
 \begin{verbatim}
 time | (LV1        | (LV2        | (LV3)))
  |   | ---------------------------------------
@@ -99,3 +144,64 @@ time | (LV1        | (LV2        | (LV3)))
 \end{figure*}
 
 \chapter{Extensibility in Interleaved checking}
+
+\chapter{Managing Analysis Side effects}
+
+\begin{figure*}
+\singlespacing
+\begin{verbatim}
+time | (do          | (LV1.1)     | (LV1.2))
+ |   | ----------------------------------------
+ v   | analyze+eval>|             |
+     | analyze     >|             |
+     | pre-passes  >|             |
+     |              | analyze >   |
+     |              |<analyze     |
+     |              | pre-passes >|
+     |              |<post-passes |
+     |              | check>      |
+     |              |<check       |
+     |              | eval  >     |
+     |              |<eval        |
+     |<analyze+eval |             |
+     | analyze+eval>|             |
+     |              |             | analyze >   
+     |              |             |<analyze     
+     |              |             | pre-passes >
+     |              |             |<post-passes 
+     |              |             | check>      
+     |              |             |<check       
+     |              |             | eval >
+     |              |             |<eval
+     |<post-passes  |             |
+     |<analyze+eval |             |
+\end{verbatim}
+  \caption{}
+  \label{fig:analyzer:control-flow-pre-expand-side-effects}
+\end{figure*}
+
+\begin{figure*}
+\singlespacing
+\begin{verbatim}
+time | (do         | (LV1.1)     | (LV1.2))
+ |   | ---------------------------------------
+ v   | check       |             |
+     | analyze     |             |
+     | pre-passes  |             |
+     | check-child |             |
+     |             | analyze     |
+     |             | pre-passes  |
+     |             | check       |
+     |             | post-passes |
+     |             | eval        |
+     | check-child |             |
+     |             |             | analyze
+     |             |             | pre-passes >
+     |             |             | check
+     |             |             | post-passes
+     |             |             | eval
+     | post-passes |             |
+\end{verbatim}
+  \caption{}
+  \label{fig:analyzer:control-flow-incremental-side-effects}
+\end{figure*}
