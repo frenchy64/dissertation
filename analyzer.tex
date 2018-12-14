@@ -1,0 +1,101 @@
+\chapter{Typed Clojure's initial design}
+
+Typed Clojure's initial design was inspired by Typed Racket.
+There, syntax is fully expanded before Typed Racket checks it.
+
+Pros to expanding up front:
+
+\begin{itemize}
+  \item Separation of concerns (expander does expansion)
+\end{itemize}
+
+Cons to expanding up front:
+
+\begin{itemize}
+  \item Lose contextual information from unexpanded macros while type checking.
+  \item Requires wrapper macros which pollute runtime expansions and
+        often require copying implementation details (brittle).
+\end{itemize}
+
+\figref{fig:analyzer:control-flow-pre-expand} demonstrates 
+how Typed Clojure checks code using the pre-expansion approach.
+It uses \texttt{tools.analyzer} to analyze and expand code.
+\texttt{tools.analyzer} is an analyzer for Clojure code that creates
+a map-based abstract-syntax-trees (AST) for given Clojure forms.
+It is implemented using a nano-pass style and traverses over the ASTs
+several times to incrementally add features like hygienic scope
+and JVM reflection resolution.
+
+To simplify presentation we assume \texttt{tools.analyzer}
+uses only 2 passes. The first pass \texttt{analyze} creates
+a bare AST with no platform specific information.
+The second pass is composed of two tree traversals.
+The first is a pre-traversal \texttt{pre-passes} which
+is called before we traverse an AST node.
+The second is a post-traversal \texttt{post-passes} which
+is called after we traverse an AST node.
+
+\begin{figure*}
+\begin{verbatim}
+time | (LV1        | (LV2        | (LV3)))
+ |   | ---------------------------------------
+ v   | analyze    >|             |
+     |             | analyze >   |
+     |             |             | analyze    >
+     |             |             |<analyze
+     |             |<analyze     |
+     |<analyze     |             |
+     | pre-passes >|             |
+     |             | pre-passes >|
+     |             |             | pre-passes >
+     |             |             |<post-passes
+     |             |<post-passes |
+     |<post-passes |             |
+     | check>      |             |
+     |             | check>      |
+     |             |             | check>
+     |             |             |<check
+     |             |<check       |
+     |<check       |             |
+\end{verbatim}
+  \caption{Control flow when Typed Clojure checks pre-expanded code.
+  Three levels of nesting are used as an example.
+  }
+  \label{fig:analyzer:control-flow-pre-expand}
+\end{figure*}
+
+\chapter{Extensibility in Pre-expanded checking}
+
+
+\chapter{Interleaved expansion and checking}
+
+\begin{figure*}
+\begin{verbatim}
+time | (LV1        | (LV2        | (LV3)))
+ |   | ---------------------------------------
+ v   | check      >|             |
+     | analyze    >|             |
+     | pre-passes >|             |
+     | check      >|             |
+     |             | check      >|
+     |             | analyze    >|
+     |             | pre-passes >|
+     |             | check      >|
+     |             |             | check      >
+     |             |             | analyze    >
+     |             |             | pre-passes >
+     |             |             | check      >
+     |             |             |<check
+     |             |             |<post-passes
+     |             |             |<check
+     |             |<post-passes |
+     |             |<check       |
+     |<post-passes |             |
+     |<check       |             |
+\end{verbatim}
+  \caption{Control flow when Typed Clojure incrementally expands code as it checks.
+  Three levels of nesting are used as an example.
+  }
+\end{figure*}
+
+\chapter{Extensibility in Interleaved checking}
