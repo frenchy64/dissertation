@@ -147,6 +147,44 @@ time | (LV1        | (LV2        | (LV3)))
 
 \chapter{Managing Analysis Side effects}
 
+{
+\singlespacing
+\begin{verbatim}
+- introduce Clojure's evaluation model
+  - `do` children treated as top-level
+    - eg. (do e1 e2)
+      - e1 is completely expanded+evaluated before e2 is expanded.
+      - e2 can depend on evaluation-time side effects of e1
+    - eg. (let [] (do e1 e2))
+      - e1 is ONLY expanded before e2
+      - e2 cannot depend on evaluation-time side effects of e1
+- introduce *ns*, global thread-local variable that holds the current namespace
+  - probably the most important evaluation-time side effect
+    - changing namespaces
+- introduce AOT-compilation
+  - macroexpansions are performed upfront
+    - so relying on expansion side-effects are uncommon and unreliable
+- since checking & evaluation are interleaved, important that
+  order-of-checking == order-of-evaluation
+- but what about order-of-macroexpansion?
+  - unaware of examples where order of macroexpansion side-effects are important
+    outside of top-level forms
+    - we have serious problems otherwise for any analysis tool
+      - eg. (fn [] (change-ns-at-mexpansion-time) (relys-on-previous-macro-to-resolve))
+        - this evaluates just fine in Clojure since there is
+          no special handling of *ns* and things never pause and always just happen
+          in order
+        - but seems intractable for things like typing rules
+          - custom typing rules must check forms in the order they are mexpanded!
+            - seems very restrictive and error prone.
+          - eg. ((fn [] ...) args ...)
+            - imagine delaying checking a `fn` before its arguments.
+              - but if args depend on fn body to expand, then we are forced
+                to fully expand (ie. CHECK) the fn before checking the args.
+                - very restrictive
+\end{verbatim}
+}
+
 \begin{figure*}
 \singlespacing
 \begin{verbatim}
