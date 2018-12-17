@@ -70,6 +70,8 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 ,defalias,ann,HMap,Nothing,Sym,Int,Boolean,U,Coll,Any,:mandatory,:optional,Vec,Str,AnyFunction,Atom1,Character,Map,All,IFn,%
 % spec
 ,s/def,number?,boolean?,s/keys,:req,:req-un,:opt,:opt-un
+% weird macro forms
+,~@
 },%
    sensitive,% ???
    alsodigit=-,%
@@ -154,7 +156,7 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
   %basicstyle=\footnotesize,        % size of fonts used for the code
   commentstyle=\color{mygray},    % comment style
   escapeinside={(*@}{@*)},
-  moredelim=**[is][\color{red}]{@}{@},
+  %moredelim=**[is][\color{red}]{@}{@},
   %escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
   keywordstyle=\textbf,       % keyword style
   stringstyle=\color{stringgray}\textit,     % string literal style

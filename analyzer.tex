@@ -27,19 +27,17 @@
 Typed Clojure's initial design was inspired by Typed Racket.
 There, syntax is fully expanded before Typed Racket checks it.
 
-Pros to expanding up front:
-
-\begin{itemize}
-  \item Separation of concerns (expander does expansion)
-\end{itemize}
-
-Cons to expanding up front:
-
-\begin{itemize}
-  \item Lose contextual information from unexpanded macros while type checking.
-  \item Requires wrapper macros which pollute runtime expansions and
-        often require copying implementation details (brittle).
-\end{itemize}
+{
+\singlespacing
+\begin{verbatim}
+- Pros to expanding up front:
+  - Separation of concerns (expander does expansion)
+- Cons to expanding up front:
+  - Lose contextual information from unexpanded macros while type checking.
+  - Requires wrapper macros which pollute runtime expansions and
+    often require copying implementation details (brittle).
+\end{verbatim}
+}
 
 \figref{fig:analyzer:control-flow-pre-expand} demonstrates 
 how Typed Clojure checks code using the pre-expansion approach.
@@ -94,14 +92,221 @@ time | (let [...]  | (cond ...   | (+ ...)))
 {
 \singlespacing
 \begin{verbatim}
+- Problem
+  - need to communicate between type system and Clojure runtime
+- Constraints
+  - a "typed" program must evaluate unchanged via normal Clojure compilation
+    - extensions must be done via macros provided by Typed Clojure
+      - imported and used as normal by Clojure programmers
+    - in contrast to #lang system
+      - which always guarantees the type system is in charge of expanding
+      - (both approaches use macros for extension and to share information)
 - how to communicate to type system via expanded code?
   - eg. tc-ignore, ann-form
-  - (do :special-form ...)
+  - in Racket you would use syntax properties, or side effects
+  - Clojure has metadata, but not as robust as syntax properties
+    - how metadata is compiled is implementation dependent (I forgot how?)
+    - we decided to emit special `do` forms to communicate with type system
+      - (do :special-form ...)
+      - "variable protocol" in Advanced Macrology
+  - side effects
+    - Clojure's compilation strategy is straightforward
+      - files are just sequences of top-level forms
+      - evaluate each in turn
+      - side effects of expanding/evaluating a previous form
+        can be used to compile a subsequent form
+      - members of top-level `do` forms are also top-level forms, and thus
+        are evaluated in turn
+    - Typed Clojure collects global type annotations by evaluation side effects
+      - macroexpansion side effects not used in case AOT compiled
 - how to define custom rules?
   - Approach 1: custom expansions for embedding typing rules in expansion
   - Approach 2: "typing rules by analogy"
+    - lose ability to check actual expansion
 \end{verbatim}
 }
+
+Now that we have outlined how we use \texttt{tools.analyzer} to pre-expand code before type checking,
+we describe Typed Clojure's approach to sharing information between the programs it checks
+and the type system.
+We deviate significantly from Typed Racket's approach~\cite{Culpepper07advancedmacrology}
+mostly because of differences in compilation models between Clojure and Racket.
+
+One constraint we must consider in Typed Clojure is that a ``typed'' Clojure program must
+evaluate unchanged under normal Clojure compilation. In Racket, we could instead specify
+the language under which a module is compiled using the \texttt{\#lang} directive---this is Typed
+Racket's approach. 
+In Clojure, there is just one language and no built-in facilities to extend the compilation
+process, so Typed Clojure provides a suite of macros for communicating with the type system that
+users must explicitly load and use.
+
+These macros come in several flavors.
+
+\begin{itemize}
+  \item syntax-based communication to type checker,
+  \item side-effectful communication to type checker, and
+  \item wrappers for existing untyped macros to avoid checking complex expansions.
+\end{itemize}
+
+\section{Syntax-based communication}
+
+A simple macro provided by Typed Clojure that communicates to the checker
+via syntax is \clj{tc-ignore}, which takes a number of forms, places
+them in a \clj{do} form, and tells the checker to ignore the resulting
+form and assign it type \clj{Any}.
+
+\begin{figure}
+\begin{cljlisting}
+(defmacro tc-ignore 
+  "Ignore forms in body during type checking"
+  [& body]
+  `(do :clojure.core.typed.special-form/special-form
+       :clojure.core.typed/tc-ignore
+       ~@(or body [nil])))
+\end{cljlisting}
+  \caption{Public facing macro definition for \clj{tc-ignore}.}
+  \label{fig:analyzer:tc-ignore}
+\end{figure}
+
+\figref{fig:analyzer:tc-ignore} shows the implementation of the \clj{tc-ignore} macro.
+It demonstrates the \clj{do}-special-form protocol:
+if the first member of a \clj{do} is the keyword
+\clj{:clojure.core.typed.special-form/special-form},
+the following keyword names a special typing rule to use
+to check the entire form.
+A corresponding typing rule must then be registered with the type checker under this name,
+like in \figref{fig:analyzer:tc-ignore-do-op}.
+
+\begin{figure}
+\begin{cljlisting}
+(defmethod internal-special-form :clojure.core.typed/tc-ignore
+  [expr expected]
+  (tc-ignore/check-tc-ignore check-expr expr expected))
+\end{cljlisting}
+  \caption{Registering a corresponding typing rule for \clj{tc-ignore} via the \clj{do}-special-form protocol.}
+  \label{fig:analyzer:tc-ignore-do-op}
+\end{figure}
+
+Clojure's compilation and runtime models make \clj{do} statements an excellent candidate for the basis of
+an extensible syntax-based communication protocol.
+First, it naturally inherits the top-level characteristics of \clj{do}, which is key to defining
+wrapper macros that operate at the top-level.
+A usage of \clj{tc-ignore} that relies on this is demonstrated in \figref{fig:analyzer:tc-ignore-usage}.
+Second, it avoids the need to pre-expand its arguments to attach information, or
+have special cases for particular arguments.
+On the other hand, a communication protocol based on attaching metadata properties
+would require pre-expanding arguments, since metadata is lost on macroexpansion,
+and in some cases would not be possible, since many common Clojure forms do not support metadata
+(such as keywords, numbers, and nil).
+Third, the information can be compiled away using standard techniques,
+since they are constant statements---extra information can be provided via a map of constant values
+placed after the typing rule name, as in
+the definition of \clj{ann-form} (\figref{fig:analyzer:ann-form-definition}).
+
+\begin{figure}
+\begin{cljlisting}
+(defmacro ann-form
+  "Annotate a form with an expected type."
+  [form ty]
+  `(do :clojure.core.typed.special-form/special-form
+       :clojure.core.typed/ann-form
+       {:type '~ty}
+       ~form))
+\end{cljlisting}
+  \caption{The definition of \clj{ann-form} shows how to communicate extra information to the type checker}
+  \label{fig:analyzer:ann-form-definition}
+\end{figure}
+
+While a strong choice, there are some downsides to basing our communcation protocol on \clj{do}
+statements.
+There is no guarantee the information will be compiled away at runtime, and
+thus may contribute to bloating the runtime.
+On the other hand, \clj{tools.analyzer} must be carefully configured to not erase these constant
+values before Typed Clojure can access them.
+
+Alternative \clj{do}-based protocols could be similarly effective
+such as attaching metadata directly to the symbol \clj{do} or list \clj{(do ...)}.
+We felt embedding the information directly in programs had the best chance of forward-compatibility,
+since the interaction between metadata and compilation is not well documented and
+can be platform-dependent (in our experience ClojureScript has handled some cases differently,
+like evaluating metadata instead of simply quoting it as in Clojure).
+
+\begin{figure}
+\begin{cljlisting}
+(tc-ignore
+  (defmacro reverse-app [a f] `(~f ~a))
+  (reverse-app 1 inc)) ;=> 2
+\end{cljlisting}
+  \caption{Example top-level usage of \clj{tc-ignore}
+           where the second form must expand after the first evaluates.
+  It works because \clj{tc-ignore} wraps only with \clj{do}.}
+  \label{fig:analyzer:tc-ignore-usage}
+\end{figure}
+
+\section{Side-effectful communication}
+
+Racket has a sophisticated system for managing compile-time side effects
+to accompany its module system.
+Clojure does not have a module system, and instead relies on conventions
+and a simple compilation model to write effective programs.
+
+The unit of compilation in Clojure is a top-level form. A top-level Clojure form
+is guaranteed to have all previous top-level forms fully expanded
+and evaluated before it is expanded and evaluated itself.
+This blurs the lines between compile-time and runtime, compared to the
+distinct phases of Racket compilation.
+
+When checking a file with Typed Clojure, we have similar guarantees:
+when checking a top-level form, we can depend on the fact that all
+previous top-level forms have been expanded, evaluated, and checked,
+and that the current form has been fully expanded.
+
+Thus, we have a choice of three times to send side-effectful communication
+to the type checker:
+expansion-time, evaluation-time, and checking-time.
+\figref{fig:analyzer:ann-definition} shows the most frequently used
+side-effectful macro \clj{ann}, which registers the type of a var in the
+global environment.
+It expands to code that uses internal function \clj{ann*}, which does
+that actual registering. This is a \emph{evaluation-time} side effect,
+and we similarly perform most communication at this time
+for the following reasons.
+
+A previous implementation of Typed Clojure (which was used by CircleCI
+in \secref{sec:casestudy}) .......
+
+\begin{verbatim}
+- not forced to recursively check other files just to collect annotations
+  - problem identified with CircleCI
+  - simply need to evaluate a file normally
+  - in turn requires more annotations
+    - tradeof between annotation burden and performance
+- avoid relying on expansion-time side effects
+  - lost with AOT compilation
+- "staged at checking time": under Typed Racket AOT compilation, it stages global type annotations for eval time
+  - we don't have a similar mode
+    - compiling a Typed Clojure file does not require checking
+\end{verbatim}
+
+
+\begin{figure}
+\begin{cljlisting}
+(defmacro ann 
+  "Register top-level var with type."
+  [varsym typesyn]
+  (let [qsym (qualify-in-current-ns varsym)
+        opts (meta varsym)
+        check? (not (:no-check opts))]
+    `(tc-ignore (ann* '~qsym '~typesyn '~check? '~&form))))
+(defn ann* 
+  "Internal use only. Use ann."
+  [qsym typesyn check? form]
+  ; omitted - registers `qsym` at type `typesym`
+  )
+\end{cljlisting}
+  \caption{Implementation of \clj{ann}, which expands to code that registers types at evaluation-time.}
+  \label{fig:analyzer:ann-definition}
+\end{figure}
 
 \chapter{Interleaved expansion and checking}
 
@@ -213,7 +418,7 @@ time | (let [...]  | (cond ...   | (+ ...)))
                 - very restrictive
 - Relevant reading:
   - Flatt, "You want it, when?"
-  - SamTH, Scheme 2011 (good for lispy background), PLDI 2011 (general audience)
+  - SamTH, Scheme 2007 (good for lispy background), PLDI 2011 (general audience)
 \end{verbatim}
 }
 
