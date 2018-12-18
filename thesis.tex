@@ -228,8 +228,10 @@
 \paragraph{Interleaving Type Checking with Expansion, Extensible type systems and Symbolic Analysis}
 
 Turnstile~\cite{Chang2017TSM} type checks a program during expansion
-by repurposing the Racket macro system. It provides a fully extensible framework
-for specifying and combining core typing rules.
+by repurposing the Racket macro system.
+Instead of the more standard approach of providing separate rules to check a macro, Turnstile
+typing rules specify both the expansion and checking semantics, and so ensuring the
+two are compatibile becomes automatic.
 On the other hand, Typed Clojure does not have the goal of allowing users to override
 how language primitives type check. Instead, our goal is to provide
 a simple interface to write type rules for library functions and macros

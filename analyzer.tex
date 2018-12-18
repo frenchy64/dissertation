@@ -1,26 +1,70 @@
 \chapter{Background}
 
-{
-\singlespacing
-\begin{verbatim}
-- Problem
-  - Clojure is a Lisp with macros
-  - don't want to write typing rules for each macro
-    - don't want to burden users
-    - so we expand them before checking
-    - but sometimes it's really helpful to write custom rules
-- Possible solutions
-  - pre expansion
-  - interleaved analysis and evaluation
-- Constraints
-  - Soundness?
-    - tension between soundness and user extensibility
-  - advantages of pre-expanding
-    - can't have "wrong" expansion in pre-expanded code
-      - we check the actual expansion that gets wr
-  - wrapper macros needed in all of these systems
-\end{verbatim}
-}
+Clojure is a dialect of Lisp, and so supports metaprogramming
+via macros.
+This immediately poses an interesting problem for Clojure
+type systems: how do we check a macro call?
+Ideally, we don't want to require special typing rules for each
+macro, since that imposes additional burden on the programmer
+to define special rules for their own macros.
+On the other hand, sometimes its helpful to write custom rules
+for customized error messages, or a higher-level specification
+for a macro's usage.
+
+In this part we explore several solutions to this problem,
+from the standard approach of expanding macros to
+primitive forms before checking, to more involved solutions
+that allow extensible typing rules for each macro.
+
+Several constraints guide us through our designs.
+There is a question of soundness: does what we actually
+check match up with the code being evaluated?
+There is a natural tension between soundness and user extensibility.
+Allowing custom rules for macros gives a kind of flexibility
+that makes it hard to relate type checking semantics with
+the running code---which is the whole idea behind a soundness result.
+On the other hand, expanding code before checking ensures
+we check the actual code being run.
+In all of these cases, wrappers that communicate information
+to the type system are needed, but they interact
+with evaluated code differently.
+
+We also consider the experience of using these solutions.
+Error messages can be unrelated to the source problem
+if pre-expanding code, but we may miss actual errors
+by using a poorly written typing rule.
+We are interested in the difficultly of extending each system,
+including any additional annotation burden,
+additional knowledge needed to manage evaluation semantics
+in typing rules, and additional type system knowledge required
+to write typing rules. Finally, we also consider implications
+to type checking performance and amenability to iterative development.
+
+The following chapters present several designs of Typed Clojure,
+their extensibility stories, and general implementation concerns for
+Clojure type system designers.
+
+%{
+%\singlespacing
+%\begin{verbatim}
+%- Problem
+%  - Clojure is a Lisp with macros
+%  - don't want to write typing rules for each macro
+%    - don't want to burden users
+%    - so we expand them before checking
+%    - but sometimes it's really helpful to write custom rules
+%- Possible solutions
+%  - pre expansion
+%  - interleaved analysis and evaluation
+%- Constraints
+%  - Soundness?
+%    - tension between soundness and user extensibility
+%  - advantages of pre-expanding
+%    - can't have "wrong" expansion in pre-expanded code
+%      - we check the actual expansion that gets wr
+%  - wrapper macros needed in all of these systems
+%\end{verbatim}
+%}
 
 \chapter{Typed Clojure's initial design}
 
