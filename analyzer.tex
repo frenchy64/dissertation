@@ -68,30 +68,29 @@ Clojure type system designers.
 
 \chapter{Typed Clojure's initial design}
 
-Typed Clojure's initial design was inspired by Typed Racket.
-There, syntax is fully expanded before Typed Racket checks it.
+Typed Clojure's initial design was inspired by Typed Racket,
+which checks Racket code by first expanding until it consists
+of only primitives, and then checking using fixed rules for each
+primitive.
+Instead of using Clojure's compiler to analyze code,
+we opted to use \texttt{tools.analyzer}, a standalone nano-pass
+analyzer providing an idiomatic map-based AST format providing
+passes for hygienic transformations and Java reflection resolution.
 
-{
-\singlespacing
-\begin{verbatim}
-- Pros to expanding up front:
-  - Separation of concerns (expander does expansion)
-- Cons to expanding up front:
-  - Lose contextual information from unexpanded macros while type checking.
-  - Requires wrapper macros which pollute runtime expansions and
-    often require copying implementation details (brittle).
-\end{verbatim}
-}
+%{
+%\singlespacing
+%\begin{verbatim}
+%- Pros to expanding up front:
+%  - Separation of concerns (expander does expansion)
+%- Cons to expanding up front:
+%  - Lose contextual information from unexpanded macros while type checking.
+%  - Requires wrapper macros which pollute runtime expansions and
+%    often require copying implementation details (brittle).
+%\end{verbatim}
+%}
 
 \figref{fig:analyzer:control-flow-pre-expand} demonstrates 
 how Typed Clojure checks code using the pre-expansion approach.
-It uses \texttt{tools.analyzer} to analyze and expand code.
-\texttt{tools.analyzer} is an analyzer for Clojure code that creates
-a map-based abstract-syntax-trees (AST) for given Clojure forms.
-It is implemented using a nano-pass style and traverses over the ASTs
-several times to incrementally add features like hygienic scope
-and JVM reflection resolution.
-
 To simplify presentation we assume \texttt{tools.analyzer}
 uses only 2 passes. The first pass \texttt{analyze} creates
 a bare AST with no platform specific information.
@@ -101,32 +100,70 @@ is called before we traverse an AST node.
 The second is a post-traversal \texttt{post-passes} which
 is called after we traverse an AST node.
 
+This arrangement is convenient as a type system implementor,
+insofar as there is a clean separation of concerns: the analyzer
+handles expansion and evaluation, while the type system
+merely checks.
+However, much contextual information is lost from the expansion
+process that is needed for checking.
+We now present how we surmount this challenge while still
+preserving the pre-expanded checking model.
+
 \begin{figure}
 \singlespacing
-\begin{verbatim}
-time | (let [...]  | (cond ...   | (+ ...)))
- |   | ---------------------------------------
- v   | analyze    >|             |
-     |             | analyze >   |
-     |             |             | analyze    >
-     |             |             |<analyze
-     |             |<analyze     |
-     |<analyze     |             |
-     | pre-passes >|             |
-     |             | pre-passes >|
-     |             |             | pre-passes >
-     |             |             |<post-passes
-     |             |<post-passes |
-     |<post-passes |             |
-     | check>      |             |
-     |             | check>      |
-     |             |             | check>
-     |             |             |<check
-     |             |<check       |
-     |<check       |             |
-\end{verbatim}
-  \caption{Control flow when Typed Clojure checks pre-expanded code.
-  Three levels of nesting are used as an example.
+$$
+  \begin{array}{r||l|l|l|}
+    \text{Time} & \text{\clj{(let [...]}} & \text{\clj{(cond ...}} & \text{\clj{(+ ...)))}}\\
+    \hline
+     0          & \text{\clj{analyze}}^{>}    &                             &                      \\
+     1          &                             & \text{\clj{analyze}}^{>}    &                      \\
+     2          &                             &                             & \text{\clj{analyze}}^{>} \\
+     3          &                             &                             & \text{\clj{analyze}}^{<} \\
+     4          &                             & \text{\clj{analyze}}^{<}    &                      \\
+     5          & \text{\clj{analyze}}^{<}    &                             &                      \\
+     6          & \text{\clj{pre-passes}}^{>} &                             &                      \\
+     7          &                             & \text{\clj{pre-passes}}^{>} &                      \\
+     8          &                             &                             & \text{\clj{pre-passes}}^{>} \\
+     9          &                             &                             & \text{\clj{post-passes}}^{<} \\
+     10         &                             & \text{\clj{post-passes}}^{<}&                      \\
+     11         & \text{\clj{post-passes}}^{<}&                             &                      \\
+     12         & \text{\clj{check}}^{>}      &                             &                      \\
+     13         &                             & \text{\clj{check}}^{>}      &                      \\
+     14         &                             &                             & \text{\clj{check}}^{>} \\
+     15         &                             &                             & \text{\clj{check}}^{<} \\
+     16         &                             & \text{\clj{check}}^{<}      &                      \\
+     17         & \text{\clj{check}}^{<}      &                             &                      \\
+  \end{array}
+$$
+%\begin{verbatim}
+%time | (let [...]  | (cond ...   | (+ ...)))
+% |   | ---------------------------------------
+% v   | analyze    >|             |
+%     |             | analyze >   |
+%     |             |             | analyze    >
+%     |             |             |<analyze
+%     |             |<analyze     |
+%     |<analyze     |             |
+%     | pre-passes >|             |
+%     |             | pre-passes >|
+%     |             |             | pre-passes >
+%     |             |             |<post-passes
+%     |             |<post-passes |
+%     |<post-passes |             |
+%     | check>      |             |
+%     |             | check>      |
+%     |             |             | check>
+%     |             |             |<check
+%     |             |<check       |
+%     |<check       |             |
+%\end{verbatim}
+  \caption{Illustrative control flow when
+  using \texttt{tools.analyzer} to expand code via \clj{analyze} and several passes,
+  followed by Typed Clojure checking.
+  The partial expression \clj{(let [...] (cond ... (+ ...)))}
+  was chosen since it has at least 3 levels of nesting.
+  Many more levels will be revealed after expansion by \clj{analyze}, which we do not picture.
+  ${}^>$ and ${}^<$ indicate work done to start and finish processing a node, respectively.
   }
   \label{fig:analyzer:control-flow-pre-expand}
 \end{figure}
