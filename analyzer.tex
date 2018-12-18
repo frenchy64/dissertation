@@ -393,6 +393,10 @@ It is rarely apparent that a wrapper macro is needed from such an error message.
      - too slow
   2. Extensibility
      - we want custom rules for syntax BEFORE expansion
+     - avoid need for wrapper macros
+       - avoid implementation-dependence
+       - better error messages for users
+     - but lose ability to check actual expansions
 - (This is the Turnstile approach)
   - Except we don't have syntax objects, how to do it?
 - Create a single-pass tools.analyzer variant that can be paused in
