@@ -509,10 +509,18 @@ So, there is no room for a checking rule for \clj{cond} until time 13, well
 after the \clj{cond} is expanded away.
 
 Fortunately, \texttt{tools.analyzer}'s design and implementation
-are otherwise brilliant and innovative, and is a great base to build a new analyzer better suited to help solve
+is otherwise brilliant and innovative, and forms a great base to build a new Clojure analyzer better suited to help solve
 many of the aforementioned analysis and checking problems---we did exactly that in \texttt{core.typed.analyzer}.
 
 \section{Interleaved Analysis with \texttt{core.typed.analyzer}}
+
+To replace \texttt{tools.analyzer}, we built \texttt{core.typed.analyzer}. In this section,
+we describe how \texttt{core.typed.analyzer} works, and outline both the ideas we repurposed
+from \texttt{tools.analyzer} and those specific to \texttt{core.typed.analyzer}.
+
+\subsection{Overview}
+
+\subsection{Implementation}
 
 Passes in \texttt{tools.analyzer} are written completely separately and connected to other passes
 via explicit dependencies specified via metadata.
@@ -521,95 +529,152 @@ and means passes are highly modular, so we can choose just those that are releva
 Furthermore, passes are almost always extensible via Clojure's multimethods, so it is trivial to add
 support for new AST types, like an AST representation for unanalyzed code.
 
-
-several passes.
-Intermediate rep not possible due to multi passes
-Third, 
-
-\texttt{tools.analyzer} was designed to be a 
-front-end for the \texttt{tools.emitter} compiler, and so 
-
-This chapter presents a revised design which is more flexible
-by supporting \emph{interleaving} of expansion and checking.
-
-{
-\singlespacing
-\begin{verbatim}
-- Goals
-  1. Build a better tools.analyzer
-     - too slow
-     - too many passes
-     - reuse the passes/scheduler/analysis
-       - and :unanalyzed
-         - instead of analyzing children, store context and return
-       - unforce one pass
-  2. Extensibility
-     - we want custom rules for syntax BEFORE expansion
-     - avoid need for wrapper macros
-       - avoid implementation-dependence
-       - better error messages for users
-     - but lose ability to check actual expansions
-- (This is the Turnstile approach)
-  - Except we don't have syntax objects, how to do it?
-- Create a single-pass tools.analyzer variant that can be paused in
-  the middle of analysis
-  - `analyze` now expands absolute minimum (usually 1 macro)
-- now `check` has access to the raw Clojure forms before they are expanded
-  - much power = much reponsibility
-    - top-level evaluation side effects
-    - expansion side effects
-      - talk about that in a different chapter
-    - must manually manage local scope
-    - avoiding double macro expansion
-    - avoiding double evaluation
-    - double analysis is OK though, no side effects
-      - so we can "reinsert" a fully analyzed AST back into
-        a macro call so it can be expanded as usual.
-        - eg. (my-macro (unexpanded))
-            =>
-              (my-macro ~(check (unexpanded) ...))
-- Pros
-  - now have access to original macro forms for higher-level reasoning
-- Cons
-  - no longer checking the implementation of macros
-    - although were we ever, really?
-      - wrapper macros are copied implementation details
-  - must carefully manage compile-time side effects
-\end{verbatim}
-}
+%{
+%\singlespacing
+%\begin{verbatim}
+%- Goals
+%  1. Build a better tools.analyzer
+%     - too slow
+%     - too many passes
+%     - reuse the passes/scheduler/analysis
+%       - and :unanalyzed
+%         - instead of analyzing children, store context and return
+%       - unforce one pass
+%  2. Extensibility
+%     - we want custom rules for syntax BEFORE expansion
+%     - avoid need for wrapper macros
+%       - avoid implementation-dependence
+%       - better error messages for users
+%     - but lose ability to check actual expansions
+%- (This is the Turnstile approach)
+%  - Except we don't have syntax objects, how to do it?
+%- Create a single-pass tools.analyzer variant that can be paused in
+%  the middle of analysis
+%  - `analyze` now expands absolute minimum (usually 1 macro)
+%- now `check` has access to the raw Clojure forms before they are expanded
+%  - much power = much reponsibility
+%    - top-level evaluation side effects
+%    - expansion side effects
+%      - talk about that in a different chapter
+%    - must manually manage local scope
+%    - avoiding double macro expansion
+%    - avoiding double evaluation
+%    - double analysis is OK though, no side effects
+%      - so we can "reinsert" a fully analyzed AST back into
+%        a macro call so it can be expanded as usual.
+%        - eg. (my-macro (unexpanded))
+%            =>
+%              (my-macro ~(check (unexpanded) ...))
+%- Pros
+%  - now have access to original macro forms for higher-level reasoning
+%- Cons
+%  - no longer checking the implementation of macros
+%    - although were we ever, really?
+%      - wrapper macros are copied implementation details
+%  - must carefully manage compile-time side effects
+%\end{verbatim}
+%}
 
 \begin{figure*}
 \singlespacing
-\begin{verbatim}
-time | (let [...]  | (cond ...   | (+ ...)))
- |   | ---------------------------------------
- v   | unanalyzed <|             |
-     | check      >|             |
-     | analyze1   >|             |
-     | pre-passes >|             |
-     | check      >|             |
-     |             | check      >|
-     |             | analyze1   >|
-     |             | pre-passes >|
-     |             | check      >|
-     |             |             | check      >
-     |             |             | analyze1   >
-     |             |             | pre-passes >
-     |             |             | check      >
-     |             |             |<check
-     |             |             |<post-passes
-     |             |             |<check
-     |             |<post-passes |
-     |             |<check       |
-     |<post-passes |             |
-     |<check       |             |
-\end{verbatim}
+$$
+  \begin{array}{r||l|l|l|}
+    \text{Time} & \text{\clj{(let [...]}} & \text{\clj{(cond ...}} & \text{\clj{(+ ...)))}}\\
+    \hline
+     0          & \text{\clj{unanalyzed}}^{<}    &                               &                      \\
+     1          & \text{\clj{analyze-outer}}^{*} &                               &                      \\
+     2          & \text{\clj{pre-passes}}^{>}    &                               &                      \\
+     3          & \text{\clj{check}}^{>}         &                               &                      \\
+     4          &                                & \text{\clj{analyze-outer}}^{*}&                      \\
+     5          &                                & \text{\clj{pre-passes}}^{>}   &                      \\
+     6          &                                & \text{\clj{check}}^{>}        &                             \\
+     7          &                                &                               & \text{\clj{analyze-outer}}^{*}                     \\
+     8          &                                &                               & \text{\clj{pre-passes}}^{>}                        \\
+     9          &                                &                               & \text{\clj{check}}^{>}                             \\
+     10         &                                &                               & \text{\clj{post-passes}}^{<}                        \\
+     11         &                                &                               & \text{\clj{check}}^{<}                             \\
+     12         &                                & \text{\clj{post-passes}}^{<}  &                      \\
+     13         &                                & \text{\clj{check}}^{<}        &                      \\
+     14         & \text{\clj{post-passes}}^{<}   &                               &                      \\
+     15         & \text{\clj{check}}^{<}         &                               &                      \\
+  \end{array}
+$$
+%\begin{verbatim}
+%time | (let [...]  | (cond ...   | (+ ...)))
+% |   | ---------------------------------------
+% v   | unanalyzed  |             |
+%     | check      >|             |
+%     | analyze-outer *|             |
+%     | pre-passes >|             |
+%     |             | check      >|
+%     |             | analyze-outer   *|
+%     |             | pre-passes >|
+%     |             |             | check      >
+%     |             |             | analyze-outer   *
+%     |             |             | pre-passes >
+%     |             |             |<check
+%     |             |             |<post-passes
+%     |             |             |<check
+%     |             |<post-passes |
+%     |             |<check       |
+%     |<post-passes |             |
+%     |<check       |             |
+%\end{verbatim}
+  \begin{cljlisting}
+(defn check-expr
+  "Check an AST node has the expected type."
+  [expr expected]
+  (if (= :unanalyzed (:op expr))
+    (check-expr (analyze-outer expr) expected)
+    (run-post-passes
+      (check (run-pre-passes expr)
+             expected))))
+(defn check-form
+  "Check a Clojure expression has the expected type"
+  [form expected]
+  (check-expr (unanalyzed form (empty-env))
+              expected))
+\end{cljlisting}
+
   \caption{Control flow when Typed Clojure incrementally expands code as it checks.
-  Three levels of nesting are used as an example.
+      ${}^*$ denotes zero or more calls.
   }
 \end{figure*}
 
-\chapter{Extensibility in Interleaved checking}
+
+\begin{figure*}
+\begin{cljlisting}
+; tools.analyzer version
+(defn parse-if
+  "Convert a Clojure `(if <test> <then> <else>)` form to an AST."
+  [[_ test then else :as form] env]
+  {:op      :if
+   :form     form
+   :env      env
+   :test     (__red>analyze-form<red__ test (assoc env :context :ctx/expr))
+   :then     (__red>analyze-form<red__ then env)
+   :else     (__red>analyze-form<red__ else env)
+   :children [:test :then :else]})
+
+; core.typed.analyzer version
+(defn parse-if
+  "Convert a Clojure `(if <test> <then> <else>)` form to an AST."
+  [[_ test then else :as form] env]
+  {:op      :if
+   :form     form
+   :env      env
+   :test     (__red>unanalyzed<red__ test (assoc env :context :ctx/expr))
+   :then     (__red>unanalyzed<red__ then env)
+   :else     (__red>unanalyzed<red__ else env)
+   :children [:test :then :else]})
+\end{cljlisting}
+
+  \caption{Example of porting a \texttt{tools.analyzer} function
+  to use \clj{unanalyzed} (differences highlighted).
+  }
+\end{figure*}
+
+\section{Extensibility in Interleaved checking}
 
 \chapter{Managing Analysis Side effects}
 
