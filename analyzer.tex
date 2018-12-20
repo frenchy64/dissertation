@@ -66,12 +66,17 @@ Clojure type system designers.
 %\end{verbatim}
 %}
 
-\chapter{Typed Clojure's initial design}
+\chapter{Expand before checking}
 
 Typed Clojure's initial design was inspired by Typed Racket,
 which checks Racket code by first expanding until it consists
 of only primitives, and then checking using fixed rules for each
 primitive.
+This chapter goes into this design in more detail, starting
+with our choice of analyzer and then how to handle extensibility.
+
+\section{Upfront Analysis with \texttt{tools.analyzer}}
+
 Instead of using Clojure's compiler to analyze code,
 we opted to use \texttt{tools.analyzer}, a standalone nano-pass
 analyzer providing an idiomatic map-based AST format providing
@@ -96,11 +101,11 @@ uses only 2 passes. The first pass \texttt{analyze} creates
 a bare AST with no platform specific information.
 The second pass is composed of two tree traversals.
 The first is a pre-traversal \texttt{pre-passes} which
-is called before we traverse an AST node.
+is called before we visit the children of an AST node.
 The second is a post-traversal \texttt{post-passes} which
-is called after we traverse an AST node.
+is called after we visit the children of an AST node.
 
-This arrangement is convenient as a type system implementor,
+This arrangement is convenient as a type system implementer,
 insofar as there is a clean separation of concerns: the analyzer
 handles expansion and evaluation, while the type system
 merely checks.
@@ -163,12 +168,12 @@ $$
   The partial expression \clj{(let [...] (cond ... (+ ...)))}
   was chosen since it has at least 3 levels of nesting.
   Many more levels will be revealed after expansion by \clj{analyze}, which we do not picture.
-  ${}^>$ and ${}^<$ indicate work done to start and finish processing a node, respectively.
+  ${}^>$ and ${}^<$ indicate work done to a node before and after processing its children, respectively.
   }
   \label{fig:analyzer:control-flow-pre-expand}
 \end{figure}
 
-\chapter{Extensibility in Pre-expanded checking}
+\section{Extensibility}
 
 %{
 %\singlespacing
@@ -233,7 +238,7 @@ These macros come in several flavors:
 
 We discuss each in the following sections.
 
-\section{Syntax-based communication}
+\subsection{Syntax-based communication}
 
 A simple macro provided by Typed Clojure that communicates to the checker
 via syntax is \clj{tc-ignore}, which takes a number of forms, places
@@ -302,7 +307,7 @@ the definition of \clj{ann-form} (\figref{fig:analyzer:ann-form-definition}).
   \label{fig:analyzer:ann-form-definition}
 \end{figure*}
 
-While a strong choice, there are some downsides to basing our communcation protocol on \clj{do}
+While a strong choice, there are some downsides to basing our communication protocol on \clj{do}
 statements.
 There is no guarantee the information will be compiled away at runtime, and
 thus may contribute to bloating the runtime.
@@ -328,7 +333,7 @@ like evaluating metadata instead of simply quoting it as in Clojure).
   \label{fig:analyzer:tc-ignore-usage}
 \end{figure}
 
-\section{Side-effectful communication}
+\subsection{Side-effectful communication}
 
 Racket has a sophisticated system for managing compile-time side effects
 to accompany its module system.
@@ -427,7 +432,7 @@ the macro itself and move it to the evaluation of the code it expands into.
   \label{fig:analyzer:ann-definition}
 \end{figure*}
 
-\section{Wrapper macros}
+\subsection{Wrapper macros}
 
 Several situations call for wrapper macros for existing untyped macros.
 In practice, this often means the type system author provides an alternative
@@ -466,12 +471,78 @@ It is rarely apparent that a wrapper macro is needed from such an error message.
 
 \chapter{Interleaved expansion and checking}
 
+The previous chapter outlined a design for Typed Clojure that fully expands code
+before checking.
+We identified several problems with the user experience of Typed Clojure's initial design,
+including bad error messages, and excessive copying of macro implementations for wrapper
+macros.
+Additionally, we identified several issues with \texttt{tools.analyzer} that we have
+not yet discussed.
+
+First, \texttt{tools.analyzer}'s goals of being mostly platform-agnostic made analysis particularly 
+slow, and so added an undesirable performance overhead to type checking.
+In particular, a copy of the
+global scope is maintained for every namespace. While it enables a convenient platform-agnostic API
+for symbol resolution,
+it comes at a performance cost since it must be updated (from scratch) frequently.
+Furthermore, some macroexpansion side effects are not (yet) recognized by the analyzer
+which means analysis sometimes deviates from Clojure compiler, an undesirable situation
+since Typed Clojure intends to model how code runs \emph{outside} of type checking.
+Unfortunately, fixing some of these differences would require even more frequent costly updates.
+
+Second, it is impractical to recover contextual information lost via analysis.
+This is both because \texttt{tools.analyzer} has no way of representing unanalyzed
+code (so there is no choice but to expand immediately), and
+because \texttt{tools.analyzer} uses at least 2 passes over the AST
+(so there is no obvious place to recover contextual information since pre-traversal
+passes run \emph{after} the entire program has been expanded).
+For example, \figref{fig:analyzer:control-flow-pre-expand}
+illustrates \texttt{tools.analyzer}'s control flow with just 2 traversals.
+Say at time 1 we wished to take advantage of the unexpanded \clj{cond}
+form with a special rule (before it expands and contextual information is lost).
+In fact, \texttt{tools.analyzer} provides the extension point \clj{macroexpand-1}
+for just this purpose, which allows the user to specify exactly how a form is expanded.
+Unfortunately, time 0 introduced local bindings that are unhygienic, and the hygienic
+transformation pass (required for checking because occurrence typing's propositions do not recognize variable shadowing)
+happens at time 6 with \clj{pre-passes}.
+So, there is no room for a checking rule for \clj{cond} until time 13, well
+after the \clj{cond} is expanded away.
+
+Fortunately, \texttt{tools.analyzer}'s design and implementation
+are otherwise brilliant and innovative, and is a great base to build a new analyzer better suited to help solve
+many of the aforementioned analysis and checking problems---we did exactly that in \texttt{core.typed.analyzer}.
+
+\section{Interleaved Analysis with \texttt{core.typed.analyzer}}
+
+Passes in \texttt{tools.analyzer} are written completely separately and connected to other passes
+via explicit dependencies specified via metadata.
+This allows a separate scheduler to arrange the passes into as few tree traversals as possible,
+and means passes are highly modular, so we can choose just those that are relevant to type systems.
+Furthermore, passes are almost always extensible via Clojure's multimethods, so it is trivial to add
+support for new AST types, like an AST representation for unanalyzed code.
+
+
+several passes.
+Intermediate rep not possible due to multi passes
+Third, 
+
+\texttt{tools.analyzer} was designed to be a 
+front-end for the \texttt{tools.emitter} compiler, and so 
+
+This chapter presents a revised design which is more flexible
+by supporting \emph{interleaving} of expansion and checking.
+
 {
 \singlespacing
 \begin{verbatim}
 - Goals
   1. Build a better tools.analyzer
      - too slow
+     - too many passes
+     - reuse the passes/scheduler/analysis
+       - and :unanalyzed
+         - instead of analyzing children, store context and return
+       - unforce one pass
   2. Extensibility
      - we want custom rules for syntax BEFORE expansion
      - avoid need for wrapper macros
@@ -512,16 +583,17 @@ It is rarely apparent that a wrapper macro is needed from such an error message.
 \begin{verbatim}
 time | (let [...]  | (cond ...   | (+ ...)))
  |   | ---------------------------------------
- v   | check      >|             |
-     | analyze    >|             |
+ v   | unanalyzed <|             |
+     | check      >|             |
+     | analyze1   >|             |
      | pre-passes >|             |
      | check      >|             |
      |             | check      >|
-     |             | analyze    >|
+     |             | analyze1   >|
      |             | pre-passes >|
      |             | check      >|
      |             |             | check      >
-     |             |             | analyze    >
+     |             |             | analyze1   >
      |             |             | pre-passes >
      |             |             | check      >
      |             |             |<check
@@ -620,16 +692,16 @@ time | (do          | (defn a ...)| (defn b ...))
 \begin{verbatim}
 time | (do         | (defn a ...)| (defn b ...))
  |   | ---------------------------------------
- v   | check       |             |
+ v   | check-tplvl |             |
      | analyze     |             |
      | pre-passes  |             |
-     | check-child |             |
+     | check-child>|             |
      |             | analyze     |
      |             | pre-passes  |
      |             | check       |
      |             | post-passes |
      |             | eval        |
-     | check-child |             |
+     | check-child<|             |
      |             |             | analyze
      |             |             | pre-passes >
      |             |             | check
