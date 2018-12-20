@@ -520,6 +520,79 @@ from \texttt{tools.analyzer} and those specific to \texttt{core.typed.analyzer}.
 
 \subsection{Overview}
 
+The main feature of \texttt{core.typed.analyzer} is the ability to stop and resume
+analysis at any point, while still supporting the essentials of a general-purpose Clojure analyzer.
+Supporting this requires several key innovations and restrictions over \texttt{tools.analyzer}.
+First, a new AST node type for partially expanded forms is needed to return a paused analysis.
+Second, the analyzer must have the ability to incrementally perform a small amount of analysis
+(on the order of expanding one macro) to provide fine-grained control over the AST.
+Third, all AST traversals must be fused into one traversal to minimize
+the bookkeeping needed to manage the AST.
+
+To this end, \texttt{core.typed.analyzer} provides an API of 4 functions.
+First, \clj{(unanalyzed form env)} creates an \clj{:unanalyzed} AST node
+that pauses the analysis of \clj{form} in local environment \clj{env}.
+Second, \clj{(analyze-outer ast)} analyzes the outermost form represented by \clj{ast}
+further by roughly one macroexpansion if possible, otherwise it returns \clj{ast}.
+Third, \clj{(run-pre-passes ast)} and \clj{(run-post-passes ast)}
+decorate \clj{ast} with extra information, used before and after visiting its children,
+respectively.
+
+To sample how it feels to use this API to implement a type checker, we now
+walk through checking \clj{(let [...] (cond ... (+ ...)))} in \figref{fig:analyzer:typed-analyzer-overview}.
+To check the outermost \clj{let},
+we use \clj{unanalyzed} to create an initial AST from a entire form at time 0.
+Then at time 1, the checker calls \clj{analyze-outer} zero or more times, either 
+until a special rule for partially expanded code is triggered
+or to a fixed point.
+Next at time 2 and 3 we decorate our AST node with \clj{run-pre-passes} (adding hygienic bindings)
+before calling \clj{check}.
+After checking its children during time 4-13, at time 14 and 15 we use \clj{run-post-passes}
+to add the rest of the decorations (e.g., resolving interop reflection)
+before any final checks from \clj{check}.
+The interleaving of operations using \texttt{core.typed.analyzer} is clear to see when
+compared to the same example using \texttt{tools.analyzer} 
+(\figref{fig:analyzer:control-flow-pre-expand}).
+
+Now with the interleaving analyzer, we can solve the problem we posed at the beginning of this chapter
+of wanting a custom typing rule for \clj{cond}: we simply
+limit the number of expansions done via \clj{analyze-outer} at time 4 
+before calling \clj{check} (\figref{fig:analyzer:typed-analyzer-overview}).
+The call to \clj{run-pre-passes} at time 2 will make any introduced let bindings hygienic,
+and so it's safe to reason about them with occurrence typing, and thus Typed Clojure.
+
+
+\begin{figure*}
+\singlespacing
+$$
+  \begin{array}{r||l|l|l|}
+    \text{Time} & \text{\clj{(let [...]}}            & \text{\clj{(cond ...}}          & \text{\clj{(+ ...)))}}          \\
+    \hline
+     0          & \text{\clj{unanalyzed}}^{>}        &                                 &                                 \\
+     1          & \text{\clj{analyze-outer}}^{*}     &                                 &                                 \\
+     2          & \text{\clj{run-pre-passes}}^{>}    &                                 &                                 \\
+     3          & \text{\clj{check}}^{>}             &                                 &                                 \\
+     4          &                                    & \text{\clj{analyze-outer}}^{*}  &                                 \\
+     5          &                                    & \text{\clj{run-pre-passes}}^{>} &                                 \\
+     6          &                                    & \text{\clj{check}}^{>}          &                                 \\
+     7          &                                    &                                 & \text{\clj{analyze-outer}}^{*}  \\
+     8          &                                    &                                 & \text{\clj{run-pre-passes}}^{>} \\
+     9          &                                    &                                 & \text{\clj{check}}^{>}          \\
+     10         &                                    &                                 & \text{\clj{run-post-passes}}^{<}\\
+     11         &                                    &                                 & \text{\clj{check}}^{<}          \\
+     12         &                                    & \text{\clj{run-post-passes}}^{<}&                                 \\
+     13         &                                    & \text{\clj{check}}^{<}          &                                 \\
+     14         & \text{\clj{run-post-passes}}^{<}   &                                 &                                 \\
+     15         & \text{\clj{check}}^{<}             &                                 &                                 \\
+  \end{array}
+$$
+
+  \caption{Illustrative control flow for interleaved checking and analysis using
+  \texttt{core.typed.analyzer}. ${}^*$ denotes zero or more calls.
+  }
+  \label{fig:analyzer:typed-analyzer-overview}
+\end{figure*}
+
 \subsection{Implementation}
 
 Passes in \texttt{tools.analyzer} are written completely separately and connected to other passes
@@ -528,6 +601,40 @@ This allows a separate scheduler to arrange the passes into as few tree traversa
 and means passes are highly modular, so we can choose just those that are relevant to type systems.
 Furthermore, passes are almost always extensible via Clojure's multimethods, so it is trivial to add
 support for new AST types, like an AST representation for unanalyzed code.
+
+% - resolve-sym is platform dependent, etc.
+
+\begin{figure}
+\begin{cljlisting}
+(defn unanalyzed
+  "Create an unanalyzed AST node from form and env"
+  [form env]
+  {:op :unanalyzed
+   :form form
+   :env env
+   ;; ::config will be inherited by whatever node
+   ;; this :unanalyzed node becomes when analyzed
+   ::config {}})
+\end{cljlisting}
+  \caption{Constructor for unanalyzed nodes.}
+  \label{fig:analyzer:unanalyzed-ctor}
+\end{figure}
+
+\begin{cljlisting}
+(defn check-expr
+  "Check an AST node has the expected type."
+  [expr expected]
+  (if (= :unanalyzed (:op expr))
+    (check-expr (analyze-outer expr) expected)
+    (run-post-passes
+      (check (run-pre-passes expr)
+             expected))))
+(defn check-form
+  "Check a Clojure expression has the expected type"
+  [form expected]
+  (check-expr (unanalyzed form (empty-env))
+              expected))
+\end{cljlisting}
 
 %{
 %\singlespacing
@@ -574,72 +681,6 @@ support for new AST types, like an AST representation for unanalyzed code.
 %  - must carefully manage compile-time side effects
 %\end{verbatim}
 %}
-
-\begin{figure*}
-\singlespacing
-$$
-  \begin{array}{r||l|l|l|}
-    \text{Time} & \text{\clj{(let [...]}} & \text{\clj{(cond ...}} & \text{\clj{(+ ...)))}}\\
-    \hline
-     0          & \text{\clj{unanalyzed}}^{<}    &                               &                      \\
-     1          & \text{\clj{analyze-outer}}^{*} &                               &                      \\
-     2          & \text{\clj{pre-passes}}^{>}    &                               &                      \\
-     3          & \text{\clj{check}}^{>}         &                               &                      \\
-     4          &                                & \text{\clj{analyze-outer}}^{*}&                      \\
-     5          &                                & \text{\clj{pre-passes}}^{>}   &                      \\
-     6          &                                & \text{\clj{check}}^{>}        &                             \\
-     7          &                                &                               & \text{\clj{analyze-outer}}^{*}                     \\
-     8          &                                &                               & \text{\clj{pre-passes}}^{>}                        \\
-     9          &                                &                               & \text{\clj{check}}^{>}                             \\
-     10         &                                &                               & \text{\clj{post-passes}}^{<}                        \\
-     11         &                                &                               & \text{\clj{check}}^{<}                             \\
-     12         &                                & \text{\clj{post-passes}}^{<}  &                      \\
-     13         &                                & \text{\clj{check}}^{<}        &                      \\
-     14         & \text{\clj{post-passes}}^{<}   &                               &                      \\
-     15         & \text{\clj{check}}^{<}         &                               &                      \\
-  \end{array}
-$$
-%\begin{verbatim}
-%time | (let [...]  | (cond ...   | (+ ...)))
-% |   | ---------------------------------------
-% v   | unanalyzed  |             |
-%     | check      >|             |
-%     | analyze-outer *|             |
-%     | pre-passes >|             |
-%     |             | check      >|
-%     |             | analyze-outer   *|
-%     |             | pre-passes >|
-%     |             |             | check      >
-%     |             |             | analyze-outer   *
-%     |             |             | pre-passes >
-%     |             |             |<check
-%     |             |             |<post-passes
-%     |             |             |<check
-%     |             |<post-passes |
-%     |             |<check       |
-%     |<post-passes |             |
-%     |<check       |             |
-%\end{verbatim}
-  \begin{cljlisting}
-(defn check-expr
-  "Check an AST node has the expected type."
-  [expr expected]
-  (if (= :unanalyzed (:op expr))
-    (check-expr (analyze-outer expr) expected)
-    (run-post-passes
-      (check (run-pre-passes expr)
-             expected))))
-(defn check-form
-  "Check a Clojure expression has the expected type"
-  [form expected]
-  (check-expr (unanalyzed form (empty-env))
-              expected))
-\end{cljlisting}
-
-  \caption{Control flow when Typed Clojure incrementally expands code as it checks.
-      ${}^*$ denotes zero or more calls.
-  }
-\end{figure*}
 
 
 \begin{figure*}
