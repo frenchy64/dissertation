@@ -773,23 +773,81 @@ it took several revisions and testing to recover the original behavior.
 
 \section{Extensibility in Interleaved checking}
 
-\chapter{Managing Analysis Side effects}
+Now we present the most significant type system feature
+enabled by \texttt{core.typed.analyzer}: custom typing rules.
+We already hinted at how this support works in
+\figref{fig:analyzer:typed-analyzer-overview}---in this section
+we make that explicit with a small type system implementation.
 
+\begin{figure}
+  \lstset{numbers=left}
 \begin{cljlisting}
-(defn check-expr
+(defn check
+  "Check an analyzed AST node has the expected type."
+  [expr expected]
+  (case (:op expr)
+    :if (let [ctest (check-expr (:test expr) (*@\emph{<omitted>}@*))](*@\label{analyzer:listing:typed:check-calls-check-expr}@*)
+          (*@\emph{<omitted>}@*))
+    :lambda (*@\emph{<omitted>}@*)
+    (*@\emph{<omitted other cases>}@*)))
+(defn check-expr(*@\label{analyzer:listing:typed:check-expr}@*)
   "Check an AST node has the expected type."
   [expr expected]
   (if (= :unanalyzed (:op expr))
-    (check-expr (analyze-outer expr) expected)
+    (case (*@\emph{<resolved-op-sym-for-expr>}@*)
+      __red>clojure.core/cond (check-special-cond expr expected)<red__(*@\label{analyzer:listing:typed:check-expr:special-cond}@*)
+      ; default case
+      (check-expr (analyze-outer expr) expected))
     (run-post-passes
-      (check (run-pre-passes expr)
+      (check (run-pre-passes expr)(*@\label{analyzer:listing:typed:check-expr-calls-check}@*)
              expected))))
-(defn check-form
+(defn check-form(*@\label{analyzer:listing:typed:check-form}@*)
   "Check a Clojure expression has the expected type"
   [form expected]
   (check-expr (unanalyzed form (empty-env))
               expected))
 \end{cljlisting}
+  \caption{The driver function \clj{check-form} for a type system using \texttt{core.typed.analyzer},
+  which dispatches to a special typing rule for an unexpanded \clj{cond} (\textcolor{red}{red}).}
+  \label{fig:analyzer:core.typed.analyzer-driver}
+\end{figure}
+
+We now present the sample type system in \figref{fig:analyzer:core.typed.analyzer-driver}.
+The main entry point is \clj{check-form} (line \ref{analyzer:listing:typed:check-form}),
+and we can check our running example has type \clj{expected}
+with:
+\begin{cljlisting}
+(check-form '(let [...] (cond ... (+ ...)))
+            expected)
+\end{cljlisting}
+
+A pair of mutually recursive helpers assist the main driver: \clj{check-expr} (line \ref{analyzer:listing:typed:check-expr})
+handles the analysis machinery including handling unanalyzed form,
+and \clj{check}
+which type checks an analyzed AST node.
+Once \clj{check-expr} has found a fully analyzed AST, it calls
+\clj{check} (line \ref{analyzer:listing:typed:check-expr-calls-check})
+in between running the analyzer passes.
+Correspondingly, any recursive checking of children performed in \clj{check}
+could trigger a special rule for unanalyzed forms, and so
+calls \clj{check-expr}, like checking the test of and \clj{:if} node on
+line \ref{analyzer:listing:typed:check-calls-check-expr}.
+
+Finally, custom typing rule are dispatched by \clj{check-expr}---we have included
+an example dispatch to a \clj{cond} rule on line \ref{analyzer:listing:typed:check-expr:special-cond}.
+The \clj{check-special-cond} function now has the ability
+to define a robust typing rule for \clj{cond}: it has full access to both
+the unexpanded \clj{cond} form and its hygienic type context.
+
+This is a far cry from what was possible with \clj{tools.analyzer},
+and so \clj{core.typed.analyzer} is a success in that light.
+However, with great power comes great responsibility.
+Giving the type-system writer (and user, via custom rules)
+the ability to control the order of analysis
+requires careful planning in the face of compile-time side effects.
+The next chapter is dedicated to discussing this caveat.
+
+\chapter{Managing Analysis Side effects}
 
 {
 \singlespacing
