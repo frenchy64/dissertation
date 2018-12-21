@@ -833,7 +833,7 @@ could trigger a special rule for unanalyzed forms, and so
 calls \clj{check-expr}, like checking the test of and \clj{:if} node on
 line \ref{analyzer:listing:typed:check-calls-check-expr}.
 
-Finally, custom typing rule are dispatched by \clj{check-expr}---we have included
+Finally, custom typing rules are dispatched by \clj{check-expr}---we have included
 an example dispatch to a \clj{cond} rule on line \ref{analyzer:listing:typed:check-expr:special-cond}.
 The \clj{check-special-cond} function now has the ability
 to define a robust typing rule for \clj{cond}: it has full access to both
