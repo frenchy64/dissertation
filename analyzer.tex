@@ -595,93 +595,17 @@ $$
 
 \subsection{Implementation}
 
-Passes in \texttt{tools.analyzer} are written completely separately and connected to other passes
-via explicit dependencies specified via metadata.
-This allows a separate scheduler to arrange the passes into as few tree traversals as possible,
-and means passes are highly modular, so we can choose just those that are relevant to type systems.
-Furthermore, passes are almost always extensible via Clojure's multimethods, so it is trivial to add
-support for new AST types, like an AST representation for unanalyzed code.
+We now go into more detail about how \texttt{core.typed.analyzer}
+is implemented as a modification of \texttt{tools.analyzer}
+and the various tradeoffs that were chosen.
 
-% - resolve-sym is platform dependent, etc.
-
-\begin{figure}
-\begin{cljlisting}
-(defn unanalyzed
-  "Create an unanalyzed AST node from form and env"
-  [form env]
-  {:op :unanalyzed
-   :form form
-   :env env
-   ;; ::config will be inherited by whatever node
-   ;; this :unanalyzed node becomes when analyzed
-   ::config {}})
-\end{cljlisting}
-  \caption{Constructor for unanalyzed nodes.}
-  \label{fig:analyzer:unanalyzed-ctor}
-\end{figure}
-
-\begin{cljlisting}
-(defn check-expr
-  "Check an AST node has the expected type."
-  [expr expected]
-  (if (= :unanalyzed (:op expr))
-    (check-expr (analyze-outer expr) expected)
-    (run-post-passes
-      (check (run-pre-passes expr)
-             expected))))
-(defn check-form
-  "Check a Clojure expression has the expected type"
-  [form expected]
-  (check-expr (unanalyzed form (empty-env))
-              expected))
-\end{cljlisting}
-
-%{
-%\singlespacing
-%\begin{verbatim}
-%- Goals
-%  1. Build a better tools.analyzer
-%     - too slow
-%     - too many passes
-%     - reuse the passes/scheduler/analysis
-%       - and :unanalyzed
-%         - instead of analyzing children, store context and return
-%       - unforce one pass
-%  2. Extensibility
-%     - we want custom rules for syntax BEFORE expansion
-%     - avoid need for wrapper macros
-%       - avoid implementation-dependence
-%       - better error messages for users
-%     - but lose ability to check actual expansions
-%- (This is the Turnstile approach)
-%  - Except we don't have syntax objects, how to do it?
-%- Create a single-pass tools.analyzer variant that can be paused in
-%  the middle of analysis
-%  - `analyze` now expands absolute minimum (usually 1 macro)
-%- now `check` has access to the raw Clojure forms before they are expanded
-%  - much power = much reponsibility
-%    - top-level evaluation side effects
-%    - expansion side effects
-%      - talk about that in a different chapter
-%    - must manually manage local scope
-%    - avoiding double macro expansion
-%    - avoiding double evaluation
-%    - double analysis is OK though, no side effects
-%      - so we can "reinsert" a fully analyzed AST back into
-%        a macro call so it can be expanded as usual.
-%        - eg. (my-macro (unexpanded))
-%            =>
-%              (my-macro ~(check (unexpanded) ...))
-%- Pros
-%  - now have access to original macro forms for higher-level reasoning
-%- Cons
-%  - no longer checking the implementation of macros
-%    - although were we ever, really?
-%      - wrapper macros are copied implementation details
-%  - must carefully manage compile-time side effects
-%\end{verbatim}
-%}
-
+To support the requirement of \clj{analyze-outer} performing as little
+analysis as possible, we converting the \clj{analyze} function from
+a full AST traversal to a pre-traversal that only visits the current node.
+This mostly involved substituting recursive
+calls to \clj{analyze-form} with \clj{unanalyzed}, as we
+can see from porting the \clj{parse-if} helper function
+  in \figref{fig:analyze:parse-if-port}.
 
 \begin{figure*}
 \begin{cljlisting}
@@ -711,13 +635,161 @@ support for new AST types, like an AST representation for unanalyzed code.
 \end{cljlisting}
 
   \caption{Example of porting a \texttt{tools.analyzer} function
-  to use \clj{unanalyzed} (differences highlighted).
+  to \texttt{core.typed.analyzer} using \clj{unanalyzed} (differences highlighted in \textcolor{red}{red}).
   }
+  \label{fig:analyze:parse-if-port}
 \end{figure*}
+
+Porting the nano-pass machinery was more involved, however
+we have a similar goal: passes must perform the minimum possible
+work so they can be easily composed as-needed.
+Thankfully, passes in \texttt{tools.analyzer} are written modularly,
+so we can straightforwardly pick a subset of them we need for \texttt{core.typed.analyzer}.
+To connect the passes, metadata declares dependencies on other passes
+and the traversal strategy.
+We can see this in action for \clj{constant-lift} (\figref{fig:analyzer:constant-lift}),
+which is declared to be part of a post-traversal
+that must run after \clj{elide-meta} and \clj{analyze-host-expr}.
+
+\begin{figure}
+\begin{cljlisting}
+(defn constant-lift
+  "Like clojure.tools.analyzer.passes.constant-lifter/constant-lift but
+   transforms also :var nodes where the var has :const in the metadata
+   into :const nodes and preserves tag info"
+  {:pass-info __red>{:walk :post, :depends #{},
+               :after #{#'elide-meta #'analyze-host-expr}}<red__}
+  [ast]
+  (merge (constant-lift* ast)
+         (select-keys ast [:tag :o-tag :return-tag :arglists])))
+\end{cljlisting}
+  \caption{Passes in \texttt{tools.analyzer} are defined as regular functions,
+  with \clj{:pass-info} metadata (\textcolor{red}{red}) declaring dependencies on other passes and tree walking strategy.}
+  \label{fig:analyzer:constant-lift}
+\end{figure}
+
+A scheduler compiles the passes according to this metadata into as few traversals as possible.
+We reuse this setup of scheduled passes in \texttt{core.typed.analyzer},
+with the restriction that all passes compile into one traversal.
+We could convert many existing pre- and post-traversal passes without much modification.
+Only the most crucial pass required much modification:
+the hygienic transformation pass \clj{uniquify-locals}.
+It must be a pre-traversal in \texttt{core.typed.analyzer} (for reasons we have already discussed),
+and was modified from a full tree walk.
+
+%Furthermore, passes are almost always extensible via Clojure's multimethods, so it is trivial to add
+%support for new AST types, like an AST representation for unanalyzed code.
+
+To help support \clj{:unanalyzed} AST nodes, a 
+\clj{:clojure.core.typed.analyzer/config} 
+entry (abbreviated \clj{::config}) was added to all nodes
+to attach data that applies to AST nodes even after they are expanded.
+For example, a top-level expression is still top-level after it is expanded.
+The implementations of \clj{unanalyzed} and \clj{analyze-outer}
+in \figref{fig:analyzer:config-inheritance} show their propagation---\clj{unanalyzed}
+initializes \clj{::config} on line 9, and \clj{analyze-outer} propagates it on line 16 after further analysis.
+
+\begin{figure}
+  \lstset{numbers=left}
+  \begin{cljlisting}
+(defn unanalyzed
+  "Create an unanalyzed AST node from form and env"
+  [form env]
+  {:op :unanalyzed
+   :form form
+   :env env
+   ;; ::config will be inherited by whatever node
+   ;; this :unanalyzed node becomes when analyzed
+   __red>::config<red__ {}})
+
+(defn analyze-outer
+  "If ast is :unanalyzed, then call analyze-form on it, otherwise returns ast."
+  [ast]
+  (case (:op ast)
+    :unanalyzed (__red>assoc<red__ (analyze-form (:form ast) (:env ast))
+                       __red>::config (::config ast)<red__)
+    ast))
+\end{cljlisting}
+  \caption{The initialization and propagation of \clj{::config} (relevant parts \textcolor{red}{highlighted})}
+  \label{fig:analyzer:config-inheritance}
+\end{figure}
+
+Finally, we revised to platform-agnostic parts of the \texttt{tools.analyzer} API
+to allow better performance.
+Symbol and namespace resolution are now platform-dependent, which allows us to 
+remove the global environment mirroring we identified as a performance issue
+at the beginning of this chapter.
+This added a slight burden to platform implementers of 
+\texttt{core.typed.analyzer}---the JVM support added a dozen lines of code, although
+it took several revisions and testing to recover the original behavior.
+
+%{
+%\singlespacing
+%\begin{verbatim}
+%- Goals
+%  1. Build a better tools.analyzer
+%     - too slow
+%     - too many passes
+%     - reuse the passes/scheduler/analysis
+%       - and :unanalyzed
+%         - instead of analyzing children, store context and return
+%       - unforce one pass
+%  2. Extensibility
+%     - we want custom rules for syntax BEFORE expansion
+%     - avoid need for wrapper macros
+%       - avoid implementation-dependence
+%       - better error messages for users
+%     - but lose ability to check actual expansions
+%- (This is the Turnstile approach)
+%  - Except we don't have syntax objects, how to do it?
+%- Create a single-pass tools.analyzer variant that can be paused in
+%  the middle of analysis
+%  - `analyze` now expands absolute minimum (usually 1 macro)
+%- now `check` has access to the raw Clojure forms before they are expanded
+%  - much power = much responsibility
+%    - top-level evaluation side effects
+%    - expansion side effects
+%      - talk about that in a different chapter
+%    - must manually manage local scope
+%    - avoiding double macro expansion
+%    - avoiding double evaluation
+%    - double analysis is OK though, no side effects
+%      - so we can "reinsert" a fully analyzed AST back into
+%        a macro call so it can be expanded as usual.
+%        - eg. (my-macro (unexpanded))
+%            =>
+%              (my-macro ~(check (unexpanded) ...))
+%- Pros
+%  - now have access to original macro forms for higher-level reasoning
+%- Cons
+%  - no longer checking the implementation of macros
+%    - although were we ever, really?
+%      - wrapper macros are copied implementation details
+%  - must carefully manage compile-time side effects
+%\end{verbatim}
+%}
+
+
 
 \section{Extensibility in Interleaved checking}
 
 \chapter{Managing Analysis Side effects}
+
+\begin{cljlisting}
+(defn check-expr
+  "Check an AST node has the expected type."
+  [expr expected]
+  (if (= :unanalyzed (:op expr))
+    (check-expr (analyze-outer expr) expected)
+    (run-post-passes
+      (check (run-pre-passes expr)
+             expected))))
+(defn check-form
+  "Check a Clojure expression has the expected type"
+  [form expected]
+  (check-expr (unanalyzed form (empty-env))
+              expected))
+\end{cljlisting}
 
 {
 \singlespacing
