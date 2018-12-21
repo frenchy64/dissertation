@@ -816,13 +816,14 @@ We now present the sample type system in \figref{fig:analyzer:core.typed.analyze
 The main entry point is \clj{check-form} (line \ref{analyzer:listing:typed:check-form}),
 and we can check our running example has type \clj{expected}
 with:
+
 \begin{cljlisting}
 (check-form '(let [...] (cond ... (+ ...)))
             expected)
 \end{cljlisting}
 
 A pair of mutually recursive helpers assist the main driver: \clj{check-expr} (line \ref{analyzer:listing:typed:check-expr})
-handles the analysis machinery including handling unanalyzed form,
+handles the analysis machinery along with unanalyzed forms,
 and \clj{check}
 which type checks an analyzed AST node.
 Once \clj{check-expr} has found a fully analyzed AST, it calls
@@ -830,8 +831,8 @@ Once \clj{check-expr} has found a fully analyzed AST, it calls
 in between running the analyzer passes.
 Correspondingly, any recursive checking of children performed in \clj{check}
 could trigger a special rule for unanalyzed forms, and so
-calls \clj{check-expr}, like checking the test of and \clj{:if} node on
-line \ref{analyzer:listing:typed:check-calls-check-expr}.
+calls \clj{check-expr} (for example, checking \clj{:if}'s test on
+line \ref{analyzer:listing:typed:check-calls-check-expr}).
 
 Finally, custom typing rules are dispatched by \clj{check-expr}---we have included
 an example dispatch to a \clj{cond} rule on line \ref{analyzer:listing:typed:check-expr:special-cond}.
@@ -841,9 +842,10 @@ the unexpanded \clj{cond} form and its hygienic type context.
 
 This is a far cry from what was possible with \clj{tools.analyzer},
 and so \clj{core.typed.analyzer} is a success in that light.
-However, with great power comes great responsibility.
-Giving the type-system writer (and user, via custom rules)
+However, with great power comes great responsibility:
+handing users
 the ability to control the order of analysis
+via custom typing rules
 requires careful planning in the face of compile-time side effects.
 The next chapter is dedicated to discussing this caveat.
 
