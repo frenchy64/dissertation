@@ -922,84 +922,91 @@ at the cost of module reinitialization to sandbox state to particuar evaluation 
 
 Order of evaluation in Clojure is usually specified where it makes sense~\cite{CljEvalDoc}.
 For example, invocations \clj{(f arg*)} are evaluated left-to-right
-starting from \clj{f}, whereas the evaluation order of elements of unordered set literals \clj{#\{k*\}}
-is not addressed.
-On the other hand, order of \emph{expansion} is not addressed at all, usually a sign
-that it is an implementation detail.
+starting from \clj{f}, whereas the elements of unordered set literals \clj{#\{k*\}}
+is undefined.
+On the other hand, the order of \emph{expansion} is not addressed at all in the Clojure
+documentation.
+It would be extremely convenient for the writers and users of Typed Clojure
+avoid having to micromanage the order of expansion, and would
+make writing custom typing rules and other Typed Clojure
+extensions more viable.
+With those biases in mind, we now attempt to give a balanced account
+of expansion order in Clojure.
+
+It is worth distinguishing between order of expansion
+of top-level forms and inner forms.
 Common Lisp asserts~\cite{steele1990common} that the order
-of macroexpansion for inner forms is unspecified. This is a reasonable
+of macroexpansion for inner forms is unspecified.
+This is a reasonable
 choice that grants macros the flexibility to
 expand their arguments, a pattern
 used by the Clojure core library \texttt{core.async}~\cite{CljCoreAsync}.
-Given that information, combined with Clojure's strong Common Lisp heritage,
-we think it is reasonable to assert that the order of expansion
-(of inner forms) is also unspecified in Clojure.
-This is convenient for us (and perhaps shows our biases)
-since not having to micromanage the order of expansion
-makes writing custom typing rules and other Typed Clojure
-extensions more viable.
+
+%Given that information, combined with Clojure's strong Common Lisp heritage,
+%we think it is reasonable to assert that the order of expansion
+%(of inner forms) is also unspecified in Clojure.
 
 %Clojure tracks the current \emph{namespace} with the dynamic
 %variable \clj{*ns*}.
 
-{
-\singlespacing
-\begin{verbatim}
-- introduce Clojure's evaluation model
-  - `do` children treated as top-level
-    - eg. (do e1 e2)
-      - e1 is completely expanded+evaluated before e2 is expanded.
-      - e2 can depend on evaluation-time side effects of e1
-    - eg. (let [] (do e1 e2))
-      - e1 is ONLY expanded before e2
-      - e2 cannot depend on evaluation-time side effects of e1
-- introduce *ns*, global thread-local variable that holds the current namespace
-  - probably the most important evaluation-time side effect
-    - changing namespaces
-- introduce AOT-compilation
-  - macroexpansions are performed upfront
-    - so relying on expansion side-effects are uncommon and unreliable
-- since checking & evaluation are interleaved, important that
-  order-of-checking == order-of-evaluation
-- but what about order-of-macroexpansion?
-  - unaware of examples where order of macroexpansion side-effects are important
-    outside of top-level forms
-    - we have serious problems otherwise for any analysis tool
-      - eg. (fn [] (change-ns-at-mexpansion-time) (relys-on-previous-macro-to-resolve))
-        - this evaluates just fine in Clojure since there is
-          no special handling of *ns* and things never pause and always just happen
-          in order
-        - but seems intractable for things like typing rules
-          - custom typing rules must check forms in the order they are mexpanded!
-            - seems very restrictive and error prone.
-          - eg. ((fn [] ...) args ...)
-            - imagine delaying checking a `fn` before its arguments.
-              - but if args depend on fn body to expand, then we are forced
-                to fully expand (ie. CHECK) the fn before checking the args.
-                - very restrictive
-- Relevant reading:
-  - Flatt, "You want it, when?"
-  - SamTH, Scheme 2007 (good for lispy background), PLDI 2011 (general audience)
-- Chez
-  - https://www.scheme.com/csug8/system.html#./system:s76
-  - AOT compilation does not evaluate top-level forms by default
-    - special cases for `define-syntax`
-    - use eval-when for special cases where syntax depends on define's
-      - eg. (eval-when (compile) (defn helper ..))
-            (defmacro m ... (helper ...) ...)
-  - Compared to Clojure:
-    - AOT compilation in Clojure evaluates top-level forms
-      - must be more careful with top-level evaluation side effects then,
-        usually 
-      - usually use -main function for side effects to start a program
-- Common Lisp
-  - http://filonenko-mikhail.github.io/cltl2-doc/enpdf/cltl2.pdf
-  - section 5.3.3
-    - top-level `progn` members are also top-level
-    - order of macroexpansion (for inner forms) is unspecified
-    - convention: top-level macros should side-effect during eval, not expand
-\end{verbatim}
-}
+%{
+%\singlespacing
+%\begin{verbatim}
+%- introduce Clojure's evaluation model
+%  - `do` children treated as top-level
+%    - eg. (do e1 e2)
+%      - e1 is completely expanded+evaluated before e2 is expanded.
+%      - e2 can depend on evaluation-time side effects of e1
+%    - eg. (let [] (do e1 e2))
+%      - e1 is ONLY expanded before e2
+%      - e2 cannot depend on evaluation-time side effects of e1
+%- introduce *ns*, global thread-local variable that holds the current namespace
+%  - probably the most important evaluation-time side effect
+%    - changing namespaces
+%- introduce AOT-compilation
+%  - macroexpansions are performed upfront
+%    - so relying on expansion side-effects are uncommon and unreliable
+%- since checking & evaluation are interleaved, important that
+%  order-of-checking == order-of-evaluation
+%- but what about order-of-macroexpansion?
+%  - unaware of examples where order of macroexpansion side-effects are important
+%    outside of top-level forms
+%    - we have serious problems otherwise for any analysis tool
+%      - eg. (fn [] (change-ns-at-mexpansion-time) (relys-on-previous-macro-to-resolve))
+%        - this evaluates just fine in Clojure since there is
+%          no special handling of *ns* and things never pause and always just happen
+%          in order
+%        - but seems intractable for things like typing rules
+%          - custom typing rules must check forms in the order they are mexpanded!
+%            - seems very restrictive and error prone.
+%          - eg. ((fn [] ...) args ...)
+%            - imagine delaying checking a `fn` before its arguments.
+%              - but if args depend on fn body to expand, then we are forced
+%                to fully expand (ie. CHECK) the fn before checking the args.
+%                - very restrictive
+%- Relevant reading:
+%  - Flatt, "You want it, when?"
+%  - SamTH, Scheme 2007 (good for lispy background), PLDI 2011 (general audience)
+%- Chez
+%  - https://www.scheme.com/csug8/system.html#./system:s76
+%  - AOT compilation does not evaluate top-level forms by default
+%    - special cases for `define-syntax`
+%    - use eval-when for special cases where syntax depends on define's
+%      - eg. (eval-when (compile) (defn helper ..))
+%            (defmacro m ... (helper ...) ...)
+%  - Compared to Clojure:
+%    - AOT compilation in Clojure evaluates top-level forms
+%      - must be more careful with top-level evaluation side effects then,
+%        usually 
+%      - usually use -main function for side effects to start a program
+%- Common Lisp
+%  - http://filonenko-mikhail.github.io/cltl2-doc/enpdf/cltl2.pdf
+%  - section 5.3.3
+%    - top-level `progn` members are also top-level
+%    - order of macroexpansion (for inner forms) is unspecified
+%    - convention: top-level macros should side-effect during eval, not expand
+%\end{verbatim}
+%}
 
 \begin{figure*}
 \singlespacing
