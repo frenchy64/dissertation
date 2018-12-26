@@ -900,8 +900,8 @@ compilation mode in these languages skips
 the evaluation of certain expressions. Programmers use \texttt{eval-when}
 if they want different behavior.
 In contrast, Clojure evaluates all code during compilation, and so programmers rely on
-on Java-style \clj{main} methods (invoked at the command line) to trigger initialization steps needed
-in production.
+on Java-style \clj{main} methods (invoked from the command line) to trigger initialization steps only
+applicable in production.
 
 The most important consequence of Clojure's ahead-of-time compilation is that
 macros are expanded in a different environment than the program is executed in, and
@@ -922,17 +922,22 @@ at the cost of module reinitialization to sandbox state to particuar evaluation 
 
 Order of evaluation in Clojure is usually specified where it makes sense~\cite{CljEvalDoc}.
 For example, invocations \clj{(f arg*)} are evaluated left-to-right
-starting from \clj{f}, whereas elements of unordered set literals \clj{#\{k*\}}
-have an unspecified evaluation order.
-On the other hand, order of expansion is not addressed.
+starting from \clj{f}, whereas the evaluation order of elements of unordered set literals \clj{#\{k*\}}
+is not addressed.
+On the other hand, order of \emph{expansion} is not addressed at all, usually a sign
+that it is an implementation detail.
 Common Lisp asserts~\cite{steele1990common} that the order
 of macroexpansion for inner forms is unspecified. This is a reasonable
 choice that grants macros the flexibility to
 expand their arguments, a pattern
 used by the Clojure core library \texttt{core.async}~\cite{CljCoreAsync}.
-Give that information with Clojure's strong Common Lisp heritage,
-we think it is reasonable to assume the order of expansion
-(of inner forms) is also explicitly unspecified in Clojure.
+Given that information, combined with Clojure's strong Common Lisp heritage,
+we think it is reasonable to assert that the order of expansion
+(of inner forms) is also unspecified in Clojure.
+This is convenient for us (and perhaps shows our biases)
+since not having to micromanage the order of expansion
+makes writing custom typing rules and other Typed Clojure
+extensions more viable.
 
 %Clojure tracks the current \emph{namespace} with the dynamic
 %variable \clj{*ns*}.
