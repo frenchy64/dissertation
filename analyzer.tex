@@ -920,9 +920,11 @@ by erasing compile-time state before evaluation.
 This emulates the conditions of ahead-of-time compilation in Racket's interpreted mode,
 at the cost of module reinitialization to sandbox state to particuar evaluation phases.
 
+\section{Is order-of-expansion defined in Clojure?}
+
 Order of evaluation in Clojure is usually specified where it makes sense~\cite{CljEvalDoc}.
 For example, invocations \clj{(f arg*)} are evaluated left-to-right
-starting from \clj{f}, whereas the elements of unordered set literals \clj{#\{k*\}}
+starting from \clj{f}, whereas the order of evaluation for elements of unordered set literals \clj{#\{k*\}}
 is undefined.
 On the other hand, the order of \emph{expansion} is not addressed at all in the Clojure
 documentation.
@@ -937,10 +939,74 @@ It is worth distinguishing between order of expansion
 of top-level forms and inner forms.
 Common Lisp asserts~\cite{steele1990common} that the order
 of macroexpansion for inner forms is unspecified.
-This is a reasonable
-choice that grants macros the flexibility to
+This gives flexibility not only to both platform implementors
+but also macro writers, because it grants macros the flexibility to
 expand their arguments, a pattern
 used by the Clojure core library \texttt{core.async}~\cite{CljCoreAsync}.
+This seems to work in practice and is developed
+by the same team that develops Clojure itself.
+
+It is unclear whether the order-of-expansion of arguments to core macros in 
+Clojure is intended to be stable across platforms.
+For instance,
+Clojure and ClojureScript share the same infrastructure for
+writing macros, but only share a subset of core macro \emph{definitions}.
+That is, some macros are redefined in ClojureScript to cater to the
+JavaScript host---furthermore, some functions in Clojure are turned into macros
+in ClojureScript.
+While the order of evaluation of these macros must be preserved
+for compatibility with Clojure,
+it seems unlikely that any special measures were taken to preserve
+expansion order of arguments---especially for more complicated,
+platform-specific macros.
+In practice, however, most macros probably do preserve expansion-order:
+idiomatic macros do not expand their arguments
+and merely forward them to more primitive operators
+(often \clj{do} or \clj{let}) that have
+more consistent expansions across platforms.
+This might be coincidental, since
+we are not aware of any special effort to force this style,
+and might more be a consequence of following general Clojure idioms.
+
+The popular \texttt{tools.analyzer} library does not recognize
+changes to the current namespace during macroexpansion. This is
+a common \emph{runtime} side-effect in Clojure, and is crucial for
+an analyzer to adhere to because analyzing a form in the
+wrong namespace is incorrect.
+Even so, we are not aware of any cases in practice in which this is a problem.
+Given that \texttt{tools.analyzer} is thoroughly tested and used
+in industry, it seems reasonable to conclude that expansion-time side effects
+are rare. On the other hand, changing namespaces is a very specific side-effect
+whose conventions are perhaps not generalizable to other side-effects.
+Usually, changing namespaces is only triggered by the expansion of the \clj{ns} macro,
+and \clj{ns} is almost always used exactly once at the top of every Clojure file (to declare
+namespace dependencies). There could be other, more common expansion-time
+side-effects that are compatible with \texttt{tools.analyzer} that
+we are not aware of.
+
+Relatedly,
+in our experience from private conversations with Clojure developers,
+programmers feel like avoiding repeated expansion
+is important in Clojure, but cannot show an example of real-world code
+that would fail with either semantics.
+On the other hand, Racket developers were quick to demonstrate complex
+assumptions in their macros that would be violated in these
+conditions (for example, global counters for identifying specific expansions).
+Reflecting on these anecodes, Clojure developers are used to reloading
+code ad-nausium and so are guided to writing code that can be re-evaluated
+in almost any order (after an initial load), encouraged further by the late-binding semantics
+of Clojure Vars.
+On the other hand, Racket's module system is much more strict and reinitializes
+entire modules in their own sandboxes. Racket programmers can (and do) rely
+on these restrictions to support complex top-level invariants.
+It's interesting to note that the backgrounds and daily obligations of each groups varied wildly,
+with the Racket programmers from academia (studying language extensibility)
+and Clojure developers from industry.
+Overall, while these differences in opinions relate to \emph{repeated} expansions,
+it helps contextualize our larger discussion of
+order-of-expansion for inner forms (which is unchanged
+in the presence of code reloading,
+since only top-level can be reevaluated in Clojure).
 
 %Given that information, combined with Clojure's strong Common Lisp heritage,
 %we think it is reasonable to assert that the order of expansion
