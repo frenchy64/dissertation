@@ -984,29 +984,64 @@ namespace dependencies). There could be other, more common expansion-time
 side-effects that are compatible with \texttt{tools.analyzer} that
 we are not aware of.
 
-Relatedly,
-in our experience from private conversations with Clojure developers,
-programmers feel like avoiding repeated expansion
-is important in Clojure, but cannot show an example of real-world code
-that would fail with either semantics.
-On the other hand, Racket developers were quick to demonstrate complex
+Relatedly, to help measure the practicality of an alternative design of Typed Clojure
+that expands macros multiple times,
+we talked to Clojure and Racket developers about repeated macro expansions.
+One Clojure developer felt
+that avoiding repeated expansion was important in Clojure,
+but could not show an example of real-world code
+that would fail in these circumstances.
+In contrast, a Racket researcher was quick to demonstrate complex
 assumptions in their macros that would be violated in these
 conditions (for example, global counters for identifying specific expansions).
-Reflecting on these anecodes, Clojure developers are used to reloading
-code ad-nausium and so are guided to writing code that can be re-evaluated
+
+Reflecting on these anecodes, Clojure developers routinely reload
+code (REPL's can take minutes to start and so encourage developers to leave
+them open for days)
+and so are guided to write code that can be re-evaluated
 in almost any order (after an initial load), encouraged further by the late-binding semantics
 of Clojure Vars.
-On the other hand, Racket's module system is much more strict and reinitializes
+On the other hand, Racket's module system is much stricter and reinitializes
 entire modules in their own sandboxes. Racket programmers can (and do) rely
 on these restrictions to support complex top-level invariants.
+
+In both Clojure and Racket, it is idiomatic to avoid ``double expansions''
+when writing macros by binding intermediate results to names in a macro's
+expansion, usually
+for performance reasons.
+This also prevents double \emph{evaluation}, an even more serious performance concern
+since expressions are run many more times than they are
+expanded.
+The issue of a third party (like Typed Clojure) expanding macros
+multiple times is tangentially related to this idiom, since
+the cost of double expansions must be paid.
+The main difference, at least in the design we proposed,
+was that the extra expansions by the third party would eventually be discarded
+and not evaluated, thus avoiding the cost of double evaluation.
+
 It's interesting to note that the backgrounds and daily obligations of each groups varied wildly,
-with the Racket programmers from academia (studying language extensibility)
-and Clojure developers from industry.
-Overall, while these differences in opinions relate to \emph{repeated} expansions,
-it helps contextualize our larger discussion of
-order-of-expansion for inner forms (which is unchanged
-in the presence of code reloading,
-since only top-level can be reevaluated in Clojure).
+with the Racket programmers being mostly from academia (studying language extensibility)
+and the Clojure developers mostly from industry.
+While these opinions about repeated expansions
+are useful to help contextualize our larger discussion of
+order-of-expansion for inner forms,
+there are important details to take into account
+before prematurely
+linking the two subjects.
+We must avoid using the fact that Clojure programmers
+reload expressions out-of-order as evidence 
+to change the expansion order of inner forms.
+This is because only \emph{top-level} expression are reloaded---intuitively,
+this does not change the expansion order of inner forms.
+We also note that reloading Clojure expressions can be notoriously
+buggy in certain circumstances, resulting in desynchronization
+between code on disk with code loaded into memory.
+A cottage industry of Clojure libraries and conventions has arisen to
+help manage these situations, with Clojure providing no centralized solution.
+On the other hand, this problem is recognized and addressed by Racket's module system.
+At the very least, these complications justify our reluctance to
+change the expansion order of Clojure code and encourage us to
+tread carefully.
 
 %Given that information, combined with Clojure's strong Common Lisp heritage,
 %we think it is reasonable to assert that the order of expansion
