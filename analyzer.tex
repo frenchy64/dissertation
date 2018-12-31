@@ -1217,47 +1217,53 @@ which has comparatively very little control of when analysis is performed
 Some other party---in this case, the type checker---must incorporate analysis into its
 main loop.
 
-To handle this, we distinguish two kinds of top-level expressions and attach
-markers on AST nodes to keep track of them.
+To handle this, \texttt{core.typed.analyzer} uses markers to
+distinguish between
+different kinds of top-level expressions.
 The first marker is performed by
 \clj{mark-top-level} 
 and is added to every kind of top-level expression.
-The second marker \clj{mark-eval-top-level},
-which further marks a top-level expression for evaluation.
+The second marker, \clj{mark-eval-top-level},
+further marks a top-level expression for evaluation.
 The \clj{eval-top-level} function 
 then evaluates AST nodes marked by \clj{mark-eval-top-level}
-(and in some other situations).
+(with other corner cases we will describe later).
 
 We use \figref{fig:analyzer:control-flow-incremental-side-effects}
 to demonstrate this communication with our running example.
-The entry point here is \clj{check-top-level}, which has been enhanced
+The entry point here is \clj{check-top-level} at time 0, which has been enhanced
 to handle top-level evaluation order.
 To set up the rest of checking,
 at time 2 the outer \clj{do} expression is marked with \clj{mark-top-level}.
-Then, once \clj{analyze-outer} analyzes the outer expression as a \clj{do},
-its children are then marked with \clj{mark-top-level}.
+Then, once \clj{analyze-outer} determines the outer expression is a \clj{do},
+its children are then marked with \clj{mark-top-level} (times 4 and 5).
 
 For the \clj{defmacro} form, let us assume for simplicity that
 it expands to a non-\clj{do} expression.
 Under those circumstances, 
 once \clj{analyze-outer} at time 8 reaches a fixed point, the resulting AST node is marked
 for evaluation with \clj{mark-eval-top-level} at time 9.
-Then, at time 14 \clj{eval-top-level} evaluates the \clj{defmacro}
-expression (after it has been checked).
+Then (after it has been checked) at time 14 \clj{eval-top-level} evaluates the \clj{defmacro}
+expression (because it was marked with \clj{mark-eval-top-level}).
 This repeats similarly for the final expression \clj{(mac)}.
 
-There are a few notable cases to note where \clj{eval-top-level}
+There are a few notable cases to where \clj{eval-top-level}
 does \emph{not} trigger evaluation.
-For example, at time 24, the outer-most \clj{do} is marked by
-\clj{mark-top-level} only. Evaluation is skipped here because
-the top-level markers have been passed along to its children
-(at times 4 and 5)
-which have already been evaluated
-(at times 14 and 21), and so evaluating at time 24 would 
-trigger an incorrect double-evaluation of the AST children.
-Another case where evaluation is skipped is when an AST node has no top-level markings,
+The common case where evaluation is skipped is when an AST node has no top-level markings,
 like during time 11 where the main checking loop
 should not recursively evaluate expressions.
+A less-obvious case is a node marked with \clj{mark-top-level},
+but \emph{not} \clj{mark-eval-top-level}.
+For example, the outer-most \clj{do} is only marked by
+\clj{mark-top-level} (time 2). Evaluation is then skipped at time 24 because
+the top-level markers have been passed along to its children
+(at times 4 and 5)
+and so they themselves
+have been evaluated
+(at times 14 and 21). If we evaluated at time 24,
+it would result in
+an incorrect double-evaluation of the \clj{defmacro} and \clj{(mac)} expressions---hence
+evaluation is skipped by \clj{eval-top-level} in this case.
 
 \begin{figure*}
 \singlespacing
@@ -1299,8 +1305,8 @@ $$
   \label{fig:analyzer:control-flow-incremental-side-effects}
 \end{figure*}
 
-Incorporating correct top-level evaluation into a \texttt{core.typed.analyzer}
-type checking loop is straightforward, and demonstrated in
+Incorporating correct top-level evaluation into a \texttt{core.typed.analyzer}-based
+type checking loop is a mostly-straightforward extension, as demonstrated in
   \figref{fig:analyzer:core.typed.analyzer-top-level-driver}.
 The main differences are highlighted.
 First, \clj{unanalyzed-top-level} combines
@@ -1309,14 +1315,15 @@ and
 \clj{mark-top-level} (times 1 and 2\ in our previous discussion).
 Then, \clj{eval-top-level} should be added as the final operation in
 the main checking loop.
-
-The handling of unanalyzed nodes 
+%
+Finally,
+the handling of unanalyzed nodes 
 (line \ref{analyzer:listing:cta-top-level-driver:unanalyzed-cases})
-must carefully manage markers to prevent double expansions.
+must carefully manage markers to prevent double evaluations.
 In particular, \clj{eval-top-level}
 has a corner case to handle AST nodes that are not fully analyzed:
 nodes that are both \clj{:unanalyzed} and 
-are marked with \clj{mark-top-level} are evaluated.
+are marked with \clj{mark-top-level} \emph{are} evaluated.
 The corresponding functions \clj{unmark-top-level}
 \clj{unmark-eval-top-level} can be used
 to undo the markers if these semantics are undesirable for particular
@@ -1329,7 +1336,7 @@ situations.
   "Check an AST node has the expected type."
   [expr expected]
   (if (= :unanalyzed (:op expr))
-    ... (*@\label{analyzer:listing:cta-top-level-driver:unanalyzed-cases}@*)
+    __red>...<red__ (*@\label{analyzer:listing:cta-top-level-driver:unanalyzed-cases}@*)
     (__red>eval-top-level<red__
       (run-post-passes
         (check (run-pre-passes expr)
