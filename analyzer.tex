@@ -1229,36 +1229,41 @@ $$
 
 \begin{figure*}
 \singlespacing
+\footnotesize
 $$
   \begin{array}{r||l|l|l|l|}
     \text{T} & \text{\clj{(do}}                  & \text{\clj{(def a 42)}}         & \text{\clj{(defmacro b [] a)}} & \text{\clj{(b))}}\\
     \hline
-     0             & \text{\clj{check-top-level}}^{>}  &                                 & &                     \\
-     1             & \text{\clj{unanalyzed-top-level}} &                                 & &\\
-     2             & \text{\clj{analyze-outer}}^{*}    &                                 & &\\
-     3             & \text{\clj{run-pre-passes}}^{>}   &                                 & &\\
-     4             & \text{\clj{check}}^{>}            &                                 & &\\
-     5             &                                   & \text{\clj{analyze-outer}}^{*}  & &                            \\
-     6             &                                   & \text{\clj{run-pre-passes}}^{>} & &                            \\
-     7             &                                   & \text{\clj{check}}^{>}          & &                            \\
-     8             &                                   & \text{\clj{run-post-passes}}^{<}& &                            \\
-     9             &                                   & \text{\clj{check}}^{<}          & &                            \\
-     10            &                                   & \text{\clj{eval-top-level}}     & &                       \\
-     11            &                                   & & \text{\clj{analyze-outer}}^{*}    &                           \\
-     12            &                                   & & \text{\clj{run-pre-passes}}^{>}   &                           \\
-     13            &                                   & & \text{\clj{check}}^{>}            &                           \\
-     14            &                                   & & \text{\clj{run-post-passes}}^{<}  &                           \\
-     15            &                                   & & \text{\clj{check}}^{<}            &                           \\
-     16            &                                   & & \text{\clj{eval-top-level}}       &                      \\
-     17            &                                   & & & \text{\clj{analyze-outer}}^{*}                               \\
-     18           &                                   & & & \text{\clj{run-pre-passes}}^{>}                              \\
-     19           &                                   & & & \text{\clj{check}}^{>}                                       \\
-     20           &                                   & & & \text{\clj{run-post-passes}}^{<}                             \\
-     21           &                                   & & & \text{\clj{check}}^{<}                                       \\
-     22           &                                   & & & \text{\clj{eval-top-level}}                             \\
-     23           & \text{\clj{run-post-passes}}^{<}      &                               & \\
-     24           & \text{\clj{check}}^{<}            &                               & \\
-     25           & \text{\clj{eval-top-level}}^{<}   &                               & \\
+    0               & \text{\clj{check-top-level}}^{>}  &                                 & &                     \\
+    1               & \text{\clj{unanalyzed}}           &                                 & &\\
+    2               & \textcolor{red}{\text{\clj{mark-top-level}}}       &                                 & &\\
+    3               & \text{\clj{analyze-outer}}^{*}    &                                 & &\\
+    4               & \text{\clj{run-pre-passes}}^{>}   &                                 & &\\
+    5               & \text{\clj{check}}^{>}            &                                 & &\\
+    6               &                                   & \textcolor{red}{\text{\clj{mark-eval-top-level}}}                                       & &\\
+    7               &                                   & \text{\clj{analyze-outer}}^{*}  & &                            \\
+    8               &                                   & \text{\clj{run-pre-passes}}^{>} & &                            \\
+    9               &                                   & \text{\clj{check}}^{>}          & &                            \\
+    10              &                                   & \text{\clj{run-post-passes}}^{<}& &                            \\
+    11              &                                   & \text{\clj{check}}^{<}          & &                            \\
+    12              &                                   & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}     & &                       \\
+    13              &                                   & & \textcolor{red}{\text{\clj{mark-eval-top-level}}}                                      &\\
+    14              &                                   & & \text{\clj{analyze-outer}}^{*}    &                           \\
+    15              &                                   & & \text{\clj{run-pre-passes}}^{>}   &                           \\
+    16              &                                   & & \text{\clj{check}}^{>}            &                           \\
+    17              &                                   & & \text{\clj{run-post-passes}}^{<}  &                           \\
+    18              &                                   & & \text{\clj{check}}^{<}            &                           \\
+    19              &                                   & & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}       &                      \\
+    20              &                                   & & & \textcolor{red}{\text{\clj{mark-eval-top-level}}}                                      \\
+    21              &                                   & & & \text{\clj{analyze-outer}}^{*}                               \\
+    22              &                                   & & & \text{\clj{run-pre-passes}}^{>}                              \\
+    23              &                                   & & & \text{\clj{check}}^{>}                                       \\
+    24              &                                   & & & \text{\clj{run-post-passes}}^{<}                             \\
+    25              &                                   & & & \text{\clj{check}}^{<}                                       \\
+    26              &                                   & & & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}                             \\
+    27              & \text{\clj{run-post-passes}}^{<}      &                               & \\
+    28              & \text{\clj{check}}^{<}            &                               & \\
+    29              & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}   &                               & \\
   \end{array}
 $$
 %\begin{verbatim}
