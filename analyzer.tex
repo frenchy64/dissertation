@@ -1133,18 +1133,22 @@ Most of the details concern top-level expressions. In particular,
 a top-level \clj{do} gives top-level status to its arguments, and
 that top-level forms must be completely evaluated in order.
 
-The most interesting case to consider is a top-level form's \emph{expansion}
-depending on the \emph{evaluation} of a previous top-level form.
+The most interesting case to consider is a top-level \clj{(do e1 e2)} form,
+where the
+\emph{expansion} of \clj{e2}
+depends on the \emph{evaluation} of \clj{e1}.
 For example,
+
 {
+\lstset{numbers=left}
 \begin{cljlisting}
-(do (def a 42)
-    (defmacro b [] a)
-    (b))
+(do (defmacro mac [] 42)
+    (mac))
 \end{cljlisting}
 }
-uses the definition of \clj{a} to expand the macro \clj{b} on
-the last line (the final result is \clj{42}).
+
+defines the macro \clj{mac} and then uses it to expand
+the macro call on the the last line (the final result is \clj{42}).
 This will only execute correctly if top-level semantics of \clj{do} 
 are faithfully preserved.
 We will use this as a running example in our exploration of
@@ -1152,68 +1156,180 @@ each analyzer.
 
 \subsection{\texttt{tools.analyzer}}
 
+\begin{figure}
+\singlespacing
+$$
+\begin{array}{r||l|l|l|l|}
+\text{Time} & \text{\clj{(do}}               & \text{\clj{(defmacro mac [] 42)}} & \text{\clj{(mac))}}\\
+\hline
+            & \text{\clj{analyze+eval}}^{>}  &                      \\
+            & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}} &                      \\
+            &                                & \text{\clj{analyze+eval}}^{>}   \\
+            &                                & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}}    \\
+            &                                & \text{\clj{analyze+passes}}     \\
+            &                                & \text{\clj{check}}              \\
+            &                                & \textcolor{red}{\text{\clj{eval}}}                 \\
+            &                                & \text{\clj{analyze+eval}}^{<}   \\
+            &                                & & \text{\clj{analyze+eval}}^{>}   \\
+            &                                & & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}}    \\
+            &                                & & \text{\clj{analyze+passes}}     \\
+            &                                & & \text{\clj{check}}              \\
+            &                                & & \textcolor{red}{\text{\clj{eval}}}                 \\
+            &                                & & \text{\clj{analyze+eval}}^{<}   \\
+            & \text{\clj{analyze+eval}}^{<}  &                      \\
+\end{array}
+$$
+  \caption{Using \texttt{tools.analyzer}
+  to interleave evaluation of
+  top-level forms during the checking of \clj{(do (defmacro mac [] 42) (42))}.
+  }
+  \label{fig:analyzer:control-flow-pre-expand-side-effects}
+\end{figure}
+
 An \clj{analyze+eval} function handles top-level evaluation
-concerns in \texttt{tools.analyzer}, as demonstrated on our
-running example in 
-\figref{fig:analyzer:control-flow-pre-expand-side-effects}.
-The type checker's only obligation is to provide a \clj{check}
+concerns in \texttt{tools.analyzer}, as 
+\figref{fig:analyzer:control-flow-pre-expand-side-effects}
+demonstrates with our
+running example.
+The type checker's main obligation is to provide a \clj{check}
 function that checks a completely analyzed AST before it is evaluated.
 When passed to \clj{analyze+eval}, it will only call \clj{check}
 on the smallest top-level forms by expanding macros until
 a non-\clj{do} expression is reached.
 
-There are several other details that must be handled---such as expected type propagation and
-handling the \clj{do}-special-form protocol---that we
-do not discuss here, but amounted to us writing our own
-\clj{analyze+eval} variant for Typed Clojure.
-The original implementation of \clj{analyze+eval} combined with the
-details in this section should be sufficient to recreate it.
-
-\begin{figure}
-\singlespacing
-$$
-\begin{array}{r||l|l|l|l|}
-\text{Time} & \text{\clj{(do}}               & \text{\clj{(def a 42)}}       & \text{\clj{(defmacro b [] a)}} & \text{\clj{(b))}}\\
-\hline
-            & \text{\clj{analyze+eval}}^{>}  &                               &                      \\
-            & \text{\clj{macroexpand-1}}^{*} &                               &                      \\
-            &                                & \text{\clj{analyze+eval}}^{>} &                      \\
-            &                                & \text{\clj{macroexpand-1}}^{*}& \\
-            &                                & \text{\clj{analyze+passes}}   & \\
-            &                                & \text{\clj{check}}            &                             \\
-            &                                & \text{\clj{eval}}             &                             \\
-            &                                & \text{\clj{analyze+eval}}^{<} &                      \\
-            &                                &                               & \text{\clj{analyze+eval}}^{>}   \\
-            &                                &                               & \text{\clj{macroexpand-1}}^{*}    \\
-            &                                &                               & \text{\clj{analyze+passes}}     \\
-            &                                &                               & \text{\clj{check}}              \\
-            &                                &                               & \text{\clj{eval}}                 \\
-            &                                &                               & \text{\clj{analyze+eval}}^{<}   \\
-            &                                &                               & & \text{\clj{analyze+eval}}^{>}   \\
-            &                                &                               & & \text{\clj{macroexpand-1}}^{*}    \\
-            &                                &                               & & \text{\clj{analyze+passes}}     \\
-            &                                &                               & & \text{\clj{check}}              \\
-            &                                &                               & & \text{\clj{eval}}                 \\
-            &                                &                               & & \text{\clj{analyze+eval}}^{<}   \\
-            & \text{\clj{analyze+eval}}^{<}  &                               &                      \\
-\end{array}
-$$
-  \caption{Using \texttt{tools.analyzer}
-  to interleave evaluation of
-  top-level forms during the checking of \clj{(do (def a 42) (defmacro b [] a) (b))}.
-  }
-  \label{fig:analyzer:control-flow-pre-expand-side-effects}
-\end{figure}
+There are several other details that must be handled
+that led us to write our own \clj{analyze+eval} variant for Typed Clojure---for
+example, expected type propagation and
+handling the \clj{do}-special-form protocol. We
+do not discuss those details here, and hope that
+the original implementation of \clj{analyze+eval} combined with the
+descriptions in this section should be sufficient to create other variants.
 
 \subsection{\texttt{core.typed.analyzer}}
 
+We have just described how to preserve evaluation order with \texttt{tools.analyzer}.
+The main distinction to keep in mind is that \texttt{tools.analyzer} controls
+analysis and checking for us, and so it handles its own internal bookkeeping 
+to keep track of top-level forms.
+On the other hand, this section describes the same problem with \texttt{core.typed.analyzer},
+which has comparatively very little control of when analysis is performed
+(since the provided \clj{analyze-outer} function only performs a single expansion).
+Some other party---in this case, the type checker---must incorporate analysis into its
+main loop.
+
+To handle this, we distinguish two kinds of top-level expressions and attach
+markers on AST nodes to keep track of them.
+The first marker is performed by
+\clj{mark-top-level} 
+and is added to every kind of top-level expression.
+The second marker \clj{mark-eval-top-level},
+which further marks a top-level expression for evaluation.
+The \clj{eval-top-level} function 
+then evaluates AST nodes marked by \clj{mark-eval-top-level}
+(and in some other situations).
+
+We use \figref{fig:analyzer:control-flow-incremental-side-effects}
+to demonstrate this communication with our running example.
+The entry point here is \clj{check-top-level}, which has been enhanced
+to handle top-level evaluation order.
+To set up the rest of checking,
+at time 2 the outer \clj{do} expression is marked with \clj{mark-top-level}.
+Then, once \clj{analyze-outer} analyzes the outer expression as a \clj{do},
+its children are then marked with \clj{mark-top-level}.
+
+For the \clj{defmacro} form, let us assume for simplicity that
+it expands to a non-\clj{do} expression.
+Under those circumstances, 
+once \clj{analyze-outer} at time 8 reaches a fixed point, the resulting AST node is marked
+for evaluation with \clj{mark-eval-top-level} at time 9.
+Then, at time 14 \clj{eval-top-level} evaluates the \clj{defmacro}
+expression (after it has been checked).
+This repeats similarly for the final expression \clj{(mac)}.
+
+There are a few notable cases to note where \clj{eval-top-level}
+does \emph{not} trigger evaluation.
+For example, at time 24, the outer-most \clj{do} is marked by
+\clj{mark-top-level} only. Evaluation is skipped here because
+the top-level markers have been passed along to its children
+(at times 4 and 5)
+which have already been evaluated
+(at times 14 and 21), and so evaluating at time 24 would 
+trigger an incorrect double-evaluation of the AST children.
+Another case where evaluation is skipped is when an AST node has no top-level markings,
+like during time 11 where the main checking loop
+should not recursively evaluate expressions.
+
+\begin{figure*}
+\singlespacing
+$$
+  \begin{array}{r||l|l|l|l|}
+    \text{T} & \text{\clj{(do}}                                   & \text{\clj{(defmacro mac [] 42)}} & \text{\clj{(mac))}}\\
+    \hline
+     0       & \text{\clj{check-top-level}}^{>}                   & &                     \\
+     1       & \text{\clj{unanalyzed}}                            & &\\
+     2       & \textcolor{red}{\text{\clj{mark-top-level}}}       & &\\
+     3       & \text{\clj{analyze-outer}}^{*}                     & &\\
+     4       &                                                    & \textcolor{red}{\text{\clj{mark-top-level}}}&\\
+     5       &                                                    & & \textcolor{red}{\text{\clj{mark-top-level}}}          \\
+     6       & \text{\clj{run-pre-passes}}^{>}                    & &\\
+     7       & \text{\clj{check}}^{>}                             & &\\
+     8       &                                                    & \text{\clj{analyze-outer}}^{*}    &                           \\
+     9       &                                                    & \textcolor{red}{\text{\clj{mark-eval-top-level}}}&\\
+     10      &                                                    & \text{\clj{run-pre-passes}}^{>}   &                           \\
+     11      &                                                    & \text{\clj{check}}^{>}            &                           \\
+     12      &                                                    & \text{\clj{run-post-passes}}^{<}  &                           \\
+     13      &                                                    & \text{\clj{check}}^{<}            &                           \\
+     14      &                                                    & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}       & \\
+     15      &                                                    & & \text{\clj{analyze-outer}}^{*}                               \\
+     16      &                                                    & & \textcolor{red}{\text{\clj{mark-eval-top-level}}}          \\
+     17      &                                                    & & \text{\clj{run-pre-passes}}^{>}                              \\
+     18      &                                                    & & \text{\clj{check}}^{>}                                       \\
+     19      &                                                    & & \text{\clj{run-post-passes}}^{<}                             \\
+     20      &                                                    & & \text{\clj{check}}^{<}                                       \\
+     21      &                                                    & & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}             \\
+     22      & \text{\clj{run-post-passes}}^{<}                   & \\
+     23      & \text{\clj{check}}^{<}                             & \\
+     24      & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}   & \\
+     25      & \text{\clj{check-top-level}}^{<}                   & &                     \\
+  \end{array}
+$$
+  \caption{Using \texttt{core.typed.analyzer}
+  to interleave checking with the evaluation of
+  top-level forms.}
+  \label{fig:analyzer:control-flow-incremental-side-effects}
+\end{figure*}
+
+Incorporating correct top-level evaluation into a \texttt{core.typed.analyzer}
+type checking loop is straightforward, and demonstrated in
+  \figref{fig:analyzer:core.typed.analyzer-top-level-driver}.
+The main differences are highlighted.
+First, \clj{unanalyzed-top-level} combines
+\clj{unanalyzed}
+and
+\clj{mark-top-level} (times 1 and 2\ in our previous discussion).
+Then, \clj{eval-top-level} should be added as the final operation in
+the main checking loop.
+
+The handling of unanalyzed nodes 
+(line \ref{analyzer:listing:cta-top-level-driver:unanalyzed-cases})
+must carefully manage markers to prevent double expansions.
+In particular, \clj{eval-top-level}
+has a corner case to handle AST nodes that are not fully analyzed:
+nodes that are both \clj{:unanalyzed} and 
+are marked with \clj{mark-top-level} are evaluated.
+The corresponding functions \clj{unmark-top-level}
+\clj{unmark-eval-top-level} can be used
+to undo the markers if these semantics are undesirable for particular
+situations.
+
 \begin{figure}
+  \lstset{numbers=left}
 \begin{cljlisting}
 (defn check-expr
   "Check an AST node has the expected type."
   [expr expected]
   (if (= :unanalyzed (:op expr))
-    ...
+    ... (*@\label{analyzer:listing:cta-top-level-driver:unanalyzed-cases}@*)
     (__red>eval-top-level<red__
       (run-post-passes
         (check (run-pre-passes expr)
@@ -1225,69 +1341,3 @@ $$
   \caption{Handling top-level forms in a checker based on \clj{core.typed.analyzer}}
   \label{fig:analyzer:core.typed.analyzer-top-level-driver}
 \end{figure}
-
-
-\begin{figure*}
-\singlespacing
-\footnotesize
-$$
-  \begin{array}{r||l|l|l|l|}
-    \text{T} & \text{\clj{(do}}                  & \text{\clj{(def a 42)}}         & \text{\clj{(defmacro b [] a)}} & \text{\clj{(b))}}\\
-    \hline
-    0               & \text{\clj{check-top-level}}^{>}  &                                 & &                     \\
-    1               & \text{\clj{unanalyzed}}           &                                 & &\\
-    2               & \textcolor{red}{\text{\clj{mark-top-level}}}       &                                 & &\\
-    3               & \text{\clj{analyze-outer}}^{*}    &                                 & &\\
-    4               & \text{\clj{run-pre-passes}}^{>}   &                                 & &\\
-    5               & \text{\clj{check}}^{>}            &                                 & &\\
-    6               &                                   & \textcolor{red}{\text{\clj{mark-eval-top-level}}}                                       & &\\
-    7               &                                   & \text{\clj{analyze-outer}}^{*}  & &                            \\
-    8               &                                   & \text{\clj{run-pre-passes}}^{>} & &                            \\
-    9               &                                   & \text{\clj{check}}^{>}          & &                            \\
-    10              &                                   & \text{\clj{run-post-passes}}^{<}& &                            \\
-    11              &                                   & \text{\clj{check}}^{<}          & &                            \\
-    12              &                                   & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}     & &                       \\
-    13              &                                   & & \textcolor{red}{\text{\clj{mark-eval-top-level}}}                                      &\\
-    14              &                                   & & \text{\clj{analyze-outer}}^{*}    &                           \\
-    15              &                                   & & \text{\clj{run-pre-passes}}^{>}   &                           \\
-    16              &                                   & & \text{\clj{check}}^{>}            &                           \\
-    17              &                                   & & \text{\clj{run-post-passes}}^{<}  &                           \\
-    18              &                                   & & \text{\clj{check}}^{<}            &                           \\
-    19              &                                   & & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}       &                      \\
-    20              &                                   & & & \textcolor{red}{\text{\clj{mark-eval-top-level}}}                                      \\
-    21              &                                   & & & \text{\clj{analyze-outer}}^{*}                               \\
-    22              &                                   & & & \text{\clj{run-pre-passes}}^{>}                              \\
-    23              &                                   & & & \text{\clj{check}}^{>}                                       \\
-    24              &                                   & & & \text{\clj{run-post-passes}}^{<}                             \\
-    25              &                                   & & & \text{\clj{check}}^{<}                                       \\
-    26              &                                   & & & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}                             \\
-    27              & \text{\clj{run-post-passes}}^{<}      &                               & \\
-    28              & \text{\clj{check}}^{<}            &                               & \\
-    29              & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}   &                               & \\
-  \end{array}
-$$
-%\begin{verbatim}
-%time | (do         | (defmacro a ...)| (defn b ...))
-% |   | ---------------------------------------
-% v   | check-tplvl |                 |
-%     | analyze     |                 |
-%     | pre-passes  |                 |
-%     | check-child>|                 |
-%     |             | analyze         |
-%     |             | pre-passes      |
-%     |             | check           |
-%     |             | post-passes     |
-%     |             | eval            |
-%     | check-child<|                 |
-%     |             |                 | analyze
-%     |             |                 | pre-passes >
-%     |             |                 | check
-%     |             |                 | post-passes
-%     |             |                 | eval
-%     | post-passes |                 |
-%\end{verbatim}
-  \caption{Using \texttt{core.typed.analyzer}
-  to interleave checking with the evaluation of
-  top-level forms.}
-  \label{fig:analyzer:control-flow-incremental-side-effects}
-\end{figure*}
