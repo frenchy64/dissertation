@@ -20,6 +20,7 @@
 % - Constraints
 %   - some speculation of how well they compose together
 %   - small models without rigorous proofs
+%   - case studies with real Clojure idioms
 
 \chapter{Symbolic Analysis}
 
@@ -39,12 +40,10 @@
 %   - user-level story
 %     - symbolic closures enabled by flag
 %     - users cannot write a symbolic closure
-%     - that way, global annotations cannot contain
-%       a symbolic closure
+%     - that way, global annotations cannot contain a symbolic closure
 %       - helps with polymorphism story
 %         - constraint solving
-%           - hypothesis/goal: only one side of contraint solving can have a
-%             symbolic closure
+%           - hypothesis/goal: only one side of contraint solving can have a symbolic closure
 %             - one side is from global annotation, other side from local inference
 %   - reporting errors
 %     - suggesting types
@@ -54,6 +53,7 @@
 %       - many copies of symbolic closures are made, could be expanded at different times
 %         - how to synchronize?
 %     - skipping unreachable functions
+%       - potential for latent bugs, if type checker turned off in future and fn is made reachable
 %     - performance
 %   - consistent evaluation results
 %     - how to ensure correct inlining?
@@ -75,6 +75,7 @@
 %         are still unrelated to original code
 %   - is this a sound strategy?
 %     - faithfully simulates beta reduction
+%     - termination story?
 %   - case studies
 %     - criteria:
 %       - good errors?
@@ -129,6 +130,9 @@
 %     - not obvious how to prove soundness
 %   - infinite loops
 %     - how to manage cycles in inferred data flow 
+%   - constraint solving
+%     - constrained types
+%       - literature (see symb.tex)
 %   - flow diagrams
 %     - see symb.tex
 %   - relationship to colored LTI model
@@ -149,6 +153,7 @@
 %       - outer-most wins
 %   - using clojure.spec to conform/unform
 %     - to rip apart and put syntax back together
+%     - more robust than manual parsing
 %   - differences with Turnstile
 %     - in Turnstile, the macro *is* the rule
 %       - here, we separate the two
