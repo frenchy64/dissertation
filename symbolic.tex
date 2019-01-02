@@ -1,5 +1,73 @@
 \chapter{Background}
 
+As is inevitable for an optional type system, there are many
+Clojure programs that Typed Clojure was not designed to type check.
+These programs contain Clojure idioms that are often either intentionally
+not supported with Typed Clojure's initial design, or 
+were introduced to Clojure at a later date.
+Regardless, programmers will inevitably want to use these features 
+in their Typed Clojure programs---but crucially without breaking
+support for existing idioms.
+In this part, we explore what kinds of idioms are missing
+support in Typed Clojure, and propose solutions in the form of
+backwards-compatible extensions.
+
+As we discussed in \partref{part:types}, Typed Clojure's initial
+design is strongly influenced by Typed Racket. In particular,
+Typed Clojure's static semantics of
+combinining local type inference and occurrence typing
+to check fully-expanded code
+comes directly from Typed Racket.
+This shared base is appropriate, given the similarities between
+the base Clojure and Racket languages.
+It is also effective, seamlessly handling many control flow
+idioms, capturing many polymorphic idioms, and often yielding
+predictable type error messages.
+However, there are important tradeoffs to consider in this design.
+
+Concerning the limitations of local type inference,
+Hosoya and Pierce~\cite{hosoya1999good}
+isolate two drawbacks:
+dealing with arguments that are ``hard-to-synthesize'',
+and cases where there is no ``best'' type argument to infer.
+They report unsatisfactory results in their attempts to
+fix these issues, in both the effectiveness and complexity
+in their solutions.
+They speculate that these difficulties might be better 
+addressed at the language-design level,
+so that the local annotations necessary to mitigate these issues
+(by keeping the bidirectional propagator in ``checking'' mode)
+are more idiomatic.
+We don't have the luxury nor desire to change Clojure,
+and so we attempt to solve the same challenges, but
+with a different approach.
+
+%\begin{cljlisting}
+%(for [i (range 100)]
+%  (map (fn [j] (inc j))
+%       (range i)))
+%\end{cljlisting}
+
+Hosoya and Pierce outline the two main complications that must be
+addressed to avoid hard-to-synthesize arguments.
+First, we must provide a strategy to identifying which arguments 
+should be avoided.
+They provide a simple grammar for identifying hard-to-synthesize arguments,
+which they note as ad-hoc but seeming reasonable in practice, in particular
+for user comprehensibility.
+Second, an alternative (probably more complicated) algorithm
+for inferring type arguments is needed that both handles
+avoided arguments and determines ``best'' type arguments.
+They mostly show why the naive approach does not suffice.
+We use these challenges as a presentational framework 
+to present our own approach.
+
+
+
+% - "Avoiding hard-to-synthesize arguments"
+%   1. need mechanism to decide which arguments to avoid
+%   2. more complicated scheme for determining best type arguments
+
 % - Problem
 %   - many common idioms cannot be checked
 %   - limitations of local type inference
@@ -22,7 +90,7 @@
 %   - small models without rigorous proofs
 %   - case studies with real Clojure idioms
 
-\chapter{Symbolic Analysis}
+\chapter{Symbolic Closures}
 
 % - Solution
 %   - "obvious" function annotations
@@ -97,6 +165,9 @@
 %         - why: non recursive polymorphic functions
 %           - common idiom
 %         - how to report errors?
+%   - polymorphic function-intersection types
+%     - how to handle, do we need backtracking?
+%     - do we need to recheck arguments? 
 
 \chapter{Directed Local Type Inference}
 
