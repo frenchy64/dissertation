@@ -48,9 +48,9 @@ with a different approach.
 %       (range i)))
 %\end{cljlisting}
 
-Hosoya and Pierce outline the two main complications that must be
+Hosoya and Pierce outline the two main challenges that must be
 addressed to avoid hard-to-synthesize arguments.
-First, we must provide a strategy to identifying which arguments 
+First, we must provide a strategy for identifying which arguments 
 should be avoided.
 They provide a simple grammar for identifying hard-to-synthesize arguments,
 which they note as ad-hoc but seeming reasonable in practice, in particular
@@ -58,11 +58,24 @@ for user comprehensibility.
 Second, an alternative (probably more complicated) algorithm
 for inferring type arguments is needed that both handles
 avoided arguments and determines ``best'' type arguments.
-They mostly show why the naive approach does not suffice.
-We use these challenges as a presentational framework 
-to present our own approach.
+Instead of proposing a particular approach, they demonstrate why the naive approach does not suffice.
+We use these challenges as a presentational framework to present our own approach.
 
+In our experience, the most common hard-to-synthesize expression in Clojure code
+is the function.
+Clojure's large standard library of higher-order functions and encouragement
+of functional programming lead to many usages of anonymous functions, which almost
+always require annotations to check with Typed Clojure.
+So, to answer Hosoya and Pierce's first challenge, 
+we avoid checking hard-to-synthesize function expressions by
+introducing a new function type: a \emph{symbolic closure type}.
+A symbolic closure does not immediately check the function body. Instead,
+the function's code along with its local type context is saved
+until enough information is available to check
+the function body in bidirectional ``checking'' mode.
+We present more details about symbolic closures in \chapref{chapter:symbolic:symbolic-closures}.
 
+% TODO introduce directed lti here
 
 % - "Avoiding hard-to-synthesize arguments"
 %   1. need mechanism to decide which arguments to avoid
@@ -90,13 +103,15 @@ to present our own approach.
 %   - small models without rigorous proofs
 %   - case studies with real Clojure idioms
 
-\chapter{Symbolic Closures}
+\chapter{Symbolic Closure Types}
+\label{chapter:symbolic:symbolic-closures}
 
 % - Solution
 %   - "obvious" function annotations
 %     - can be derived from usage context
 %   - introduce "symbolic" closure types
 %     - a function's type is its code + typed local scope
+%   - don't need to check a function that isn't called
 % - Constraints
 %   - wildcard "?" type
 %     - needed to provide argument types while inferring body
