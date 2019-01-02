@@ -4,18 +4,24 @@
 %   - many common idioms cannot be checked
 %   - limitations of local type inference
 %   - made harder by occurrence typing
-%   - want a general solution available to all users
+%   - want general solutions available to all users
 %   - preliminary investigation of several techniques
+% - Possible solutions
+%   - symbolic analysis
+%     - symbolic closures
+%       - deal with "obvious" local function annotations
+%     - inlining
+%   - directed local type inference
+%     - derive data flow from polymorphic types for more aggressive local type variable inference
+%   - custom typing rules
+%     - interface for describing how to check an unexpanded macro call
+%       - or complex functions
+%     - custom errors
+% - Constraints
 %   - some speculation of how well they compose together
 %   - small models without rigorous proofs
-% - Possible solutions
-%   - symbolic function types
-%     - "obvious" local function annotations
-%   - directed local type inference
-%   - custom typing rules
-% - Constraints
 
-\chapter{Symbolic Closures}
+\chapter{Symbolic Analysis}
 
 % - Solution
 %   - "obvious" function annotations
@@ -45,6 +51,8 @@
 %     - avoid showing inlining to users
 %   - 0-n checks to same function
 %     - avoid double expansion
+%       - many copies of symbolic closures are made, could be expanded at different times
+%         - how to synchronize?
 %     - skipping unreachable functions
 %     - performance
 %   - consistent evaluation results
@@ -65,6 +73,8 @@
 %     - not directly applicable, since too much context would be lost
 %       - would help check *more* of an expansion, but error messages
 %         are still unrelated to original code
+%   - is this a sound strategy?
+%     - faithfully simulates beta reduction
 %   - case studies
 %     - criteria:
 %       - good errors?
@@ -79,7 +89,7 @@
 %           (plus 1 2))
 %     - y-combinator
 %       - stress test
-%     - let-polymorphism worst case (expontential) comparison
+%     - let-polymorphism worst case (exponential) comparison
 %       - stress test
 %     - completely inlined transducers
 %       - case study: inlining map + comp
@@ -89,4 +99,59 @@
 
 \chapter{Directed Local Type Inference}
 
+% - Solution
+%   - extend colored LTI with directed inference
+%   - introduce constrained types
+%   - derive data flow from (variances of) polymorphic variable occurrences 
+%   - simple example
+%     - (identity 1)
+%     - demonstrate how this is checked with colored LTI
+%     - compare to directed LTI:
+%       - 2/----v
+%         [x -> x]  Int
+%          ^--------/1
+%
+%         1. Int flows to contravariant position
+%         2. contravariant position flows to covariant position (because it's on the other side of ->)
+%       - no loop, because variables not under different numbers of function types
+%         - (we don't know the precise rule yet)
+%   - complex example
+% - Constraints
+%   - advantages over colored LTI
+%     - aids symbolic analysis
+%       - because we derive potential dataflows, we don't need to over-approximate,
+%         and thus trigger unneeded symbolic analysis
+%         - which might then fail because of not enough contextual information
+%   - disadvantages over colored LTI
+%     - significant deviation from LTI
+%       - constrained types
+%       - aggressive local inference based on data flows
+%     - not obvious how to prove soundness
+%   - infinite loops
+%     - how to manage cycles in inferred data flow 
+%   - flow diagrams
+%     - see symb.tex
+%   - relationship to colored LTI model
+%     - see symb.tex
+%   - related work
+%     - ML_sub
+%     - see: symb.tex
+
 \chapter{Custom Typing rules}
+
+% - Solution
+%   - allow users to provide custom typing rules
+%   - 
+% - Constraints
+%   - wildcard type from colored LTI useful
+%   - custom error messages
+%     - propagation via expected types
+%       - outer-most wins
+%   - using clojure.spec to conform/unform
+%     - to rip apart and put syntax back together
+%   - differences with Turnstile
+%     - in Turnstile, the macro *is* the rule
+%       - here, we separate the two
+%       - we preserve the macro call until evaluation
+%       - use the typing rule to expand "under" the macro as many times as we want
+%         - can do this 0-n times, thus compatible with directed LTI & symbolic analysis
