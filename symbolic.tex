@@ -1,0 +1,92 @@
+\chapter{Background}
+
+% - Problem
+%   - many common idioms cannot be checked
+%   - limitations of local type inference
+%   - made harder by occurrence typing
+%   - want a general solution available to all users
+%   - preliminary investigation of several techniques
+%   - some speculation of how well they compose together
+%   - small models without rigorous proofs
+% - Possible solutions
+%   - symbolic function types
+%     - "obvious" local function annotations
+%   - directed local type inference
+%   - custom typing rules
+% - Constraints
+
+\chapter{Symbolic Closures}
+
+% - Solution
+%   - "obvious" function annotations
+%     - can be derived from usage context
+%   - introduce "symbolic" closure types
+%     - a function's type is its code + typed local scope
+% - Constraints
+%   - wildcard "?" type
+%     - needed to provide argument types while inferring body
+%     - from Colored LTI
+%   - Infinite loops
+%     - subtyping
+%     - type generalization
+%     - term reduction limits
+%   - user-level story
+%     - symbolic closures enabled by flag
+%     - users cannot write a symbolic closure
+%     - that way, global annotations cannot contain
+%       a symbolic closure
+%       - helps with polymorphism story
+%         - constraint solving
+%           - hypothesis/goal: only one side of contraint solving can have a
+%             symbolic closure
+%             - one side is from global annotation, other side from local inference
+%   - reporting errors
+%     - suggesting types
+%     - avoid showing inlining to users
+%   - 0-n checks to same function
+%     - avoid double expansion
+%     - skipping unreachable functions
+%     - performance
+%   - consistent evaluation results
+%     - how to ensure correct inlining?
+%     - relationship between inlined and evaluated code?
+%       - do we want to "undo" the inlining when finally evaluating?
+%   - when to use a closure type?
+%     - partial annotations
+%   - polymorphism
+%     - postpone discussion to next chapter
+%   - applying symbolic analysis to infer loop/recur annotations
+%     - similar issues
+%     - different type generalization story?
+%   - comparison to let-polymorphism
+%     - expressiveness
+%     - performance
+%   - help check macros?
+%     - not directly applicable, since too much context would be lost
+%       - would help check *more* of an expansion, but error messages
+%         are still unrelated to original code
+%   - case studies
+%     - criteria:
+%       - good errors?
+%       - predictable behavior?
+%       - performance?
+%     - simple eta expansions
+%       - (+ 1 2)
+%       - ((fn [x y] (+ x y)) 1 2)
+%     - let-bound functions
+%       - (+ 1 2)
+%       - (let [plus (fn [x y] (+ x y))]
+%           (plus 1 2))
+%     - y-combinator
+%       - stress test
+%     - let-polymorphism worst case (expontential) comparison
+%       - stress test
+%     - completely inlined transducers
+%       - case study: inlining map + comp
+%         - why: non recursive polymorphic functions
+%           - common idiom
+%         - how to report errors?
+
+\chapter{Directed Local Type Inference}
+
+\chapter{Custom Typing rules}
