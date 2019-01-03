@@ -218,6 +218,69 @@ and present our investigation into the user interface for the rules in
 \chapter{Symbolic Closure Types}
 \label{chapter:symbolic:symbolic-closures}
 
+In local type inference, functions are hard-to-synthesize types for.
+Put another way, to check a function body successfully, types for
+its parameters are needed upfront.
+For top-level function definitions, this is not a problem in many
+optional type systems since top-level annotations would be provided
+for each function.
+However, for anonymous functions it's a different story.
+The original local type inference algorithm~\cite{PierceLTI}
+lacks a synthesis rule for unannotated functions, but due to the prevalence
+of anonymous functions in languages like JavaScript, Racket, and Clojure,
+optional type systems for the languages add their own rules.
+
+Typed Racket and Typed Clojure implement a simple but sound strategy
+to check unannotated functions. The body of the function is checked
+in a type context where its parameters are of type \clj{Any},
+the \texttt{Top} type.
+This helps check functions that don't use their arguments, or only
+use them in positions that require type \clj{Any}.
+For example, both \clj{(fn [x] "a")} and \clj{(fn [x] (str "x: " x))} 
+synthesize to \clj{[Any -> String]} in Typed Clojure.
+The downsides to this strategy are that unannotated functions are never
+inferred as polymorphic, and functions that use their arguments
+at types more specific than \clj{Any} are common.
+
+TypeScript~\cite{typescript}, an optional type system for JavaScript,
+takes a similar approach, but instead of annotating parameters with
+TypeScript's least permissive type called \js{unknown},
+by default it assigns parameters the unsound dynamic type \js{any}.
+In TypeScript, \js{any} can be implicitly cast to any other type,
+so the type checker will (unsoundly) allow any usage of unannotated arguments.
+If this behavior is unsatisfactory,
+the \js{noImplicitAny} flag removes special handling for unannotated
+functions altogether, and TypeScript will demand explicit annotations for all arguments.
+
+In this chapter, we present an alternative approach to checking unannotated functions
+based on the insight that a function's body need only be type checked if and when it is called.
+For example, the program \clj{(fn [x] (inc x))} cannot throw a runtime error because
+the function is never called, and so a type system may soundly treat the function body as unreachable code.
+On the other hand, wrapping the same program in the invocation
+\clj{((fn [x] (inc x)) nil)}
+makes the runtime error possible, and so a sound static type system must flag the error.
+
+Exploiting this insight in the context of a bidirectional type checker using
+local type inference requires many considerations.
+First, we must decide in which situations is it desirable to delay checking a function.
+Second, we must identify the information that must be saved in order to delay checking a function,
+and then choose a suitable format for packaging that information.
+Third, we must identify how a function is deemed ``reachable'',
+and then which component of the type system is responsible for checking a function body.
+Fourth, it is desirable to identify and handle the ways in which 
+infinite loops are possible, such as the checking of a delayed function triggering
+another delayed function to check, which triggers another delayed check, ad nauseam.
+Fifth, we must determine how delayed functions interact with polymorphic types
+during type argument reconstruction.
+
+\section{Overview}
+
+\section{Formal model}
+
+\section{Comparison to let-polymorphism}
+
+\section{Experiments}
+
 % - Solution
 %   - "obvious" function annotations
 %     - can be derived from usage context
@@ -240,9 +303,13 @@ and present our investigation into the user interface for the rules in
 %         - constraint solving
 %           - hypothesis/goal: only one side of contraint solving can have a symbolic closure
 %             - one side is from global annotation, other side from local inference
+%     - compatible with occurrence typing
 %   - reporting errors
 %     - suggesting types
 %     - avoid showing inlining to users
+%   - checking fn with arguments at type Bot is equivalent (?) to not checking at all
+%     - what about strange disjoint ordered intersection types like `into`
+%     - do they break? do they need initial Bot arities?
 %   - 0-n checks to same function
 %     - avoid double expansion
 %       - many copies of symbolic closures are made, could be expanded at different times
@@ -298,6 +365,8 @@ and present our investigation into the user interface for the rules in
 
 \chapter{Directed Local Type Inference}
 \label{chapter:symbolic:directed-lti}
+
+\section{Colored local type inference}
 
 % - Solution
 %   - extend colored LTI with directed inference
