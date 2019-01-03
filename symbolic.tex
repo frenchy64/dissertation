@@ -25,22 +25,103 @@ idioms, capturing many polymorphic idioms, and often yielding
 predictable type error messages.
 However, there are important tradeoffs to consider in this design.
 
+\section{Enhancing local type inference}
+
 Concerning the limitations of local type inference,
 Hosoya and Pierce~\cite{hosoya1999good}
-isolate two drawbacks:
-dealing with arguments that are ``hard-to-synthesize'',
-and cases where there is no ``best'' type argument to infer.
-They report unsatisfactory results in their attempts to
+isolate two drawbacks.
+The first is dealing with ``hard-to-synthesize arguments''.
+To understand this, we must appreciate a key ingredient of local type inference
+called \emph{bidirectional propagation}, which 
+we use the example of type checking \clj{(inc 42)} to demonstrate.
+If we have already checked \clj{inc} to have type \clj{[Int -> Int]}, we
+now have a choice of how to check the argument \clj{42} is an \clj{Int}.
+The first is to ascribe an expected type to \clj{42} of \clj{Int}
+and rely on
+bidirectional \emph{checking mode} to ensure \clj{42} has the correct type
+once we check it.
+The second is to infer the type of \clj{42} (without an expected type) using 
+bidirectional \emph{synthesis mode}, and then ensure the inferred type
+is compatible with \clj{Int} after the fact.
+A useful analogy in terms of expressions is that checking mode propagates
+information outside-in, and synthesis mode propagates inside-out.
+A similar analogy in terms of a type derivation tree (that grows upwards)
+relates checking and synthesis modes to information being passed
+up and down the tree, respectively.
+
+To best serve the purposes of local type inference, it is crucial to stay in
+bidirectional \emph{checking} mode as much as possible.
+The ``hard-to-synthesize arguments'' problem occurs when type argument
+inference interferes with the ability to stay in checking mode, and
+thus forces the bidirectional propagator into synthesis mode
+for arguments that require checking mode.
+For example, to type check
+
+\clj{(map (fn [x] (inc x)) [1 2 3])},
+
+where \clj{map} has type
+
+\clj{(All [a b] [[a -> b] (Seqable a) -> (Seqable b)])},
+
+we use type argument inference to determine how to instantiate type variables \clj{a}
+and \clj{b} based on \clj{map}'s arguments.
+Unfortunately, 
+to answer this question,
+the naive local type inference algorithm~\cite{PierceLTI}
+uses synthesis mode to retrieve the argument types,
+and so checks \clj{(fn [x] (inc x))} in synthesis mode.
+No information is propagated about the type of \clj{x},
+so this expression will fail to type check, demonstrating
+why functions are hard-to-synthesize.
+
+The second drawback noted by Hosoya and Pierce are
+cases where there is no ``best'' type argument to infer.
+This occurs when there is not enough information available
+to determine how to instantiate a type such that the program
+has the best chance of type checking, and so it must be guessed.
+A representative case where this occurs is inferring the
+type of a reference from just its instantiation, such
+that optimal types are given to reads and writes.
+For example, the following code creates a Clojure Atom
+(a reference type) with initial value \clj{nil}, writes
+\clj{0} to the Atom, and then increments the Atom's value.
+
+{
+\begin{cljlisting}
+(let [r (atom nil)]
+  (reset! r 0)
+  (inc @r))
+\end{cljlisting}
+}
+
+What type should \clj{r} be assigned? From its initial binding,
+\clj{(Atom nil)} seems appropriate, but the subsequent write
+would fail. Alternatively, assigning \clj{(Atom Any)} would
+allow the write to succeed, but the the final read would fail
+because it expects \clj{Int}.
+This demonstrates difficulties of the ``no-best-type-argument'' problem.
+
+Hosoya and Pierce report unsatisfactory results in their attempts to
 fix these issues, in both the effectiveness and complexity
 in their solutions.
 They speculate that these difficulties might be better 
-addressed at the language-design level,
-so that the local annotations necessary to mitigate these issues
-(by keeping the bidirectional propagator in ``checking'' mode)
-are more idiomatic.
-We don't have the luxury nor desire to change Clojure,
-and so we attempt to solve the same challenges, but
-with a different approach.
+addressed at the language-design level---rather than algorithmically---in ways that
+keep the bidirectional propagator in checking mode.
+For the ``no-best-type-argument'' problem,
+we agree with this assessment, since
+addressing the problem mostly amounts to annotating 
+all reference constructors.
+To this end,
+Typed Clojure offers several
+wrappers for common functions where this problem
+is common---the previous example might use the ``typed''
+constructor
+\clj{(t/atom :- (U nil Int), nil)}.
+However, the ``hard-to-synthesize arguments'' problem
+is a deeper and more pervasive issue when checking Clojure code.
+We don't have the luxury, desire, nor do we think it would be particularly
+successful to introduce new core idioms to Clojure,
+and so we attempt to solve the this problem algorithmically.
 
 %\begin{cljlisting}
 %(for [i (range 100)]
@@ -56,15 +137,17 @@ They provide a simple grammar for identifying hard-to-synthesize arguments,
 which they note as ad-hoc but seeming reasonable in practice, in particular
 for user comprehensibility.
 Second, an alternative (probably more complicated) algorithm
-for inferring type arguments is needed that both handles
-avoided arguments and determines ``best'' type arguments.
-Instead of proposing a particular approach, they demonstrate why the naive approach does not suffice.
-We use these challenges as a presentational framework to present our own approach.
+for inferring type arguments is needed that also handles
+avoided arguments.
+Their experiments show that the naive approach does not suffice,
+and hint at the delicate handling needed to effectively maximize or minimize
+instantiated types to stay in checking mode.
+We will now use these challenges as a presentational framework to outline our own approach.
 
 In our experience, the most common hard-to-synthesize expression in Clojure code
 is the function.
 Clojure's large standard library of higher-order functions and encouragement
-of functional programming lead to many usages of anonymous functions, which almost
+of functional programming result in many usages of anonymous functions, which almost
 always require annotations to check with Typed Clojure.
 So, to answer Hosoya and Pierce's first challenge, 
 we avoid checking hard-to-synthesize function expressions by
@@ -75,7 +158,34 @@ until enough information is available to check
 the function body in bidirectional ``checking'' mode.
 We present more details about symbolic closures in \chapref{chapter:symbolic:symbolic-closures}.
 
-% TODO introduce directed lti here
+Now that we have delayed the checking of hard-to-check arguments,
+Hosoya and Pierce's second challenge calls for an enhanced
+type argument reconstruction algorithm to soundly handle
+them.
+Our investigation led us to create \emph{directed local type inference}
+(\chapref{chapter:symbolic:directed-lti}),
+which determine the possible data flows through a polymorphic function
+by noting the positions of type variable occurrences, and attempts to
+use this information to check its arguments in an optimal order for remaining
+in bidirectional checking mode.
+
+\section{Custom typing rules}
+
+Besides local type inference,
+another significant feature inherited from Typed Racket is that
+code is fully expanded before checking.
+This unfortunately means that macros with complex expansions
+are often uncheckable, and display cryptic error messages when attempting
+to do so.
+We investigate providing the user with \emph{custom typing rules} (\chapref{chapter:symbolic:custom-rules})
+as an extension point to customize how to type check a macro before
+it is expanded.
+As discussed in 
+\partref{part:implementations}, Typed Clojure's initial design does
+not support custom typing rules, so we exploit the infrastructure
+discussed there,
+and present our investigation into the user interface for the rules in
+\chapref{chapter:symbolic:custom-rules}.
 
 % - "Avoiding hard-to-synthesize arguments"
 %   1. need mechanism to decide which arguments to avoid
@@ -185,6 +295,7 @@ We present more details about symbolic closures in \chapref{chapter:symbolic:sym
 %     - do we need to recheck arguments? 
 
 \chapter{Directed Local Type Inference}
+\label{chapter:symbolic:directed-lti}
 
 % - Solution
 %   - extend colored LTI with directed inference
@@ -228,6 +339,7 @@ We present more details about symbolic closures in \chapref{chapter:symbolic:sym
 %     - see: symb.tex
 
 \chapter{Custom Typing rules}
+\label{chapter:symbolic:custom-rules}
 
 % - Solution
 %   - allow users to provide custom typing rules
