@@ -23,7 +23,9 @@ the base Clojure and Racket languages.
 It is also effective, seamlessly handling many control flow
 idioms, capturing many polymorphic idioms, and often yielding
 predictable type error messages.
-However, there are important tradeoffs to consider in this design.
+However, there are important tradeoffs to consider in this design---in the following
+sections we introduce them and propose extensions to attempt to nullify
+their downsides.
 
 \section{Enhancing local type inference}
 
@@ -130,12 +132,12 @@ and so we attempt to solve the this problem algorithmically.
 %\end{cljlisting}
 
 Hosoya and Pierce outline the two main challenges that must be
-addressed to avoid hard-to-synthesize arguments.
+addressed to solve the ``hard-to-synthesize arguments'' problem.
 First, we must provide a strategy for identifying which arguments 
 should be avoided.
-They provide a simple grammar for identifying hard-to-synthesize arguments,
-which they note as ad-hoc but seeming reasonable in practice, in particular
-for user comprehensibility.
+For instance,
+they provide a simple grammar for identifying hard-to-synthesize arguments,
+which includes (for Standard ML) unannotated functions and unqualified constructors.
 Second, an alternative (probably more complicated) algorithm
 for inferring type arguments is needed that also handles
 avoided arguments.
@@ -155,7 +157,7 @@ introducing a new function type: a \emph{symbolic closure type}.
 A symbolic closure does not immediately check the function body. Instead,
 the function's code along with its local type context is saved
 until enough information is available to check
-the function body in bidirectional ``checking'' mode.
+the function body in checking mode.
 We present more details about symbolic closures in \chapref{chapter:symbolic:symbolic-closures}.
 
 Now that we have delayed the checking of hard-to-check arguments,
@@ -164,7 +166,7 @@ type argument reconstruction algorithm to soundly handle
 them.
 Our investigation led us to create \emph{directed local type inference}
 (\chapref{chapter:symbolic:directed-lti}),
-which determine the possible data flows through a polymorphic function
+which determines the possible data flows through a polymorphic function
 by noting the positions of type variable occurrences, and attempts to
 use this information to check its arguments in an optimal order for remaining
 in bidirectional checking mode.
