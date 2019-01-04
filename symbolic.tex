@@ -215,7 +215,7 @@ and present our investigation into the user interface for the rules in
 %   - small models without rigorous proofs
 %   - case studies with real Clojure idioms
 
-\chapter{Symbolic Closure Types}
+\chapter{Delayed checking for Unannotated Local Functions}
 \label{chapter:symbolic:symbolic-closures}
 
 In local type inference, functions are hard-to-synthesize types for.
@@ -277,6 +277,141 @@ We address all these considerations in the following sections, except
 for the final one, which we delegate to \chapref{chapter:symbolic:directed-lti}.
 
 \section{Overview}
+
+In this section, we explore some of the implications that come with delayed checks for local functions,
+by example.
+We avoid any use of polymorphic functions
+(we isolate those issues in \chapref{chapter:symbolic:directed-lti})
+and demonstrate the tradeoffs with just non-recursive monomorphic functions.
+
+First, let \clj{inc} be of type \clj{[Int -> Int]}.
+The following, then, is well typed because \clj{1} is an \clj{Int}.
+
+\begin{cljlisting}
+(inc 1)
+\end{cljlisting}
+
+Using the standard bidirectional application type rule, \clj{inc} is checked first,
+followed by \clj{1}.
+However, eta-expanding the operator does not behave as nicely.
+
+\begin{cljlisting}
+((fn [x] (inc x)) 1)
+\end{cljlisting}
+
+Like usual, the standard application rule checks the function first.
+However, there is no annotation for \clj{x}, so the function body will fail
+to check.
+This is unfortunate, especially in a type system that claims to be ``bidirectional'',
+since the information that \clj{x} is an \clj{Int} is adjacent to the function
+in the form of an argument.
+One strategy to alleviate this problem is to always check arguments first~\cite{xie2018let}.
+However, that nullifies the ability for the operator to propagate information
+to its arguments, whose advantages are exploited to good effect in Colored Local Type Inference~\cite{coloredlti01}
+
+We combine both flavors by keeping the standard operator-first checking order
+but delay the checking of unannotated functions.
+Then, an additional application rule handles applications of
+unannotated functions to force their checking.
+So in this case, the checking of \clj{(inc x)}
+is delayed until the argument \clj{1} is inferred as \clj{Int},
+after which this information is used to check \clj{(inc x)}
+in the extended type context where \clj{x : Int}.
+
+We could imagine hard-coding a type rule that manually delays
+direct applications of unannotated functions until after checking
+its arguments.
+However, that does not generalize to more complicated examples.
+Take the following illustrative code, identical the previous
+example, except the function is let-bound as \clj{f}.
+
+{
+\lstset{numbers=left}
+\begin{cljlisting}
+(let [f (fn [x] (inc x))](*@\label{symbolic:example:let-bound:def-f}@*)
+  (f 1))(*@\label{symbolic:example:let-bound:app-f}@*)
+\end{cljlisting}
+}
+
+Instead of following the brittle strategy of creating yet-another special rule to delay checking
+let-bound functions, we generalize the idea.
+We make a delayed function check a first-class concept in our type-system by
+creating a new type for it.
+Roughly, \clj{f} would have a delayed function type---introduced by
+a type rule for unannotated functions---and \clj{(f 1)}
+would force a check for the delayed function---by an application
+rule that handles delayed function \emph{types} (not syntax-driven).
+
+Now we must decide what a delayed function type consists of.
+Clearly, the \emph{code} of the function must be preserved until
+it is checked, otherwise the application rule would have nothing
+to work with.
+We note that our static semantics of saving
+the code of a function to check later
+is analogous to the runtime strategy of
+evaluating a function as \emph{closure},
+and using beta-reduction to extract the original
+function from the closure and apply it to its arguments.
+
+The trick in maintaining lexical scope during beta-reduction for closures
+is to apply the function under the \emph{function definition's}
+environment, instead of the application site's.
+For example, the following code evaluates
+to \clj{2}
+because
+the occurrence of
+\clj{y} on line \ref{symbolic:example:closure-red:y-usage}
+is bound to \clj{1} by line \ref{symbolic:example:closure-red:y-def-site}.
+If we used the local environment at the application site (line \ref{symbolic:example:closure-red:f-app}),
+\clj{y} would be bound on line \ref{symbolic:example:closure-red:y-app-site}
+to \clj{nil},
+and would throw a runtime error.
+
+% must save type context
+{
+\lstset{numbers=left}
+\begin{cljlisting}
+(let [f (let [y 1](*@\label{symbolic:example:closure-red:y-def-site}@*)
+          (fn [x] (+ x y)))](*@\label{symbolic:example:closure-red:y-usage}@*)
+  (let [y nil](*@\label{symbolic:example:closure-red:y-app-site}@*)
+    (f 1)))(*@\label{symbolic:example:closure-red:f-app}@*)
+\end{cljlisting}
+}
+
+The crucial insight is that
+the same trick applies to \emph{checking} delayed function types,
+except at the \emph{type}-level.
+Specifically, the occurrence of \clj{y}
+on line \ref{symbolic:example:closure-red:y-usage}
+must be checked as type \clj{Int} (from line \ref{symbolic:example:closure-red:y-def-site}),
+and not type \clj{nil} (from line \ref{symbolic:example:closure-red:y-app-site}).
+So, a delayed function type pairs a function's code with the type environment
+at the function definition site.
+This strongly resembles a ``type-level'' closure that is reduced symbolically,
+and so we call this new type a \emph{symbolic closure}.
+
+
+% more beta reduction
+\begin{cljlisting}
+(let [f (fn [x] (inc x))
+      app (fn [g x] (g x))]
+  (app f 1))
+\end{cljlisting}
+
+% using subtyping to check symbolic closures.
+\begin{cljlisting}
+(app-int (fn [x] (inc x)) 1)
+\end{cljlisting}
+
+% infinite loops
+\begin{cljlisting}
+(let [Y (fn [f]
+          ((fn [g] (fn [x] (f (g g) x)))
+           (fn [g] (fn [x] (f (g g) x)))))]
+  (let [compute (Y (fn [f x] (+ 1 (f x))))]
+    (compute 1)))))
+\end{cljlisting}
+
 
 \section{Formal model}
 
@@ -602,7 +737,7 @@ $$
 %     - how to handle, do we need backtracking?
 %     - do we need to recheck arguments? 
 
-\chapter{Directed Local Type Inference}
+\chapter{Type Argument Reconstruction with Delayed Function Checking}
 \label{chapter:symbolic:directed-lti}
 
 \section{Colored local type inference}
