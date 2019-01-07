@@ -356,7 +356,9 @@ function from the closure and apply it to its arguments.
 The trick in maintaining lexical scope during beta-reduction for closures
 is to apply the function under the \emph{function definition's}
 environment, instead of the application site's.
-For example, the following code evaluates
+For example,
+\figref{symbolic:example:closure-red}
+evaluates
 to \clj{2}
 because
 the occurrence of
@@ -368,6 +370,7 @@ to \clj{nil},
 and would throw a runtime error.
 
 % must save type context
+\begin{figure}
 {
 \lstset{numbers=left}
 \begin{cljlisting}
@@ -377,6 +380,9 @@ and would throw a runtime error.
     (f 1)))(*@\label{symbolic:example:closure-red:f-app}@*)
 \end{cljlisting}
 }
+  \caption{This example evaluates to \clj{2} with lexically scoped variables.}
+  \label{symbolic:example:closure-red}
+\end{figure}
 
 The crucial insight is that
 the same trick applies to \emph{checking} delayed function types,
@@ -390,6 +396,10 @@ at the function definition site.
 This strongly resembles a ``type-level'' closure that is reduced symbolically,
 and so we call this new type a \emph{symbolic closure}.
 
+We can use symbolic closures to inline higher-order-function definitions.
+In the following example, \clj{app} would normally need a higher-order
+or polymorphic
+annotation to handle the application on the final line.
 
 % more beta reduction
 \begin{cljlisting}
@@ -398,19 +408,153 @@ and so we call this new type a \emph{symbolic closure}.
   (app f 1))
 \end{cljlisting}
 
-% using subtyping to check symbolic closures.
-\begin{cljlisting}
-(app-int (fn [x] (inc x)) 1)
-\end{cljlisting}
+Instead, with symbolic closures, the entire program simplifies to
+\clj{(inc 1)}.
+While useful, allowing the type system to perform beta-reduction
+requires careful planning.
+Without intervention,
+the next example---using the y-combinator---would send the type system into an
+infinite loop (it computes \clj{(inc (inc (inc ...)))}).
 
 % infinite loops
 \begin{cljlisting}
 (let [Y (fn [f]
           ((fn [g] (fn [x] (f (g g) x)))
            (fn [g] (fn [x] (f (g g) x)))))]
-  (let [compute (Y (fn [f x] (+ 1 (f x))))]
-    (compute 1)))))
+  (let [compute (Y (fn [f x] (inc (f x))))]
+    (compute 1)))
 \end{cljlisting}
+
+To prevent such behavior, we limit the number of times a particular
+function may be checked (or, equivalently, reduced).
+Once the checking limit is hit, a type error is thrown.
+In some cases, the error message can suggest some likely
+annotations for the local functions based on how they
+were exercised during checking.
+
+As alluded to in the previous section, we must identify
+all type system components who are responsible for checking symbolic closures,
+and ensure they perform their obligations correctly.
+The following example uses a higher-order function
+\clj{app-int}---similar to the previous \clj{app}
+function, except it is an annotated global
+variable---to (elaborately) compute \clj{(inc 1)}.
+Since \clj{app-int} is annotated, it will be checked
+by the standard application rule.
+However, its first argument will be delayed as a symbolic
+closure---now we must identify who is responsible for checking it.
+
+% using subtyping to check symbolic closures.
+\begin{cljlisting}
+(ann app-int [[Int -> Int] Int -> Int])
+...
+(app-int (fn [x] (inc x)) 1)
+\end{cljlisting}
+
+Based on the type signature of \clj{app-int},
+it is clearly allowed to invoke its first argument
+(if the first parameter of \clj{app-int} was annotated as, say,
+\clj{[Bot -> Int]}, this would not be the case).
+Therefore, to maintain soundness, its potential invocations must
+agree with the provided argument.
+The standard application type rule uses subtyping to ensure
+provided arguments are compatible with the formal parameter types of
+the operator.
+To handle symbolic closures, we preserve the standard application rule
+and instead add a subtyping case for symbolic closures.
+
+In this case, the subtyping relation would be asked to verify if
+``the symbolic closure \clj{(fn [x] (inc x))}
+is a subtype of \clj{[Int -> Int]}''.
+This can be answered by checking the symbolic closure
+returns \clj{Int} when 
+\clj{x} is type \clj{Int}---and so the subtyping case for
+symbolic closures simply runs the application rule
+for symbolic closures.
+
+The correct ``contravariant subtyping left-of-the-arrow''
+is naturally preserved.
+In this case, the left-of-the-arrow check is ``\clj{Int} is a subtype of \clj{x}'s type'', and
+annotating \clj{x} as \clj{Int} turns this statement into the reflexively true ``\clj{Int} is a subtype of \clj{Int}''.
+At a glance, it may seem that we are wasting the benefits
+of this contravariant rule---after all, it enables \clj{x} to be \emph{any} supertype of
+\clj{Int}, such as \clj{Num} or even \clj{Any}.
+However, it is in our interest to propagate the most precise parameter types
+so then function bodies have the best chance to check without error.
+Since symbolic closures are designed to support rechecking their bodies at different argument types,
+a symbolic function can simply be rechecked with the less-precise types
+when it comes time to broaden its domain.
+
+This scheme extends to subtyping with arbitrarily-nested function types.
+To demonstrate nesting to the right of an arrow,
+the following code (again, elaborately) computes \clj{(+ 1 1)},
+but this time
+via \clj{curried-app-int}, which accepts a curried
+function of two arguments \clj{f} and a number \clj{x}, and 
+provides \clj{x} as both arguments to \clj{f}.
+
+% using subtyping to check symbolic closures.
+\begin{cljlisting}
+(ann curried-app-int [[Int -> [Int -> Int]] Int -> Int])
+(defn curried-app-int [f x] ((f x) x))
+...
+(curred-app-int (fn [y] (fn [x] (+ x y))) 1)
+\end{cljlisting}
+
+The standard application rule will ensure 
+''the symbolic closure \clj{(fn [y] (fn [x] (+ x y)))}
+is a subtype of
+\clj{[Int -> [Int -> Int]]}'', which involves assuming
+\clj{y : Int} and then checking the \emph{code} \clj{(fn [x] (+ x y))}
+at type \clj{[Int -> Int]}---which just uses the standard
+function rule.
+
+To demonstrate nesting to the left of an arrow,
+\clj{app-inc} again computes \clj{(inc 1)}
+in an even more convoluted way with \clj{app-inc}---by accepting a function
+\clj{f} that it passes both \clj{inc} and its second argument to.
+
+% using subtyping to check symbolic closures.
+\begin{cljlisting}
+(ann app-inc [[[Int -> Int] Int -> Int] Int -> Int])
+(defn app-inc [f x] (f inc x))
+...
+(app-inc (fn [g y] (g y)) 1)
+\end{cljlisting}
+
+Importantly, \clj{app-inc}'s first argument has a function
+type to the left on an arrow, in particular \clj{[Int -> Int]}.
+Under these conditions, subtyping asserts that ``the symbolic
+closure \clj{(fn [g y] (g y))} is a subtype of \clj{[[Int -> Int] Int -> Int]}''
+by assuming \clj{g : [Int -> Int]} and \clj{y : Int} and
+verifying that \clj{(g y)} checks as \clj{Int}---which is almost immediate by
+the standard application rule.
+
+We leverage some syntactic restrictions
+to avoid the need for further subtyping cases for symbolic closures.
+First, symbolic closures cannot be annotated by the programmer,
+and can only be introduced by the ``unannotated function'' typing rule.
+Second (as discussed in \secref{analyzer:extensibility:side-effects}),
+top-level variables are not allowed to inherit the types of their initial
+values, and must be explicitly annotated.
+These restrictions ensure symbolic closures both cannot occur to the
+left of an arrow type, and 
+cannot propagate beyond the top-level form it was defined in.
+
+
+% do we need a story for runtime casting from Any to [Int -> Int]?
+%\begin{cljlisting}
+%(ann dynapp-int [Any Int -> Int])
+%...
+%(dynapp-int (fn [x] (inc x)) 1)
+%\end{cljlisting}
+
+% no idea what to do with negation function types 
+%\begin{cljlisting}
+%(ann app-int [(U [Int -> Int] (I Any (Not [Int -> Int]))) Int -> Int])
+%...
+%(app-int (fn [x] (inc x)) 1)
+%\end{cljlisting}
 
 
 \section{Formal model}
