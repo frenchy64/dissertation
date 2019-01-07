@@ -498,7 +498,7 @@ provides \clj{x} as both arguments to \clj{f}.
 (ann curried-app-int [[Int -> [Int -> Int]] Int -> Int])
 (defn curried-app-int [f x] ((f x) x))
 ...
-(curred-app-int (fn [y] (fn [x] (+ x y))) 1)
+(curried-app-int (fn [y] (fn [x] (+ x y))) 1)
 \end{cljlisting}
 
 The standard application rule will ensure 
