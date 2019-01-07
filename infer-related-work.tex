@@ -137,8 +137,9 @@ type (\figref{fig:infer:nodestype}).
 Similarly, a class-based translation of \figref{fig:infer:nodes}
 inferred both \texttt{left} and \texttt{right}
 fields
-as \texttt{Any} by Pytype, and \texttt{Leaf} by Typpete---our tool,
-again, uses a compact recursive type containing \emph{both} \clj{Leaf} and \clj{Node}.
+as \texttt{Any} by Pytype, and as \texttt{Leaf} by Typpete---our tool
+uses \clj{Op},
+a compact recursive type containing \emph{both} \clj{Leaf} and \clj{Node}.
 This is similar to our experience with TypeWiz in \Dchapref{infer:chapter:intro}.
 (We were unable to install TSInfer.)
 
