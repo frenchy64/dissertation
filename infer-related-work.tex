@@ -125,22 +125,22 @@ dependencies in function signatures when needed.
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
 \paragraph{Other Annotation Tools}
 Static analyzers
-TSInfer~\cite{kristensen2017inference}, Typpete~\cite{typette18}
-and Pytype~\cite{pytype}
-automatically annotate JavaScript and Python code,
-respectively.
-We were unable to install TSInfer, and unable to run Typpete
-without a runtime error.
-Pytype inferred \texttt{nodes} in \figref{fig:infer:nodes}
-as \texttt{(? -> int)}---our tool generates a compact recursive
+for JavaScript
+(TSInfer~\cite{kristensen2017inference}) and for Python (Typpete~\cite{typette18}
+and Pytype~\cite{pytype})
+automatically annotate code with types.
+Pytype and Typpete inferred \texttt{nodes} in \figref{fig:infer:nodes}
+as \texttt{(? -> int)}
+and \texttt{Dict[(Sequence, object)] -> int}, respectively---our tool 
+infers it as \clj{[Op -> Int]} by also generating a compact recursive
 type (\figref{fig:infer:nodestype}).
-It inferred a class-based translation of \figref{fig:infer:nodes}
-similarly---fields
-\texttt{left}, \texttt{right}, and
-\texttt{val} were inferred as \texttt{Any}, and method
-\texttt{nodes} as \texttt{(self -> int)} on \texttt{Leaf},
-and
-\texttt{(self -> Any)} on \texttt{Node}.
+Similarly, a class-based translation of \figref{fig:infer:nodes}
+inferred both \texttt{left} and \texttt{right}
+fields
+as \texttt{Any} by Pytype, and \texttt{Leaf} by Typpete---our tool,
+again, uses a compact recursive type containing \emph{both} \clj{Leaf} and \clj{Node}.
+This is similar to our experience with TypeWiz in \Dchapref{infer:chapter:intro}.
+(We were unable to install TSInfer.)
 
 NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
 is used, and automatically runs the tests of downstream projects to
