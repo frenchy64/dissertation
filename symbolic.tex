@@ -540,7 +540,13 @@ values, and must be explicitly annotated.
 These restrictions ensure symbolic closures both cannot occur to the
 left of an arrow type, and 
 cannot propagate beyond the top-level form it was defined in.
+This stretches the metaphor of ``local'' type inference
+beyond just a single tree walk using
+bidirectional propagation,
+but without introducing many of the issues common to ``global''
+type inference.
 
+% TODO let-polymorphism comparison
 
 % do we need a story for runtime casting from Any to [Int -> Int]?
 %\begin{cljlisting}
