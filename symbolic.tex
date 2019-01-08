@@ -400,6 +400,8 @@ We can use symbolic closures to inline higher-order-function definitions.
 In the following example, \clj{app} would normally need a higher-order
 or polymorphic
 annotation to handle the application on the final line.
+Instead, with symbolic closures, the entire program simplifies in a few steps to
+\clj{(inc 1)}.
 
 % more beta reduction
 \begin{cljlisting}
@@ -408,13 +410,12 @@ annotation to handle the application on the final line.
   (app f 1))
 \end{cljlisting}
 
-Instead, with symbolic closures, the entire program simplifies to
-\clj{(inc 1)}.
 While useful, allowing the type system to perform beta-reduction
-requires careful planning.
+requires careful planning: type checking time is now proportional 
+to the running time of the program!
 Without intervention,
-the next example---using the y-combinator---would send the type system into an
-infinite loop (it computes \clj{(inc (inc (inc ...)))}).
+the next program (an infinite loop using the y-combinator that computes \clj{(inc (inc (inc ...)))})
+would send the \emph{type system} into an infinite loop.
 
 % infinite loops
 \begin{cljlisting}
@@ -431,6 +432,9 @@ Once the checking limit is hit, a type error is thrown.
 In some cases, the error message can suggest some likely
 annotations for the local functions based on how they
 were exercised during checking.
+Ideally, once the user adds enough annotations,
+the infinite chain of reductions will be
+broken by a subtyping check triggered by an annotation.
 
 As alluded to in the previous section, we must identify
 all type system components who are responsible for checking symbolic closures,
@@ -540,18 +544,28 @@ values, and must be explicitly annotated.
 These restrictions ensure symbolic closures both cannot occur to the
 left of an arrow type, and 
 cannot propagate beyond the top-level form it was defined in.
-This stretches the metaphor of ``local'' type inference
-beyond just a single tree walk using
-bidirectional propagation,
-but without introducing many of the issues common to ``global''
-type inference.
+%This stretches the metaphor of ``local'' type inference
+%beyond just a single tree walk using
+%bidirectional propagation,
 
-% TODO let-polymorphism comparison
-Schwartzbach~\cite{schwartzbach1995polymorphic}
-gives an accessible introduction to the tradeoffs of
-global type inference
-in the style of Milner~\cite{milner1978theory}.
-%The use of a polymorphic let-construct
+% TODO performance
+% - undecidable 
+%   - heuristics needed to halt search
+%   - type checking time proportional to running time of program
+% - for finitely running programs:
+%   - degenerate case checking time complexity becomes at least exponential time in the size of the program because we can recheck a function
+%     body multiple times, and a symbolic closure can be duplicated
+%
+% eg. (let [pair (fn [f g] (f (g) (g)))] (pair (fn [x y] (+ x y)) (fn [] 1)))
+% - (fn [] 1) is checked twice
+%   - can "stack" these recheckings, worst case is infinite
+% - Damas-Milner algorithm checks a function definition once to determine its principle type scheme
+%   - exponential time & space
+%     - because principle type schemes can become very large
+%     - also exponential time to print a type
+%     - symbolic closures are also exponential time to print a type (naively)
+%       since they can be duplicated
+%       - I think these are similar reasons to Milner's algorithm
 
 % do we need a story for runtime casting from Any to [Int -> Int]?
 %\begin{cljlisting}
@@ -806,7 +820,34 @@ $$
   }
 \end{figure}
 
-\section{Comparison to let-polymorphism}
+\section{Comparison to Hindley-Milner type inference}
+
+% TODO let-polymorphism comparison
+Schwartzbach~\cite{schwartzbach1995polymorphic}
+gives an accessible introduction to the tradeoffs of
+global type inference
+in the style of Milner~\cite{milner1978theory}.
+%The use of a polymorphic let-construct
+
+% - parametric polymorphism
+%  - (map f (map g l))
+%    - "We are concerned with a conceptual framework in which these map functions may all be regarded semantically as the same object"
+%      - Milner 1978;
+%    - ie. in contrast to adhoc polymorphism
+%      - where instead:
+%         - (let [map1 ...
+%                 map2 ...]
+%             (map2 f (map1 g l)))
+%    - Milner-style type inference (apparently?) applies to either case
+%      - (compatibility with adhoc polymorphism seems tentative in 1978 paper)
+%  - [?] type of a local function is the intersection of all the types it was checked at
+%    - ordered intersection?
+% - type schemes
+%   - we don't attempt to infer type schemes
+%     - (let [f (fn [y] y)] (f 1))
+%     - in ML:
+%       - infer f as (All [a] [a -> a]), via unification based constraint solving
+%       - 
 
 \section{Experiments}
 
