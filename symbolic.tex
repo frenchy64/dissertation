@@ -580,10 +580,42 @@ A curious aside: if symbolic closures are identified just by their code and defi
 type environments, suggestions may also be merged for functions with
 identical code and scope.
 
-Similar performance issues have infamously arisen in ML, summarized
-by Mairson~\cite{Mairson:1989}, whose work provided
-the final piece to prove that the problem of ML type-checking is \textsc{DExpTime}-complete.
-While Mairson ingeniously encoded 
+Related performance issues have infamously arisen in ML, summarized
+by Mairson~\cite{Mairson:1989}, whose work confirmed
+that the problem of ML type-checking is \textsc{DExpTime}-complete.
+Several ML programs that exhibit exponential
+growth in the size of principal type schemes of certain (pathological)
+programs are provided as part of Mairson's initial investigation.
+We use their benchmark from Appendix A~\cite{Mairson:1989} to stress-test our implementation of symbolic closures.
+
+The benchmark uses Church pairs (an encoding of pairs using only lambdas)
+to build an expression that has an enourmous principal function type,
+both exponentially large in its size and number of type variables, relative
+to the program size.
+First, to demonstrate how the benchmark works, we choose a slightly smaller program size
+($n=2$, where $n$ is the number of times size of the type duplicates).
+
+\begin{lstlisting}[language=ml]
+let fun pair x y = fn z => z x y in
+  let fun x1 y = pair y y in
+    let fun x2 y = x1(x1(y)) in
+      x2(fn z => z)
+    end
+  end
+end;
+val it = fn
+  : ((((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2)
+     -> (((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2) -> ?.X3)
+    -> ?.X3
+\end{lstlisting}
+
+The value \sml{fn z=> z}, assigned the type \sml{(?.X1 -> ?.X1)} (which we abbreviate as \sml{F}),
+is duplicated in a pair, which is of type \sml{((F -> F -> ?.X2) -> ?.X2)} (which we abbreviate as \sml{G}),
+which is then duplicated again, giving:
+\sml{(G -> G -> ?.X3) -> ?.X3}.
+
+
+
 
 % TODO performance
 % - undecidable 
