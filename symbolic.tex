@@ -410,50 +410,6 @@ Instead, with symbolic closures, the entire program simplifies in a few steps to
   (app f 1))
 \end{cljlisting}
 
-While useful, allowing the type system to perform beta-reduction
-requires careful planning: type checking time is now proportional 
-to the running time of the program!
-Without intervention,
-the next program (an infinite loop using the y-combinator that computes \clj{(inc (inc (inc ...)))})
-would send the \emph{type system} into an infinite loop.
-
-% infinite loops
-\begin{cljlisting}
-(let [Y (fn [f]
-          ((fn [g] (fn [x] (f (g g) x)))
-           (fn [g] (fn [x] (f (g g) x)))))]
-  (let [compute (Y (fn [f x] (inc (f x))))]
-    (compute 1)))
-\end{cljlisting}
-
-To prevent such loops, we limit the number of symbolic reductions
-done at type-checking time.
-As a conservative solution to the halting
-problem, this limit will prematurely halt programs that would
-otherwise fully reduce in a finite number of steps.
-For example, if we set the reduction limit to 5\ in
-the following code,
-during the 6th reduction of \clj{f} the type system will
-throw an error.
-
-% premature halting
-\begin{cljlisting}
-(let [f (fn [x] x)]
-  (f (f (f (f (f (f 1)))))))
-\end{cljlisting}
-
-In simple cases like these, the error message 
-can guide the user to fixing the error.
-For example, the type system would suggest 
-annotating \clj{f} as \clj{[Int -> Int]} (by collecting
-argument and return types as the program is reduced),
-which would cause the program to check successfully
-under the same conditions.
-For cases with more heterogenous argument and return types,
-like the y-combinator,
-the error message would just note which function caused
-the reduction quota to be depleted.
-
 As alluded to in the previous section, we must identify
 all type system components who are responsible for checking symbolic closures,
 and ensure they perform their obligations correctly.
@@ -553,16 +509,6 @@ by assuming \clj{g : [Int -> Int]} and \clj{y : Int} and
 verifying that \clj{(g y)} checks as \clj{Int}---which is almost immediate by
 the standard application rule.
 
-Note that using the type checker to decide subtyping
-has unfortunate implications for 
-the aforementioned annotation suggestions
-for reduction-limit error messages.
-An ``obviously-failing'' subtyping check might trigger a
-check for irrelevant arguments, and then provide them to the user.
-A curious aside: if symbolic closures are identified just by their code and definition
-type environments, suggestions may also be merged for functions with
-identical code and scope.
-
 We leverage some syntactic restrictions
 to avoid the need for further subtyping cases for symbolic closures.
 First, symbolic closures cannot be annotated by the programmer,
@@ -576,6 +522,68 @@ cannot propagate beyond the top-level form it was defined in.
 %This stretches the metaphor of ``local'' type inference
 %beyond just a single tree walk using
 %bidirectional propagation,
+
+\subsection{Performance and error messages}
+
+While useful, allowing the type system to perform beta-reduction
+requires careful planning: type checking time is now proportional 
+to the running time of the program!
+Unsurprisingly, this type checking with a naive implementation of symbolic
+closures \emph{undecidable}.
+Without intervention,
+the next program (an infinite loop using the y-combinator that computes \clj{(inc (inc (inc ...)))})
+would send the \emph{type system} into an infinite loop.
+
+% infinite loops
+\begin{cljlisting}
+(let [Y (fn [f]
+          ((fn [g] (fn [x] (f (g g) x)))
+           (fn [g] (fn [x] (f (g g) x)))))]
+  (let [compute (Y (fn [f x] (inc (f x))))]
+    (compute 1)))
+\end{cljlisting}
+
+To prevent such loops, we limit the number of symbolic reductions
+done at type-checking time.
+As a conservative solution to the halting
+problem, this limit will prematurely halt some programs that would
+otherwise fully reduce in a finite number of steps.
+For example, if we set the reduction limit to 5\ in
+the following code,
+during the 6th reduction of \clj{f} the type system will
+throw an error.
+
+% premature halting
+\begin{cljlisting}
+(let [f (fn [x] x)]
+  (f (f (f (f (f (f 1)))))))
+\end{cljlisting}
+
+In simple cases like these, the error message 
+can guide the user to fixing the error.
+For example, the type system would suggest 
+annotating \clj{f} as \clj{[Int -> Int]} (by collecting
+argument and return types as the program is reduced),
+which would cause the program to check successfully
+under the same conditions.
+For cases with more heterogenous argument and return types---like the y-combinator---the 
+error message would just note which function caused
+the reduction quota to be depleted.
+
+Note that using the type checker to decide subtyping
+has unfortunate implications for 
+the aforementioned annotation suggestions
+for reduction-limit error messages.
+An ``obviously-failing'' subtyping check might trigger a
+check for irrelevant arguments, and then provide them to the user.
+A curious aside: if symbolic closures are identified just by their code and definition
+type environments, suggestions may also be merged for functions with
+identical code and scope.
+
+Similar performance issues have infamously arisen in ML, summarized
+by Mairson~\cite{Mairson:1989}, whose work provided
+the final piece to prove that the problem of ML type-checking is \textsc{DExpTime}-complete.
+While Mairson ingeniously encoded 
 
 % TODO performance
 % - undecidable 
