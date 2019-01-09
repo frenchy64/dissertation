@@ -592,28 +592,58 @@ The benchmark uses Church pairs (an encoding of pairs using only lambdas)
 to build an expression that has an enourmous principal function type,
 both exponentially large in its size and number of type variables, relative
 to the program size.
-First, to demonstrate how the benchmark works, we choose a slightly smaller program size
-($n=2$, where $n$ is the number of times size of the type duplicates).
+First, to demonstrate how the benchmark works, 
+\figref{symbolic:figure:pair-benchmark}
+presents a slightly smaller program size
+($n=3$, where $n$ is the number of times size of the type duplicates).
 
+%\begin{lstlisting}[language=ml]
+%let fun pair x y = fn z => z x y in
+%  let fun x1 y = pair y y in
+%    let fun x2 y = x1(x1(y)) in (*@\label{symbolic:pair-x2:x2}@*)
+%      x2(fn z => z)(*@\label{symbolic:pair-x2:x0}@*)
+%    end
+%  end
+%end;
+%val it = fn
+%  : ((((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2)
+%     -> (((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2) -> ?.X3)
+%    -> ?.X3
+%\end{lstlisting}
+
+\begin{figure}
 \begin{lstlisting}[language=ml]
 let fun pair x y = fn z => z x y in
-  let fun x1 y = pair y y in
-    let fun x2 y = x1(x1(y)) in
-      x2(fn z => z)
+let fun x1 y = pair y y in
+  let fun x2 y = x1(x1(y)) in
+    let fun x3 y = x2(x2(y)) in
+      x3(fn z => z)(*@\label{symbolic:pair-x3:x0}@*)
     end
   end
+end
 end;
-val it = fn
-  : ((((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2)
-     -> (((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2) -> ?.X3)
-    -> ?.X3
+val it = fn : ((T -> T -> ?.X5) -> ?.X5)
+    where T = ((U -> U -> ?.X4) -> ?.X4)
+    where U = ((V -> V -> ?.X3) -> ?.X3)
+    where V = ((W -> W -> ?.X2) -> ?.X2)
+    where W = (?.X1 -> ?.X1)
 \end{lstlisting}
+\caption{Benchmark demonstrating exponential growth of principal type schemes in ML.
+  Types are manually abbreviated for readability.}
+\label{symbolic:figure:pair-benchmark}
+\end{figure}
 
-The value \sml{fn z=> z}, assigned the type \sml{(?.X1 -> ?.X1)} (which we abbreviate as \sml{F}),
-is duplicated in a pair, which is of type \sml{((F -> F -> ?.X2) -> ?.X2)} (which we abbreviate as \sml{G}),
-which is then duplicated again, giving:
-\sml{(G -> G -> ?.X3) -> ?.X3}.
-
+The abbreviated output type \sml{it} is the result of the call to \sml{x3}
+on line \ref{symbolic:pair-x3:x0}.
+For each function $\text{\sml{x}}_n$, the range of its principal type is twice as large as
+the range of the principle type of $\text{\sml{x}}_{n-1}$.
+To start, \sml{x1}'s type is \sml{'a -> (('a -> 'a -> 'b) -> 'b)}---note that \sml{'a}
+is duplicated, which provides a foundation for the exponential growth.
+Then, \sml{x2}'s principal type is twice as large as \sml{x1}'s because it
+iteratively calls \sml{x1} twice on its input---thus \sml{x2} duplicates its input \emph{four} times.
+Extending this reasoning, \sml{x3}'s principal type is twice as large as \sml{x2}'s,
+duplicating its input \emph{sixteen} times.
+This number accounts for the number of times \sml{W} occurs in the output type.
 
 
 
