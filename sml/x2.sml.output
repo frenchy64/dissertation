@@ -1,0 +1,9 @@
+Standard ML of New Jersey v110.84 [built: Fri Sep 28 19:40:37 2018]
+- val pair = fn : 'a -> 'b -> ('a -> 'b -> 'c) -> 'c
+stdIn:3.1-5.24 Warning: type vars not generalized because of
+   value restriction are instantiated to dummy types (X1,X2,...)
+val it = fn
+  : ((((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2)
+     -> (((?.X1 -> ?.X1) -> (?.X1 -> ?.X1) -> ?.X2) -> ?.X2) -> ?.X3)
+    -> ?.X3
+- 
