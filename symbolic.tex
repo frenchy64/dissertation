@@ -426,15 +426,33 @@ would send the \emph{type system} into an infinite loop.
     (compute 1)))
 \end{cljlisting}
 
-To prevent such behavior, we limit the number of times a particular
-function may be checked (or, equivalently, reduced).
-Once the checking limit is hit, a type error is thrown.
-In some cases, the error message can suggest some likely
-annotations for the local functions based on how they
-were exercised during checking.
-Ideally, once the user adds enough annotations,
-the infinite chain of reductions will be
-broken by a subtyping check triggered by an annotation.
+To prevent such loops, we limit the number of symbolic reductions
+done at type-checking time.
+As a conservative solution to the halting
+problem, this limit will prematurely halt programs that would
+otherwise fully reduce in a finite number of steps.
+For example, if we set the reduction limit to 5\ in
+the following code,
+during the 6th reduction of \clj{f} the type system will
+throw an error.
+
+% premature halting
+\begin{cljlisting}
+(let [f (fn [x] x)]
+  (f (f (f (f (f (f 1)))))))
+\end{cljlisting}
+
+In simple cases like these, the error message 
+can guide the user to fixing the error.
+For example, the type system would suggest 
+annotating \clj{f} as \clj{[Int -> Int]} (by collecting
+argument and return types as the program is reduced),
+which would cause the program to check successfully
+under the same conditions.
+For cases with more heterogenous argument and return types,
+like the y-combinator,
+the error message would just note which function caused
+the reduction quota to be depleted.
 
 As alluded to in the previous section, we must identify
 all type system components who are responsible for checking symbolic closures,
@@ -472,9 +490,10 @@ In this case, the subtyping relation would be asked to verify if
 is a subtype of \clj{[Int -> Int]}''.
 This can be answered by checking the symbolic closure
 returns \clj{Int} when 
-\clj{x} is type \clj{Int}---and so the subtyping case for
-symbolic closures simply runs the application rule
-for symbolic closures.
+\clj{x} is type \clj{Int}---and so this subtyping case
+delegates to checking if the symbolic closures inhabits the given type.
+The subtype relationship is true if the check succeeds without type error,
+otherwise it is false.
 
 The correct ``contravariant subtyping left-of-the-arrow''
 is naturally preserved.
@@ -533,6 +552,16 @@ closure \clj{(fn [g y] (g y))} is a subtype of \clj{[[Int -> Int] Int -> Int]}''
 by assuming \clj{g : [Int -> Int]} and \clj{y : Int} and
 verifying that \clj{(g y)} checks as \clj{Int}---which is almost immediate by
 the standard application rule.
+
+Note that using the type checker to decide subtyping
+has unfortunate implications for 
+the aforementioned annotation suggestions
+for reduction-limit error messages.
+An ``obviously-failing'' subtyping check might trigger a
+check for irrelevant arguments, and then provide them to the user.
+A curious aside: if symbolic closures are identified just by their code and definition
+type environments, suggestions may also be merged for functions with
+identical code and scope.
 
 We leverage some syntactic restrictions
 to avoid the need for further subtyping cases for symbolic closures.
