@@ -612,40 +612,56 @@ presents a slightly smaller program size
 %\end{lstlisting}
 
 \begin{figure}
-\begin{lstlisting}[language=ml]
+\begin{lstlisting}[language=ml, numbers=left]
 let fun pair x y = fn z => z x y in
-let fun x1 y = pair y y in
-  let fun x2 y = x1(x1(y)) in
-    let fun x3 y = x2(x2(y)) in
+let fun x1 y = pair y y in(*@\label{symbolic:pair-x3:x1}@*)
+  let fun x2 y = x1(x1(y)) in(*@\label{symbolic:pair-x3:x2}@*)
+    let fun x3 y = x2(x2(y)) in(*@\label{symbolic:pair-x3:x3}@*)
       x3(fn z => z)(*@\label{symbolic:pair-x3:x0}@*)
     end
   end
 end
 end;
-val it = fn : ((T -> T -> ?.X5) -> ?.X5)
+val it = fn : ((T -> T -> ?.X5) -> ?.X5)(*@\label{symbolic:pair-x3:it}@*)
     where T = ((U -> U -> ?.X4) -> ?.X4)
     where U = ((V -> V -> ?.X3) -> ?.X3)
-    where V = ((W -> W -> ?.X2) -> ?.X2)
-    where W = (?.X1 -> ?.X1)
+    where V = ((W -> W -> ?.X2) -> ?.X2)(*@\label{symbolic:pair-x3:X2}@*)
+    where W = (?.X1 -> ?.X1)(*@\label{symbolic:pair-x3:W}@*)
 \end{lstlisting}
 \caption{Benchmark demonstrating exponential growth of principal type schemes in ML.
-  Types are manually abbreviated for readability.}
+  Types are manually abbreviated for readability, ungeneralized type variables are
+  instantiated to dummy types (\sml{X1},\sml{X2},...).}
 \label{symbolic:figure:pair-benchmark}
 \end{figure}
 
-The abbreviated output type \sml{it} is the result of the call to \sml{x3}
+The abbreviated output type \sml{it} (line \ref{symbolic:pair-x3:it}) is the result of the call to \sml{x3}
 on line \ref{symbolic:pair-x3:x0}.
 For each function $\text{\sml{x}}_n$, the range of its principal type is twice as large as
 the range of the principle type of $\text{\sml{x}}_{n-1}$.
-To start, \sml{x1}'s type is \sml{'a -> (('a -> 'a -> 'b) -> 'b)}---note that \sml{'a}
+This pattern starts with \sml{x1} (line \ref{symbolic:pair-x3:x1}),
+whose type is \sml{'a -> (('a -> 'a -> 'b) -> 'b)}---note that \sml{'a}
 is duplicated, which provides a foundation for the exponential growth.
-Then, \sml{x2}'s principal type is twice as large as \sml{x1}'s because it
+Then, \sml{x2} (line \ref{symbolic:pair-x3:x2})
+has a principal type that is twice as large as \sml{x1}'s because it
 iteratively calls \sml{x1} twice on its input---thus \sml{x2} duplicates its input \emph{four} times.
-Extending this reasoning, \sml{x3}'s principal type is twice as large as \sml{x2}'s,
+Extending this reasoning, \sml{x3} (line \ref{symbolic:pair-x3:x3})
+has a principal type twice as large as \sml{x2}'s,
 duplicating its input \emph{sixteen} times.
-This number accounts for the number of times \sml{W} occurs in the output type.
+This is the number number of times \sml{W} (line \ref{symbolic:pair-x3:W},
+the type of the argument \sml{fn z => z} on line \ref{symbolic:pair-x3:x0})
+occurs in the output type (line \ref{symbolic:pair-x3:it}).
 
+As mentioned, the number of type variables introduced is also exponential
+in the size of the program. For $n=3$, $2^{n-1}=4$ variables are introduced---they are the types from
+\sml{?.X2} onwards on lines \ref{symbolic:pair-x3:it}-\ref{symbolic:pair-x3:X2}.
+For $n=4$, the output type will have \sml{W} occurring 32 times,
+and introduce 8 type variables.
+Mairson's original experiment with $n=5$ output reams of principal
+types before crashing (circa 1989).
+Repeating this experiment on a 2011 Macbook Pro with a 30-year-newer version of Standard ML
+completed in 45 seconds (with around 20,000 lines of principal types).
 
+%Now that 
 
 % TODO performance
 % - undecidable 
