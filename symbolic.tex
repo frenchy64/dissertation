@@ -570,6 +570,16 @@ For cases with more heterogeneous argument and return types---like the y-combina
 error message would just note which function caused
 the reduction quota to be depleted.
 
+As Wells~\cite{wells1994typability} remarks,
+stopgap measures such as this to circumvent undecidable
+type inference algorithms negatively affect
+program portability.
+For example, a different reduction limit may cause
+a program to fail to type check that otherwise type checked
+in a previous version.
+We hope to learn reasonable defaults for the reduction limit
+by experience.
+
 Note that using the type checker to decide subtyping
 has unfortunate implications for 
 the aforementioned annotation suggestions
@@ -616,25 +626,73 @@ identical code and scope.
 
 \section{Formal model}
 
+We formalize an implementation of symbolic closure types by extending
+the model presented for Colored Local Type Inference~\cite{coloredlti01}.
+Here, we explain the syntax and rules for the original internal language,
+and then extend it to allow unannotated functions and symbolic closure
+types.
+In \chapref{chapter:symbolic:directed-lti}
+we present the external language, and our corresponding extensions,
+which compiles to the internal language using local type argument inference.
+
 \begin{figure}
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
-                         \ltiappinst{\ltiF{}}{\overline{\ltitvar{}}}{\ltiE{}} \alt
+                         \ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
+                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
                       &\mbox{Terms} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltivar{} \alt
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiTop{} \alt
                          \ltiBot{} \alt
-                         \ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}} \alt
+                         \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}} \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
                       &\mbox{Types} \\
+  \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
+                  \ltiEmptyEnv{} \alt
+                  \ltitvar{} \alt
+                  \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
+                      &\mbox{Environments} \\
 \end{array}
 $$
 \caption{Internal Language}
+\label{symbolic:figure:internal-language}
 \end{figure}
+
+\figref{symbolic:figure:internal-language} shows the syntax
+the internal language.
+Terms \ltiE{} and \ltiF{} range over 
+variables \ltivar{},
+explicitly typed polymorphic functions
+\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}
+that bind type variables \ova{\ltitvar{}},
+function application
+\ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}}
+with explicit type arguments {\ova{\ltiT{}}},
+record selectors
+\ltisel{\ltiE{}}{\ltivar{}},
+and record constructors
+\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}.
+Types \ltiT{}, \ltiS{}, and \ltiR{} are 
+type variables \ltitvar{},
+top type \ltiTop{},
+bottom type \ltiBot{},
+polymorphic function types \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}
+that bind type variables \ova{\ltitvar{}},
+and record types \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}.
+Type environments \ltiEnv{}
+consist of 
+entries for local bindings
+\hastype{\ltivar{}}{\ltiT{}},
+the empty environment
+\ltiEmptyEnv{},
+in-scope type variables 
+\ltitvar{},
+and concatenation
+\ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}.
+
 
 \begin{figure}
   \begin{mathpar}
@@ -732,7 +790,7 @@ $$
                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
     }
 
-    \\\\
+    %\\\\
 
     \infer [(S-Bot)]
     {}
@@ -780,13 +838,21 @@ $$
     }
   \end{mathpar}
   \caption{Type system for internal language:
-  $\ltitjudgement{\ltiEnv{}}
+   \ltitjudgement{\ltiEnv{}}
                  {\ltiE{}}
-                 {\ltiT{}}$
+                 {\ltiT{}} 
                  and
-                 $\ltisubtype{\ltiT{}}{\ltiS{}}$.
+                 \ltisubtype{\ltiT{}}{\ltiS{}}.
   }
+  \label{symbolic:figure:internal-language-type-system}
 \end{figure}
+
+\figref{symbolic:figure:internal-language-type-system}
+presents the type system for this internal language.
+The main judgment
+\ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}} 
+says that expression \ltiE{} is of type \ltiT{}
+in environment \ltiEnv{}.
 
 \begin{figure}
 $$
@@ -1382,6 +1448,26 @@ $$
 %   - related work
 %     - ML_sub
 %     - see: symb.tex
+% - investigate implications 
+%   - Remy ICFP '05
+%     - (seems to) propagate information simultaneously in both directions like CLTI
+%     - intro prose does a nice job explaining ML moving towards System F & challenges
+%   - Joe B Wells 1994
+%     - explains Church vs Curry style System F formulations
+%     - some mentions of decidable fragments of System F
+%   - Boxy types, ICFP '06
+%     - explains higher-rank types
+%       - types with forall quantifiers nested inside function types
+%     - explains impredicativity
+%       - being allowed to instantiate a type variable with a polytype (polymorphic type)
+%     - explains "local type inference"
+%       - a partial inference technique for a language with bounded, impredicative quantification,
+%         and higher-rank types.
+%     - explains "CLTI"
+%       - reformulated bidirectional checking for F_sub so that the _type_ and not the _judgment form_
+%         describes the direction in which type information flows
+%     - CLTI's colors inspired their "boxy" types
+%       - they outline differences in related work
 
 \chapter{Custom Typing rules}
 \label{chapter:symbolic:custom-rules}

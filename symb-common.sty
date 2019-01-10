@@ -30,6 +30,7 @@
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
+\newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
 \newmeta\ltiWild{?}
@@ -38,6 +39,7 @@
 \newbfop\ltiBot{\ma{\bot}}
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
+\newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiArrow[3]{\ma{#1 \xrightarrow[]{#2} #3}}
