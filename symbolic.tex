@@ -1132,6 +1132,37 @@ $$
                   {\ltiTp{}}
                  }
 
+    \infer [(C-Sel)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiChk{\ltiRec{\hastype{\ltivar{}}{\ltiSynChk{\ltiT{}}}}}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltisel{\ltiE{}}{\ltivar{}}}
+                  {\ltiT{}}
+    }
+
+    \infer [(C-Rec)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{1}}
+                  {\ltiSynChk{\ltiT{1}}}
+                 \\
+                 ...
+                 \\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{n}}
+                  {\ltiSynChk{\ltiT{n}}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
+                  {\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
+    }
+
+
   \end{mathpar}
   \caption{Colored Type System rules
   $\lticjudgement{\ltiEnv{}}
