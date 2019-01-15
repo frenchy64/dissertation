@@ -9,6 +9,7 @@
 \newmeta\ltiEp{E'}
 \newmeta\ltiF{F}
 \newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
+\newcommand\ltifunmono[3]{\ma{\textbf{fun}(\hastype{#1}{#2})#3}}
 \newcommand\ltiufun[2]{\ma{\textbf{fun}(#1)#2}}
 \newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
 \newcommand\ltiapp[2]{\ma{#1(#2)}}
@@ -42,13 +43,22 @@
 \newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
-\newcommand\ltiArrow[3]{\ma{#1 \xrightarrow[]{#2} #3}}
+\newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
+\newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}
 \newcommand\ltiClosure[2]{\ma{#1 @ #2}}
 \newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
+% type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
+% colored type system (external language)
+\newcommand\lticjudgement[3]{\ma{#1 \vdash^{c} {\hastype{#2}{#3}}}}
+% non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
 \newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
+% subtype for internal types (not colored)
+\newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
+% subtype for colored (external) types 
+\newcommand\lticsubtype[2]{\ma{#1 \leq #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
 \newcommand\ltigendconstraint[6]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5, #6}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
@@ -65,6 +75,9 @@
 \newcommand\ltiaccessibletv[2]{\ma{\texttt{accessibletv}_{#1}(#2)}}
 \newcommand\lticheckorder[6]{\ma{\texttt{checkorder}(#1, #2, #3, #4, #5, #6)}}
 
-\newcommand\ltiSyn[1]{{\color{blue}#1}}
-\newcommand\ltiChk[1]{{\color{red}#1}}
-\newcommand\ltiSynChk[1]{{\color{black}#1}}
+%\newcommand\ltiSyn[1]{{\color{blue}#1}}
+%\newcommand\ltiChk[1]{{\color{red}#1}}
+%\newcommand\ltiSynChk[1]{{\color{black}#1}}
+\newcommand\ltiSyn[1]{{\textsubscript{$\wedge$} #1}}
+\newcommand\ltiChk[1]{{\textsuperscript{$\vee$} #1}}
+\newcommand\ltiSynChk[1]{{\diamond #1}}

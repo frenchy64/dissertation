@@ -277,6 +277,7 @@ We address all these considerations in the following sections, except
 for the final one, which we delegate to \chapref{chapter:symbolic:directed-lti}.
 
 \section{Overview}
+\label{symbolic:section:overview}
 
 In this section, we explore some of the implications that come with delayed checks for local functions,
 by example.
@@ -481,7 +482,7 @@ provides \clj{x} as both arguments to \clj{f}.
 \end{cljlisting}
 
 The standard application rule will ensure 
-''the symbolic closure \clj{(fn [y] (fn [x] (+ x y)))}
+``the symbolic closure \clj{(fn [y] (fn [x] (+ x y)))}
 is a subtype of
 \clj{[Int -> [Int -> Int]]}'', which involves assuming
 \clj{y : Int} and then checking the \emph{code} \clj{(fn [x] (+ x y))}
@@ -628,26 +629,28 @@ identical code and scope.
 
 We formalize an implementation of symbolic closure types by extending
 the model presented for Colored Local Type Inference~\cite{coloredlti01}.
-Here, we explain the syntax and rules for the original internal language,
-and then extend it to allow unannotated functions and symbolic closure
-types.
+We split the model into two variants.
+In this chapter, we present a \emph{monomorphic} calculus
+and then extend it to allow unannotated functions and symbolic closure types.
 In \chapref{chapter:symbolic:directed-lti}
-we present the external language, and our corresponding extensions,
-which compiles to the internal language using local type argument inference.
+we extend the monomorphic version with polymorphic types, and discuss
+details of local type argument inference.
+
+\subsection{Internal Language}
 
 \begin{figure}
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
-                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
+                         \ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
+                         \ltiapp{\ltiF{}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiTop{} \alt
                          \ltiBot{} \alt
-                         \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}} \alt
+                         \ltiArrowMono{\ltiT{}}{\ltiS{}} \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
@@ -657,20 +660,18 @@ $$
                       &\mbox{Environments} \\
 \end{array}
 $$
-\caption{Internal Language}
+\caption{Monomorphic Internal Language}
 \label{symbolic:figure:internal-language}
 \end{figure}
 
 \figref{symbolic:figure:internal-language} shows the syntax
-the internal language.
+the monomorphic internal language.
 Terms \ltiE{} and \ltiF{} range over 
 variables \ltivar{},
-explicitly typed polymorphic functions
-\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}
-that bind type variables \ova{\ltitvar{}},
-function application
-\ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}}
-with explicit type arguments {\ova{\ltiT{}}},
+explicitly typed monomorphic functions
+\ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}},
+monomorphic function application
+\ltiapp{\ltiF{}}{\ltiE{}},
 record selectors
 \ltisel{\ltiE{}}{\ltivar{}},
 and record constructors
@@ -679,8 +680,7 @@ Types \ltiT{}, \ltiS{}, and \ltiR{} are
 type variables \ltitvar{},
 top type \ltiTop{},
 bottom type \ltiBot{},
-polymorphic function types \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}
-that bind type variables \ova{\ltitvar{}},
+monomorphic function types \ltiArrowMono{\ltiT{}}{\ltiS{}},
 and record types \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}.
 Type environments \ltiEnv{}
 consist of 
@@ -706,31 +706,31 @@ and concatenation
 
     \infer [(I-Abs)]
     { 
-    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
+    \ltitjudgement{\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
+                  {\ltiE{}}
+                  {\ltiS{}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                  {\ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
                  }
 
     \infer [(I-App)]
     {
     \ltitjudgement{\ltiEnv{}}{\ltiF{}}
-                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                  {\ltiArrowMono{\ltiS{}}{\ltiT{}}}
                   \\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiSp{}}
                   \\
-    \ltisubtype{\ltiSp{}}{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    \ltiisubtype{\ltiSp{}}{\ltiS{}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiT{}}
     }
 
     \infer [($\text{I-App}_{\ltiBot}$)]
@@ -744,7 +744,7 @@ and concatenation
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiT{}}}{\ltiE{}}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
                   {\ltiBot}
     }
 
@@ -795,46 +795,46 @@ and concatenation
     \infer [(S-Bot)]
     {}
     {
-    \ltisubtype{\ltiBot}{\ltiT{}}
+    \ltiisubtype{\ltiBot}{\ltiT{}}
     }
 
     \infer [(S-Top)]
     {}
     {
-    \ltisubtype{\ltiT{}}{\ltiTop}
+    \ltiisubtype{\ltiT{}}{\ltiTop}
     }
 
     \infer [(S-Var)]
     {}
     {
-    \ltisubtype{\ltitvar{}}{\ltitvar{}}
+    \ltiisubtype{\ltitvar{}}{\ltitvar{}}
     }
 
     \infer [(S-Rec)]
     {
-    \ltisubtype{\ltiT{1}}
+    \ltiisubtype{\ltiT{1}}
                {\ltiTp{1}}
                  \\
                  ...
                  \\
-    \ltisubtype{\ltiT{n}}
+    \ltiisubtype{\ltiT{n}}
                {\ltiTp{n}}
     }
     {
-    \ltisubtype{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}},
+    \ltiisubtype{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}},
                         \hastype{\ltivar{n+1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{m}}}}
                {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}}, ..., \hastype{\ltivar{n}}{\ltiTp{n}}}}
     }
 
     \infer [(S-Fun)]
     {
-    \ltisubtype{\ltiT{1}}{\ltiTp{1}}
+    \ltiisubtype{\ltiT{1}}{\ltiTp{1}}
     \\
-    \ltisubtype{\ltiT{2}}{\ltiTp{2}}
+    \ltiisubtype{\ltiT{2}}{\ltiTp{2}}
     }
     {
-    \ltisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
-               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    \ltiisubtype{\ltiArrowMono{\ltiTp{1}}{\ltiT{2}}}
+                {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
     }
   \end{mathpar}
   \caption{Type system for internal language:
@@ -842,7 +842,7 @@ and concatenation
                  {\ltiE{}}
                  {\ltiT{}} 
                  and
-                 \ltisubtype{\ltiT{}}{\ltiS{}}.
+                 \ltiisubtype{\ltiT{}}{\ltiS{}}.
   }
   \label{symbolic:figure:internal-language-type-system}
 \end{figure}
@@ -853,6 +853,8 @@ The main judgment
 \ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}} 
 says that expression \ltiE{} is of type \ltiT{}
 in environment \ltiEnv{}.
+
+\subsection{Extensions for Symbolic Closure Types}
 
 \begin{figure}
 $$
@@ -865,8 +867,18 @@ $$
                       &\mbox{Types} \\
 \end{array}
 $$
-\caption{Internal Language Extensions for Symbolic Closure Types}
+\caption{Monomorphic Internal Language Extensions for Symbolic Closure Types}
+  \label{symbolic:figure:internal-language-syntax-extension}
 \end{figure}
+
+We extend the internal language to support symbolic closure types.
+\figref{symbolic:figure:internal-language-syntax-extension}
+shows our syntax extensions. We allow unannotated functions
+\ltiufun{\ltivar{}}{\ltiE{}} as a term.
+A symbolic closure type
+\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+represents a delayed check of function {\ltiufun{\ltivar{}}{\ltiE{}}}
+in type environment {\ltiEnv{}}.
 
 \begin{figure}
   \begin{mathpar}
@@ -887,34 +899,334 @@ $$
                   {\ltiE{}}
                   {\ltiS{}}
                   \\\\
-    \ltisubtype{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+    \ltiisubtype{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
                {\ltiArrow{\ltiS{}}{}{\ltiT{}}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{}{\ltiE{}}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
                   {\ltiT{}}
     }
 
 
+
     \infer [(S-Closure)]
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiufun{\ltivar{}}{\ltiE{}}}
-                  {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    \ltitjudgement{\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
     }
     {
-    \ltisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    \ltiisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
     }
 
   \end{mathpar}
-  \caption{Symbolic Closure Type Extensions to Type system for internal language:
+  \caption{Symbolic Closure Type Extensions to Type System for Monomorphic Internal Language:
   $\ltitjudgement{\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiT{}}$
                  and
-                 $\ltisubtype{\ltiT{}}{\ltiS{}}$.
+                 $\ltiisubtype{\ltiT{}}{\ltiS{}}$.
+  \label{symbolic:figure:internal-language-type-system-extension}
+  }
+\end{figure}
+
+\figref{symbolic:figure:internal-language-type-system-extension}
+shows our extensions to the type system.
+\textsc{I-UAbs} assigns unannotated functions a symbolic closure type.
+The rules \textsc{I-UApp} and \textsc{S-Closure} together handle
+checking symbolic closures.
+In \textsc{I-UApp}, the argument type \ltiS{} (which itself might contain
+symbolic closures via \textsc{I-UAbs}) is
+propagated to
+\textsc{S-Closure}
+where it is used as the parameter type to check the body of the symbolic
+closure.
+Moving the checking of a symbolic closure to 
+\textsc{S-Closure},
+(instead of \textsc{I-UApp})
+allows symbolic closures to participate with other rules.
+In particular, checking \clj{(f (fn [x] (inc x)))},
+where \clj{f : [[Int -> Int] -> Int]},
+uses the \textsc{I-App} application rule,
+but manages to propagate \clj{x : Int}
+via \textsc{S-Closure}.
+
+Note that \textsc{S-Closure} uses the symbolic closure's definition type environment
+for type checking. The definition environment is (somewhat analogously to runtime closures)
+``captured'' by \textsc{I-UAbs},
+and carefully propagated in select rules.
+For example, in \textsc{S-UApp}
+the definition environment \ltiEnvp{} is passed to subtyping,
+rather than the application environment \ltiEnv{}.
+This arrangement correctly type checks \figref{symbolic:example:closure-red}.
+
+\subsection{External Language}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+%  \ltiE{}, \ltiF{} &::=& ... \alt
+%                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
+%                         \ltiapp{\ltiF{}}{\ltiE{}}
+%                      &\mbox{Terms} \\
+  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
+                         \ltiSyn{\ltitvar{}} \alt
+                         \ltiSyn{\ltiTop{}} \alt
+                         \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiArrowMono{\ltiT{}}{\ltiS{}}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                      &\mbox{Synthesized types} \\
+  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
+                         \ltiChk{\ltitvar{}} \alt
+                         \ltiChk{\ltiTop{}} \alt
+                         \ltiChk{\ltiBot{}} \alt
+                         \ltiChk{\ltiArrowMono{\ltiT{}}{\ltiS{}}} \alt
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                      &\mbox{Inherited types} \\
+  \ltiSynChk{\ltiT{}}, \ltiSynChk{\ltiS{}}, \ltiSynChk{\ltiR{}} &::=& 
+                         \ltiSyn{\ltitvar{}} \alt
+                         \ltiSyn{\ltiTop{}} \alt
+                         \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
+                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                                    \\&\alt&
+                         \ltiChk{\ltitvar{}} \alt
+                         \ltiChk{\ltiTop{}} \alt
+                         \ltiChk{\ltiBot{}} \alt
+                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}}
+                         \alt
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
+                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                      &\mbox{General types} \\
+  \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}} \alt
+                  \ltiEmptyEnv{} \alt
+                  \ltiSyn{\ltitvar{}} \alt
+                  \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
+                      &\mbox{Environments} \\
+  \ltiC{} &::=& {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiT{}}, ...,
+                          \ltiCEntry{\ltiT{}}{\ltitvar{n}}{\ltiT{}}}}
+                      &\mbox{Constraint sets} \\
+\end{array}
+$$
+\caption{External Language Syntax}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer[(C-Var)]
+    {
+    \ltiEnvLookup{\ltiEnv{}}{\ltivar{}} = \ltiT{}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}{\ltivar{}}{\ltiSyn{\ltiT{}}}
+    }
+
+    \infer [($\text{C-Abs}_{tp}$)]
+    {
+    \lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                  {\ltiE{}}
+                  {\ltiS{}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiSyn{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+    }
+
+    \infer[(C-Sub)]
+    {\lticjudgement{\ltiEnv{}}
+                   {\ltiE{}}
+                   {\ltiT{}}
+                   \\
+                   \lticsubtype{\ltiT{}}{\ltiTp{}}
+    }
+    {\lticjudgement{\ltiEnv{}}
+                   {\ltiE{}}
+                   {\ltiTp{}}
+                   }
+
+    \infer[(C-Abs)]
+    {\lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                   {\ltiE{}}
+                   {\ltiS{}}
+                   \\
+                   \ova{\ltitvar{}} \not\in \ltitv{\ltiE{}}
+    }
+    {\lticjudgement{\ltiEnv{}}
+                   {\ltiufun{\ltivar{}}{\ltiE{}}}
+                   {\ltiChk{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+                   }
+
+    \infer [($\text{C-App}_{tp}$)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                 \\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiChk{\ltiS{}}}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}
+                  }
+
+  \end{mathpar}
+  \caption{Colored Type System rules
+  $\lticjudgement{\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+  }
+\end{figure}
+
+
+
+\subsection{Type Inference Algorithm}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [(W-Var)]
+    {}
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}{\ltivar{}}
+                 {\ltimatchsuper{\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}{\ltiP{}}}
+    }
+
+    
+    \infer [(W-Abs)]
+    {
+    \ltijudgement{\ltiP{}}
+                 {\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrowMono{\ltiT{}}{\ltiP{}}}
+                 {\ltiEnv{}}
+                 {\ltiufun{\ltivar{}}{\ltiE{}}}
+                 {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
+    }
+
+    \infer [($\text{W-App}_{\ltiBot}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiBot}
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiBot{}}
+                                {\ltiP{}}}
+    }
+
+    \infer [(W-Sel)]
+    {
+    \ltijudgement{\ltiRec{\hastype{\ltivar{}}{\ltiP{}}}}{\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiRec{\hastype{\ltivar{}}{\ltiT{}}}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltisel{\ltiF{}}{\ltivar{}}}
+                 {\ltiT{}}
+    }
+
+    \infer [($\text{W-Rec}_{\ltiWild{}}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+    }
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+
+    \infer [($\text{W-Rec}_{\ltiTop}$)]
+    {
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+    }
+    {
+    \ltijudgement{\ltiTop{}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+
+    \infer [(W-Rec)]
+    {
+    (
+    \ltijudgement{\ltiP{1}}
+                 {\ltiEnv{}}
+                 {\ltiF{1}}
+                 {\ltiT{1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiP{m}}
+                 {\ltiEnv{}}
+                 {\ltiF{m}}
+                 {\ltiT{m}}
+                 )
+    \\\\
+    (
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiF{m+1}}
+                 {\ltiT{m+1}}
+                 \\
+                 ...
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiF{n}}
+                 {\ltiT{n}}
+                 )
+    }
+    {
+    \ltijudgement{\ltiRec{\hastype{\ltivar{1}}{\ltiP{1}}, ..., \hastype{\ltivar{m}}{\ltiP{m}}}}
+                 {\ltiEnv{}}
+                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
+    }
+  \end{mathpar}
+  \caption{Type Inference algorithm rules
+  $\ltijudgement{\ltiP{}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
   }
 \end{figure}
 
@@ -1128,99 +1440,149 @@ completed in 45 seconds (with around 20,000 lines of principal types).
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& ... \alt
-                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
-                         \ltiapp{\ltiF{}}{\ltiE{}}
+                         \ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
+                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}}
                       &\mbox{Terms} \\
-  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
-                         \ltiSyn{\ltivar{}} \alt
-                         \ltiSyn{\ltiTop{}} \alt
-                         \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-                      &\mbox{Synthesized types} \\
-  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
-                         \ltiChk{\ltivar{}} \alt
-                         \ltiChk{\ltiTop{}} \alt
-                         \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}} \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-                      &\mbox{Inherited types} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
-                         \ltiSyn{\ltivar{}} \alt
-                         \ltiSyn{\ltiTop{}} \alt
-                         \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
-                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
-                                    \\&\alt&
-                         \ltiChk{\ltivar{}} \alt
-                         \ltiChk{\ltiTop{}} \alt
-                         \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiArrow{\ltiSynChk{\ltiT{}}}{\overline{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}
-                         \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
-                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
-                      &\mbox{General types} \\
-  \ltiC{} &::=& {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiT{}}, ...,
-                          \ltiCEntry{\ltiT{}}{\ltitvar{n}}{\ltiT{}}}}
-                      &\mbox{Constraint sets} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt
+                         \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}} \alt
+                      &\mbox{Types} \\
 \end{array}
 $$
-\caption{External Language}
+\caption{Internal Language syntax extensions for polymorphic functions}
+\label{symbolic:figure:internal-language}
 \end{figure}
 
 \begin{figure}
   \begin{mathpar}
-    \infer [(W-var)]
-    {}
+    \infer [(I-AbsPoly)]
+    { 
+    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
     {
-    \ltijudgement{\ltiP{}}{\ltiEnv{}}{\ltivar{}}
-                 {\ltimatchsuper{\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}{\ltiP{}}}
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 }
+
+    \infer [(I-AppPoly)]
+    {
+    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
+                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                  \\
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiSp{}}
+                  \\
+    \ltiisubtype{\ltiSp{}}{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
     }
 
-    %\infer [($\text{W-abs}_{tp,?}$)]
-    %{
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-    %             {\ltiE{}}
-    %             {\ltiS{}}
-    %}
-    %{
-    %\ltijudgement{\ltiWild{}}{\ltiEnv{}}
-    %             {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-    %             {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    %}
-
-    %\infer [($\text{W-abs}_{tp}$)]
-    %{
-    %\ltijudgement{\ltiPp{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-    %             {\ltiE{}}
-    %             {\ltiS{}}
-    %}
-    %{
-    %\ltijudgement{\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}
-    %             {\ltiEnv{}}
-    %             {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-    %             {\ltimatchsuper{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    %                            {\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}}
-    %}
-    
-    %\infer [($\text{W-abs}_{tp,\ltiTop}$)]
-    %{
-    %\ltijudgement{\ltiTop}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-    %             {\ltiE{}}
-    %             {\ltiS{}}
-    %}
-    %{
-    %\ltijudgement{\ltiTop}
-    %             {\ltiEnv{}}
-    %             {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-    %             {\ltiTop}
-    %}
-    
-    \infer [(W-abs)]
+    \infer [($\text{I-AppPoly}_{\ltiBot}$)]
     {
-    \ltijudgement{\ltiP}
+    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
+                  {\ltiBot}
+                  \\
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiR{}}
+    }
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiappinst{\ltiF{}}{\overline{\ltiT{}}}{\ltiE{}}}
+                  {\ltiBot}
+    }
+
+    \infer [(S-ClosurePoly)]
+    {
+    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                  {\ltiE{}}
+                  {\ltiS{}}
+    }
+    {
+    \ltiisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+
+    \infer [(S-FunPoly)]
+    {
+    \ltiisubtype{\ltiT{1}}{\ltiTp{1}}
+    \\
+    \ltiisubtype{\ltiT{2}}{\ltiTp{2}}
+    }
+    {
+    \ltiisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
+               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    }
+  \end{mathpar}
+  \caption{Internal language type system extensions for polymorphic functions
+  $\ltitjudgement{\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+                 and
+                 $\ltiisubtype{\ltiT{}}{\ltiS{}}$.
+  \label{symbolic:figure:internal-language-type-system-extension}
+  }
+\end{figure}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+\end{array}
+$$
+\caption{Syntax Extensions for type argument inference.}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [($\text{W-Abs}_{tp,?}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiWild{}}{\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+
+    \infer [($\text{W-Abs}_{tp}$)]
+    {
+    \ltijudgement{\ltiPp{}}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                                {\ltiArrow{\ltiP{}}{\overline{\ltitvar{}}}{\ltiPp{}}}}
+    }
+    
+    \infer [($\text{W-Abs}_{tp,\ltiTop}$)]
+    {
+    \ltijudgement{\ltiTop}{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                 {\ltiTop}
+    }
+    
+    \infer [(W-AbsPoly)]
+    {
+    \ltijudgement{\ltiP{}}
                  {\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
                  {\ltiE{}}
                  {\ltiS{}}
@@ -1232,64 +1594,52 @@ $$
                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
     }
 
-    %\infer [($\text{W-app}_{tp}$)]
-    %{
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{}}
-    %             {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
-    %             \\
-    %\ltijudgement{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    %             {\ltiEnv{}}
-    %             {\ltiE{}}
-    %             {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    %}
-    %{
-    %\ltijudgement{\ltiP{}}{\ltiEnv{}}
-    %             {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-    %             {\ltimatchsuper{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
-    %                            {\ltiP{}}}
-    %}
+    \infer [($\text{W-App}_{tp}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                 \\
+    \ltijudgement{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
+                                {\ltiP{}}}
+    }
 
-    %\infer [($\text{W-app}_{tp,\ltiBot}$)]
-    %{
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{}}
-    %             {\ltiBot}
-    %             \\
-    %\ltijudgement{\ltiTop}
-    %             {\ltiEnv{}}
-    %             {\ltiE{}}
-    %             {\ltiS{}}
-    %}
-    %{
-    %\ltijudgement{\ltiP{}}{\ltiEnv{}}
-    %             {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-    %             {\ltimatchsuper{\ltiBot{}}
-    %                            {\ltiP{}}}
-    %}
+    \infer [($\text{W-App}_{tp,\ltiBot}$)]
+    {
+    \ltijudgement{\ltiWild{}}
+                 {\ltiEnv{}}
+                 {\ltiF{}}
+                 {\ltiBot}
+                 \\
+    \ltijudgement{\ltiTop}
+                 {\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiS{}}
+    }
+    {
+    \ltijudgement{\ltiP{}}{\ltiEnv{}}
+                 {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                 {\ltimatchsuper{\ltiBot{}}
+                                {\ltiP{}}}
+    }
 
-    %\infer [($\text{W-app}_{\ltiBot}$)]
-    %{
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{}}
-    %             {\ltiBot}
-    %             \\
-    %\ltijudgement{\ltiTop}
-    %             {\ltiEnv{}}
-    %             {\ltiE{}}
-    %             {\ltiS{}}
-    %}
-    %{
-    %\ltijudgement{\ltiP{}}{\ltiEnv{}}
-    %             {\ltiapp{\ltiF{}}{\ltiE{}}}
-    %             {\ltimatchsuper{\ltiBot{}}
-    %                            {\ltiP{}}}
-    %}
+  \end{mathpar}
+  \caption{Extensions to Type Inference algorithm for polymorphic functions.
+  }
+\end{figure}
 
-    \infer [(W-app)]
+\begin{figure}
+  \begin{mathpar}
+    \infer [(W-App)]
     {
     \ltijudgement{\ltiWild{}}{\ltiEnv{}}{\ltiF{}}
                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
@@ -1308,104 +1658,11 @@ $$
                  {\ltiapp{\ltiF{}}{\ltiE{}}}
                  {\ltiSubst{\ltiCUnion{\ltiC{1}}{\ltiC{2}}}{\ltiT{}}{\ltimatchsuper{\ltiT{}}{\ltiP{}}}}
     }
-
-    %\infer [(W-sel)]
-    %{
-    %\ltijudgement{\ltiRec{\hastype{\ltivar{}}{\ltiP{}}}}{\ltiEnv{}}
-    %             {\ltiF{}}
-    %             {\ltiRec{\hastype{\ltivar{}}{\ltiT{}}}}
-    %}
-    %{
-    %\ltijudgement{\ltiP{}}{\ltiEnv{}}
-    %             {\ltisel{\ltiF{}}{\ltivar{}}}
-    %             {\ltiT{}}
-    %}
-
-    %\infer [($\text{W-rec}_{\ltiWild{}}$)]
-    %{
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{1}}
-    %             {\ltiT{1}}
-    %             \\
-    %             ...
-    %             \\
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{n}}
-    %             {\ltiT{n}}
-    %}
-    %{
-    %\ltijudgement{\ltiWild{}}
-    %             {\ltiEnv{}}
-    %             {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-    %             {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-    %}
-
-    %\infer [($\text{W-rec}_{\ltiTop}$)]
-    %{
-    %\ltijudgement{\ltiTop{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{1}}
-    %             {\ltiT{1}}
-    %             \\
-    %             ...
-    %             \\
-    %\ltijudgement{\ltiTop{}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{n}}
-    %             {\ltiT{n}}
-    %}
-    %{
-    %\ltijudgement{\ltiTop{}}
-    %             {\ltiEnv{}}
-    %             {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-    %             {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-    %}
-
-    %\infer [(W-rec)]
-    %{
-    %(
-    %\ltijudgement{\ltiP{1}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{1}}
-    %             {\ltiT{1}}
-    %             \\
-    %             ...
-    %             \\
-    %\ltijudgement{\ltiP{m}}
-    %             {\ltiEnv{}}
-    %             {\ltiF{m}}
-    %             {\ltiT{m}}
-    %             )
-    %\\
-    %(
-    %\ltijudgement{\ltiTop}
-    %             {\ltiEnv{}}
-    %             {\ltiF{m+1}}
-    %             {\ltiT{m+1}}
-    %             \\
-    %             ...
-    %             \\
-    %\ltijudgement{\ltiTop}
-    %             {\ltiEnv{}}
-    %             {\ltiF{n}}
-    %             {\ltiT{n}}
-    %             )
-    %}
-    %{
-    %\ltijudgement{\ltiRec{\hastype{\ltivar{1}}{\ltiP{1}}, ..., \hastype{\ltivar{m}}{\ltiP{m}}}}
-    %             {\ltiEnv{}}
-    %             {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-    %             {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
-    %}
   \end{mathpar}
-  \caption{Select Colored Local type inference algorithmic rules
-  $\ltijudgement{\ltiP{}}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}}$
+  \caption{
+  Extension to type inference algorithm for type argument reconstruction.
   }
+
 \end{figure}
 
 % - Solution
