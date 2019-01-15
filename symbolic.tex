@@ -1011,34 +1011,19 @@ $$
                   \ltiSyn{\ltitvar{}} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
-  \ltiC{} &::=& {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiT{}}, ...,
-                          \ltiCEntry{\ltiT{}}{\ltitvar{n}}{\ltiT{}}}}
-                      &\mbox{Constraint sets} \\
 \end{array}
 $$
-\caption{Monomorphic Colored Type System Syntax}
+\caption{Monomorphic Colored Type System Syntax (External Language)}
 \end{figure}
 
 \begin{figure}
   \begin{mathpar}
     \infer[(C-Var)]
     {
-    \ltiEnvLookup{\ltiEnv{}}{\ltivar{}} = \ltiT{}
+    \ltiEnvLookup{\ltiEnv{}}{\ltivar{}} = {\ltiSyn{\ltiT{}}}
     }
     {
     \lticjudgement{\ltiEnv{}}{\ltivar{}}{\ltiSyn{\ltiT{}}}
-    }
-
-    \infer [($\text{C-Abs}_{tp}$)]
-    {
-    \lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                  {\ltiE{}}
-                  {\ltiS{}}
-    }
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiSyn{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
     }
 
     \infer[(C-Sub)]
@@ -1054,88 +1039,36 @@ $$
                    }
 
     \infer[(C-Abs)]
-    {\lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                   {\ltiE{}}
-                   {\ltiS{}}
-                   \\
-                   \ova{\ltitvar{}} \not\in \ltitv{\ltiE{}}
-    }
-    {\lticjudgement{\ltiEnv{}}
-                   {\ltiufun{\ltivar{}}{\ltiE{}}}
-                   {\ltiChk{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
-                   }
-
-    \infer [($\text{C-App}_{tp}$)]
     {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
-                 \\
-    \lticjudgement{\ltiEnv{}}
+    \lticjudgement{\ltiEnv{}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
                   {\ltiE{}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiChk{\ltiS{}}}}
+                  {\ltiS{}}
     }
     {
     \lticjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}
-                  }
+                  {\ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiSyn{\ltiArrowMono{\ltiT{}}{\ltiSynChk{\ltiS{}}}}}
+    }
 
     \infer [(C-App)]
     {
     \lticjudgement{\ltiEnv{}}
                   {\ltiF{}}
-                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                  {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiS{}}}{\ltiSyn{\ltiT{}}}}}
                   \\
     \lticjudgement{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiSp{}}
                   \\
-                  \ltiagreeexcepttvars{\ltiSp{}}{\ova{\ltitvar{}}}{\ltiChk{\ltiS{}}}
-                  \\\\
                   \lticsubtype{\ltiSp{}}
-                              {\ltireplace{\ova{\ltiR{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiChk{\ltiS{}}}}
-                  \\
-                  \lticsubtype{\ltireplace{\ova{\ltiR{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiSyn{\ltiT{}}}}
-                              {\ltiTp{}}
-                  \\\\
-      \forall \ova{\ltiRp{}}, \ltiTpp{}.
-      (
-                  {\lticsubtype{\ltiSp{}}
-                              {\ltireplace{\ova{\ltiRp{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiChk{\ltiS{}}}}}
-                                          \ \ 
-                                          \wedge
-                                          \ \ 
-                  {\lticsubtype{\ltireplace{\ova{\ltiRp{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiSyn{\ltiT{}}}}
-                              {\ltiTpp{}}}
-                                          \ \ 
-                                          \wedge
-                                          \ \ 
-                              {\lticoincideinherited{\ltiTpp{}}{\ltiTp{}}}
-                                          \ \ 
-                              \Rightarrow
-                                          \ \ 
-                  {\lticsubtype{\ltireplace{\ova{\ltiR{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiSyn{\ltiT{}}}}
-                               {\ltireplace{\ova{\ltiRp{}}}
-                                           {\ova{\ltitvar{}}}
-                                           {\ltiChk{\ltiT{}}}}}
-      )
+                              {\ltiChk{\ltiS{}}}
     }
     {
     \lticjudgement{\ltiEnv{}}
                   {\ltiapp{\ltiF{}}{\ltiE{}}}
                   {\ltiTp{}}
                  }
+
 
     \infer [(C-Sel)]
     {
@@ -1167,9 +1100,37 @@ $$
                   {\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
     }
 
+    \\
+
+    \infer [(C-UAbs)]
+    { }
+    {\lticjudgement{\ltiEnv{}}
+                   {\ltiufun{\ltivar{}}{\ltiE{}}}
+                   {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                   }
+
+    \infer [(C-UApp)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                  \\\\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiSynChk{\ltiS{}}}
+                  \\\\
+                  \lticsubtype{\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                              {\ltiChk{\ltiArrowMono{\ltiSynChk{\ltiS{}}}{\ltiSynChk{\ltiT{}}}}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiSynChk{\ltiT{}}}
+    }
+
 
   \end{mathpar}
-  \caption{Colored Type System rules
+  \caption{Monomorphic Colored Type System rules
   $\lticjudgement{\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiT{}}$
@@ -1177,8 +1138,17 @@ $$
 \end{figure}
 
 
-
 \subsection{Type Inference Algorithm}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiC{} &::=& {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiT{}},...,\ltiCEntry{\ltiT{}}{\ltitvar{n}}{\ltiT{}}}}
+                      &\mbox{Constraint sets} \\
+\end{array}
+$$
+\caption{Type Inference Syntax}
+\end{figure}
 
 \begin{figure}
   \begin{mathpar}
@@ -1628,6 +1598,111 @@ $$
 \end{array}
 $$
 \caption{Syntax Extensions for type argument inference.}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [($\text{C-AbsPoly}_{tp}$)]
+    {
+    \lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                  {\ltiE{}}
+                  {\ltiS{}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiSyn{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+    }
+
+    \infer[(C-AbsPoly)]
+    {\lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                   {\ltiE{}}
+                   {\ltiS{}}
+                   \\
+                   \ova{\ltitvar{}} \not\in \ltitv{\ltiE{}}
+    }
+    {\lticjudgement{\ltiEnv{}}
+                   {\ltiufun{\ltivar{}}{\ltiE{}}}
+                   {\ltiChk{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+                   }
+
+    \infer [($\text{C-AppPoly}_{tp}$)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                 \\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiChk{\ltiS{}}}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}
+                  }
+
+    \infer [(C-AppPoly)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                  \\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiSp{}}
+                  \\
+                  \ltiagreeexcepttvars{\ltiSp{}}{\ova{\ltitvar{}}}{\ltiChk{\ltiS{}}}
+                  \\\\
+                  \lticsubtype{\ltiSp{}}
+                              {\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiChk{\ltiS{}}}}
+                  \\
+                  \lticsubtype{\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                              {\ltiTp{}}
+                  \\\\
+      \forall \ova{\ltiRp{}}, \ltiTpp{}.
+      (
+                  {\lticsubtype{\ltiSp{}}
+                              {\ltireplace{\ova{\ltiRp{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiChk{\ltiS{}}}}}
+                                          \ \ 
+                                          \wedge
+                                          \ \ 
+                  {\lticsubtype{\ltireplace{\ova{\ltiRp{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                              {\ltiTpp{}}}
+                                          \ \ 
+                                          \wedge
+                                          \ \ 
+                              {\lticoincideinherited{\ltiTpp{}}{\ltiTp{}}}
+                                          \ \ 
+                              \Rightarrow
+                                          \ \ 
+                  {\lticsubtype{\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                               {\ltireplace{\ova{\ltiRp{}}}
+                                           {\ova{\ltitvar{}}}
+                                           {\ltiChk{\ltiT{}}}}}
+      )
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiTp{}}
+                 }
+  \end{mathpar}
+  \caption{Polymorphic Colored Type System rules
+  $\lticjudgement{\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}$
+  }
 \end{figure}
 
 \begin{figure}
