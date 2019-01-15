@@ -25,9 +25,11 @@
 \newmeta\ltiD{D}
 \newmeta\ltiT{T}
 \newmeta\ltiTp{T'}
+\newmeta\ltiTpp{T''}
 \newmeta\ltiS{S}
 \newmeta\ltiSp{S'}
 \newmeta\ltiR{R}
+\newmeta\ltiRp{R'}
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
@@ -54,11 +56,14 @@
 \newcommand\lticjudgement[3]{\ma{#1 \vdash^{c} {\hastype{#2}{#3}}}}
 % non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
+% non-colored subtyping (deprecated)
 \newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored)
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for colored (external) types 
 \newcommand\lticsubtype[2]{\ma{#1 \leq #2}}
+\newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
+\newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
 \newcommand\ltigendconstraint[6]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5, #6}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}

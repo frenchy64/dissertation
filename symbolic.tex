@@ -1076,6 +1076,62 @@ $$
                   {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}
                   }
 
+    \infer [(C-App)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                  \\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiSp{}}
+                  \\
+                  \ltiagreeexcepttvars{\ltiSp{}}{\ova{\ltitvar{}}}{\ltiChk{\ltiS{}}}
+                  \\\\
+                  \lticsubtype{\ltiSp{}}
+                              {\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiChk{\ltiS{}}}}
+                  \\
+                  \lticsubtype{\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                              {\ltiTp{}}
+                  \\\\
+      \forall \ova{\ltiRp{}}, \ltiTpp{}.
+      (
+                  {\lticsubtype{\ltiSp{}}
+                              {\ltireplace{\ova{\ltiRp{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiChk{\ltiS{}}}}}
+                                          \ \ 
+                                          \wedge
+                                          \ \ 
+                  {\lticsubtype{\ltireplace{\ova{\ltiRp{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                              {\ltiTpp{}}}
+                                          \ \ 
+                                          \wedge
+                                          \ \ 
+                              {\lticoincideinherited{\ltiTpp{}}{\ltiTp{}}}
+                                          \ \ 
+                              \Rightarrow
+                                          \ \ 
+                  {\lticsubtype{\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                               {\ltireplace{\ova{\ltiRp{}}}
+                                           {\ova{\ltitvar{}}}
+                                           {\ltiChk{\ltiT{}}}}}
+      )
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiTp{}}
+                 }
+
   \end{mathpar}
   \caption{Colored Type System rules
   $\lticjudgement{\ltiEnv{}}
