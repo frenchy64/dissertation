@@ -975,32 +975,37 @@ $$
                          \ltiSyn{\ltitvar{}} \alt
                          \ltiSyn{\ltiTop{}} \alt
                          \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiArrowMono{\ltiT{}}{\ltiS{}}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSyn{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSyn{\ltiT{n}}}}}
+                         \\&\alt&
+                         \ltiSyn{\ltiArrowMono{\ltiSyn{\ltiT{}}}{\ltiSyn{\ltiS{}}}} \alt
+                         \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                       &\mbox{Synthesized types} \\
   \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
                          \ltiChk{\ltitvar{}} \alt
                          \ltiChk{\ltiTop{}} \alt
                          \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiArrowMono{\ltiT{}}{\ltiS{}}} \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiChk{\ltiT{n}}}}}
+                         \\&\alt&
+                         \ltiChk{\ltiArrowMono{\ltiChk{\ltiT{}}}{\ltiChk{\ltiS{}}}} \alt
+                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                       &\mbox{Inherited types} \\
   \ltiSynChk{\ltiT{}}, \ltiSynChk{\ltiS{}}, \ltiSynChk{\ltiR{}} &::=& 
                          \ltiSyn{\ltitvar{}} \alt
                          \ltiSyn{\ltiTop{}} \alt
                          \ltiSyn{\ltiBot{}} \alt
+                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                                    \\&\alt&
                          \ltiSyn{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
-                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                         \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                                     \\&\alt&
                          \ltiChk{\ltitvar{}} \alt
                          \ltiChk{\ltiTop{}} \alt
                          \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}}
-                         \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},
-                                    ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
-                      &\mbox{General types} \\
+                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+                         \\&\alt&
+                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
+                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                      &\mbox{Colored types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}} \alt
                   \ltiEmptyEnv{} \alt
                   \ltiSyn{\ltitvar{}} \alt
@@ -1011,7 +1016,7 @@ $$
                       &\mbox{Constraint sets} \\
 \end{array}
 $$
-\caption{External Language Syntax}
+\caption{Monomorphic Colored Type System Syntax}
 \end{figure}
 
 \begin{figure}
