@@ -646,21 +646,29 @@ $$
                          \ltiapp{\ltiF{}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
+                         \alt
+                         \ltiufun{\ltivar{}}{\ltiE{}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiTop \alt
                          \ltiBot \alt
                          \ltiArrowMono{\ltiT{}}{\ltiS{}} \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
+                         \alt
+                        \ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
                   \ltitvar{} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
+  \ltiFuel{} &::=& \ltinat{}
+                      &\mbox{Fuel} \\
 \end{array}
 $$
-\caption{Monomorphic Internal Language}
+\caption{Monomorphic Internal Language,
+  where $\ltinat{} \in \mathbb{N}$.
+  }
 \label{symbolic:figure:internal-language}
 \end{figure}
 
@@ -836,57 +844,7 @@ and concatenation
     \ltiisubtype{\ltiArrowMono{\ltiTp{1}}{\ltiT{2}}}
                 {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
     }
-  \end{mathpar}
-  \caption{Type system for internal language:
-   \ltitjudgement{\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}} 
-                 and
-                 \ltiisubtype{\ltiT{}}{\ltiS{}}.
-  }
-  \label{symbolic:figure:internal-language-type-system}
-\end{figure}
 
-\figref{symbolic:figure:internal-language-type-system}
-presents the type system for this internal language.
-The main judgment
-\ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}} 
-says that expression \ltiE{} is of type \ltiT{}
-in environment \ltiEnv{}.
-
-\subsection{Extensions for Symbolic Closure Types}
-
-\begin{figure}
-$$
-\begin{array}{lrll}
-  \ltiE{}, \ltiF{} &::=& ... \alt
-                         \ltiufun{\ltivar{}}{\ltiE{}}
-                      &\mbox{Terms} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt
-                        \ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
-                      &\mbox{Types} \\
-  \ltiFuel{} &::=& \ltinat{}
-                      &\mbox{Fuel} \\
-
-\end{array}
-$$
-\caption{Monomorphic Internal Language Extensions for Symbolic Closure Types,
-  where $\ltinat{} \in \mathbb{N}$.
-  }
-  \label{symbolic:figure:internal-language-syntax-extension}
-\end{figure}
-
-We extend the internal language to support symbolic closure types.
-\figref{symbolic:figure:internal-language-syntax-extension}
-shows our syntax extensions. We allow unannotated functions
-\ltiufun{\ltivar{}}{\ltiE{}} as a term.
-A symbolic closure type
-\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
-represents a delayed check of function {\ltiufun{\ltivar{}}{\ltiE{}}}
-in type environment {\ltiEnv{}}.
-
-\begin{figure}
-  \begin{mathpar}
     \infer [(I-UAbs)]
     {}
     {
@@ -941,28 +899,46 @@ in type environment {\ltiEnv{}}.
     }
 
   \end{mathpar}
-  \caption{Symbolic Closure Type Extensions to Type System for Monomorphic Internal Language:
+  \caption{Type system for monomorphic internal language:
   \ltitfjudgement{\ltiFuel{}}
                  {\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiT{}}
                  {\ltiFuel{}}
                  and
-                 \ltiifsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}.
+                 \ltiifsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}
   (abbreviated
    \ltitjudgement{\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiT{}}
                  and 
-                 \ltiisubtype{\ltiT{}}{\ltiS{}}
+                 \ltiisubtype{\ltiT{}}{\ltiS{}}, respectively,
                  when fuel
-                 propagates left-to-right through its premises
-                 like \textsc{I-UApp})
-                 }
-  \label{symbolic:figure:internal-language-type-system-extension}
+                 propagates directly from left-to-right through its premises
+                 like \textsc{I-UApp}).
+  }
+  \label{symbolic:figure:internal-language-type-system}
 \end{figure}
 
-\figref{symbolic:figure:internal-language-type-system-extension}
+\figref{symbolic:figure:internal-language-type-system}
+presents the type system for this internal language.
+The main judgment
+\ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}} 
+says that expression \ltiE{} is of type \ltiT{}
+in environment \ltiEnv{}.
+
+\subsection{Extensions for Symbolic Closure Types}
+
+We extend the internal language to support symbolic closure types.
+We allow unannotated functions
+\ltiufun{\ltivar{}}{\ltiE{}} as a term.
+A symbolic closure type
+\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+represents a delayed check of function {\ltiufun{\ltivar{}}{\ltiE{}}}
+in type environment {\ltiEnv{}}.
+
+The last three rules
+of \figref{symbolic:figure:internal-language-type-system}
 shows our extensions to the type system.
 \textsc{I-UAbs} assigns unannotated functions a symbolic closure type.
 The rules \textsc{I-UApp} and \textsc{S-Closure} together handle
@@ -1036,8 +1012,6 @@ $$
 %                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
 %                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
 %                      &\mbox{Colored types} \\
-  \ltiSynChk{} &::=& \ltiSyn{} \alt \ltiChk{}
-                      &\mbox{Colors} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& 
                          \ltiSynChk{\ltitvar{}} \alt
                          \ltiSynChk{\ltiTop} \alt
@@ -1054,7 +1028,13 @@ $$
                       &\mbox{Environments} \\
 \end{array}
 $$
-\caption{Monomorphic Colored Type System Syntax (External Language)}
+\caption{Monomorphic Colored Type System Syntax (External Language).
+A type constructor's color \ltiSynChk{} is always one of \ltiSyn{} (``synthesized'') or \ltiChk{} (``inherited'').
+We write \ltiSyn{\ltiT{}} if \ltiT{} only contains synthesized constructors, and 
+\ltiChk{\ltiT{}} if \ltiT{} only contains inherited constructors.
+If the same constructor appears more than once in a rule without annotation,
+they are assumed to have the same color.
+}
 \end{figure}
 
 \begin{figure}
@@ -1069,7 +1049,7 @@ $$
     \\
     \lticsubtype{\ltiT{2}}{\ltiT{3}}
     }
-    {\lticsubtype{\ltiT{1}}{\ltiT{2}}}
+    {\lticsubtype{\ltiT{1}}{\ltiT{3}}}
 
     \infer[]
     {}
@@ -1159,21 +1139,45 @@ $$
     \\
 
     \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                 {\ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiBot}}
+                 {\ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                 {\ltiChk{\ltiTop}}
+                 }
+
+    \infer[SC-Closure]
     {
-    \ltitjudgement{\ltiEnv{},\hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                 {\ltiE{}}
-                 {\ltiChk{\ltiS{}}}
+    \ltiFuel{} > 0
+    \\
+    \ltitfjudgement{\ltiFuel{} - 1}
+                   {\ltiEnv{},\hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                   {\ltiE{}}
+                   {\ltiSynChk{\ltiS{}}}
+                   {\ltiFuelp{}}
     }
     {
-    \lticsubtype{\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-                {\ltiSyn{\ltiArrowMono{\ltiChk{\ltiT{}}}{\ltiChk{\ltiS{}}}}}
+    \lticfsubtype{\ltiFuel{}}
+                 {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                 {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiT{}}}{\ltiSynChk{\ltiS{}}}}}
+                 {\ltiFuelp{}}
     }
 
   \end{mathpar}
   \caption{Subtyping for colored types
-  \lticsubtype{\ltiT{}}{\ltiS{}}.
-  The upside-down $\leq$ relation 
-  is defined like $\leq$, except with inverted colors.
+  \lticfsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}},
+  abbreviated 
+  \lticsubtype{\ltiT{}}{\ltiS{}} when fuel flows left-to-right between premises.
+  The upside-down \lticsubtypesymbol relation 
+  is defined like \lticsubtypesymbol, except with inverted colors.
   % TODO can't have this command in a caption (rotatebox incompatibility I think)
   %The relation
   %\ltiinvertedleq
@@ -1215,25 +1219,21 @@ $$
                   {\ltiSyn{\ltiArrowMono{\ltiT{}}{\ltiSynChk{\ltiS{}}}}}
     }
 
-    \infer [(C-App)]
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiS{}}}{\ltiSyn{\ltiT{}}}}}
-                  \\
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiSp{}}
-                  \\
-                  \lticsubtype{\ltiSp{}}
-                              {\ltiChk{\ltiS{}}}
-    }
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                  {\ltiTp{}}
-                 }
-
+    %\infer [(C-App)]
+    %{
+    %\lticjudgement{\ltiEnv{}}
+    %              {\ltiF{}}
+    %              {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiS{}}}{\ltiSyn{\ltiT{}}}}}
+    %              \\\\
+    %\lticjudgement{\ltiEnv{}}
+    %              {\ltiE{}}
+    %              {\ltiChk{\ltiS{}}}
+    %}
+    %{
+    %\lticjudgement{\ltiEnv{}}
+    %              {\ltiapp{\ltiF{}}{\ltiE{}}}
+    %              {\ltiSyn{\ltiT{}}}
+    %             }
 
     \infer [(C-Sel)]
     {
@@ -1264,9 +1264,7 @@ $$
                   {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
                   {\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
     }
-
-    \\
-
+\\
     \infer [(C-UAbs)]
     { }
     {\lticjudgement{\ltiEnv{}}
@@ -1274,18 +1272,18 @@ $$
                    {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
                    }
 
-    \infer [(C-UApp)]
+    \infer [(C-App)]
     {
     \lticjudgement{\ltiEnv{}}
                   {\ltiF{}}
-                  {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-                  \\\\
+                  {\ltiR{}}
+                  \\
     \lticjudgement{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiSynChk{\ltiS{}}}
-                  \\\\
-                  \lticsubtype{\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-                              {\ltiChk{\ltiArrowMono{\ltiSynChk{\ltiS{}}}{\ltiSynChk{\ltiT{}}}}}
+                  \\
+    \lticsubtype{\ltiR{}}
+                {\ltiChk{\ltiArrowMono{\ltiSynChk{\ltiS{}}}{\ltiSynChk{\ltiT{}}}}}
     }
     {
     \lticjudgement{\ltiEnv{}}
@@ -1296,9 +1294,15 @@ $$
 
   \end{mathpar}
   \caption{Monomorphic Colored Type System rules
-  $\lticjudgement{\ltiEnv{}}
+  \lticfjudgement{\ltiFuel{}}
+                 {\ltiEnv{}}
                  {\ltiE{}}
-                 {\ltiT{}}$
+                 {\ltiT{}}
+                 {\ltiFuel{}},
+    abbreviated \lticjudgement{\ltiEnv{}}
+                              {\ltiE{}}
+                              {\ltiT{}}
+    when fuel is propagated left-to-right through premises.
   }
 \end{figure}
 
@@ -1749,7 +1753,7 @@ $$
                  {\ltiT{}}$
                  and
                  $\ltiisubtype{\ltiT{}}{\ltiS{}}$.
-  \label{symbolic:figure:internal-language-type-system-extension}
+  \label{symbolic:figure:internal-language-poly-type-system-extension}
   }
 \end{figure}
 

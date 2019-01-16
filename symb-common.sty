@@ -35,7 +35,9 @@
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
-\newmeta\ltiFuel{\Delta}
+\newcommand\ltiFuelsymbol{\Delta}
+\newmeta\ltiFuel{\ltiFuelsymbol}
+\newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltinat{n}
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
@@ -56,7 +58,10 @@
 % type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
 % colored type system (external language)
-\newcommand\lticjudgement[3]{\ma{#1 \vdash^{c} {\hastype{#2}{#3}}}}
+\newcommand\lticjudgementvdash{\ma{\vdash^{c}}}
+\newcommand\lticjudgement[3]{\ma{#1 \lticjudgementvdash {\hastype{#2}{#3}}}}
+% colored type system (external language) with fuel
+\newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}}\ ;\ #5}}
 % non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
 % non-colored type system (internal language) with fuel
@@ -67,8 +72,11 @@
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored) with fuel
 \newcommand\ltiifsubtype[4]{\ma{#1 \vdash #2 \mathbin{<:} #3 \Rightarrow #4}}
+\newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for colored (external) types 
-\newcommand\lticsubtype[2]{\ma{#1 \leq #2}}
+\newcommand\lticsubtype[2]{\ma{#1 \lticsubtypesymbol #2}}
+% subtype for colored (external) types, with fuel
+\newcommand\lticfsubtype[4]{\ma{#1 \vdash #2 \lticsubtypesymbol #3 \Rightarrow #4}}
 % can't be used in a caption
 \newcommand\ltiinvertedleq{\ma{\mathrel{\raisebox{.1em}{\reflectbox{\rotatebox[origin=c]{180}{$\leq$}}}}}}
 % subtype for colored (external) types but inverted colors
