@@ -5,34 +5,38 @@
 \usepackage{mathtools}
 
 \newmeta\ltivar{x}
-\newmeta\ltiE{E}
-\newmeta\ltiEp{E'}
-\newmeta\ltiF{F}
+\newmeta\ltiE{\esope}
+\newmeta\ltiEp{\esope'}
+\newmeta\ltiF{f}
 \newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
-\newcommand\ltifunmono[3]{\ma{\textbf{fun}(\hastype{#1}{#2})#3}}
-\newcommand\ltiufun[2]{\ma{\textbf{fun}(#1)#2}}
+\newcommand\ltifunmono[3]{\ma{\abs{#1}{#2}{#3}}}
+\newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 \newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
-\newcommand\ltiapp[2]{\ma{#1(#2)}}
-\newcommand\ltisel[2]{\ma{#1 . #2}}
+\newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
+\newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
 \newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
 \newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
-\newmeta\ltitvar{a}
-\newmeta\ltitvarp{a'}
-\newmeta\ltitvarpp{a''}
+\newcommand\ltiALPHA{\alpha}
+\newmeta\ltitvar{\ltiALPHA}
+\newmeta\ltitvarp{\ltiALPHA'}
+\newmeta\ltitvarpp{\ltiALPHA''}
 \newmeta\ltiC{C}
 \newmeta\ltiCp{C'}
 \newmeta\ltiD{D}
-\newmeta\ltiT{T}
-\newmeta\ltiTp{T'}
-\newmeta\ltiTpp{T''}
-\newmeta\ltiS{S}
-\newmeta\ltiSp{S'}
-\newmeta\ltiR{R}
-\newmeta\ltiRp{R'}
+\newmeta\ltiT{\esoptau}
+\newmeta\ltiTp{\esoptau'}
+\newmeta\ltiTpp{\esoptau''}
+\newmeta\ltiS{\esopsigma}
+\newmeta\ltiSp{\esopsigma'}
+\newcommand\ltiRletter{\chi}
+\newmeta\ltiR{\ltiRletter}
+\newmeta\ltiRp{\ltiRletter'}
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
+\newmeta\ltiFuel{\Delta}
+\newmeta\ltinat{n}
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
@@ -55,10 +59,14 @@
 \newcommand\lticjudgement[3]{\ma{#1 \vdash^{c} {\hastype{#2}{#3}}}}
 % non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
+% non-colored type system (internal language) with fuel
+\newcommand\ltitfjudgement[5]{\ma{#1, #2 \vdash {\hastype{#3}{#4}}\ ;\ #5}}
 % non-colored subtyping (deprecated)
 \newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored)
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
+% subtype for internal types (not colored) with fuel
+\newcommand\ltiifsubtype[4]{\ma{#1 \vdash #2 \mathbin{<:} #3 \Rightarrow #4}}
 % subtype for colored (external) types 
 \newcommand\lticsubtype[2]{\ma{#1 \leq #2}}
 % can't be used in a caption

@@ -16,21 +16,25 @@
 \newmeta\const{c}
 
 % types
-\newmeta\s{\sigma}              % these are automatically wrapped in \ma
-\newmeta\sp{\sigma{'}}
-\newmeta\t{\tau}
-\newmeta\tp{\tau{'}}
-\newmeta\tpp{\tau{''}}
+\newcommand\esopsigma{\sigma}
+\newmeta\s{\esopsigma}              % these are automatically wrapped in \ma
+\newmeta\sp{\esopsigma{'}}
+\newcommand\esoptau{\tau}
+\newmeta\t{\esoptau}
+\newmeta\tp{\esoptau{'}}
+\newmeta\tpp{\esoptau{''}}
 \newmeta\T{T}
 
 % expressions
 \newmeta\M{M}
 \newmeta\N{N}
 \newmeta\P{P}
-\newmeta\e{e}
-\newmeta\ep{e'}
-\newmeta\epp{e''}
-\newmeta\expd{d}
+\newcommand\esope{e}
+\newmeta\e{\esope}
+\newmeta\ep{\esope'}
+\newmeta\epp{\esope''}
+\newcommand\esopd{d}
+\newmeta\expd{\esopd}
 \newmeta\ReflectiveExp{R}
 \newmeta\NonReflectiveExp{E}
 \newmeta\MultimethodExp{M}
@@ -272,7 +276,6 @@
 
 % Clojure values
 \newmeta\symbol{symbol}
-\newmeta\nat{n}
 
 % constant calls
 \newbfop\ccclass{class}

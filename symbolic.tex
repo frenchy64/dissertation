@@ -865,9 +865,14 @@ $$
   \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt
                         \ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Types} \\
+  \ltiFuel{} &::=& \ltinat{}
+                      &\mbox{Fuel} \\
+
 \end{array}
 $$
-\caption{Monomorphic Internal Language Extensions for Symbolic Closure Types}
+\caption{Monomorphic Internal Language Extensions for Symbolic Closure Types,
+  where $\ltinat{} \in \mathbb{N}$.
+  }
   \label{symbolic:figure:internal-language-syntax-extension}
 \end{figure}
 
@@ -885,51 +890,76 @@ in type environment {\ltiEnv{}}.
     \infer [(I-UAbs)]
     {}
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiufun{\ltivar{}}{\ltiE{}}}
-                  {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+    \ltitfjudgement{\ltiFuel{}}
+                   {\ltiEnv{}}
+                   {\ltiufun{\ltivar{}}{\ltiE{}}}
+                   {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                   {\ltiFuel{}}
     }
 
     \infer [(I-UApp)]
     {
-    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
-                  {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+    \ltitfjudgement{\ltiFuel{1}}
+                   {\ltiEnv{}}{\ltiF{}}
+                   {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+                   {\ltiFuel{2}}
                   \\\\
-    \ltitjudgement{\ltiEnv{}}
+    \ltitfjudgement{\ltiFuel{2}}
+                  {\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiS{}}
+                  {\ltiFuel{3}}
                   \\\\
-    \ltiisubtype{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
-               {\ltiArrow{\ltiS{}}{}{\ltiT{}}}
+    \ltiifsubtype{\ltiFuel{3}}
+                 {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+                 {\ltiArrow{\ltiS{}}{}{\ltiT{}}}
+                 {\ltiFuel{4}}
     }
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                  {\ltiT{}}
+    \ltitfjudgement{\ltiFuel{1}}
+                   {\ltiEnv{}}
+                   {\ltiapp{\ltiF{}}{\ltiE{}}}
+                   {\ltiT{}}
+                   {\ltiFuel{4}}
     }
-
-
 
     \infer [(S-Closure)]
     {
-    \ltitjudgement{\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
+    \ltiFuel{1} > 0
+    \\
+    \ltitfjudgement{\ltiFuel{1}-1}
+                   {\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
+                   {\ltiE{}}
+                   {\ltiS{}}
+                   {\ltiFuel{2}}
     }
     {
-    \ltiisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
+    \ltiifsubtype{\ltiFuel{1}}
+                 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                 {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
+                 {\ltiFuel{2}}
     }
 
   \end{mathpar}
   \caption{Symbolic Closure Type Extensions to Type System for Monomorphic Internal Language:
-  $\ltitjudgement{\ltiEnv{}}
+  \ltitfjudgement{\ltiFuel{}}
+                 {\ltiEnv{}}
                  {\ltiE{}}
-                 {\ltiT{}}$
+                 {\ltiT{}}
+                 {\ltiFuel{}}
                  and
-                 $\ltiisubtype{\ltiT{}}{\ltiS{}}$.
+                 \ltiifsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}.
+  (abbreviated
+   \ltitjudgement{\ltiEnv{}}
+                 {\ltiE{}}
+                 {\ltiT{}}
+                 and 
+                 \ltiisubtype{\ltiT{}}{\ltiS{}}
+                 when fuel
+                 propagates left-to-right through its premises
+                 like \textsc{I-UApp})
+                 }
   \label{symbolic:figure:internal-language-type-system-extension}
-  }
 \end{figure}
 
 \figref{symbolic:figure:internal-language-type-system-extension}
@@ -1126,6 +1156,19 @@ $$
                 {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
     }
 
+    \\
+
+    \infer[]
+    {
+    \ltitjudgement{\ltiEnv{},\hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                 {\ltiE{}}
+                 {\ltiChk{\ltiS{}}}
+    }
+    {
+    \lticsubtype{\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                {\ltiSyn{\ltiArrowMono{\ltiChk{\ltiT{}}}{\ltiChk{\ltiS{}}}}}
+    }
+
   \end{mathpar}
   \caption{Subtyping for colored types
   \lticsubtype{\ltiT{}}{\ltiS{}}.
@@ -1318,12 +1361,12 @@ $$
     \infer [(W-Sel)]
     {
     \ltijudgement{\ltiRec{\hastype{\ltivar{}}{\ltiP{}}}}{\ltiEnv{}}
-                 {\ltiF{}}
+                 {\ltiE{}}
                  {\ltiRec{\hastype{\ltivar{}}{\ltiT{}}}}
     }
     {
     \ltijudgement{\ltiP{}}{\ltiEnv{}}
-                 {\ltisel{\ltiF{}}{\ltivar{}}}
+                 {\ltisel{\ltiE{}}{\ltivar{}}}
                  {\ltiT{}}
     }
 
@@ -1331,20 +1374,20 @@ $$
     {
     \ltijudgement{\ltiWild{}}
                  {\ltiEnv{}}
-                 {\ltiF{1}}
+                 {\ltiE{1}}
                  {\ltiT{1}}
                  \\
                  ...
                  \\
     \ltijudgement{\ltiWild{}}
                  {\ltiEnv{}}
-                 {\ltiF{n}}
+                 {\ltiE{n}}
                  {\ltiT{n}}
     }
     {
     \ltijudgement{\ltiWild{}}
                  {\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
     }
 
@@ -1352,57 +1395,53 @@ $$
     {
     \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
-                 {\ltiF{1}}
+                 {\ltiE{1}}
                  {\ltiT{1}}
                  \\
                  ...
                  \\
     \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
-                 {\ltiF{n}}
+                 {\ltiE{n}}
                  {\ltiT{n}}
     }
     {
     \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
     }
 
     \infer [(W-Rec)]
     {
-    (
     \ltijudgement{\ltiP{1}}
                  {\ltiEnv{}}
-                 {\ltiF{1}}
+                 {\ltiE{1}}
                  {\ltiT{1}}
                  \\
                  ...
                  \\
     \ltijudgement{\ltiP{m}}
                  {\ltiEnv{}}
-                 {\ltiF{m}}
+                 {\ltiE{m}}
                  {\ltiT{m}}
-                 )
     \\\\
-    (
     \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
-                 {\ltiF{m+1}}
+                 {\ltiE{m+1}}
                  {\ltiT{m+1}}
                  \\
                  ...
                  \\
     \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
-                 {\ltiF{n}}
+                 {\ltiE{n}}
                  {\ltiT{n}}
-                 )
     }
     {
     \ltijudgement{\ltiRec{\hastype{\ltivar{1}}{\ltiP{1}}, ..., \hastype{\ltivar{m}}{\ltiP{m}}}}
                  {\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
+                 {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{m}}{\ltiT{m}}}}
     }
   \end{mathpar}
