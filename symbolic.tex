@@ -648,8 +648,8 @@ $$
                          \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
-                         \ltiTop{} \alt
-                         \ltiBot{} \alt
+                         \ltiTop \alt
+                         \ltiBot \alt
                          \ltiArrowMono{\ltiT{}}{\ltiS{}} \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
                       &\mbox{Types} \\
@@ -678,8 +678,8 @@ and record constructors
 \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}.
 Types \ltiT{}, \ltiS{}, and \ltiR{} are 
 type variables \ltitvar{},
-top type \ltiTop{},
-bottom type \ltiBot{},
+top type \ltiTop,
+bottom type \ltiBot,
 monomorphic function types \ltiArrowMono{\ltiT{}}{\ltiS{}},
 and record types \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}.
 Type environments \ltiEnv{}
@@ -971,40 +971,51 @@ $$
 %                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
 %                         \ltiapp{\ltiF{}}{\ltiE{}}
 %                      &\mbox{Terms} \\
-  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
-                         \ltiSyn{\ltitvar{}} \alt
-                         \ltiSyn{\ltiTop{}} \alt
-                         \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSyn{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSyn{\ltiT{n}}}}}
-                         \\&\alt&
-                         \ltiSyn{\ltiArrowMono{\ltiSyn{\ltiT{}}}{\ltiSyn{\ltiS{}}}} \alt
-                         \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      &\mbox{Synthesized types} \\
-  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
-                         \ltiChk{\ltitvar{}} \alt
-                         \ltiChk{\ltiTop{}} \alt
-                         \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiChk{\ltiT{n}}}}}
-                         \\&\alt&
-                         \ltiChk{\ltiArrowMono{\ltiChk{\ltiT{}}}{\ltiChk{\ltiS{}}}} \alt
-                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      &\mbox{Inherited types} \\
-  \ltiSynChk{\ltiT{}}, \ltiSynChk{\ltiS{}}, \ltiSynChk{\ltiR{}} &::=& 
-                         \ltiSyn{\ltitvar{}} \alt
-                         \ltiSyn{\ltiTop{}} \alt
-                         \ltiSyn{\ltiBot{}} \alt
-                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+%  \ltiSyn{\ltiT{}}, \ltiSyn{\ltiS{}}, \ltiSyn{\ltiR{}} &::=& 
+%                         \ltiSyn{\ltitvar{}} \alt
+%                         \ltiSyn{\ltiTop} \alt
+%                         \ltiSyn{\ltiBot} \alt
+%                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSyn{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSyn{\ltiT{n}}}}}
+%                         \\&\alt&
+%                         \ltiSyn{\ltiArrowMono{\ltiSyn{\ltiT{}}}{\ltiSyn{\ltiS{}}}} \alt
+%                         \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                      &\mbox{Synthesized types} \\
+%  \ltiChk{\ltiT{}}, \ltiChk{\ltiS{}}, \ltiChk{\ltiR{}} &::=& 
+%                         \ltiChk{\ltitvar{}} \alt
+%                         \ltiChk{\ltiTop} \alt
+%                         \ltiChk{\ltiBot} \alt
+%                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiChk{\ltiT{n}}}}}
+%                         \\&\alt&
+%                         \ltiChk{\ltiArrowMono{\ltiChk{\ltiT{}}}{\ltiChk{\ltiS{}}}} \alt
+%                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                      &\mbox{Inherited types} \\
+%  \ltiSynChk{\ltiT{}}, \ltiSynChk{\ltiS{}}, \ltiSynChk{\ltiR{}} &::=& 
+%                         \ltiSyn{\ltitvar{}} \alt
+%                         \ltiSyn{\ltiTop} \alt
+%                         \ltiSyn{\ltiBot} \alt
+%                         \ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+%                                    \\&\alt&
+%                         \ltiSyn{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
+%                         \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                                    \\&\alt&
+%                         \ltiChk{\ltitvar{}} \alt
+%                         \ltiChk{\ltiTop} \alt
+%                         \ltiChk{\ltiBot} \alt
+%                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
+%                         \\&\alt&
+%                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
+%                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                      &\mbox{Colored types} \\
+  \ltiSynChk{} &::=& \ltiSyn{} \alt \ltiChk{}
+                      &\mbox{Colors} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
+                         \ltiSynChk{\ltitvar{}} \alt
+                         \ltiSynChk{\ltiTop} \alt
+                         \ltiSynChk{\ltiBot} \alt
+                         \ltiSynChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
                                     \\&\alt&
-                         \ltiSyn{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
-                         \ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                    \\&\alt&
-                         \ltiChk{\ltitvar{}} \alt
-                         \ltiChk{\ltiTop{}} \alt
-                         \ltiChk{\ltiBot{}} \alt
-                         \ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
-                         \\&\alt&
-                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
-                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                         \ltiSynChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
+                         \ltiSynChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                       &\mbox{Colored types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}} \alt
                   \ltiEmptyEnv{} \alt
@@ -1014,6 +1025,117 @@ $$
 \end{array}
 $$
 \caption{Monomorphic Colored Type System Syntax (External Language)}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer[]
+    {}
+    {\lticsubtype{\ltiT{}}{\ltiT{}}}
+
+    \infer[]
+    {
+    \lticsubtype{\ltiT{1}}{\ltiT{2}}
+    \\
+    \lticsubtype{\ltiT{2}}{\ltiT{3}}
+    }
+    {\lticsubtype{\ltiT{1}}{\ltiT{2}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltitvar{}}}{\ltiChk{\ltitvar{}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiBot}}{\ltiChk{\ltiBot}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiTop}}{\ltiChk{\ltiTop}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiBot}}{\ltiChk{\ltiTop}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}},
+                                  \hastype{\ltivar{n+1}}{\ltiChk{\ltiTop}},..., \hastype{\ltivar{m}}{\ltiChk{\ltiTop}}
+                                  }}}
+                 {\ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
+                 }
+
+    \infer[]
+    {}
+    {
+    \lticsubtype{\ltiSyn{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}}}
+                {\ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}}}
+    }
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiBot}}{\ltiChk{\ltitvar{}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiBot}}
+                 {\ltiChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSyn{\ltiBot}}, ..., \hastype{\ltivar{n}}{\ltiSyn{\ltiBot}}}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiBot}}
+                 {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiTop}}{\ltiSyn{\ltiBot}}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltitvar{}}}
+                 {\ltiChk{\ltiTop{}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiChk{\ltiTop}}, ..., \hastype{\ltivar{n}}{\ltiChk{\ltiTop}}}}}
+                 {\ltiChk{\ltiTop{}}}}
+
+    \infer[]
+    {}
+    {\lticsubtype{\ltiSyn{\ltiArrowMono{\ltiChk{\ltiBot}}{\ltiChk{\ltiTop}}}}
+                 {\ltiChk{\ltiTop}}
+                 }
+
+    \infer[]
+    {
+    \lticsubtype{\ltiT{1}}{\ltiTp{1}}
+    \\
+    ...
+    \\
+    \lticsubtype{\ltiT{n}}{\ltiTp{n}}
+    }
+    {
+    \lticsubtype{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
+                {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}},...,\hastype{\ltivar{n}}{\ltiTp{n}}}}
+    }
+
+    \infer[]
+    {
+    \lticsubtypeinv{\ltiT{1}}{\ltiTp{1}}
+    \\
+    \lticsubtype{\ltiT{2}}{\ltiTp{2}}
+    }
+    {
+    \lticsubtype{\ltiArrowMono{\ltiTp{1}}{\ltiT{2}}}
+                {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
+    }
+
+  \end{mathpar}
+  \caption{Subtyping for colored types
+  \lticsubtype{\ltiT{}}{\ltiS{}}.
+  The upside-down $\leq$ relation 
+  is defined like $\leq$, except with inverted colors.
+  % TODO can't have this command in a caption (rotatebox incompatibility I think)
+  %The relation
+  %\ltiinvertedleq
+  %is defined similarly, except with inverted colors.
+  }
 \end{figure}
 
 \begin{figure}
@@ -1189,7 +1311,7 @@ $$
     {
     \ltijudgement{\ltiP{}}{\ltiEnv{}}
                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                 {\ltimatchsuper{\ltiBot{}}
+                 {\ltimatchsuper{\ltiBot}
                                 {\ltiP{}}}
     }
 
@@ -1228,20 +1350,20 @@ $$
 
     \infer [($\text{W-Rec}_{\ltiTop}$)]
     {
-    \ltijudgement{\ltiTop{}}
+    \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
                  {\ltiF{1}}
                  {\ltiT{1}}
                  \\
                  ...
                  \\
-    \ltijudgement{\ltiTop{}}
+    \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
                  {\ltiF{n}}
                  {\ltiT{n}}
     }
     {
-    \ltijudgement{\ltiTop{}}
+    \ltijudgement{\ltiTop}
                  {\ltiEnv{}}
                  {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
@@ -1795,7 +1917,7 @@ $$
     {
     \ltijudgement{\ltiP{}}{\ltiEnv{}}
                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                 {\ltimatchsuper{\ltiBot{}}
+                 {\ltimatchsuper{\ltiBot}
                                 {\ltiP{}}}
     }
 
