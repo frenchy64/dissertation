@@ -8,10 +8,12 @@
 \newmeta\ltiE{\esope}
 \newmeta\ltiEp{\esope'}
 \newmeta\ltiF{f}
-\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
+%\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
+\newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
 \newcommand\ltifunmono[3]{\ma{\abs{#1}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
-\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
+%\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
+\newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#2}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
 \newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}

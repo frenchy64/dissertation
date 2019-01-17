@@ -526,6 +526,10 @@ cannot propagate beyond the top-level form it was defined in.
 
 \subsection{Performance and error messages}
 
+% FIXME need to be more precise about "undecidable". What problem are
+% we deciding? See Wells '94 for some details. I think so far I
+% mean "type checking always terminates (conservatively)"
+
 While useful, allowing the type system to perform beta-reduction
 requires careful planning: type checking time is now proportional 
 to the running time of the program!
@@ -534,6 +538,8 @@ closures undecidable.
 Without intervention,
 the next program (an infinite loop using the y-combinator that computes \clj{(inc (inc (inc ...)))})
 would send the \emph{type system} into an infinite loop.
+
+%TODO much simpler example: ((fn [x] (x x)) (fn [x] (x x)))
 
 % infinite loops
 \begin{cljlisting}
@@ -627,10 +633,78 @@ identical code and scope.
 
 \section{Formal model}
 
-We formalize symbolic closure types used colored types~\cite{coloredlti01}.
+We formalize symbolic closure types in the style of local type inference~\cite{PierceLTI}
+enhanced with colored types~\cite{coloredlti01}.
+Like those papers, we define an internal and an external language,
+such that the external compiles to the internal by inferring 
+and inserting local type arguments.
+Unlike those papers,
+we have a peculiar relationship between the two languages:
+they are \emph{mutually recursive}.
+
+We can better understand this issue by reviewing the idea of
+a syntactic elaboration phase before type checking,
+one of the more influential applications of which is
+the intuition behind
+Milner's let-polymorphism~\cite{milner1978theory}.
+There, a program type checks
+as if every let-binding is inlined
+with a copy of its bound expression.
+This elaboration phase (conceptually) happens
+before type checking, but is never repeated.
+
+In our system, the introduction of symbolic closure types requires a similar
+intuition except copies of un-elaborated code
+are saved
+to check later
+(similar to how runtime closures save their code to be applied later).
+Now, the elaboration is sprinkled across our system:
+the line between internal and external
+languages is blurred because compiling the external language
+to the internal language may also insert terms from the
+external language (that, for example, may require the external language's
+local type argument inference to type check)
+via symbolic closure types.
+
+Using fuel, we can ensure that type-checking in the external language always terminates.
+Then, if type-checking is successful, we know that a finite
+
+% (let [f (fn [f x] (f x))]
+%   (fn [x] (f f)))
+% => 
+% (let [f (ann (fn [f x] (f x))
+%              [Bot -> Top])]
+%   (fn [x] (f f)))
+% => 
+% (let [f (ann (fn [f x] (f x))
+%              [Bot -> Top])]
+%   (fn [x] ((fn [f x] (f x)) (fn [f x] (f x)))))
+% => 
+% (let [f (ann (fn [f x] (f x))
+%              [Bot -> Top])]
+%   (ann (fn [x] ((fn [f x] (f x)) (fn [f x] (f x))))
+%        [Bot -> Top]))
+
+% (let [f (fn [x] x)]
+%   (f f))
+% => 
+% (let [f (ann (fn [x] x)
+%              [Bot -> Top])]
+%   (f f))
+% => 
+% (let [f (ann (fn [x] x)
+%              [Bot -> Top])]
+%   ((fn [x] x) (fn [x] x)))
+% =>
+% (let [f (ann (fn [x] x)
+%              [Bot -> Top])]
+%   (ann (fn [x] x)
+%        [Bot -> Top])
+
+
 We split the model into two variants.
 In this chapter, we present a \emph{monomorphic} calculus
-for symbolic closure types.
+with symbolic closure types and subtyping.
 In \chapref{chapter:symbolic:directed-lti}
 we extend the monomorphic version with polymorphic types, and discuss
 details of local type argument inference.
@@ -641,20 +715,16 @@ details of local type argument inference.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
-                         \ltiapp{\ltiF{}}{\ltiE{}} \alt
+                         \ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
+                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
-                         \alt
-                         \ltiufun{\ltivar{}}{\ltiE{}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiTop \alt
                          \ltiBot \alt
-                         \ltiArrowMono{\ltiT{}}{\ltiS{}} \alt
+                         \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}} \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
-                         \alt
-                        \ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
@@ -844,78 +914,85 @@ and concatenation
                 {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
     }
 
-    \infer [(I-UAbs)]
-    {}
-    {
-    \ltitfjudgement{\ltiFuel{}}
-                   {\ltiEnv{}}
-                   {\ltiufun{\ltivar{}}{\ltiE{}}}
-                   {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                   {\ltiFuel{}}
-    }
-
-    \infer [(I-UApp)]
-    {
-    \ltitfjudgement{\ltiFuel{1}}
-                   {\ltiEnv{}}{\ltiF{}}
-                   {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
-                   {\ltiFuel{2}}
-                  \\\\
-    \ltitfjudgement{\ltiFuel{2}}
-                  {\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiS{}}
-                  {\ltiFuel{3}}
-                  \\\\
-    \ltiifsubtype{\ltiFuel{3}}
-                 {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
-                 {\ltiArrow{\ltiS{}}{}{\ltiT{}}}
-                 {\ltiFuel{4}}
-    }
-    {
-    \ltitfjudgement{\ltiFuel{1}}
-                   {\ltiEnv{}}
-                   {\ltiapp{\ltiF{}}{\ltiE{}}}
-                   {\ltiT{}}
-                   {\ltiFuel{4}}
-    }
-
-    \infer [(S-Closure)]
-    {
-    \ltiFuel{1} > 0
-    \\
-    \ltitfjudgement{\ltiFuel{1}-1}
-                   {\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
-                   {\ltiE{}}
-                   {\ltiS{}}
-                   {\ltiFuel{2}}
-    }
-    {
-    \ltiifsubtype{\ltiFuel{1}}
-                 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                 {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
-                 {\ltiFuel{2}}
-    }
+%    \infer [(I-UAbs)]
+%    {}
+%    {
+%    \ltitfjudgement{\ltiFuel{}}
+%                   {\ltiEnv{}}
+%                   {\ltiufun{\ltivar{}}{\ltiE{}}}
+%                   {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                   {\ltiFuel{}}
+%    }
+%
+%    \infer [(I-UApp)]
+%    {
+%    \ltitfjudgement{\ltiFuel{1}}
+%                   {\ltiEnv{}}{\ltiF{}}
+%                   {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+%                   {\ltiFuel{2}}
+%                  \\\\
+%    \ltitfjudgement{\ltiFuel{2}}
+%                  {\ltiEnv{}}
+%                  {\ltiE{}}
+%                  {\ltiS{}}
+%                  {\ltiFuel{3}}
+%                  \\\\
+%    \ltiifsubtype{\ltiFuel{3}}
+%                 {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+%                 {\ltiArrow{\ltiS{}}{}{\ltiT{}}}
+%                 {\ltiFuel{4}}
+%    }
+%    {
+%    \ltitfjudgement{\ltiFuel{1}}
+%                   {\ltiEnv{}}
+%                   {\ltiapp{\ltiF{}}{\ltiE{}}}
+%                   {\ltiT{}}
+%                   {\ltiFuel{4}}
+%    }
+%
+%    \infer [(S-Closure)]
+%    {
+%    \ltiFuel{1} > 0
+%    \\
+%    \ltitfjudgement{\ltiFuel{1}-1}
+%                   {\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
+%                   {\ltiE{}}
+%                   {\ltiS{}}
+%                   {\ltiFuel{2}}
+%    }
+%    {
+%    \ltiifsubtype{\ltiFuel{1}}
+%                 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+%                 {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
+%                 {\ltiFuel{2}}
+%    }
 
   \end{mathpar}
-  \caption{Type system for monomorphic internal language:
-  \ltitfjudgement{\ltiFuel{}}
-                 {\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}}
-                 {\ltiFuel{}}
-                 and
-                 \ltiifsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}
-  (abbreviated
+  \caption{Type system for internal language:
    \ltitjudgement{\ltiEnv{}}
                  {\ltiE{}}
                  {\ltiT{}}
                  and 
-                 \ltiisubtype{\ltiT{}}{\ltiS{}}, respectively,
-                 when fuel
-                 propagates directly from left-to-right through its premises
-                 like \textsc{I-UApp}).
+                 \ltiisubtype{\ltiT{}}{\ltiS{}}.
   }
+%  \caption{Type system for internal language:
+%  \ltitfjudgement{\ltiFuel{}}
+%                 {\ltiEnv{}}
+%                 {\ltiE{}}
+%                 {\ltiT{}}
+%                 {\ltiFuel{}}
+%                 and
+%                 \ltiifsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}
+%  (abbreviated
+%   \ltitjudgement{\ltiEnv{}}
+%                 {\ltiE{}}
+%                 {\ltiT{}}
+%                 and 
+%                 \ltiisubtype{\ltiT{}}{\ltiS{}}, respectively,
+%                 when fuel
+%                 propagates directly from left-to-right through its premises
+%                 like \textsc{I-UApp}).
+%  }
   \label{symbolic:figure:internal-language-type-system}
 \end{figure}
 
@@ -1455,6 +1532,26 @@ $$
                  {\ltiT{}}$
   }
 \end{figure}
+
+\section{Metatheory}
+
+\begin{verbatim}
+Soundness (based on CLTI)
+=========
+If 
+ Env |-c E : T
+then there exists a term F such that
+ 1. E is a partial erasure of F,
+ 2. F is a partial beta-reduction of E,
+ 3. F does not contain symbolic closure types
+and there exists an environment Env' such that.
+  1. Env' is Env except all symbolic closure types are replaced by [Bot -> Top]
+with
+ Env' |-  F : S
+such that
+ S <: T'
+where T' is T except all symbolic closure types are replaced by [Bot -> Top].
+\end{verbatim}
 
 \section{Comparison to Hindley-Milner type inference}
 
