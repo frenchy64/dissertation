@@ -300,6 +300,37 @@ syntax before checking it. Since Typed Clojure recently changed to interleave ma
 and type checking, we could extend this technique to also refine calls based on the
 types of their arguments (like SoundX).
 
+% Spine-local type inference
+% - Judgement \vdash^P digs down an application to find the head
+%   - happens naturally with symbolic closures
+% - they use metavariables to solve direct applications
+%   - can they check things like (let [x (fn [y] (inc y))] (x 1)) ?
+% - they have polymorphism but not subtyping (plain System F)
+%   - they speculate about extending to Fsub in related works
+%   - they mention Hosoya & Pierce's "challenges" to fix hard-to-synthesize terms
+% - they type check arguments left-to-right in a polymorphic application
+%   - can't tell if that's different from inferring the data flow from a polytype 
+%     and then checking in that order
+% - their sense of "locality" is less ambitious than symbolic closures
+%   - see "Type Inference Failures" section
+% - good related works section for "Impredicative Polymorphism"
+
+% Possible future work on Higher-rank types
+% - see https://www.microsoft.com/en-us/research/publication/practical-type-inference-for-arbitrary-rank-types/
+%   - looks like the journal version of boxy types?
+%   - some notes from the paper
+%     - a predicative type system only allows a polytype to be instantiated with monotypes
+%     - ML_F is both impredicative and supports type inference (but costly to implement & formalize)
+%       - also infers principal types
+%     - higher-kinded types are orthogonal to higher-rank types, and Haskell's implementation of the former
+%       happen to work well with higher-rank types (but no explanation)
+%     - the concept of "syntax-directed" rules is given lots of a explanation
+%     - \vdash^inst compares two _polytypes_
+%     - Kfoury and Wells 1994 show that typeability of System F (with completely erased annotations) is decidable for rank 2 
+%       but undecidable for rank 3>=
+%     - LTI == "partial" type inference
+%       - in the sense that it's not-complete (can't check all programs)
+%     - nice discussion of partial type inference
 
 Other work is relevant to our investigations of improving the user experience
 of Typed Clojure. SweetT~\cite{pombrio2018inferring} automatically infers type rules
