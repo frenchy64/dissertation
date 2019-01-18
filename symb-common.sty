@@ -13,7 +13,7 @@
 \newcommand\ltifunmono[3]{\ma{\abs{#1}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 %\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
-\newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#2}}}
+\newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
 \newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
@@ -105,3 +105,5 @@
 \newcommand\ltiChk[1]{\ma{{\color{red} \textsuperscript{$\vee$} #1}}}
 \newcommand\ltiSynChksymbol{\ma{\diamond}}
 \newcommand\ltiSynChk[1]{\ma{{\color{black} \ltiSynChksymbol #1}}}
+
+\newcommand\ltiFsub{\ma{F_{\leq}}}

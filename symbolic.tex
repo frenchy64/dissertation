@@ -701,14 +701,6 @@ Then, if type-checking is successful, we know that a finite
 %   (ann (fn [x] x)
 %        [Bot -> Top])
 
-
-We split the model into two variants.
-In this chapter, we present a \emph{monomorphic} calculus
-with symbolic closure types and subtyping.
-In \chapref{chapter:symbolic:directed-lti}
-we extend the monomorphic version with polymorphic types, and discuss
-details of local type argument inference.
-
 \subsection{Internal Language}
 
 \begin{figure}
@@ -731,24 +723,22 @@ $$
                   \ltitvar{} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
-  \ltiFuel{} &::=& \ltinat{}
-                      &\mbox{Fuel} \\
 \end{array}
 $$
-\caption{Monomorphic Internal Language,
-  where $\ltinat{} \in \mathbb{N}$.
-  }
+\caption{Internal Language Syntax (\ltiFsub with records)}
 \label{symbolic:figure:internal-language}
 \end{figure}
 
 \figref{symbolic:figure:internal-language} shows the syntax
-the monomorphic internal language.
+the internal language, which is based on \ltiFsub
+extended with records.
 Terms \ltiE{} and \ltiF{} range over 
 variables \ltivar{},
-explicitly typed monomorphic functions
+explicitly typed polymorphic functions
 \ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}},
-monomorphic function application
-\ltiapp{\ltiF{}}{\ltiE{}},
+function application
+with explicit type arguments
+\ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}},
 record selectors
 \ltisel{\ltiE{}}{\ltivar{}},
 and record constructors
@@ -757,7 +747,7 @@ Types \ltiT{}, \ltiS{}, and \ltiR{} are
 type variables \ltitvar{},
 top type \ltiTop,
 bottom type \ltiBot,
-monomorphic function types \ltiArrowMono{\ltiT{}}{\ltiS{}},
+polymorphic function types \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}},
 and record types \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}.
 Type environments \ltiEnv{}
 consist of 
@@ -783,31 +773,31 @@ and concatenation
 
     \infer [(I-Abs)]
     { 
-    \ltitjudgement{\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
-                  {\ltiE{}}
-                  {\ltiS{}}
+    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                 {\ltiE{}}
+                 {\ltiS{}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
+                  {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
                  }
 
     \infer [(I-App)]
     {
     \ltitjudgement{\ltiEnv{}}{\ltiF{}}
-                  {\ltiArrowMono{\ltiS{}}{\ltiT{}}}
+                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
                   \\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiSp{}}
                   \\
-    \ltiisubtype{\ltiSp{}}{\ltiS{}}
+    \ltiisubtype{\ltiSp{}}{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                  {\ltiT{}}
+                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
+                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
     }
 
     \infer [($\text{I-App}_{\ltiBot}$)]
@@ -821,7 +811,7 @@ and concatenation
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiappinst{\ltiF{}}{\overline{\ltiT{}}}{\ltiE{}}}
                   {\ltiBot}
     }
 
@@ -903,15 +893,15 @@ and concatenation
                {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}}, ..., \hastype{\ltivar{n}}{\ltiTp{n}}}}
     }
 
-    \infer [(S-Fun)]
+    \infer [(S-FunPoly)]
     {
     \ltiisubtype{\ltiT{1}}{\ltiTp{1}}
     \\
     \ltiisubtype{\ltiT{2}}{\ltiTp{2}}
     }
     {
-    \ltiisubtype{\ltiArrowMono{\ltiTp{1}}{\ltiT{2}}}
-                {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
+    \ltiisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
+               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
     }
 
 %    \infer [(I-UAbs)]
@@ -1003,47 +993,6 @@ The main judgment
 says that expression \ltiE{} is of type \ltiT{}
 in environment \ltiEnv{}.
 
-\subsection{Extensions for Symbolic Closure Types}
-
-We extend the internal language to support symbolic closure types.
-We allow unannotated functions
-\ltiufun{\ltivar{}}{\ltiE{}} as a term.
-A symbolic closure type
-\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
-represents a delayed check of function {\ltiufun{\ltivar{}}{\ltiE{}}}
-in type environment {\ltiEnv{}}.
-
-The last three rules
-of \figref{symbolic:figure:internal-language-type-system}
-shows our extensions to the type system.
-\textsc{I-UAbs} assigns unannotated functions a symbolic closure type.
-The rules \textsc{I-UApp} and \textsc{S-Closure} together handle
-checking symbolic closures.
-In \textsc{I-UApp}, the argument type \ltiS{} (which itself might contain
-symbolic closures via \textsc{I-UAbs}) is
-propagated to
-\textsc{S-Closure}
-where it is used as the parameter type to check the body of the symbolic
-closure.
-Moving the checking of a symbolic closure to 
-\textsc{S-Closure},
-(instead of \textsc{I-UApp})
-allows symbolic closures to participate with other rules.
-In particular, checking \clj{(f (fn [x] (inc x)))},
-where \clj{f : [[Int -> Int] -> Int]},
-uses the \textsc{I-App} application rule,
-but manages to propagate \clj{x : Int}
-via \textsc{S-Closure}.
-
-Note that \textsc{S-Closure} uses the symbolic closure's definition type environment
-for type checking. The definition environment is (somewhat analogously to runtime closures)
-``captured'' by \textsc{I-UAbs},
-and carefully propagated in select rules.
-For example, in \textsc{S-UApp}
-the definition environment \ltiEnvp{} is passed to subtyping,
-rather than the application environment \ltiEnv{}.
-This arrangement correctly type checks \figref{symbolic:example:closure-red}.
-
 \subsection{External Language}
 
 \begin{figure}
@@ -1088,13 +1037,13 @@ $$
 %                         \ltiChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
 %                         \ltiChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
 %                      &\mbox{Colored types} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& 
+\ltiSynChk{\ltiT{}}, \ltiSynChk{\ltiS{}}, \ltiSynChk{\ltiR{}} &::=& 
                          \ltiSynChk{\ltitvar{}} \alt
                          \ltiSynChk{\ltiTop} \alt
                          \ltiSynChk{\ltiBot} \alt
                          \ltiSynChk{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}},...,\hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}
                                     \\&\alt&
-                         \ltiSynChk{\ltiArrowMono{\ltiSynChk{\ltiT{}}}{\ltiSynChk{\ltiS{}}}} \alt
+                         \ltiSynChk{\ltiArrow{\ltiSynChk{\ltiT{}}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}} \alt
                          \ltiSynChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                       &\mbox{Colored types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}} \alt
@@ -1102,14 +1051,18 @@ $$
                   \ltiSyn{\ltitvar{}} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
+  \ltiFuel{} &::=& \ltinat{}
+                      &\mbox{Fuel} \\
 \end{array}
 $$
-\caption{Monomorphic Colored Type System Syntax (External Language).
-A type constructor's color \ltiSynChk{} is always one of \ltiSyn{} (``synthesized'') or \ltiChk{} (``inherited'').
-We write \ltiSyn{\ltiT{}} if \ltiT{} only contains synthesized constructors, and 
-\ltiChk{\ltiT{}} if \ltiT{} only contains inherited constructors.
+\caption{Colored Type System Syntax (External Language),
+  where $\ltinat{} \in \mathbb{N}$.
+A type constructor's color \ltiSynChk{} stands for exactly one of either a blue up-tick \ltiSyn{} (``synthesized'')
+or a red down-tick \ltiChk{} (``inherited'').
+The types \ltiSyn{\ltiT{}} and \ltiChk{\ltiT{}} contain only synthesized and inherited constructors, respectively.
+Both are structurally equivalent to \ltiSynChk{\ltiT{}}, differing only in color.
 If the same constructor appears more than once in a rule without annotation,
-they are assumed to have the same color.
+they are assumed to have the same color, and similarly for two occurrences of \ltiSynChk{\ltiT{}}.
 }
 \end{figure}
 
@@ -1200,17 +1153,65 @@ they are assumed to have the same color.
     \lticsubtype{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
                 {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}},...,\hastype{\ltivar{n}}{\ltiTp{n}}}}
     }
+    \\
 
-    \infer[]
+    \infer[SC-Arrow]
     {
     \lticsubtypeinv{\ltiT{1}}{\ltiTp{1}}
     \\
     \lticsubtype{\ltiT{2}}{\ltiTp{2}}
     }
     {
-    \lticsubtype{\ltiArrowMono{\ltiTp{1}}{\ltiT{2}}}
-                {\ltiArrowMono{\ltiT{1}}{\ltiTp{2}}}
+    \lticsubtype{\ltiArrow{\ltiTp{1}}{\ova{\ltitvar{}}}{\ltiT{2}}}
+                {\ltiArrow{\ltiT{1}}{\ova{\ltitvar{}}}{\ltiTp{2}}}
     }
+
+%    \infer[SC-ArrowMonoR]
+%    {
+%                  \ltiagreeexcepttvars{\ltiSp{}}{\ova{\ltitvar{}}}{\ltiChk{\ltiS{}}}
+%                  \\
+%                  \lticsubtype{\ltiSp{}}
+%                              {\ltireplace{\ova{\ltiR{}}}
+%                                          {\ova{\ltitvar{}}}
+%                                          {\ltiChk{\ltiS{}}}}
+%                  \\
+%                  \lticsubtype{\ltireplace{\ova{\ltiR{}}}
+%                                          {\ova{\ltitvar{}}}
+%                                          {\ltiSyn{\ltiT{}}}}
+%                              {\ltiTp{}}
+%                  \\\\
+%      \forall \ova{\ltiRp{}}, \ltiTpp{}.
+%      (
+%                  {\lticsubtype{\ltiSp{}}
+%                              {\ltireplace{\ova{\ltiRp{}}}
+%                                          {\ova{\ltitvar{}}}
+%                                          {\ltiChk{\ltiS{}}}}}
+%                                          \ \ 
+%                                          \wedge
+%                                          \ \ 
+%                  {\lticsubtype{\ltireplace{\ova{\ltiRp{}}}
+%                                          {\ova{\ltitvar{}}}
+%                                          {\ltiSyn{\ltiT{}}}}
+%                              {\ltiTpp{}}}
+%                                          \ \ 
+%                                          \wedge
+%                                          \ \ 
+%                              {\lticoincideinherited{\ltiTpp{}}{\ltiTp{}}}
+%                                          \ \ 
+%                              \Rightarrow
+%                                          \ \ 
+%                  {\lticsubtype{\ltireplace{\ova{\ltiR{}}}
+%                                          {\ova{\ltitvar{}}}
+%                                          {\ltiSyn{\ltiT{}}}}
+%                               {\ltireplace{\ova{\ltiRp{}}}
+%                                           {\ova{\ltitvar{}}}
+%                                           {\ltiChk{\ltiT{}}}}}
+%      )
+%    }
+%    {
+%    \lticsubtype{\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+%                {\ltiArrowMono{\ltiSp{}}{\ltiTp{}}}
+%    }
 
     \\
 
@@ -1235,7 +1236,7 @@ they are assumed to have the same color.
     \ltiFuel{} > 0
     \\
     \ltitfjudgement{\ltiFuel{} - 1}
-                   {\ltiEnv{},\hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                   {\ltiEnv{},\ova{\ltitvar{}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
                    {\ltiE{}}
                    {\ltiSynChk{\ltiS{}}}
                    {\ltiFuelp{}}
@@ -1243,7 +1244,7 @@ they are assumed to have the same color.
     {
     \lticfsubtype{\ltiFuel{}}
                  {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-                 {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiT{}}}{\ltiSynChk{\ltiS{}}}}}
+                 {\ltiChk{\ltiArrow{\ltiSyn{\ltiT{}}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
                  {\ltiFuelp{}}
     }
 
@@ -1284,32 +1285,37 @@ they are assumed to have the same color.
                    }
 
     \infer[(C-Abs)]
+    {\lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                   {\ltiE{}}
+                   {\ltiS{}}
+                   \\
+                   \ova{\ltitvar{}} \not\in \ltitv{\ltiE{}}
+    }
+    {\lticjudgement{\ltiEnv{}}
+                   {\ltiufun{\ltivar{}}{\ltiE{}}}
+                   {\ltiChk{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+                   }
+
+    \infer [(C-UAbs)]
+    { }
+    {\lticfjudgement{\ltiFuel{}}
+                    {\ltiEnv{}}
+                    {\ltiufun{\ltivar{}}{\ltiE{}}}
+                    {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                    {\ltiFuel{}}
+                   }
+
+    \infer [($\text{C-Abs}_{tp}$)]
     {
-    \lticjudgement{\ltiEnv{}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+    \lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
                   {\ltiE{}}
                   {\ltiS{}}
     }
     {
     \lticjudgement{\ltiEnv{}}
-                  {\ltifunmono{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiSyn{\ltiArrowMono{\ltiT{}}{\ltiSynChk{\ltiS{}}}}}
+                  {\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiSyn{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
     }
-
-    %\infer [(C-App)]
-    %{
-    %\lticjudgement{\ltiEnv{}}
-    %              {\ltiF{}}
-    %              {\ltiChk{\ltiArrowMono{\ltiSyn{\ltiS{}}}{\ltiSyn{\ltiT{}}}}}
-    %              \\\\
-    %\lticjudgement{\ltiEnv{}}
-    %              {\ltiE{}}
-    %              {\ltiChk{\ltiS{}}}
-    %}
-    %{
-    %\lticjudgement{\ltiEnv{}}
-    %              {\ltiapp{\ltiF{}}{\ltiE{}}}
-    %              {\ltiSyn{\ltiT{}}}
-    %             }
 
     \infer [(C-Sel)]
     {
@@ -1340,36 +1346,141 @@ they are assumed to have the same color.
                   {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
                   {\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
     }
-\\
-    \infer [(C-UAbs)]
-    { }
-    {\lticjudgement{\ltiEnv{}}
-                   {\ltiufun{\ltivar{}}{\ltiE{}}}
-                   {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-                   }
+
+    \infer [($\text{C-App}_{tp}$)]
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                  \\
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltireplace{\ova{\ltiR{}}}
+                              {\ova{\ltitvar{}}}
+                              {\ltiChk{\ltiS{}}}}
+    }
+    {
+    \lticjudgement{\ltiEnv{}}
+                  {\ltiappinst{\ltiF{}}{\ova{\ltiR{}}}{\ltiE{}}}
+                  {\ltireplace{\ova{\ltiR{}}}
+                              {\ova{\ltitvar{}}}
+                              {\ltiChk{\ltiT{}}}}
+    }
 
     \infer [(C-App)]
     {
     \lticjudgement{\ltiEnv{}}
                   {\ltiF{}}
-                  {\ltiR{}}
+                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
                   \\
     \lticjudgement{\ltiEnv{}}
                   {\ltiE{}}
-                  {\ltiSynChk{\ltiS{}}}
+                  {\ltiSp{}}
                   \\
-    \lticsubtype{\ltiR{}}
-                {\ltiChk{\ltiArrowMono{\ltiSynChk{\ltiS{}}}{\ltiSynChk{\ltiT{}}}}}
+                  \ltiagreeexcepttvars{\ltiSp{}}{\ova{\ltitvar{}}}{\ltiChk{\ltiS{}}}
+                  \\
+                  \lticsubtype{\ltiSp{}}
+                              {\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiChk{\ltiS{}}}}
+                  \\
+                  \lticsubtype{\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                              {\ltiTp{}}
+                  \\\\
+      \forall \ova{\ltiRp{}}, \ltiTpp{}.
+      (
+                  {\lticsubtype{\ltiSp{}}
+                              {\ltireplace{\ova{\ltiRp{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiChk{\ltiS{}}}}}
+                                          \ \ 
+                                          \wedge
+                                          \ \ 
+                  {\lticsubtype{\ltireplace{\ova{\ltiRp{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                              {\ltiTpp{}}}
+                                          \ \ 
+                                          \wedge
+                                          \ \ 
+                              {\lticoincideinherited{\ltiTpp{}}{\ltiTp{}}}
+                                          \ \ 
+                              \Rightarrow
+                                          \ \ 
+                  {\lticsubtype{\ltireplace{\ova{\ltiR{}}}
+                                          {\ova{\ltitvar{}}}
+                                          {\ltiSyn{\ltiT{}}}}
+                               {\ltireplace{\ova{\ltiRp{}}}
+                                           {\ova{\ltitvar{}}}
+                                           {\ltiChk{\ltiT{}}}}}
+      )
     }
     {
     \lticjudgement{\ltiEnv{}}
                   {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiTp{}}
+                 }
+
+%    \infer [(C-App)]
+%    {
+%    \lticfjudgement{\ltiFuel{1}}
+%                  {\ltiEnv{}}
+%                  {\ltiF{}}
+%                  {\ltiR{}}
+%                  {\ltiFuel{2}}
+%                  \\\\
+%    \lticfjudgement{\ltiFuel{2}}
+%                  {\ltiEnv{}}
+%                  {\ltiE{}}
+%                  {\ltiSynChk{\ltiS{}}}
+%                  {\ltiFuel{3}}
+%                  \\\\
+%    \lticfsubtype{\ltiFuel{3}}{\ltiR{}}
+%                 {\ltiChk{\ltiArrowMono{\ltiSynChk{\ltiS{}}}{\ltiSynChk{\ltiT{}}}}}
+%                 {\ltiFuel{4}}
+%    }
+%    {
+%    \lticfjudgement{\ltiFuel{1}}
+%                  {\ltiEnv{}}
+%                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+%                  {\ltiSynChk{\ltiT{}}}
+%                  {\ltiFuel{4}}
+%    }
+
+    \infer[C-AppClosure]
+    {
+    \ltitfjudgement{\ltiFuel{1}}
+                   {\ltiEnv{}}
+                   {\ltiF{}}
+                   {\ltiSyn{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}}
+                   {\ltiFuel{2}}
+                   \\
+    \lticfjudgement{\ltiFuel{2}}
+                  {\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiSynChk{\ltiS{}}}
+                  {\ltiFuel{3}}
+                  \\
+    \ltiFuel{3} > 0
+    \\
+    \ltitfjudgement{\ltiFuel{3} - 1}
+                   {\ltiEnvp{},\hastype{\ltivar{}}{\ltiSyn{\ltiS{}}}}
+                   {\ltiEp{}}
+                   {\ltiSynChk{\ltiT{}}}
+                   {\ltiFuel{4}}
+    }
+    {
+    \lticfjudgement{\ltiFuel{1}}
+                  {\ltiEnv{}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
                   {\ltiSynChk{\ltiT{}}}
+                  {\ltiFuel{4}}
     }
 
-
   \end{mathpar}
-  \caption{Monomorphic Colored Type System rules
+  \caption{Polymorphic Colored Type System rules
   \lticfjudgement{\ltiFuel{}}
                  {\ltiEnv{}}
                  {\ltiE{}}
@@ -1378,9 +1489,42 @@ they are assumed to have the same color.
     abbreviated \lticjudgement{\ltiEnv{}}
                               {\ltiE{}}
                               {\ltiT{}}
-    when fuel is propagated left-to-right through premises.
+    when fuel is propagated left-to-right through premises,
+    as in \textsc{C-App}.
   }
 \end{figure}
+
+% FIXME these 2 paragraphs used to apply to the internal language, now just the colored type system
+%The last three rules
+%of \figref{symbolic:figure:internal-language-type-system}
+%shows our extensions to the type system.
+%\textsc{I-UAbs} assigns unannotated functions a symbolic closure type.
+%The rules \textsc{I-UApp} and \textsc{S-Closure} together handle
+%checking symbolic closures.
+%In \textsc{I-UApp}, the argument type \ltiS{} (which itself might contain
+%symbolic closures via \textsc{I-UAbs}) is
+%propagated to
+%\textsc{S-Closure}
+%where it is used as the parameter type to check the body of the symbolic
+%closure.
+%Moving the checking of a symbolic closure to 
+%\textsc{S-Closure},
+%(instead of \textsc{I-UApp})
+%allows symbolic closures to participate with other rules.
+%In particular, checking \clj{(f (fn [x] (inc x)))},
+%where \clj{f : [[Int -> Int] -> Int]},
+%uses the \textsc{I-App} application rule,
+%but manages to propagate \clj{x : Int}
+%via \textsc{S-Closure}.
+%
+%Note that \textsc{S-Closure} uses the symbolic closure's definition type environment
+%for type checking. The definition environment is (somewhat analogously to runtime closures)
+%``captured'' by \textsc{I-UAbs},
+%and carefully propagated in select rules.
+%For example, in \textsc{S-UApp}
+%the definition environment \ltiEnvp{} is passed to subtyping,
+%rather than the application environment \ltiEnv{}.
+%This arrangement correctly type checks \figref{symbolic:example:closure-red}.
 
 
 \subsection{Type Inference Algorithm}
@@ -1776,84 +1920,6 @@ $$
 \end{figure}
 
 \begin{figure}
-  \begin{mathpar}
-    \infer [(I-AbsPoly)]
-    { 
-    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-                 }
-
-    \infer [(I-AppPoly)]
-    {
-    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
-                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
-                  \\
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiSp{}}
-                  \\
-    \ltiisubtype{\ltiSp{}}{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
-    }
-
-    \infer [($\text{I-AppPoly}_{\ltiBot}$)]
-    {
-    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
-                  {\ltiBot}
-                  \\
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiR{}}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiT{}}}{\ltiE{}}}
-                  {\ltiBot}
-    }
-
-    \infer [(S-ClosurePoly)]
-    {
-    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                  {\ltiE{}}
-                  {\ltiS{}}
-    }
-    {
-    \ltiisubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
-    }
-
-    \infer [(S-FunPoly)]
-    {
-    \ltiisubtype{\ltiT{1}}{\ltiTp{1}}
-    \\
-    \ltiisubtype{\ltiT{2}}{\ltiTp{2}}
-    }
-    {
-    \ltiisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
-               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
-    }
-  \end{mathpar}
-  \caption{Internal language type system extensions for polymorphic functions
-  $\ltitjudgement{\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}}$
-                 and
-                 $\ltiisubtype{\ltiT{}}{\ltiS{}}$.
-  \label{symbolic:figure:internal-language-poly-type-system-extension}
-  }
-\end{figure}
-
-\begin{figure}
 $$
 \begin{array}{lrll}
 \end{array}
@@ -1863,101 +1929,7 @@ $$
 
 \begin{figure}
   \begin{mathpar}
-    \infer [($\text{C-AbsPoly}_{tp}$)]
-    {
-    \lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                  {\ltiE{}}
-                  {\ltiS{}}
-    }
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiSyn{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
-    }
 
-    \infer[(C-AbsPoly)]
-    {\lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                   {\ltiE{}}
-                   {\ltiS{}}
-                   \\
-                   \ova{\ltitvar{}} \not\in \ltitv{\ltiE{}}
-    }
-    {\lticjudgement{\ltiEnv{}}
-                   {\ltiufun{\ltivar{}}{\ltiE{}}}
-                   {\ltiChk{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
-                   }
-
-    \infer [($\text{C-AppPoly}_{tp}$)]
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
-                 \\
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiChk{\ltiS{}}}}
-    }
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}
-                  }
-
-    \infer [(C-AppPoly)]
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
-                  \\
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiSp{}}
-                  \\
-                  \ltiagreeexcepttvars{\ltiSp{}}{\ova{\ltitvar{}}}{\ltiChk{\ltiS{}}}
-                  \\\\
-                  \lticsubtype{\ltiSp{}}
-                              {\ltireplace{\ova{\ltiR{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiChk{\ltiS{}}}}
-                  \\
-                  \lticsubtype{\ltireplace{\ova{\ltiR{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiSyn{\ltiT{}}}}
-                              {\ltiTp{}}
-                  \\\\
-      \forall \ova{\ltiRp{}}, \ltiTpp{}.
-      (
-                  {\lticsubtype{\ltiSp{}}
-                              {\ltireplace{\ova{\ltiRp{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiChk{\ltiS{}}}}}
-                                          \ \ 
-                                          \wedge
-                                          \ \ 
-                  {\lticsubtype{\ltireplace{\ova{\ltiRp{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiSyn{\ltiT{}}}}
-                              {\ltiTpp{}}}
-                                          \ \ 
-                                          \wedge
-                                          \ \ 
-                              {\lticoincideinherited{\ltiTpp{}}{\ltiTp{}}}
-                                          \ \ 
-                              \Rightarrow
-                                          \ \ 
-                  {\lticsubtype{\ltireplace{\ova{\ltiR{}}}
-                                          {\ova{\ltitvar{}}}
-                                          {\ltiSyn{\ltiT{}}}}
-                               {\ltireplace{\ova{\ltiRp{}}}
-                                           {\ova{\ltitvar{}}}
-                                           {\ltiChk{\ltiT{}}}}}
-      )
-    }
-    {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiapp{\ltiF{}}{\ltiE{}}}
-                  {\ltiTp{}}
-                 }
   \end{mathpar}
   \caption{Polymorphic Colored Type System rules
   $\lticjudgement{\ltiEnv{}}
