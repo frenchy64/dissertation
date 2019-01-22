@@ -17,6 +17,7 @@
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
 \newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
+\newcommand\ltireannotatelhs[3]{\ma{\metafunctionfont{rechk}(#1,#2,#3)}}
 \newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
 \newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
 \newcommand\ltiALPHA{\alpha}
@@ -40,6 +41,7 @@
 \newcommand\ltiFuelsymbol{\Delta}
 \newmeta\ltiFuel{\ltiFuelsymbol}
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
+\newmeta\ltiFuelpp{\ltiFuelsymbol''}
 \newmeta\ltinat{n}
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
@@ -63,26 +65,28 @@
 \newcommand\lticjudgementvdash{\ma{\vdash^{c}}}
 \newcommand\lticjudgement[3]{\ma{#1 \lticjudgementvdash {\hastype{#2}{#3}}}}
 % colored type system (external language) with fuel
-\newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}}\ ;\ #5}}
+\newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
 % non-colored type system (internal language) with fuel
-\newcommand\ltitfjudgement[5]{\ma{#1, #2 \vdash {\hastype{#3}{#4}}\ ;\ #5}}
+\newcommand\ltitfjudgement[5]{\ma{#1, #2 \vdash {\hastype{#3}{#4}} \dashv #5}}
 % non-colored subtyping (deprecated)
 \newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored)
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored) with fuel
-\newcommand\ltiifsubtype[4]{\ma{#1 \vdash #2 \mathbin{<:} #3 \Rightarrow #4}}
+\newcommand\ltiifsubtype[4]{\ma{#1 \vdash #2 \mathbin{<:} #3 \dashv #4}}
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for colored (external) types 
 \newcommand\lticsubtype[2]{\ma{#1 \lticsubtypesymbol #2}}
 % subtype for colored (external) types, with fuel
-\newcommand\lticfsubtype[4]{\ma{#1 \vdash #2 \lticsubtypesymbol #3 \Rightarrow #4}}
+\newcommand\lticfsubtype[4]{\ma{#1 \vdash #2 \lticsubtypesymbol #3 \dashv #4}}
 % can't be used in a caption
 \newcommand\ltiinvertedleq{\ma{\mathrel{\raisebox{.1em}{\reflectbox{\rotatebox[origin=c]{180}{$\leq$}}}}}}
 % subtype for colored (external) types but inverted colors
 \newcommand\lticsubtypeinv[2]{\ma{#1 \ltiinvertedleq #2}}
+% subtype for colored (external) types but inverted colors with fuel
+\newcommand\lticfsubtypeinv[4]{\ma{#1 \vdash #2 \ltiinvertedleq #3 \dashv #4}}
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
@@ -106,4 +110,4 @@
 \newcommand\ltiSynChksymbol{\ma{\diamond}}
 \newcommand\ltiSynChk[1]{\ma{{\color{black} \ltiSynChksymbol #1}}}
 
-\newcommand\ltiFsub{\ma{F_{\leq}}}
+\newcommand\ltiFsub{\ma{F_{<:}}}

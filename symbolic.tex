@@ -711,6 +711,7 @@ $$
                          \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
+                         \\&\alt& \ltireannotatelhs{\ltiEnv{}}{\ltiT{}}{\ltiE{}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiTop \alt
@@ -782,6 +783,18 @@ and concatenation
                   {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
                   {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
                  }
+
+    \infer[(I-ReChk)]
+    { 
+    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
+                  {\ltiE{}}
+                  {\ltiS{}}
+    }
+    {
+    \ltitjudgement{\ltiEnvp{}}
+                  {\ltireannotatelhs{\ltiEnv{}}{\ltiT{}}{\ltiE{}}}
+                  {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
+    }
 
     \infer [(I-App)]
     {
@@ -1074,11 +1087,12 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
     \infer[]
     {
-    \lticsubtype{\ltiT{1}}{\ltiT{2}}
+    \lticfsubtype{\ltiFuel{}}{\ltiT{1}}{\ltiT{2}}{\ltiFuelp{}}
     \\
-    \lticsubtype{\ltiT{2}}{\ltiT{3}}
+    \lticfsubtype{\ltiFuelp{}}{\ltiT{2}}{\ltiT{3}}{\ltiFuelpp{}}
     }
-    {\lticsubtype{\ltiT{1}}{\ltiT{3}}}
+    {\lticfsubtype{\ltiFuel{}}{\ltiT{1}}{\ltiT{3}}{\ltiFuelpp{}}
+    }
 
     \infer[]
     {}
@@ -1143,27 +1157,30 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
     \infer[]
     {
-    \lticsubtype{\ltiT{1}}{\ltiTp{1}}
+    \lticfsubtype{\ltiFuel{1}}{\ltiT{1}}{\ltiTp{1}}{\ltiFuel{2}}
     \\
     ...
     \\
-    \lticsubtype{\ltiT{n}}{\ltiTp{n}}
+    \lticfsubtype{\ltiFuel{n}}{\ltiT{n}}{\ltiTp{n}}{\ltiFuel{n+1}}
     }
     {
-    \lticsubtype{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
-                {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}},...,\hastype{\ltivar{n}}{\ltiTp{n}}}}
+    \lticfsubtype{\ltiFuel{1}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
+                 {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}},...,\hastype{\ltivar{n}}{\ltiTp{n}}}}
+                 {\ltiFuel{n+1}}
     }
-    \\
 
     \infer[SC-Arrow]
     {
-    \lticsubtypeinv{\ltiT{1}}{\ltiTp{1}}
+    \lticfsubtypeinv{\ltiFuel{}}{\ltiT{1}}{\ltiTp{1}}{\ltiFuelp{}}
     \\
-    \lticsubtype{\ltiT{2}}{\ltiTp{2}}
+    \lticfsubtype{\ltiFuelp{}}{\ltiT{2}}{\ltiTp{2}}{\ltiFuelpp{}}
     }
     {
-    \lticsubtype{\ltiArrow{\ltiTp{1}}{\ova{\ltitvar{}}}{\ltiT{2}}}
+    \lticfsubtype{\ltiFuel{}}
+                {\ltiArrow{\ltiTp{1}}{\ova{\ltitvar{}}}{\ltiT{2}}}
                 {\ltiArrow{\ltiT{1}}{\ova{\ltitvar{}}}{\ltiTp{2}}}
+                {\ltiFuelpp{}}
     }
 
 %    \infer[SC-ArrowMonoR]
@@ -1233,9 +1250,7 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
     \infer[SC-Closure]
     {
-    \ltiFuel{} > 0
-    \\
-    \ltitfjudgement{\ltiFuel{} - 1}
+    \ltitfjudgement{\ltiFuel{}}
                    {\ltiEnv{},\ova{\ltitvar{}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
                    {\ltiE{}}
                    {\ltiSynChk{\ltiS{}}}
@@ -1250,9 +1265,11 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
   \end{mathpar}
   \caption{Subtyping for colored types
-  \lticfsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}},
+  \lticfsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuelp{}},
+  with
+  \lticfsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}
   abbreviated 
-  \lticsubtype{\ltiT{}}{\ltiS{}} when fuel flows left-to-right between premises.
+  to \lticsubtype{\ltiT{}}{\ltiS{}}.
   The upside-down \lticsubtypesymbol relation 
   is defined like \lticsubtypesymbol, except with inverted colors.
   % TODO can't have this command in a caption (rotatebox incompatibility I think)
@@ -1269,102 +1286,135 @@ they are assumed to have the same color, and similarly for two occurrences of \l
     \ltiEnvLookup{\ltiEnv{}}{\ltivar{}} = {\ltiSyn{\ltiT{}}}
     }
     {
-    \lticjudgement{\ltiEnv{}}{\ltivar{}}{\ltiSyn{\ltiT{}}}
+    \lticfjudgement{\ltiFuel{}}{\ltiEnv{}}{\ltivar{}}{\ltiSyn{\ltiT{}}}{\ltiFuel{}}
     }
 
     \infer[(C-Sub)]
-    {\lticjudgement{\ltiEnv{}}
-                   {\ltiE{}}
-                   {\ltiT{}}
+    {\lticfjudgement{\ltiFuel{1}}
+                    {\ltiEnv{}}
+                    {\ltiE{}}
+                    {\ltiT{}}
+                    {\ltiFuel{2}}
                    \\
-                   \lticsubtype{\ltiT{}}{\ltiTp{}}
+                   \lticfsubtype{\ltiFuel{2}}{\ltiT{}}{\ltiTp{}}{\ltiFuel{3}}
     }
-    {\lticjudgement{\ltiEnv{}}
-                   {\ltiE{}}
-                   {\ltiTp{}}
+    {\lticfjudgement{\ltiFuel{1}}
+                    {\ltiEnv{}}
+                    {\ltiE{}}
+                    {\ltiTp{}}
+                    {\ltiFuel{3}}
                    }
 
     \infer[(C-Abs)]
-    {\lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                   {\ltiE{}}
-                   {\ltiS{}}
+    {\lticfjudgement{\ltiFuel{}}
+                    {\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                    {\ltiE{}}
+                    {\ltiS{}}
+                    {\ltiFuelp{}}
                    \\
                    \ova{\ltitvar{}} \not\in \ltitv{\ltiE{}}
     }
-    {\lticjudgement{\ltiEnv{}}
+    {\lticfjudgement{\ltiFuel{}}
+                   {\ltiEnv{}}
                    {\ltiufun{\ltivar{}}{\ltiE{}}}
                    {\ltiChk{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+                   {\ltiFuelp{}}
                    }
 
     \infer [(C-UAbs)]
-    { }
+    {\lticfjudgement{\ltiFuel{}}
+                    {\ltiEnv{}, \hastype{\ltivar{}}{\ltiSyn{\ltiBot{}}}}
+                    {\ltiE{}}
+                    {\ltiS{}}
+                    {\ltiFuelp{}}
+                    }
     {\lticfjudgement{\ltiFuel{}}
                     {\ltiEnv{}}
                     {\ltiufun{\ltivar{}}{\ltiE{}}}
                     {\ltiSyn{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-                    {\ltiFuel{}}
+                    {\ltiFuelp{}}
                    }
 
     \infer [($\text{C-Abs}_{tp}$)]
     {
-    \lticjudgement{\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
-                  {\ltiE{}}
-                  {\ltiS{}}
+    \lticfjudgement{\ltiFuel{}}
+                   {\ltiEnv{}, \ltiSyn{\ova{\ltitvar{}}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
+                   {\ltiE{}}
+                   {\ltiS{}}
+                   {\ltiFuelp{}}
     }
     {
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{}}
+                  {\ltiEnv{}}
                   {\ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
                   {\ltiSyn{\ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiSynChk{\ltiS{}}}}}
+                  {\ltiFuelp{}}
     }
 
     \infer [(C-Sel)]
     {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiChk{\ltiRec{\hastype{\ltivar{}}{\ltiSynChk{\ltiT{}}}}}}
+    \lticfjudgement{\ltiFuel{}}
+                   {\ltiEnv{}}
+                   {\ltiE{}}
+                   {\ltiChk{\ltiRec{\hastype{\ltivar{}}{\ltiSynChk{\ltiT{}}}}}}
+                   {\ltiFuelp{}}
     }
     {
-    \lticjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiE{}}{\ltivar{}}}
-                  {\ltiT{}}
+    \lticfjudgement{\ltiFuel{}}
+                   {\ltiEnv{}}
+                   {\ltisel{\ltiE{}}{\ltivar{}}}
+                   {\ltiT{}}
+                   {\ltiFuelp{}}
     }
 
     \infer [(C-Rec)]
     {
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{1}}
+                  {\ltiEnv{}}
                   {\ltiE{1}}
                   {\ltiSynChk{\ltiT{1}}}
+                  {\ltiFuel{2}}
                  \\
                  ...
                  \\
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{n}}
+                  {\ltiEnv{}}
                   {\ltiE{n}}
                   {\ltiSynChk{\ltiT{n}}}
+                  {\ltiFuel{n+1}}
     }
     {
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{1}}
+                  {\ltiEnv{}}
                   {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
                   {\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
+                  {\ltiFuel{n+1}}
     }
 
     \infer [($\text{C-App}_{tp}$)]
     {
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{1}}
+                  {\ltiEnv{}}
                   {\ltiF{}}
                   {\ltiChk{\ltiArrow{\ltiSyn{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiSyn{\ltiT{}}}}}
+                  {\ltiFuel{2}}
                   \\
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{2}}
+                  {\ltiEnv{}}
                   {\ltiE{}}
                   {\ltireplace{\ova{\ltiR{}}}
                               {\ova{\ltitvar{}}}
                               {\ltiChk{\ltiS{}}}}
+                  {\ltiFuel{3}}
     }
     {
-    \lticjudgement{\ltiEnv{}}
+    \lticfjudgement{\ltiFuel{1}}
+                  {\ltiEnv{}}
                   {\ltiappinst{\ltiF{}}{\ova{\ltiR{}}}{\ltiE{}}}
                   {\ltireplace{\ova{\ltiR{}}}
                               {\ova{\ltitvar{}}}
                               {\ltiChk{\ltiT{}}}}
+                  {\ltiFuel{3}}
     }
 
     \infer [(C-App)]
@@ -1454,7 +1504,7 @@ they are assumed to have the same color, and similarly for two occurrences of \l
     \ltitfjudgement{\ltiFuel{1}}
                    {\ltiEnv{}}
                    {\ltiF{}}
-                   {\ltiSyn{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}}
+                   {\ltiChk{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}}
                    {\ltiFuel{2}}
                    \\
     \lticfjudgement{\ltiFuel{2}}
