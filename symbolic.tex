@@ -957,6 +957,11 @@ Here, the annotation on \clj{g} is the interesting part.
 \end{cljlisting}
 
 
+% TODO is there an interesting example that uses nested (unannotated) functions
+% such that giving the outer function an intersection type makes the 
+% inner function hard to annotate?
+% something like:
+% (ann (fn [f] ((ann f [Int -> Int]) 1)) (IFn [[Int -> Int] -> Int] [[Num -> Num] -> Num]))
 
 %input
 \begin{cljlisting}
