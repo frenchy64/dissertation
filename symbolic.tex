@@ -666,24 +666,8 @@ external language (that, for example, may require the external language's
 local type argument inference to type check)
 via symbolic closure types.
 
-Using fuel, we can ensure that type-checking in the external language always terminates.
-Then, if type-checking is successful, we know that a finite
-
-% (let [f (fn [f x] (f x))]
-%   (fn [x] (f f)))
-% => 
-% (let [f (ann (fn [f x] (f x))
-%              [Bot -> Top])]
-%   (fn [x] (f f)))
-% => 
-% (let [f (ann (fn [f x] (f x))
-%              [Bot -> Top])]
-%   (fn [x] ((fn [f x] (f x)) (fn [f x] (f x)))))
-% => 
-% (let [f (ann (fn [f x] (f x))
-%              [Bot -> Top])]
-%   (ann (fn [x] ((fn [f x] (f x)) (fn [f x] (f x))))
-%        [Bot -> Top]))
+%Using fuel, we can ensure that type-checking in the external language always terminates.
+%Then, if type-checking is successful, we know that a finite
 
 % (let [f (fn [x] x)]
 %   (f f))
@@ -700,6 +684,260 @@ Then, if type-checking is successful, we know that a finite
 %              [Bot -> Top])]
 %   (ann (fn [x] x)
 %        [Bot -> Top])
+
+\subsection{Compiling to \ltiFsub}
+
+There are a least two ways to approach our external language
+with symbolic closures compiling to \ltiFsub.
+The main challenge and incentive is to remove all symbolic
+closure types from our program and to replace them with
+explicit annotations.
+Our first approach is to copy function code and annotate
+parameter types at each usage.
+This approach seems promising, except there is a tension between
+copying function code and creating runtime closures.
+Our second approach is to extend \ltiFsub with intersection types
+and ascribe each function an intersection type that 
+describes all the ways it was used as a symbolic closure.
+
+We now explore our first approach, to copy function code as they
+are checked.
+First, for those functions ascribed symbolic closure types, we
+copy their code and insert them at their usage sites.
+For example, \clj{f} in 
+
+\begin{cljlisting}
+(let [f (fn [x] x)]
+  (f 1)
+  (f "a"))
+\end{cljlisting}
+
+would be given a symbolic closure type, and
+the program would be expanded like so:
+
+\begin{cljlisting}
+(let [f (fn [x] x)]
+  ((fn [x] x) 1)
+  ((fn [x] x) "a"))
+\end{cljlisting}
+
+First, we notice that all occurrences of \clj{f} have disappeared,
+so it is safe to assume \clj{f} will never be called. It seems
+reasonable to us to annotate its argument as \clj{Bot}.
+
+\begin{cljlisting}
+(let [f (fn [x :- Bot] x)]
+  ((fn [x] x) 1)
+  ((fn [x] x) "a"))
+\end{cljlisting}
+
+Next, the two unannotated functions would be checked as symbolic closures.
+These checks would succeed, and then we could ascribe a parameter type on
+each function.
+
+\begin{cljlisting}
+(let [f (fn [x :- Bot] x)]
+  ((fn [x :- Int] x) 1)
+  ((fn [x :- Str] x) "a"))
+\end{cljlisting}
+
+This program type checks with the rules of \ltiFsub.
+However, subtle variations on this program are much
+more puzzling to account for.
+
+If \clj{f} closes over a variable, like \clj{v}
+here
+
+\begin{cljlisting}
+(let [f (let [v 1] (fn [x] (print v) x))]
+  (f 1)
+  (f "a"))
+\end{cljlisting}
+
+then simply copying its function code will
+not suffice.
+If we do so, \clj{v} is no longer in scope:
+
+\begin{cljlisting}
+(let [f (let [v 1] (fn [x] (print v) x))]
+  ((fn [x] (print v) x) 1)
+  ((fn [x] (print v) x) "a"))
+\end{cljlisting}
+
+We could imagine inlining the value of 
+\clj{v} to work around this issue, but this is not a
+full solution.
+If instead, \clj{v} was an annotated function parameter
+as in the next example
+
+\begin{cljlisting}
+(let [f (fn [v :- Int]
+          (fn [x] (print v) x))]
+  ((f 42) 1)
+  ((f 42) "a"))
+\end{cljlisting}
+
+it's even unclear how to inline the
+unannotated function at all.
+It seems the only choice is to inline \clj{f}
+in its entirety, regardless if it was a symbolic closure.
+
+\begin{cljlisting}
+(let [f (fn [v :- Int]
+          (fn [x] (print v) x))]
+  (((fn [v :- Int]
+      (fn [x] (print v) x))
+    42)
+   1)
+  (((fn [v :- Int]
+      (fn [x] (print v) x))
+    42)
+   "a"))
+\end{cljlisting}
+
+This way we can at least annotate the missing \clj{Int} and \clj{Str}
+parameter types.
+It is now tempting to inline \emph{all} local variables with their
+definitions.
+This doesn't work in a language with side effects.
+For example, inlining \clj{f} to ``fix'' the issues
+in one of our previous examples would repeat side
+effects, like printing \clj{"I only print once"} in the following
+program (it, instead, prints thrice if \clj{f} is inlined).
+
+\begin{cljlisting}
+(let [f (let [v 1]
+          (print "I only print once.")
+          (fn [x] (print v) x))]
+  (f 1)
+  (f "a"))
+\end{cljlisting}
+
+Symbolic closures can also get their types by being passed
+to annotated functions.
+For example, \clj{id}
+gets the type \clj{[Int -> Int]}
+by being passed to \clj{f}, whose definition we will treat
+as opaque, emulating a top-level function.
+
+\begin{cljlisting}
+(let [f (fn [g :- [Int -> Int]] ...)
+      id (fn [x] x)]
+  (f id))
+\end{cljlisting}
+
+By inlining \clj{id} and annotating its parameter \clj{Int},
+this program does not pose any particular challenge.
+
+\subsubsection{Intersection types}
+
+We now speculate on how intersection types can be
+problematic in this scenario, and how they could
+be used as part of the solution.
+We 
+
+If we allow ordered function intersection types,
+featured in several optional type systems,
+we arrive at an impasse.
+Here, we assert that \clj{g} must \emph{both}
+be
+\clj{[Int -> Int]}
+and
+\clj{[Num -> Num]}.
+
+\begin{cljlisting}
+(let [f (fn [g :- (IFn [Int -> Int] [Num -> Num])] ...)
+      id (fn [x] x)]
+  (f id))
+\end{cljlisting}
+
+Clearly \clj{id} inhabits both these types,
+however attempting to inline its definition
+gets us nowhere.
+Introducing intersection types gives us
+one more trick up our sleeve: ascribing
+\clj{id} as an \emph{intersection} of function types.
+
+\begin{cljlisting}
+(let [f (fn [g :- (IFn [Int -> Int] [Num -> Num])] ...)
+      id (fn [x :- Bot] x)]
+  (f (ann (fn [x] x)
+          (IFn [Int -> Int]
+               [Num -> Num]))))
+\end{cljlisting}
+
+This seems to help immensely, but now it seems a waste
+to inline \clj{id} at all.
+Instead, we could simplify this program by only annotating \clj{id}'s
+right-hand-side.
+
+\begin{cljlisting}
+(let [f (fn [g :- (IFn [Int -> Int] [Num -> Num])] ...)
+      id (ann (fn [x] x)
+              (IFn [Int -> Int]
+                   [Num -> Num]))]
+  (f id))
+\end{cljlisting}
+
+We can use this technique to help check our previous examples
+without having to work around closed-over variables.
+For example, our thrice-printing example requires
+a single intersection type annotation, based on
+the two symbolic reductions of \clj{f}.
+
+\begin{cljlisting}
+(let [f (let [v 1]
+          (print "I only print once.")
+          (ann (fn [x] (print v) x)
+               (IFn [Int -> Int]
+                    [Str -> Str])))]
+  (f 1)
+  (f "a"))
+\end{cljlisting}
+
+Unfortunately, inferring ordered intersection types for unannotated
+functions introduce other issues,
+most prominently determining the ``best'' ordering of
+arities.
+
+Compared to unordered intersections, ordered intersections
+have a simple application rule: first arity wins.
+A ``best'' ordering would yield the same or more accurate return type
+for every possible application, compared to every other ordering.
+For now, we assume that a best ordering
+exists for every ordered function intersection type, although
+we are not sure.
+
+There are several interesting cases we sketch to give an idea
+of the character of this algorithm.
+First, if arity 1's domain is a subtype of arity 2's
+domain, then arity 1 should come first,
+using subtyping of the range to break ties in a similar fashion.
+For example, \clj{[Int -> Int]}
+goes before  \clj{[Num -> Int]},
+but
+\clj{[Int -> Int]}
+precedes
+\clj{[Int -> Num]}.
+Second, if the domains of two arities
+are incomparable via subtyping, their ordering does not matter.
+For example,
+\clj{[(Pair Int Num) -> Int]},
+\clj{[(Pair Num Int) -> Num]},
+and
+\clj{[Int -> Num]}
+may occur in any order in relation to each other.
+This also accounts for multiple arguments,
+by considering them as a list passed to a single argument.
+
+\begin{cljlisting}
+(let [f (fn [g :- (IFn [Int -> Int] [Num -> Num])] ...)
+      id (fn [x] x)]
+  (f id))
+\end{cljlisting}
+
+
+% Complications with functions nested in other data structures
 
 \subsection{Internal Language}
 
