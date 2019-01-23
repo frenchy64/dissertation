@@ -930,12 +930,80 @@ may occur in any order in relation to each other.
 This also accounts for multiple arguments,
 by considering them as a list passed to a single argument.
 
+Going back to checking programs, we now explore some
+other ways in which inferring ordered function intersections has
+interesting interactions with \ltiFsub.
+The next example is similar to the one that helped motivate
+intersection types earlier, except we omit the annotation
+on \clj{f}.
+
 \begin{cljlisting}
-(let [f (fn [g :- (IFn [Int -> Int] [Num -> Num])] ...)
+(let [f (fn [g]
+          (g 1)
+          (g "a"))
       id (fn [x] x)]
   (f id))
 \end{cljlisting}
 
+Here, the annotation on \clj{g} is the interesting part.
+
+\begin{cljlisting}
+(let [f (fn [g :- (IFn [Int -> Int] [Str -> Str])]
+          (g 1)
+          (g "a"))
+      id (ann (fn [x] x)
+              (IFn [Int -> Int] [Str -> Str]))]
+  (f id))
+\end{cljlisting}
+
+
+
+%input
+\begin{cljlisting}
+(let [f (fn [g]
+          (g 1)
+          (g "a"))
+      id (fn [x] x)
+      id2 (fn [y] y)]
+  (f id)
+  (f id2))
+\end{cljlisting}
+
+%output
+\begin{cljlisting}
+(let [f (fn [g :- (IFn [Int -> Int]
+                       [Str -> Str])]
+          (g 1)
+          (g "a"))
+      id (ann (fn [x] x) (IFn [Int -> Int]
+                              [Str -> Str]))
+      id2 (ann (fn [y] y) (IFn [Int -> Int]
+                               [Str -> Str]))]
+  (f id)
+  (f id2))
+\end{cljlisting}
+
+\begin{cljlisting}
+(let [f (fn [g x]
+          (if (number? x)
+            (g 1)
+            (g "a")))
+      id (fn [x] x)]
+  (f id 1)
+  (f id "a"))
+\end{cljlisting}
+
+\subsubsection{Polymorphism}
+
+\begin{cljlisting}
+(map (fn [x] x) [1 2 3])
+\end{cljlisting}
+
+\begin{cljlisting}
+(let [f (fn [x] x)]
+  (map f [1 2 3])
+  (map f ["a" "b" "c"]))
+\end{cljlisting}
 
 % Complications with functions nested in other data structures
 
