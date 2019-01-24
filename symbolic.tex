@@ -963,8 +963,8 @@ Take the following program.
 (let [f (fn [g]
           (fn [x]
             (g x)))]
-  ((f (fn [x] x)) 1)
-  ((f (fn [x] x)) "a"))
+  ((f (fn [y] y)) 1)
+  ((f (fn [z] z)) "a"))
 \end{cljlisting}
 
 Ideally, we would give \clj{f} the polymorphic type
@@ -978,8 +978,13 @@ Instead, we infer \clj{f} as type
      [[Str -> Str] -> [Str -> Str]])
 \end{cljlisting}
 
-We are then unable to give a suitable annotation to the return function
-of \clj{f}.
+This means that \clj{f}'s body will be checked twice.
+The first time, \clj{g} will be assumed \clj{[Int -> Int]},
+and then return checked as \clj{[Int -> Int]}.
+The second, \clj{g} will be assumed \clj{[Str -> Str]},
+and then return checked as \clj{[Str -> Str]}.
+
+The problem now is annotating the function in \clj{f}'s body once-and-for-all.
 It inhabits the type \clj{(U [Int -> Int] [Str -> Str])},
 but that is too broad to be compatible with \clj{f}'s return---on the other hand,
 it does not inhabit \clj{(IFn [Int -> Int] [Str -> Str])},
@@ -1003,8 +1008,8 @@ Applying these new type constructs to our example, we get the following annotati
                  (g x)))
              (IFn [[Int -> Int] -> [Int -> Int]]
                   [[Str -> Str] -> [Str -> Str]]))]
-  ((f (fn [x :- Int] x)) 1)
-  ((f (fn [x :- Str] x)) "a"))
+  ((f (fn [y :- Int] y)) 1)
+  ((f (fn [z :- Str] z)) "a"))
 \end{cljlisting}
 
 Now when \clj{f}'s first function type is checked,
@@ -1013,7 +1018,7 @@ Now when \clj{f}'s first function type is checked,
 Correspondingly for the second function type,
 \clj{g} will be of type \clj{[Str -> Str]}, which annotates
 \clj{x} as \clj{Str} via the conditional type's else-branch.
-We must take special consideration of variable shadowing when using \clj{TypeOf}---for
+We note that special consideration of variable shadowing is required when using \clj{TypeOf}---for
 example, if \clj{g} was shadowed above, we would be branching on the wrong type.
 
 \subsubsection{Polymorphism}
