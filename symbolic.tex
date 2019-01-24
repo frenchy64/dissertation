@@ -831,11 +831,6 @@ this program does not pose any particular challenge.
 
 \subsubsection{Intersection types}
 
-We now speculate on how intersection types can be
-problematic in this scenario, and how they could
-be used as part of the solution.
-We 
-
 If we allow ordered function intersection types,
 featured in several optional type systems,
 we arrive at an impasse.
@@ -1023,15 +1018,143 @@ example, if \clj{g} was shadowed above, we would be branching on the wrong type.
 
 \subsubsection{Polymorphism}
 
+We have not addressed how symbolic closures interact with polymorphic types.
+For now, we consider a restricted subset of polymorphic functions, but which happens to be
+common in Clojure code.
+Anecdotally, they are higher-order functions that take in functions cannot be iterated.
+
+For example, the \clj{map} function is roughly of type:
+
+\begin{cljlisting}
+(All [a b]
+  [[a -> b] (Seqable a) -> (Seqable b)])
+\end{cljlisting}
+
+We can immediately see the data flow by the occurrences of type variables.
+The function argument takes an \clj{a} from the collection argument,
+and then returns a \clj{b} to the return collection.
+The function argument cannot be called on its own output in the body
+of \clj{map} because \clj{b} is not compatible with \clj{a}.
+We can draw these dependencies as arrows---notice that there is no arrow
+from \clj{b} to \clj{a}. There are implicit dependencies from
+\clj{a} to \clj{b} because everything to the right of an arrow type depends
+on everything to the left of the arrow (or, output values depend
+on input values).
+
+
+\begin{lstlisting}
+(All [a b]
+  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)])
+\end{lstlisting}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+\end{tikzpicture} 
+
+Inferring the data flow is crucial to checking symbolic closures.
+Take the following example, where the function argument is inferred
+as a symbolic closure.
+
 \begin{cljlisting}
 (map (fn [x] x) [1 2 3])
 \end{cljlisting}
+
+We now have two jobs: to infer the type arguments to \clj{map}
+and to infer the type of \clj{x}.
+Both can be found simultaneously by solving constraints
+to find optimal instantiations for \clj{a} and \clj{b}.
+First, we collect the constraints that make
+\clj{(Closure \{\} (fn [x] x))}
+a subtype of
+\clj{[a -> b]}.
+By checking the function with annotations
+\clj{(fn [x :- a] x)},
+we know that \clj{a} flows into \clj{b}, so
+we get the constraint
+\clj{Bot <: a <: b}.
+For the second argument to \clj{map}
+we infer
+\clj{Int <: a <: Top}.
+Since both type variables occur invariantly, we use their smallest instantiations,
+so the optimal solution to these constraints
+is \clj{a = Int, b = Int}.
+We use this substitution to both
+both provide the type arguments to \clj{map} (via \clj{inst})
+and function argument (by substituting away the \clj{a} that
+exercised the symbolic closure).
+
+
+\begin{cljlisting}
+((inst map Int Int) (fn [x :- Int] x) [1 2 3])
+\end{cljlisting}
+
+We can combine this inference technique with the same approach
+we used to check our previous let-bound function examples,
+like in the following code.
 
 \begin{cljlisting}
 (let [f (fn [x] x)]
   (map f [1 2 3])
   (map f ["a" "b" "c"]))
 \end{cljlisting}
+
+Here, we infer type arguments for each usage of \clj{map},
+and combine the information collected for \clj{f} from both
+inferences into an intersection type, yielding:
+
+\begin{cljlisting}
+(let [f (ann (fn [x] x)
+             (IFn [Int -> Int]
+                  [Str -> Str]))]
+  ((inst map Int Int) f [1 2 3])
+  ((inst map Str Str) f ["a" "b" "c"]))
+\end{cljlisting}
+
+Furthermore, this approach plays nicely with inferring conditional types,
+like in the next example:
+
+\begin{cljlisting}
+(let [f (fn [g]
+          (fn [x]
+            (map g x)))]
+  ((f (fn [y] y)) [1 2 3])
+  ((f (fn [z] z)) ["a" "b" "c"]))
+\end{cljlisting}
+
+Now we must both infer an annotation for \clj{x} and
+the type arguments to \clj{map}, but, as
+in example motivating conditional types,
+this is aggravated by \clj{f} being given a
+intersection type, and thus forcing its body to be checked twice.
+The solution is to to use more conditional types, particularly
+as in the instantiation of \clj{map}:
+
+\begin{cljlisting}
+(let [f (ann (fn [g]
+               (fn [x :- (Seqable (if (subtype? (TypeOf g) [Int -> Int]) Int Str))]
+                 ((inst map
+                        (if (subtype? (TypeOf x) (Seqable Int)) Int Str)
+                        (if (subtype? (TypeOf x) (Seqable Int)) Int Str))
+                  g x)))
+             (IFn [[Int -> Int] -> [Int -> Int]]
+                  [[Str -> Str] -> [Str -> Str]]))]
+  ((f (fn [y :- Int] y)) [1 2 3])
+  ((f (fn [z :- Str] z)) ["a" "b" "c"]))
+\end{cljlisting}
+
+\subsubsection{Inferring Conditional types}
+
+Since inserting conditional types solves many woes, we now
+explore when we decide to insert conditional types.
+Here, the most attractive use of conditional types is to check the
+same piece of code at different types.
+Since a piece of code is only checked twice in the case of a function
+intersection,
 
 % Complications with functions nested in other data structures
 

@@ -1121,21 +1121,21 @@ provided by the second argument, then \texttt{a} is expected as the input to the
 By the free theorems of \texttt{map}'s type, \texttt{a} can only be provided by the second argument, so
 its most precise instantiation is exactly the type of the second argument.
 
-\begin{lstlisting}
-; Type of `map`
-
-(All [a b]
-  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)])
-\end{lstlisting}
-\begin{tikzpicture}[remember picture, overlay,
-                  text width = 2.5cm ]
-  \coordinate (Start1) at (a);
-  \coordinate (End1) at (b);
-  \coordinate (Start2) at (c);
-  \coordinate (End2) at (d);
-  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
-  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
-\end{tikzpicture} 
+%\begin{lstlisting}
+%; Type of `map`
+%
+%(All [a b]
+%  [[(*@\tikz[overlay,remember picture] \node [] (b) {};@*)a -> (*@\tikz[overlay,remember picture] \node [] (c) {};@*)b] (Seqable (*@\tikz[overlay,remember picture] \node [] (a) {};@*)a) -> (Seq (*@\tikz[overlay,remember picture] \node [] (d) {};@*)b)])
+%\end{lstlisting}
+%\begin{tikzpicture}[remember picture, overlay,
+%                  text width = 2.5cm ]
+%  \coordinate (Start1) at (a);
+%  \coordinate (End1) at (b);
+%  \coordinate (Start2) at (c);
+%  \coordinate (End2) at (d);
+%  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+%  \draw[blue,->,bend right=-45](Start2.east) to (End2.north east);
+%\end{tikzpicture} 
 
 Then, \texttt{a} does not occur in the output of the first argument, so we can topologically sort
 the instantiation order of \texttt{a} and \texttt{b}---since \texttt{a} is provided immediately, and
