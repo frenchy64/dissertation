@@ -956,47 +956,65 @@ Here, the annotation on \clj{g} is the interesting part.
   (f id))
 \end{cljlisting}
 
+Unfortunately, we can't retroactively annotate all programs in this way.
+Take the following program.
 
-% TODO is there an interesting example that uses nested (unannotated) functions
-% such that giving the outer function an intersection type makes the 
-% inner function hard to annotate?
-% something like:
-% (ann (fn [f] ((ann f [Int -> Int]) 1)) (IFn [[Int -> Int] -> Int] [[Num -> Num] -> Num]))
-
-%input
 \begin{cljlisting}
 (let [f (fn [g]
-          (g 1)
-          (g "a"))
-      id (fn [x] x)
-      id2 (fn [y] y)]
-  (f id)
-  (f id2))
+          (fn [x]
+            (g x)))]
+  ((f (fn [x] x)) 1)
+  ((f (fn [x] x)) "a"))
 \end{cljlisting}
 
-%output
-\begin{cljlisting}
-(let [f (fn [g :- (IFn [Int -> Int]
-                       [Str -> Str])]
-          (g 1)
-          (g "a"))
-      id (ann (fn [x] x) (IFn [Int -> Int]
-                              [Str -> Str]))
-      id2 (ann (fn [y] y) (IFn [Int -> Int]
-                               [Str -> Str]))]
-  (f id)
-  (f id2))
-\end{cljlisting}
+Ideally, we would give \clj{f} the polymorphic type
+\clj{(All [a] [[a -> a] -> [a -> a]])}.
+Then, we would use the type variable to annotate its return
+as \clj{[a -> a]}.
+Instead, we infer \clj{f} as type
 
 \begin{cljlisting}
-(let [f (fn [g x]
-          (if (number? x)
-            (g 1)
-            (g "a")))
-      id (fn [x] x)]
-  (f id 1)
-  (f id "a"))
+(IFn [[Int -> Int] -> [Int -> Int]]
+     [[Str -> Str] -> [Str -> Str]])
 \end{cljlisting}
+
+We are then unable to give a suitable annotation to the return function
+of \clj{f}.
+It inhabits the type \clj{(U [Int -> Int] [Str -> Str])},
+but that is too broad to be compatible with \clj{f}'s return---on the other hand,
+it does not inhabit \clj{(IFn [Int -> Int] [Str -> Str])},
+because \clj{g} cannot accept both \clj{Int} and \clj{Str}.
+To handle these cases, we borrow \emph{conditional types} from TypeScript.
+
+A conditional type is type-level dependency between types.
+It is of the form \clj{(if (subtype? S T) U V)},
+and returns type \clj{U} if \clj{S} is a subtype of \clj{T},
+and \clj{V} otherwise.
+This construct is particularly useful in combination with
+the ability to reference the types of \emph{variables}.
+In TypeScript, the type \clj{typeof f} resolves to the type of \clj{f}
+in the current type environment. Here, we equivalently write \clj{(TypeOf f)}.
+
+Applying these new type constructs to our example, we get the following annotation:
+
+\begin{cljlisting}
+(let [f (ann (fn [g]
+               (fn [x :- (if (subtype? (TypeOf g) [Int -> Int]) Int Str)]
+                 (g x)))
+             (IFn [[Int -> Int] -> [Int -> Int]]
+                  [[Str -> Str] -> [Str -> Str]]))]
+  ((f (fn [x :- Int] x)) 1)
+  ((f (fn [x :- Str] x)) "a"))
+\end{cljlisting}
+
+Now when \clj{f}'s first function type is checked,
+\clj{g} will be of type \clj{[Int -> Int]}, which annotates
+\clj{x} as \clj{Int}.
+Correspondingly for the second function type,
+\clj{g} will be of type \clj{[Str -> Str]}, which annotates
+\clj{x} as \clj{Str} via the conditional type's else-branch.
+We must take special consideration of variable shadowing when using \clj{TypeOf}---for
+example, if \clj{g} was shadowed above, we would be branching on the wrong type.
 
 \subsubsection{Polymorphism}
 
