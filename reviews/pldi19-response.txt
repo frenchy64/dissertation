@@ -74,6 +74,7 @@ Shared response
   (D.24) What's conceptually new compared to [4,20,18]? [See also D.8 -ABS]
 
 * Confusing technical presentation
+  (A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
   (C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
   (B.15,C.18) inferRec not defined
   (C.10) Explanation of technical model should be declarative, not operational
@@ -84,9 +85,6 @@ Shared response
   (A.4) Inferring useful type names is one of the central contributions of the paper, and it's in fact a crucial (and often underrated) component of useful type annotations; yet it's not given enough attention in the paper and hasn't been evaluated quantitatively. Ideally, a user study is required to evaluate something like that.
   (B.5) No discussion of how they are able to come up with good names.
   (D.4) Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
-
-* Omissions
-  (A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
 
 ===============
 Review A
