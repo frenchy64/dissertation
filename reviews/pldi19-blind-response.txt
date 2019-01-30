@@ -107,7 +107,7 @@ and adding various local annotations to appease the type checker.
 > 'collapsing' much work (though it is a nice use of Herman et al.'s
 > implementation of Henglein's coercion calculus).
 
-It is difficult to quantify how much cognitive our approach saves, but we stand by our title.
+It is difficult to quantify how much cognitive overhead our approach saves, but we stand by our title.
 The Git line diff (MD, Fig 13) was a poor metric, which we try to supplement
 with all the columns to right of it.
 
