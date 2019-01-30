@@ -77,6 +77,7 @@ Shared response
   (A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
   (C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
   (B.15,C.18) inferRec not defined
+  (A.6) Sections 3.2.1--4.2 are very low-level and implementation-specific. 
   (C.10) Explanation of technical model should be declarative, not operational
   (D.22) Merging aliases needs an example
   (D.23) Figures 9 and 10 are never referenced in the text.
