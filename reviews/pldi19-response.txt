@@ -1,13 +1,103 @@
 - Major Positives
-  - Compelling, timely, and important problem space
-  - Novel approach
-  - Clean model
+  - Compelling, timely, non-trivial, and important problem space (A.9,B.1)
+  - Novel approach to infer recursive types with good names
+  - Clean model (B.3)
   - Detailed discussion of limitations of our tool
 - Major Negatives
-  - Insufficient, underwhelming evaluation (especially wrt contracts)
-  - Lacking comparison to related works
-  - Awkward and spotty technical presentation
+  - Insufficient, underwhelming evaluation (B.{6,21})
+    - especially wrt contracts
+  - Lacking comparison to related works (B.7)
+  - Awkward and spotty technical presentation (B.{4,9,17})
   - Immature tool
 
-- Details
-  - Missing explanation for generating good names
+===============
+Shared response
+===============
+
+* Missing explanation and evaluation for generating good names (A.4,B.{5,9},D)
+  (A.4) Inferring useful type names is one of the central contributions of the paper, and it's in fact a crucial (and often underrated) component of useful type annotations; yet it's not given enough attention in the paper and hasn't been evaluated quantitatively. Ideally, a user study is required to evaluate something like that.
+  (C) No discussion of how they are able to come up with good names.
+  (D) Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
+
+* Cut off evaluation in Fig 13 (A.6)
+* Immature tool (A.7)
+* Insufficient methodology to evaluate claims of usefulness-over-soundness (A.8)
+
+
+===============
+Review A
+===============
+(A.1) Ad-hoc technique forgoing soundness over compactness and generality is insufficiently motivated & evaluated 
+(A.2) Why runtime analysis? Runtime vs static analysis? 
+(A.3) Why choose to evaluate with Typed Clojure, given its limitations?
+(A.5) Confusing evaluation of clojure.spec
+
+
+===============
+Review B
+===============
+
+(B.10) Misleading title, unconvinced this "collapses" much work
+(B.{11,23}) Downsides of unsound types? Does Typed Clojure help correct them? Can they run as ordinary programs?
+
+Confusions:
+(B.12) What does the word 'generalized' mean on L199?
+(B.35) `emit-dot`?
+(B.36) L456 presumably `::` is `cons`?
+
+Technical presentation:
+(B.13) Weird `get` syntax
+(B.14) Booleans/nil/top/empty-union unexplained
+(B.15) inferRec not defined
+(B.17) `postwalk` unidiomatic in mathematics
+(B.18) Rathers $\times$ than $,$ in function types
+(B.19) The $\tau(\vec{\sigma})$ syntax is used (L670) well before it's defined (L749).
+
+Related works:
+(B.16) Your $\sqcup$ operation is similar to the meet used in Siek and Wadler's "Threesomes, with and without Blame" (STOP 2009/POPL 2010).
+
+Implementation:
+(B.20) How do you mix lazy+eager tracking?
+
+Evaluation:
+(B.21) Typed Clojure's limitations significantly weakens evaluation
+(B.22) Please include time and memory information.
+(B.24) Ideal evaluation would present type annotations to unsuspecting Clojure users.
+(B.25) Suggestion: evaluate time to migrate (eg.) STLC typechecker & interpreter with+without your tool
+
+Related works:
+(B.26) Rastogi, Chaudhuri, Hosmer "The ins and outs of gradual type inference" POPL 2012
+(B.27) Comparisons needed to Van Horn et al.
+(B.28) Fisher, Walker, Zhu "LearnPADS: automatic tool generation from ad hoc data" (SIGMOD 2008) and Arasu, Garcia-Molina (SIGMOD 2003)
+(B.29) Cite from DB schema inference literature
+  eg. 1. Baazizi, Ben Lahmar, Colazzo, Ghelli, Sartiani "Schema Inference
+         for Massive JSON Datasets" (EDBT 2017)
+      2. Bex, Neven, Vansummeren "Inferring XML Schema Definitions from XML
+         Data" (VLDB 2007)
+(B.{8,30}) Cite more academic optional/gradual type systems & Dart
+(B.31) Need comparisons with 4 other papers
+  1. Furr, An, Foster, Hicks "Static type inference for Ruby" SAC 2009
+  2. Furr, An, Foster, Hicks "Tests to the left of me, types to the
+     right: how not to get stuck in the middle of a Ruby execution"
+     STOP 2009
+  3. Mehnert "Extending Dylan's type system for better type inference
+     and error detection" ICL 2010
+  4. Siek, Tobin-Hochstadt "The recursive union of some gradual types"
+     WadlerFest (LNCS 9600, 2016)
+(B.32) Soft-typing & Thatte's quasi-static typing
+(B.33) Dynamic analysis similar to Christos Dimoulas &co (POPL 2011, ESOP 2012)
+(B.34) Lazy tracking similar to 2 other papers
+
+Questions for authors:
+(B.37) How does inference behave on non-recursive data?
+(B.38) Tuning algorithm for less agressive merging?
+(B.39) Outline issues with Typed Clojure, any full ports of recursive structures?
+(B.40) Narrower specs for clojure.spec?
+
+===============
+Review C
+===============
+
+===============
+Review D
+===============

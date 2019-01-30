@@ -24,34 +24,44 @@ Comments for author
 -------------------
 ### Strengths
 
+(A.9)
 1. As far as I know, this is the first attempt to infer recursive type definitions fully automatically. This is a non-trivial problem, and the idea to solve it by "squashing" observed instances of these types is clever.
 
+(A.10)
 2. The evaluation uses real-world Clojure code, including a ClojureScript compiler.  
 
 ### Weaknesses
 
 Although the key idea behind recursive type inference is promising, I believe the paper is not yet ready for publication for the following reasons. 
 
+(A.8)
 1. *Results are underwhelming.* To deem this tool successful, I expect that the inferred annotations type-check with minimal manual intervention from the programmer. Instead, according to Fig. 13, the amount of manual changes required was comparable to the amount of inferred annotations for 5 out of 6 benchmarks, whereas for the last benchmark checkable annotations could not be produced at all. These results are quite disappointing, especially given that the technique explicitly targets usefulness rather than formal guarantees, which sets a high bar for the evaluation methodology and results.
 
+(A.7)
 2. *Tool is not ready.* Among the various reasons for failure discussed in Sec. 5.2, several look like they can be eliminated quite easily, and the reader it left wondering why the authors haven't implemented these changes. For instance, the first example of "over-precision" (`all-different`) and the examples with variadic and optional arguments all follow the same pattern: they have union or intersection types in the top-level annotation, which should be eliminated using some kind of abstraction. This is in fact another instance of something this technique already does (abstracting unions into recursive types). I can't help but think that there's a generalization of the presented technique that would take care of all these cases.
 
+(A.6)
 3. *Paper is not ready.* I found the technical parts of the paper hard to follow (admittedly, I'm an outsider when it comes to Clojure and optional type systems). Sections 3.2.1--4.2 are very low-level and implementation-specific. Examples help when they are present, but the later sections have none, and in fact the last example (at the end of section 3.2.1) is cut mid-sentence. Similarly, the table in Fig. 13 seems cut off (no results for `dj` and `mo` in the right side of the table).
 
 ### Detailed comments
 
+(A.1)
 - It might be partly a presentation issue, but the technique seems pretty ad-hoc. The paper doesn't give any formal guarantees about the results of "squashing". Instead, the authors explicitly say that they forgo soundness in the name of compactness and generality, but I don't find this very satisfactory. There has to be some discussion of what guarantees squashing provides and why soundness is undesirable or hard to achieve. Overall, the technique has various knobs and heuristic (e.g. when to squash globally, when to use eager vs lazy tracking), which at the very least have to be thoroughly evaluated.
 
+(A.2)
 - A fundamental limitation of any runtime inference technique is that it's only as good as the test suite. Where did the test suites used in the evaluation come from? Assuming they are production test suites that came with the code, the evaluation confirms that they often don't provide enough coverage to infer useful types; in general, coming up with good test suites is extremely labor-intensive. This raises several questions:
 
     - Is there any evidence that writing a sufficiently good test suite is easier than type-annotating the code in the first place (which then enables type-driven testing?) 
     
     - Why was a runtime technique chosen? Are there fundamental reasons this kind of type inference cannot be done via static analysis? The paper mentions some static tools in Sec. 6 and claims they failed to infer sufficiently precise types for their running example, but it's unclear whether this is a fundamental limitation of static analysis, or just a limitation of those specific tools. Perhaps some combination of runtime and static (and statistical?) techniques could overcome this issue?
     
+(A.3)
 - Another reason for failure reported in Sec. 5.2 are the limitations of Typed Clojure, which fails to type-check some Clojure idioms. Why did the authors choose Typed Clojure in the first place? I assume there are more mature optional type systems around (which are also more widely used)?  
 
+(A.4)
 - Inferring useful type names is one of the central contributions of the paper, and it's in fact a crucial (and often underrated) component of useful type annotations; yet it's not given enough attention in the paper and hasn't been evaluated quantitatively. Ideally, a user study is required to evaluate something like that.
 
+(A.5)
 - I find Experiment 3 (Sec 5.3) quite confusing. The fact that the generated specs pass the tests they were generated from seems like the kind of soundness guarantee that I expect the type inference mechanism to provide. So I expect this to be proven formally, rather than evaluated. The section mentions the following caveat: "some function specs perform generative testing based on <...> types"; but this requires a function to have a spec (= a type annotation) in the first place, why would we want to infer a spec for such a function?
 
 
@@ -94,24 +104,32 @@ can be made more thorough.
 
 Strengths
 
+(B.1)
 + Worthwhile, timely problem.
 
+(B.2)
 + Simple dynamic analysis gives a nice baseline solution.
 
+(B.3)
 + Clean model.
 
 Weaknesses
 
+(B.4)
 - Occasionally awkward technical presentation.
 
+(B.5)
 - No discussion of how they are able to come up with good names.
 
+(B.6)
 - Not enough detail on evaluation.
 
+(B.7)
 - Missing related work.
 
 # Technical presentation
 
+(B.8)
 - You say that optional type systems require that "type annotations
   must be added" (L10, L46), but this isn't always the case (e.g.,
   soft typing, Thatte's quasi-static typing). Your claim is true for
@@ -122,6 +140,7 @@ Weaknesses
 
   * Easy fix: soften your claim, cite these works.
 
+(B.9)
 - There are two core novelties here: recursive inference and good
   names. (See 'Related work' below.) Your technical development
   doesn't cover either in detail: recursive inference happens because
@@ -132,6 +151,7 @@ Weaknesses
     features. Explain where good names come from (the variables that
     are used?)
 
+(B.10)
 - The title "Squash the work!" is misleading. You're not actually
   'collapsing' much work (though it is a nice use of Herman et al.'s
   implementation of Henglein's coercion calculus).
@@ -139,6 +159,7 @@ Weaknesses
   * Easy fix: just use the subtitle. I would consider replacing "plain
     data" with "unit tests".
 
+(B.11)
 - The aggressive combination you do of recursive data types (L191-195)
   is not an unalloyed good. The type you come up with for `nodes` is
   wrong... will Typed Clojure be able to catch that `nodes` doesn't
@@ -150,37 +171,47 @@ Weaknesses
 
 ## Confusing bits
 
+(B.12)
 - What does the word 'generalized' mean on L199?
 
+(B.13)
 - The `get` syntax (L379) was surprising after the function syntax for
   symbols was introduced (L88).
 
+(B.14)
 - Are booleans not considered in types? What is $\top$? It seems later
   on (L681) that union types are allowed to be empty unions... is that
   correct? If so, please mention that early on! How do you model
   `nil`?
 
+(B.15)
 - `inferRec` is never defined (L516)
 
+(B.16)
 - Your $\sqcup$ operation is similar to the meet used in Siek and
   Wadler's "Threesomes, with and without Blame" (STOP 2009/POPL 2010).
 
+(B.17)
 - Your use of higher-order functions in the technical development is
   more confusing than it is useful, especially not `postwalk`. I'd
   recommend either (a) just showing (simplified?) Clojure code or (b)
   writing more idiomatic mathematics.
 
+(B.18)
 - It's more conventional to use $\times$ than $,$ in function types
   (Figures 8, 9, 10).
 
+(B.19)
 - The $\tau(\vec{\sigma})$ syntax is used (L670) well before it's
   defined (L749).
 
+(B.20)
 - You say how to achieve a mix of lazy/eager tracking in the formalism
   (L923-925)... how do you achieve it in the implementation?
 
 # Evaluation
 
+(B.21)
 - It seems as though you couldn't actually convert a substantial
   portion of the code to something Typed Clojure would accept. It's
   only natural that Typed Clojure would be somewhat limited, but this
@@ -194,13 +225,18 @@ Weaknesses
     good naming). Perhaps a simple arithmetic/While language? A Scheme
     interpreter? An STLC type checker/inferencer and evaluator?
 
+(B.22)
 - Please include time and memory information.
 
+(B.23)
 - What does Typed Clojure do with a program that has incorrect
   annotations? Can they still be run as ordinary Clojure programs?
 
+(B.24)
 - An ideal evaluation would unleash the tool on unsuspecting Clojure
-  users. How long does it take to migrate a small program (e.g., STLC
+  users. 
+  (B.25)
+  How long does it take to migrate a small program (e.g., STLC
   typechecker and interpreter) with and without your tool? This is of
   course a substantial amount more work... but if you abandon formal
   measures of goodness (e.g., soundness), then you should provide
@@ -208,21 +244,25 @@ Weaknesses
 
 # Related work
 
+(B.26)
 This is not the first system for inferring the types of unannotated
 programs. Rastogi, Chaudhuri, Hosmer "The ins and outs of gradual type
 inference" POPL 2012 is probably the most modern, but some work from
 the 1990s does this as well (see below and
 https://github.com/samth/gradual-typing-bib#typing-untyped-languages).
 
+(B.27)
 Your dynamic analysis bears some similarity to various work by Van
 Horn and collaborators, though his work is static and typically
 assumes that contracts are already present.
 
+(B.28)
 - Fisher, Walker, Zhu "LearnPADS: automatic tool generation from ad
   hoc data" (SIGMOD 2008) and Arasu, Garcia-Molina (SIGMOD 2003) are
   both systems for automatically inferring types from data. Neither
   supports recursion.
 
+(B.29)
 - There is some work in the DB community on schema inference that
   seems to support recursion. I'm sure there are others, but these two
   jumped out from a cursory search:
@@ -233,11 +273,13 @@ assumes that contracts are already present.
   * Bex, Neven, Vansummeren "Inferring XML Schema Definitions from XML
     Data" (VLDB 2007)
 
+(B.30)
 - You cite only industrial optional type systems. If you're going to
   give a long list, please include the academic works in this area,
   e.g., Typed Racket, DRuby, StrongTalk, Reticulated Python,
   Thorn. You omit Dart, another industrial language.
 
+(B.31)
 - You should cite and compare to:
   
   * Furr, An, Foster, Hicks "Static type inference for Ruby" SAC 2009
@@ -252,14 +294,17 @@ assumes that contracts are already present.
   * Siek, Tobin-Hochstadt "The recursive union of some gradual types"
     WadlerFest (LNCS 9600, 2016)
 
+(B.32)
 - It seems your inference always succeeds. In this way your work is
   related to various optional typing efforts from the 1990s: soft
   typing (Cartwright and Fagan PLDI 1991) and Thatte's quasi-static
   typing (POPL 1990).
 
+(B.33)
 - The dynamic analysis you do bears some similarity to the dynamic
   analyses used by Christos Dimoulas &co (POPL 2011, ESOP 2012).
 
+(B.34)
 - Your "lazy tracking" (Section 4.2) is reminiscent of Findler, Guo,
   and Rogers, "Lazy Contract Checking for Immutable Data Structures"
   (IFL 2007). See also Swords, Sabry, and Tobin-Hochstadt, "An
@@ -268,16 +313,20 @@ assumes that contracts are already present.
 
 # Miscellany
 
+(B.35)
 L316 what is the name `emit-dot` supposed to be suggestive of?
 
+(B.36)
 L456 presumably `::` is `cons`?
 
 Questions for Authors
 ---------------------
+(B.37)
 How does your inference algorithm perform on non-recursive, ad-hoc
 data structures? A non-trivial JSON- or XML- or YAML-processing
 program would be a good test of this.
 
+(B.38)
 My intuition says that your inference algorithm would (incorrectly!)
 merge 'staged' ASTs; i.e., a compiler that translated STLC to ANF to a
 closure-converted ANF would have similarly named nodes for constants
@@ -285,12 +334,14 @@ in all three ASTs, but the domains of operations would be restricted
 in ANF and no lambdas would ever occur in the last stage. Am I
 correct? How might you tune your algorithm to accommodate this usage?
 
+(B.39)
 It seems as though you couldn't actually convert a substantial portion
 of the code to something Typed Clojure would accept. Is that correct?
 Why couldn't you port `mini.occ` or `data.json`? Have you successfully
 ported anything that used recursive data structures in a meaningful
 way?
 
+(B.40)
 Can `clojure.spec` support interesting contracts, like positive or
 prime numbers, non-empty lists, etc.? Will your tool ever produce
 these narrower specifications?
