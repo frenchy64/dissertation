@@ -9,13 +9,11 @@
     - especially wrt contracts (A.5,B.40,D.{6,16})
   - Lacking comparison to related works (B.7,D.3)
   - Awkward and spotty technical presentation (B.{4,9,17},D.15)
-  - Immature tool
+  - Immature tool (A.7)
 
 ===============
 Shared response
 ===============
-
-* Immature tool (A.7)
 
 * Weak evaluation
   * More principled evaluation needed
@@ -35,6 +33,7 @@ Shared response
     (B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
   * Underwhelming/weak results
     (A.5) Confusing evaluation of clojure.spec
+    (A.7) Immature tool 
     (D.10) Experiment 2: seems like too much work to annotate [reviewer cites git line diffs, probably a bad metric to present - ABS]
     (D.12) Benchmarks are small -- does this scale?
     (D.18) contract inference evaluation is weak -- either remove or improve evaluation
