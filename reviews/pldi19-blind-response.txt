@@ -122,9 +122,9 @@ or indicated by the type checker (eg. casts, the "C" metric).
 > prime numbers, non-empty lists, etc.? Will your tool ever produce
 > these narrower specifications?
 
-This information can be collected by our runtime analysis, and could be
-added as the need/demand arises. Memory concerns during collection
-and more processing time needed to process samples are the main concerns
+Yes, and this information could be collected by our runtime analysis, and could be
+added as the need/demand arises. Memory during collection
+and processing time for extra samples are the main concerns.
 
 D
 
