@@ -15,6 +15,11 @@
 Shared response
 ===============
 
+* Unclear contributions
+  (B.12) What does the word 'generalized' mean on L199?
+  (D.16) Is approach generalizable beyond hash maps?
+  (D.14) The first point of the contributions shouldn't be listed as a contribution -- automatically generating type annotations isn't new.
+
 * Weak evaluation
   * More principled evaluation needed
     (B.24) Ideal evaluation would present type annotations to unsuspecting Clojure users.
@@ -36,6 +41,7 @@ Shared response
     (A.7) Immature tool 
     (D.10) Experiment 2: seems like too much work to annotate [reviewer cites git line diffs, probably a bad metric to present - ABS]
     (D.12) Benchmarks are small -- does this scale?
+    (D.13) Seemingly unfair comparison to TypeWiz, seems to cherry-pick `nodes` function
     (D.18) contract inference evaluation is weak -- either remove or improve evaluation
 
 * Weak related works comparison
@@ -62,19 +68,21 @@ Shared response
   (B.33) Dynamic analysis similar to Christos Dimoulas &co (POPL 2011, ESOP 2012)
   (B.34) Lazy tracking similar to 2 other papers
   (D.8) Paper does not explain how approach differs with RubyDust, JSTrace, TypeDevil etc., perhaps empirical comparison also needed
+  (D.24) What's conceptually new compared to [4,20,18]? [See also D.8 -ABS]
 
 * Confusing technical presentation
   (C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
   (B.15,C.18) inferRec not defined
+  (D.22) Merging aliases needs an example
+  (D.23) Figures 9 and 10 are never referenced in the text.
 
 * Missing explanation and evaluation for generating good names (A.4,B.{5,9},D)
   (A.4) Inferring useful type names is one of the central contributions of the paper, and it's in fact a crucial (and often underrated) component of useful type annotations; yet it's not given enough attention in the paper and hasn't been evaluated quantitatively. Ideally, a user study is required to evaluate something like that.
   (B.5) No discussion of how they are able to come up with good names.
   (D.4) Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
 
-* Writing Details+Typos
+* Omissions
   (A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
-  (B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
 
 ===============
 Review A
