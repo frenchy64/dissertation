@@ -15,27 +15,79 @@
 Shared response
 ===============
 
+* Immature tool (A.7)
+
+* Weak evaluation
+  * More principled evaluation needed
+    (B.24) Ideal evaluation would present type annotations to unsuspecting Clojure users.
+    (B.25) Suggestion: evaluate time to migrate (eg.) STLC typechecker & interpreter with+without your tool
+    (B.37) How does inference behave on non-recursive data?
+    (D.9) No ground truth. eg. start with type-annotated code & erase types.
+          Would be more convincing than anecdotal evidence in Experiment 1.
+  * Insufficient motivation & methodology
+    (A.1) Ad-hoc technique forgoing soundness over compactness and generality is insufficiently motivated & evaluated 
+    (A.3) Why choose to evaluate with Typed Clojure, given its limitations?
+    (A.8) Insufficient methodology to evaluate claims of usefulness-over-soundness 
+    (B.21) Typed Clojure's limitations significantly weakens evaluation
+  * Missing results
+    (A.6,D.19,D.26) Missing evaluations in Fig 13 
+    (B.22) Please include time and memory information.
+    (B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
+  * Underwhelming/weak results
+    (A.5) Confusing evaluation of clojure.spec
+    (D.10) Experiment 2: seems like too much work to annotate [reviewer cites git line diffs, probably a bad metric to present - ABS]
+    (D.12) Benchmarks are small -- does this scale?
+    (D.18) contract inference evaluation is weak -- either remove or improve evaluation
+
+* Weak related works comparison
+  (B.16) Your $\sqcup$ operation is similar to the meet used in Siek and Wadler's "Threesomes, with and without Blame" (STOP 2009/POPL 2010).
+  (B.26) Rastogi, Chaudhuri, Hosmer "The ins and outs of gradual type inference" POPL 2012
+  (B.27) Comparisons needed to Van Horn et al.
+  (B.28) Fisher, Walker, Zhu "LearnPADS: automatic tool generation from ad hoc data" (SIGMOD 2008) and Arasu, Garcia-Molina (SIGMOD 2003)
+  (B.29) Cite from DB schema inference literature
+    eg. 1. Baazizi, Ben Lahmar, Colazzo, Ghelli, Sartiani "Schema Inference
+           for Massive JSON Datasets" (EDBT 2017)
+        2. Bex, Neven, Vansummeren "Inferring XML Schema Definitions from XML
+           Data" (VLDB 2007)
+  (B.{8,30}) Cite more academic optional/gradual type systems & Dart
+  (B.31) Need comparisons with 4 other papers
+    1. Furr, An, Foster, Hicks "Static type inference for Ruby" SAC 2009
+    2. Furr, An, Foster, Hicks "Tests to the left of me, types to the
+       right: how not to get stuck in the middle of a Ruby execution"
+       STOP 2009
+    3. Mehnert "Extending Dylan's type system for better type inference
+       and error detection" ICL 2010
+    4. Siek, Tobin-Hochstadt "The recursive union of some gradual types"
+       WadlerFest (LNCS 9600, 2016)
+  (B.32) Soft-typing & Thatte's quasi-static typing
+  (B.33) Dynamic analysis similar to Christos Dimoulas &co (POPL 2011, ESOP 2012)
+  (B.34) Lazy tracking similar to 2 other papers
+  (D.8) Paper does not explain how approach differs with RubyDust, JSTrace, TypeDevil etc., perhaps empirical comparison also needed
+
+* Confusing technical presentation
+  (C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
+  (B.15,C.18) inferRec not defined
+
 * Missing explanation and evaluation for generating good names (A.4,B.{5,9},D)
   (A.4) Inferring useful type names is one of the central contributions of the paper, and it's in fact a crucial (and often underrated) component of useful type annotations; yet it's not given enough attention in the paper and hasn't been evaluated quantitatively. Ideally, a user study is required to evaluate something like that.
-  (C) No discussion of how they are able to come up with good names.
-  (D) Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
+  (B.5) No discussion of how they are able to come up with good names.
+  (D.4) Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
 
-* Cut off evaluation in Fig 13 (A.6,D.19,D.26)
-* Immature tool (A.7)
-* Insufficient methodology to evaluate claims of usefulness-over-soundness (A.8)
-
-(B.15,C.18) inferRec not defined
-(A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
-(C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
-(B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
+* Writing Details+Typos
+  (A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
+  (B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
 
 ===============
 Review A
 ===============
+
 (A.1) Ad-hoc technique forgoing soundness over compactness and generality is insufficiently motivated & evaluated 
 (A.2) Why runtime analysis? Runtime vs static analysis? 
-(A.3) Why choose to evaluate with Typed Clojure, given its limitations?
-(A.5) Confusing evaluation of clojure.spec
+
+Evaluation:
+  (A.1) Ad-hoc technique forgoing soundness over compactness and generality is insufficiently motivated & evaluated 
+  (A.3) Why choose to evaluate with Typed Clojure, given its limitations?
+  (A.5) Confusing evaluation of clojure.spec
 
 
 ===============
@@ -57,11 +109,6 @@ Technical presentation:
 (B.18) Rathers $\times$ than $,$ in function types
 (B.19) The $\tau(\vec{\sigma})$ syntax is used (L670) well before it's defined (L749).
 
-Related works:
-(B.16) Your $\sqcup$ operation is similar to the meet used in Siek and Wadler's "Threesomes, with and without Blame" (STOP 2009/POPL 2010).
-
-Implementation:
-
 Evaluation:
 (B.21) Typed Clojure's limitations significantly weakens evaluation
 (B.22) Please include time and memory information.
@@ -69,6 +116,7 @@ Evaluation:
 (B.25) Suggestion: evaluate time to migrate (eg.) STLC typechecker & interpreter with+without your tool
 
 Related works:
+(B.16) Your $\sqcup$ operation is similar to the meet used in Siek and Wadler's "Threesomes, with and without Blame" (STOP 2009/POPL 2010).
 (B.26) Rastogi, Chaudhuri, Hosmer "The ins and outs of gradual type inference" POPL 2012
 (B.27) Comparisons needed to Van Horn et al.
 (B.28) Fisher, Walker, Zhu "LearnPADS: automatic tool generation from ad hoc data" (SIGMOD 2008) and Arasu, Garcia-Molina (SIGMOD 2003)
