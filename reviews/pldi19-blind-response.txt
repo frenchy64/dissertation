@@ -113,9 +113,9 @@ with all the columns to right of it.
 
 For example, for mini.occ, the programmer was saved from identifying,
 naming, or even specifying the relationship between 3 mutually recursive
-heterogeneous data structures with over a dozen cases. Furthermore, 
+heterogeneous data structures with over a dozen cases. 
 
-In our experience, changes are often obvious by sight (eg. overprecise argument, the "O" metric)
+Furthermore, in our experience, changes are often obvious by sight (eg. overprecise argument, the "O" metric)
 or indicated by the type checker (eg. casts, the "C" metric).
 
 > Can `clojure.spec` support interesting contracts, like positive or
