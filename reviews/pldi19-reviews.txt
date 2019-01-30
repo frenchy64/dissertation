@@ -463,67 +463,93 @@ This paper describes a dynamic type inference technique to type-annotate previou
 
 Comments for author
 -------------------
+(D.1)
 + Type inference for dynamically typed languages is important and challenging
+(D.2)
 + Detailed discussion of limitations of inferred types
  
+(D.3)
 - Novelty over closely related work isn't clear
+(D.4)
 - Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
+(D.5)
 - Extensions to the core approach (space efficient tracking, lazy  tracking) aren't evaluated
+(D.6)
 - Inference of contracts is neither novel nor well evaluated
 
+(D.7)
 I like the thorough description of the approach and the detailed discussion of why many of the inferred types aren't sufficient to type-check a program. However, I have concerns both related to the novelty and the evaluation of the work.
 
 
 ## Novelty
 
+(D.8)
 As briefly pointed out in the related work section, there have been several other dynamic type inference approaches [4,20,18] for untyped languages. The paper doesn't explain how the current approach differs. At a high level, the existing approaches work similarly to what is proposed here: record type information at runtime and then compress it into types. The paper must explain the differences more clearly and perhaps even empirically compare with prior work.
 
 
 ## Evaluation
 
+(D.9)
 A major problem of the evaluation is the absense of a reliable ground truth. Why not start with a corpus of type-annotated code, which would allow to remove and infer again the type annotations? Having a ground truth that was constructed independently of this paper would be much more convincing than the anecdotical evidence reported in Experiment 1.
 
+(D.10)
 The results of Experiment 2 show that significant work is needed to make the inferred types usable for type checking. For example, out of the 168 lines of initially inferred type annotations for data.json, the authors had to remove 125 and add 94 new lines. This amount of manual work on top of the automated inference makes me wonder how useful the approach would be in practice.
 
+(D.11)
 Some parts of the proposed approach aren't evaluated at all:
  * Space-efficient tracking -- how efficient is the approach (with and without this feature)?
  * Lazy tracking -- same question as above.
  * Selection of "good names" -- are the inferred names useful to developers?
 
+(D.12)
 All benchmarks are relatively small pieces of software (at most 1776 lines of code). Does the approach scale to larger programs?
 
 
 ## Other comments
 
+(D.13)
 The introduction discards the existing TypeWiz tool by saying that "add[ing] an example of a nested Node on the just the left branch", the annotation isn't recursive. What does TypeWiz do when a nested Node is added on both the left and the right branch? The current presentation seems to cherry-pick a special case where TypeWiz fails to introduce recursion.
 
+(D.14)
 The first point of the contributions shouldn't be listed as a contribution -- automatically generating type annotations isn't new.
 
+(D.15)
 The intuition behind "paths" isn't well explained. I'd like to see an example on this early on, to convey the intuition of what "path" means in this paper.
 
+(D.16)
 The entire approach is very focused on hash maps as the (only?) data structure. How to generalize to other data structures, e.g., arrays, sets, etc?
 
+(D.17)
 The description of lazy tracking doesn't make clear what subset of these ideas are actually implemented and used for the evaluation ("some combination of lazy and eager tracking of maps strikes a good balance... ", "This can be achieved in our formal system by ..."). Please clarify what exactly is implemented.
 
+(D.18)
 The contract inference part of the paper is weak and I'd recommend to remove it. The description in Section 4.3 is too short to make it really interesting (and the novelty of this part isn't clear). The evaluation also doesn't show any surprising result. If you decide to keep this part, then please improve its evaluation, e.g., by splitting the available tests into a training and a validation set.
 
+(D.19)
 Why are most results in Figure 13 only for 3 out of 6 benchmarks?
 
+(D.20)
 Details about the tests used for the evaluation are missing: How many tests? What coverage do they achieve?
 
+(D.21)
 Minor suggestions on the writing:
  * Introduction: Mention more clearly that ":" indicates keywords in Closure. I had to look this up to follow the rest of the paper.
  * Page 2: "on the just the left branch"
  * Page 2: "to to"
  * Page 5: "rules case, for maps, recursively tracks"
  * There seems to be some text missing at the end of Section 3.2.1.
+ (D.22)
  * The logic for merging aliases could be made much more clear with an example.
+ (D.23)
  * Figures 9 and 10 are never referenced in the text.
 
 Questions for Authors
 ---------------------
+(D.24)
 What's conceptually new compared to [4,20,18]?
 
+(D.25)
 Why not start the evaluation with a corpus of type-annotated code, which would allow to remove and infer again the type annotations? 
 
+(D.26)
 Why are most results in Figure 13 only for 3 out of 6 benchmarks?

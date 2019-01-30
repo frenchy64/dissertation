@@ -1,14 +1,14 @@
 - Major Positives
-  - Compelling, timely, non-trivial, and important problem space (A.9,B.1,C.{1,3})
+  - Compelling, timely, non-trivial, and important problem space (A.9,B.1,C.{1,3},D.1)
   - Novel approach to infer recursive types with good names (C.{2,3})
   - Simple, clean model (B.{2,3},C.4)
-  - Detailed discussion of limitations of our tool (C.7)
+  - Detailed discussion of limitations of our tool (C.7,D.{2,7})
   - Emphasis on HCI/UX (C.5)
 - Major Negatives
-  - Insufficient, underwhelming evaluation (B.{6,21},C.6)
-    - especially wrt contracts (A.5,B.40)
-  - Lacking comparison to related works (B.7)
-  - Awkward and spotty technical presentation (B.{4,9,17})
+  - Insufficient, underwhelming evaluation (B.{6,21},C.6,D.4)
+    - especially wrt contracts (A.5,B.40,D.{6,16})
+  - Lacking comparison to related works (B.7,D.3)
+  - Awkward and spotty technical presentation (B.{4,9,17},D.15)
   - Immature tool
 
 ===============
@@ -20,12 +20,14 @@ Shared response
   (C) No discussion of how they are able to come up with good names.
   (D) Some design goals/claims (good names, accuracy of type annotations w.r.t. a ground truth) aren't propertly evaluated 
 
-* Cut off evaluation in Fig 13 (A.6)
+* Cut off evaluation in Fig 13 (A.6,D.19,D.26)
 * Immature tool (A.7)
 * Insufficient methodology to evaluate claims of usefulness-over-soundness (A.8)
 
 (B.15,C.18) inferRec not defined
-(A.6,C.9) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
+(A.6,C.9,D.21) The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
+(C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
+(B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
 
 ===============
 Review A
@@ -59,7 +61,6 @@ Related works:
 (B.16) Your $\sqcup$ operation is similar to the meet used in Siek and Wadler's "Threesomes, with and without Blame" (STOP 2009/POPL 2010).
 
 Implementation:
-(B.20) How do you mix lazy+eager tracking?
 
 Evaluation:
 (B.21) Typed Clojure's limitations significantly weakens evaluation
@@ -106,3 +107,28 @@ Review C
 ===============
 Review D
 ===============
+
+(D.{5,11}) Extensions to the core approach (space efficient tracking, lazy tracking, good names) aren't evaluated
+(D.7) Liked thorough description of approach
+
+Related Works:
+(D.8) Paper does not explain how approach differs with RubyDust, JSTrace, TypeDevil etc., perhaps empirical comparison also needed
+
+Evaluation:
+(D.9) No ground truth. eg. start with type-annotated code & erase types.
+      Would be more convincing than anecdotal evidence in Experiment 1.
+(D.10) Experiment 2: seems like too much work to annotate [reviewer cites git line diffs, probably a bad metric to present - ABS]
+(D.12) Benchmarks are small -- does this scale?
+(D.18) contract inference evaluation is weak -- either remove or improve evaluation
+
+Comments:
+(D.13) Seemingly unfair comparison to TypeWiz, seems to cherry-pick `nodes` function
+(D.14) The first point of the contributions shouldn't be listed as a contribution -- automatically generating type annotations isn't new.
+(D.16) Is approach generalizable beyond hash maps?
+(D.21) Typos
+(D.22) Merging aliases needs an example
+(D.23) Figures 9 and 10 are never referenced in the text.
+
+Questions:
+(D.24) What's conceptually new compared to [4,20,18]? [See also D.8 -ABS]
+(D.25) Why not start with ground truth [See also D.9 -ABS]
