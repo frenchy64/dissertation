@@ -366,11 +366,13 @@ Static types have won.
 The advent of systems like TypeScript, Flow, MyPy etc. indicate the appetite 
 that programmers have for migrating scripts to types once they get too large.
 
+(C.1)
 One last, but substantial sticking point is the work needed to figure out 
 what the right (static) type annotations should be. The programmer must 
 painstakingly go over their code to recover type definitions that accurately 
 characterize the shape of their (dictionary-based) data structures.
 
+(C.2)
 This paper presents an interesting and effective approach for synthesizing 
 such type definitions from dynamic executions. The key idea is to run the 
 program (e.g. using its unit or other tests), observe how different terms 
@@ -390,6 +392,7 @@ Comments for author
 -------------------
 I really like this work!
 
+(C.3)
 + The motivation is extremely compelling -- while it is developed for Clojure, I can 
   easily imagine similar systems being developed for JS or Python (cf. "TypeWiz") 
   and being widely used. The general idea is not novel of course, there has been 
@@ -398,16 +401,21 @@ I really like this work!
   and also describes interesting design choices and validates them. Further, its 
   an important enough problem that I'd like to encourage more work on it.
   
+(C.4)
 + I found the formalization of "collection" phase elegant, the connections with 
   contracts and gradual typing are very interesting too. At first it seemed dense (why 
   paths, what did they mean, but it made sense at the end.
 
+(C.5)
 + I really like the evaluation. A PLDI purist might complain that it is not 
   sufficiently quantitative, e.g. can you measure exactly how much a tool
-  like this simplifies the porting effort? There is a table (Fig 13) but 
+  like this simplifies the porting effort?
+  (C.6)
+  There is a table (Fig 13) but 
   I had a hard time answering the above question from it -- ok, I had a 
   hard time parsing it period. 
   
+  (C.7)
   However, I like the fact that it walks through various examples of the 
   synthesized types describing how they show e.g. where more tests are 
   needed to properly exercise the code, or describing limitations of 
@@ -420,9 +428,12 @@ I really like this work!
 
 - Some parts of the paper need work. For example,
 
+  (C.8)
   1. `inferRec` is used but not defined? Is it actually `inferRec = squashGlobal . squashLocal` ?
+  (C.9)
   2. The end of section 3.2.1 ends abruptly -- "Via ... we start to trace update" and then what?
 
+  (C.10)
   In particular, Sections 3.2.2 and 3.2.3 which are pretty essential 
   -- they formalize the heuristics for "squashing" the sets of access 
   paths into types -- are very hard to follow, as they describe the 
