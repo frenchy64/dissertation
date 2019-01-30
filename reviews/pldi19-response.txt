@@ -1,0 +1,13 @@
+- Major Positives
+  - Compelling, timely, and important problem space
+  - Novel approach
+  - Clean model
+  - Detailed discussion of limitations of our tool
+- Major Negatives
+  - Insufficient, underwhelming evaluation (especially wrt contracts)
+  - Lacking comparison to related works
+  - Awkward and spotty technical presentation
+  - Immature tool
+
+- Details
+  - Missing explanation for generating good names
