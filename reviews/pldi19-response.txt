@@ -25,6 +25,7 @@ Shared response
     (B.24) Ideal evaluation would present type annotations to unsuspecting Clojure users.
     (B.25) Suggestion: evaluate time to migrate (eg.) STLC typechecker & interpreter with+without your tool
     (B.37) How does inference behave on non-recursive data?
+    (C.6) Hard to parse Fig 13 (the table)
     (D.9) No ground truth. eg. start with type-annotated code & erase types.
           Would be more convincing than anecdotal evidence in Experiment 1.
   * Insufficient motivation & methodology
@@ -32,10 +33,12 @@ Shared response
     (A.3) Why choose to evaluate with Typed Clojure, given its limitations?
     (A.8) Insufficient methodology to evaluate claims of usefulness-over-soundness 
     (B.21) Typed Clojure's limitations significantly weakens evaluation
+    (B.39) Outline issues with Typed Clojure, any full ports of recursive structures?
   * Missing results
     (A.6,D.19,D.26) Missing evaluations in Fig 13 
     (B.22) Please include time and memory information.
     (B.20,D.17) How do you mix lazy+eager tracking in implementation & evaluation? What exactly is implemented?
+    (D.{5,11}) Extensions to the core approach (space efficient tracking, lazy tracking, good names) aren't evaluated
   * Underwhelming/weak results
     (A.5) Confusing evaluation of clojure.spec
     (A.7) Immature tool 
@@ -73,6 +76,7 @@ Shared response
 * Confusing technical presentation
   (C.4,D.15) Paths are confusingly presented, needs example earlier conveying intuition
   (B.15,C.18) inferRec not defined
+  (C.10) Explanation of technical model should be declarative, not operational
   (D.22) Merging aliases needs an example
   (D.23) Figures 9 and 10 are never referenced in the text.
 
@@ -102,7 +106,6 @@ Review B
 ===============
 
 (B.10) Misleading title, unconvinced this "collapses" much work
-(B.{11,23}) Downsides of unsound types? Does Typed Clojure help correct them? Can they run as ordinary programs?
 
 Confusions:
 (B.12) What does the word 'generalized' mean on L199?
@@ -147,6 +150,7 @@ Related works:
 (B.34) Lazy tracking similar to 2 other papers
 
 Questions for authors:
+(B.{11,23}) Downsides of unsound types? Does Typed Clojure help correct them? Can they run as ordinary programs?
 (B.37) How does inference behave on non-recursive data?
 (B.38) Tuning algorithm for less agressive merging?
 (B.39) Outline issues with Typed Clojure, any full ports of recursive structures?
@@ -163,13 +167,13 @@ Review C
 Review D
 ===============
 
-(D.{5,11}) Extensions to the core approach (space efficient tracking, lazy tracking, good names) aren't evaluated
 (D.7) Liked thorough description of approach
 
 Related Works:
 (D.8) Paper does not explain how approach differs with RubyDust, JSTrace, TypeDevil etc., perhaps empirical comparison also needed
 
 Evaluation:
+(D.{5,11}) Extensions to the core approach (space efficient tracking, lazy tracking, good names) aren't evaluated
 (D.9) No ground truth. eg. start with type-annotated code & erase types.
       Would be more convincing than anecdotal evidence in Experiment 1.
 (D.10) Experiment 2: seems like too much work to annotate [reviewer cites git line diffs, probably a bad metric to present - ABS]
