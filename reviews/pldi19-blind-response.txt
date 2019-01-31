@@ -136,10 +136,10 @@ The Git line diff (MD, Fig 13) is insufficient, which we try to supplement
 with all the columns to right of it.
 Our experience shows the cognitive overhead saved is significant.
 
-For example, for mini.occ, the programmer was saved from identifying,
-naming, or even specifying the relationship between 3 mutually recursive
+For example, for mini.occ, the programmer was saved from conceptualizing,
+naming, or even specifying-the-relationship-between 3 mutually recursive
 heterogeneous data structures with over a dozen cases. 
-Their job, instead, becomes finding "recognizable names" for minor fixes and 
+Their job, instead, becomes identifying for "recognizable names" for minor fixes and 
 following the instructions of TC.
 
 Furthermore, in our experience (like above), changes are often obvious by sight (eg. overprecise argument, the "O" metric)
