@@ -1,6 +1,51 @@
 We thank the reviewers for their time and thorough reviews.
 
-The final paper will include B's Related Works and these clarifications/fixes:
+EVALUATION
+
+Given the reviews, we have failed to convey the *purpose* of our evaluation to the reader.
+
+We replace our vague Contribution #1 (L197) with:
+
+ "We present a new methodology and *workflow* for the programmer to
+  type check their untyped, plain-data-driven program."
+
+Our evaluation shows that our *workflow* is highly effective compared to related
+works (discussed below). Here is the workflow:
+
+1. Run our tool, generating initial annotations
+2. Type check the program with Typed Clojure (TC)
+   (incorrectly annotated TC programs run as normal Clojure programs)
+3. Respond to static typing errors by scanning the type annotations and changing them
+4. Go to 2. until ported.
+
+Figure 13 demonstrates that this workflow works for 5 real-world programs,
+and quantifies the exact changes needed.
+As reviews noted, we failed to enumerate the changes for dj&mo (fixed in final version),
+but we *did* succesfully port them (see MD column).
+
+For the type checker mini.occ, we infer 3 *mutually-recursive types* (representations for
+types, propositions, and expressions) named T, P, and E, with 14 total cases (5, 5, 4, respectively).
+Each uses different dispatch keys: :T, :P, and :E.
+
+We also infer
+  (defalias NameTypeMap '{:name Sym, :type T})
+for function parameters types.
+
+Manual amendment using the *workflow* (MD=46/24) consisted of:
+- add: 2 cases to E, 3 to T
+- amend: one overprecise T case 
+         - unit tests only used 1-argument function types in T,
+           so change singleton collection '[NameTypeMap] => (Vec NameTypeMap)
+- change: 5 recognizably overprecise function annotations (eg. (Vec Nothing) => (Vec T))
+- casts: inserted 8 casts to appease TC
+- local: annotate unexercised local function with NameTypeMap, fix 1 overprecise local annotation
+- other: deleted trivial type annotations for unit tests embedded in file,
+         disable type checking unit tests
+
+This shows how the workflow can constructively guide a user through the entire
+process of porting an untyped program using plain-data.
+
+
 
 
 EVALUTION QUESTIONS
@@ -61,6 +106,10 @@ RELATED QUESTIONS
     - no dynamic analysis
 
 /RELATED QUESTIONS
+
+TECHNICAL QUESTIONS
+- we will fix issues
+/TECHNICAL QUESTIONS
 
 
 >Key novelties?
