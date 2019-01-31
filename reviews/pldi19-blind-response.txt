@@ -15,9 +15,9 @@ L249 discusses case where this hypothesis fails.
 
 > Non-contribution #1? 
 
-We amend (L197):
+We amend L197:
   "We outline a new methodology for automatically annotating untyped programs
-   that primarily use plain data."
+   that primarily use plain data (Section 2)."
 
 > (A) Evidence writing good test suites is easier than first-annotating code?
 
