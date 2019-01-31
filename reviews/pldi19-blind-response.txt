@@ -28,8 +28,9 @@ types, propositions, and expressions) named T, P, and E, with 14 total cases (5,
 Names are (always) derived from local information (L242-252) and entirely depend on the squashing
 algorithm's effectiveness -- here each uses a unique dispatch key :T, :P, and :E.
 
-The missing data shows how the workflow constructively guides the user through the entire
-process of porting an untyped program using recursive plain-data.
+The missing data will show how the workflow constructively guides the user through the entire
+process of porting an untyped program using recursive plain-data, without burdening the
+user with complex decisions (unlike our related work on the same problem, described next).
 
 
 
@@ -53,7 +54,10 @@ With 2), a recursive type already exists, and so no lengthy diagnosis is needed.
 
 Starting instead with Figure 4, we introduce :node3, which may or may not be shared between
 nodes and nodes' (like B's 'staged' AST question).
+Our algorithm decides they are related (via squashGlobal).
 If they are not shared, the Op type can easily be remixed/copied and a combination of manual search+replace
 for occurrences and attempting to check with TC can guide to the correct
 annotation.
-One way our tool reduces such unwanted sharing is by eliding squashGlobal.
+One way our tool can reduce such unwanted sharing is by eliding squashGlobal (which only squashes
+immediately nested types via squashLocal).
+Then, a distinct Op' would be automatically inferred only for nodes'.
