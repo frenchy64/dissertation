@@ -339,3 +339,41 @@ without significant runtime cost.
 
 Our approach eases the cognitive overhead that is unique to annotating plain-data-driven
 programs. It does not claim to 
+
+>C#1
+
+We replace Contribution #1 (L197) with:
+
+ "We present a new *methodology* for building tools to automatically
+  annotate plain-data-driven untyped programs, and a corresponding
+  straightforward *workflow* for the programmer to complete the porting process."
+
+>mini.occ notes
+
+Figure 13 demonstrates that this workflow works for 5 real-world programs,
+and quantifies the exact changes needed.
+As reviews noted, we failed to enumerate the changes for dj&mo (fixed in final version),
+but we *did* succesfully port them (see MD column).
+
+For the type checker mini.occ, we infer 3 *mutually-recursive types* (representations for
+types, propositions, and expressions) named T, P, and E, with 14 total cases (5, 5, 4, respectively).
+Each uses different dispatch keys: :T, :P, and :E.
+
+We also infer
+  (defalias NameTypeMap '{:name Sym, :type T})
+for function parameters types.
+
+Manual amendment using the *workflow* consisted of:
+- adding cases
+  - 2 to E
+  - 3 to T
+- amend one overprecise T case 
+  - unit tests only used 1-argument function types in T,
+    so change singleton collection '[NameTypeMap] => (Vec NameTypeMap)
+- change 5 recognizably overprecise function annotations (eg. (Vec Nothing) => (Vec T))
+- insert 8 casts for TC
+- annotate unexercised local function with NameTypeMap
+- fix 1 overprecise local annotation
+- other: deleted trivial type annotations for unit tests embedded in file,
+         disable type checking unit tests
+
