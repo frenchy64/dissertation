@@ -172,12 +172,18 @@ and processing time for extra samples are the main concerns.
 
 >Key novelties?
 
-No other auto-annotation system (to our knowledge) even attempts to combine program-wide information
-to synthesize recursive type aliases that can be readily manipulated by programmers.
-We present a methodology, formal model, and tool 
+No other auto-annotation system (to our knowledge) attempts to combine program-wide information
+to synthesize recursive type aliases that can be quickly manipulated by programmers.
+We present a methodology, formal model, and tool that encapsulates our approach.
 
 Other tools often take advantage of class/interface names already present in
 the code, which we must automatically synthesize ourselves.
+
+
+>Unfair TypeWiz comparison?
+
+L151-152 demonstrates that no special effort is needed to discover recursive types for class-based programs.
+We are really comparing our output against TypeWiz's "[alarming] ... linear growth" (L150) for plain data.
 
 
 >Why not start the evaluation with a corpus of type-annotated code, which would allow to remove and infer again the type annotations? 
