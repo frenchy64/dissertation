@@ -1,41 +1,30 @@
 We thank the reviewers for their time and thorough reviews.
+We will incorporate all Related Works suggestions by Review B,
+and clarify:
 
-We are glad the reviews agreed that the problem of inferring
-recursive types with good names for untyped programs is "worthwhile",
-"timely", and "extremely compelling".
-
-The reviews raise three main areas of concern with our approach, which
-we respond to in order:
-
-1. Unconvincing evaluation
-2. Weak related works
-3. Confusing technical presentation
-
-A
-
-> Is there any evidence that writing a sufficiently good test suite is easier
-> than type-annotating the code in the first place (which then enables type-driven testing?) 
+> (A) Evidence writing good test suites is easier than first-annotating code?
 
 We are unsure. Clojure's "culture of unit testing" [L22] fortunately allows us to skip this question
-because in our experience it often provides good test suites.
+because in our experience it often provides good test suites for unannotated code.
     
-> Why was a runtime technique chosen? Are there fundamental reasons this kind of type inference
-> cannot be done via static analysis? The paper mentions some static tools in Sec. 6 and claims
-> they failed to infer sufficiently precise types for their running example, but it's unclear
-> whether this is a fundamental limitation of static analysis, or just a limitation of those specific tools.
-> Perhaps some combination of runtime and static (and statistical?) techniques could overcome this issue?
+> (A) Why a runtime technique?
 
-We chose runtime inference because it yields a simple implementation
+Our "simple dynamic analysis gives a nice baseline solution" (B)
+that may be combined with other static, or statistical approaches.
 
-> Another reason for failure reported in Sec. 5.2 are the limitations of Typed Clojure, which fails to
-> type-check some Clojure idioms. Why did the authors choose Typed Clojure in the first place?
-> I assume there are more mature optional type systems around (which are also more widely used)?  
+> (A) Why Typed Clojure (TC)?
 
-The literature [5] reports that Typed Clojure's lack of library annotations hinders its usability
-for real programmers. More recently, 11.7% of respondents to the State of Clojure Community 2018
-survey claimed "No static typing" among their biggest frustration/roadblock about using/adopting Clojure,
-which suggests Typed Clojure's usability issues are preventing adoption of both itself and Clojure.
+The literature [5] reports that TC's lack of library annotations hinders its usability
+for real programmers. The Clojure 2018 survey's asks:
 
+  "What has been most frustrating or has prevented you from using Clojure more than you do now?"
+
+and of 1,851 respondents, 11.7% chose "No static typing" (#7).
+
+This suggests TC's usability issues are preventing adoption of both itself and Clojure,
+which motivates us to tailor our tool to improve TC to fill a need of real programmers.
+
+> (A) Experiment 3 (Sec 5.3)
 > I find Experiment 3 (Sec 5.3) quite confusing. The fact that the generated specs pass the tests they
 > were generated from seems like the kind of soundness guarantee that I expect the type inference mechanism
 > to provide. So I expect this to be proven formally, rather than evaluated. The section mentions the following caveat:
@@ -46,18 +35,14 @@ The prose will be amended to "Some >generated< function specs...": our tool _gen
 The caveat is that actually checking these generative testing function specs reveals less about our tool
 than with higher-order contract semantics.
 
-B
-
-> How does your inference algorithm perform on non-recursive, ad-hoc
-> data structures? A non-trivial JSON- or XML- or YAML-processing
-> program would be a good test of this.
+> (B) Non-recursive, ad-hoc data structures?
 
 groupSimilarReq (Figure 10) merges non-recursive maps with similar required keys,
 and our tool assigns a type alias name based on its keys.
 This way, types are not copied throughout the program.
 The downside is that types might be too broad (for example,
 the same entry might be optional in one function, but required in another)
-but Typed Clojure will throw a type error when it is checked in that case.
+but TC will throw a type error when it is checked in that case.
 
 See ColumnLineContextMap in Figure 5 for a real example.
 
@@ -66,70 +51,99 @@ their members can be named (eg. L1040, EnergySectorMap is named, but not
 Vec). This matches our intuition of how helper functions are written in
 Clojure (usually processes a single item, and then combined with map/filter).
 
-> My intuition says that your inference algorithm would (incorrectly!)
-> merge 'staged' ASTs; i.e., a compiler that translated STLC to ANF to a
-> closure-converted ANF would have similarly named nodes for constants
-> in all three ASTs, but the domains of operations would be restricted
-> in ANF and no lambdas would ever occur in the last stage. Am I
-> correct? How might you tune your algorithm to accommodate this usage?
+> (B) How to handle excessive merging in subtle cases? (eg. 'staged' ASTs)
 
-Correct, with the given algorithm we encourage the following fix:
+Say we have two types T{1,2}, and functions f{1,2} process T1 and T{1,2}, respectively.
 
-First, the programmer finds the AST type and copy-pastes it with small changes.
+If T_n share the same dispatch key, we will likely infer:
+
+(defalias T (U T1 T2))
+(ann f1 [T :-> T])
+(ann f2 [T :-> T])
+
+But we actually want:
+
+(defalias T  T1)
+(defalias T' (U T T2))
+(ann f1 [T :-> T])
+(ann f2 [T' :-> T'])
+
+The current algorithm encourages the following manual fix:
+
+First, the programmer finds T and uses it to create T'.
 Since the tool chooses meaningful names (L232) and assumes
 some familiarity with what the data represents (L239), it helps quickly
 identify the underspecified AST type.
 
-Then, a manual search for occurrences of the original name would lead
-to appropriate manual changes.
-If it is unclear which AST stage should be used, the type system could be used
+Then, a manual search for T reveals the places where T' should be used (like f2).
+If it is unclear which T{,'} should be used, the type system could be used
 to experiment whether adding/removing cases would throw warnings or type errors.
 
+If hypotheses L345-350 do not hold, the algorithm can be tuned to
+squash per-function (or further granuality) by changing the driver (L353)
+to isolate runtime results after "collect", and running "infer" multiple times
+on the smaller groups.
 
+Alternatively, removing the squashGlobal pass would have similar results, which
+prevents recursive types from merging between f{1,2} (our tool supports this).
 
-> It seems as though you couldn't actually convert a substantial portion
-> of the code to something Typed Clojure would accept. Is that correct?
-> Why couldn't you port `mini.occ` or `data.json`? Have you successfully
-> ported anything that used recursive data structures in a meaningful
-> way?
+> Fig 13 is incomplete/confusing. Did you port `mini.occ` or `data.json`?
 
-All but cljs.compiler were ported successfully after manual amendments, as shown by the MD column (Fig 13).
-We will complete Fig 13 for mini.occ and data.json (as hinted by their MD entries,
-they were also ported but we failed quantify their changes in the paper).
+We will make this clear, but the MD column (Fig 13) shows we *did* port them.
 
-mini.occ initially infers 3 mutually recursive data structures (representations for
-types, propositions, and expressions) with 14 cases in total.
-Crucially, each happened to use different dispatch keys :T, :P, and :E -- instead of say, all using :op.
-Manual amendment mostly involved adding 5 missing cases to the recursive structures and amending 1
-and adding various local annotations to appease the type checker.
+The final paper will fill-in Fig 13 for mini.occ and data.json.
 
-> The title "Squash the work!" is misleading. You're not actually
-> 'collapsing' much work (though it is a nice use of Herman et al.'s
-> implementation of Henglein's coercion calculus).
+Only cljs.compiler was not ported due to the large number of local annotations
+needed, but is a crucial stress test of 'squashing' (L993-L1000, 14/36 recursive Op
+cases inferred using only 39 assertions).
 
-It is difficult to quantify how much cognitive overhead our approach saves, but we stand by our title.
-The Git line diff (MD, Fig 13) was a poor metric, which we try to supplement
+> (B) Successfully port programs with recursive types?
+
+For mini.occ, we infer 3 mutually recursive data structures (representations for
+types, propositions, and expressions) named T, P, and E, with 14 total cases (5, 5, 4, respectively).
+Each uses different dispatch keys: :T, :P, and :E.
+
+Manual amendment (MD=46/24, Fig 13):
+- add: 2 cases to E, 3 to T
+- amend: one overprecise T case (no. function arguments can be non-1)
+- change: 5 recognizably overprecise function annotations (eg. (Vec Nothing) => (Vec T))
+- casts: inserted 8 casts for TC
+- other: deleted trivial type annotations for unit tests embedded in file
+
+Adding various local annotations to appease the type checker.
+
+> (B) The title is misleading: you're not 'collapsing' much work.
+
+Our evaluation supports our title after a few small fixes.
+The Git line diff (MD, Fig 13) is insufficient, which we try to supplement
 with all the columns to right of it.
+Our experience shows the cognitive overhead saved is significant.
 
 For example, for mini.occ, the programmer was saved from identifying,
 naming, or even specifying the relationship between 3 mutually recursive
 heterogeneous data structures with over a dozen cases. 
 
-Furthermore, in our experience, changes are often obvious by sight (eg. overprecise argument, the "O" metric)
+Furthermore, in our experience (like above), changes are often obvious by sight (eg. overprecise argument, the "O" metric)
 or indicated by the type checker (eg. casts, the "C" metric).
 
-> Can `clojure.spec` support interesting contracts, like positive or
-> prime numbers, non-empty lists, etc.? Will your tool ever produce
-> these narrower specifications?
+> (B) Emit more interesting contracts?
 
 Yes, and this information could be collected by our runtime analysis, and could be
 added as the need/demand arises. Memory during collection
 and processing time for extra samples are the main concerns.
 
-D
+> (D) What's conceptually new compared to [4,20,18]?
 
-> What's conceptually new compared to [4,20,18]?
+[4] Type (class) names provided by programmers, then types are naturally recursive via class invariants.
+    Neither is true in our setting, yet we create well-named recursive types.
 
-> Why not start the evaluation with a corpus of type-annotated code, which would allow to remove and infer again the type annotations? 
+> (D) Why not start the evaluation with a corpus of type-annotated code, which would allow to remove and infer again the type annotations? 
 
-> Why are most results in Figure 13 only for 3 out of 6 benchmarks?
+TC users are discouraged by annotating both their own code and libraries [5]. We present
+the messy experience of automatically annotating such real-world cases because:
+
+- Using real code allows us to fairly test our hypotheses about Clojure idioms
+- We believe pre-annotated would be misleadingly easier to port than always-untyped because
+  TC enforces stricter discipline. We chose the more challenging representative benchmarks of real, always-untyped code.
+
+Our results seem weaker (merely messier, in our opinion) from avoiding misleading results.
