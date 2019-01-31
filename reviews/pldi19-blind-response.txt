@@ -1,12 +1,29 @@
 We thank the reviewers for their time and thorough reviews.
-We will incorporate all Related Works suggestions by Review B,
-and clarify:
+
+The final paper will include B's Related Works and these clarifications/fixes:
+
+> Naming is not explained or evaluated.
+
+Naming is a simple local analysis hinted in L242-252.
+So, its effectiveness entirely depends on 'squashing' to bring together related names.
+We evaluate, instead, the latter's ability to merge related concepts,
+which makes creating "recognizable names" (L232) easier.
+
+We depend on the hypothesis that a sufficiently squashed type contains enough local information
+(e.g., names of dispatch or required keys) to assign recognizable names.
+L249 discusses case where this hypothesis fails.
+
+> Non-contribution #1? 
+
+We amend (L197):
+  "We outline a new methodology for automatically annotating untyped programs
+   that primarily use plain data."
 
 > (A) Evidence writing good test suites is easier than first-annotating code?
 
-We are unsure. Clojure's "culture of unit testing" [L22] fortunately allows us to skip this question
-because in our experience it often provides good test suites for unannotated code.
-    
+Clojure's "culture of unit testing" [L22] allows us to skip this question,
+and take advantage of existing tests to assist porting untyped code.
+
 > (A) Why a runtime technique?
 
 Our "simple dynamic analysis gives a nice baseline solution" (B)
@@ -24,16 +41,12 @@ and of 1,851 respondents, 11.7% chose "No static typing" (#7).
 This suggests TC's usability issues are preventing adoption of both itself and Clojure,
 which motivates us to tailor our tool to improve TC to fill a need of real programmers.
 
-> (A) Experiment 3 (Sec 5.3)
-> I find Experiment 3 (Sec 5.3) quite confusing. The fact that the generated specs pass the tests they
-> were generated from seems like the kind of soundness guarantee that I expect the type inference mechanism
-> to provide. So I expect this to be proven formally, rather than evaluated. The section mentions the following caveat:
-> "some function specs perform generative testing based on <...> types"; but this requires a function to have a spec
-> (= a type annotation) in the first place, why would we want to infer a spec for such a function?
+> (A) Experiment 3 (Sec 5.3) No soundness guarantee? Generative testing caveat?
 
-The prose will be amended to "Some >generated< function specs...": our tool _generates_ the function spec.
-The caveat is that actually checking these generative testing function specs reveals less about our tool
-than with higher-order contract semantics.
+We amend L1225: "Some >generated< function specs..." because our tool *generates* the function spec.
+
+The caveat: spec's generative testing semantics for HOF weakens our "passes unit tests" result
+over standard HOF contract checking (wrapping), because it is more permissive.
 
 > (B) Non-recursive, ad-hoc data structures?
 
