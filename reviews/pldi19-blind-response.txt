@@ -2,48 +2,52 @@ We thank the reviewers for their time and thorough reviews.
 
 The final paper will include B's Related Works and these clarifications/fixes:
 
-> Naming is not explained or evaluated.
+> Naming unexplained/unevaluated?
 
 Naming is a simple local analysis hinted in L242-252.
 So, its effectiveness entirely depends on 'squashing' to bring together related names.
 We evaluate, instead, the latter's ability to merge related concepts,
 which makes creating "recognizable names" (L232) easier.
 
-We depend on the hypothesis that a sufficiently squashed type contains enough local information
-(e.g., names of dispatch or required keys) to assign recognizable names.
+We assume that a sufficiently squashed type contains enough local information (e.g., key names)
+to assign recognizable names.
 L249 discusses case where this hypothesis fails.
 
-> Non-contribution #1? 
+> Non-contribution #1?
 
-We amend L197:
+We replace L197:
   "We outline a new methodology for automatically annotating untyped programs
    that primarily use plain data (Section 2)."
 
-> (A) Evidence writing good test suites is easier than first-annotating code?
+> Writing good tests easier than annotating code?
 
 Clojure's "culture of unit testing" [L22] allows us to skip this question,
 and take advantage of existing tests to assist porting untyped code.
 
-> (A) Why a runtime technique?
+> Runtime technique?
 
 Our "simple dynamic analysis gives a nice baseline solution" (B)
 that may be combined with other static, or statistical approaches.
 
-> (A) Why Typed Clojure (TC)?
+> Typed Clojure (TC)?
 
 The literature [5] reports that TC's lack of library annotations hinders its usability
 for real programmers. The Clojure 2018 survey's asks:
 
-  "What has been most frustrating or has prevented you from using Clojure more than you do now?"
+  "What has been most frustrating or has prevented you from using Clojure more than you do now?".
 
-and of 1,851 respondents, 11.7% chose "No static typing" (#7).
+11.7% of 1,851 chose:
+
+  "No static typing".
 
 This suggests TC's usability issues are preventing adoption of both itself and Clojure,
 which motivates us to tailor our tool to improve TC to fill a need of real programmers.
 
 > (A) Experiment 3 (Sec 5.3) No soundness guarantee? Generative testing caveat?
 
-We amend L1225: "Some >generated< function specs..." because our tool *generates* the function spec.
+We amend L1225:
+  "Some >generated< function specs..."
+because our tool *generates* the function spec.
 
 The caveat: spec's generative testing semantics for HOF weakens our "passes unit tests" result
 over standard HOF contract checking (wrapping), because it is more permissive.
