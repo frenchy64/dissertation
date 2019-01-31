@@ -11,7 +11,7 @@ which makes creating "recognizable names" (L232) easier.
 
 We assume that a sufficiently squashed type contains enough local information (e.g., key names)
 to assign recognizable names.
-L249 discusses case where this hypothesis fails.
+L249 discusses a case where this hypothesis fails.
 
 > Non-contribution #1?
 
