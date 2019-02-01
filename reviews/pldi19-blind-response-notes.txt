@@ -377,3 +377,17 @@ Manual amendment using the *workflow* consisted of:
 - other: deleted trivial type annotations for unit tests embedded in file,
          disable type checking unit tests
 
+
+RE: B's Related work:
+- we do not attempt to statically or dynamically enforce invariants, and instead concentrate on
+  the *process* of migrating to a system that does so (and requires annotations).
+  - [7,8,10,12,17,20,21] are our closest comparable works
+  - [4] is more closely related than SAC 2009+STOP 2009 for this reason
+  - ICL 2010 & WadlerFest are unrelated to the migration process
+- our lazy tracking is a simple extension of [13] (see L865)
+- we will cite some recursive DB schema inference work, thanks!
+- Rastogi POPL 2012 presents a performance analysis
+shares our outlook of the iterative process
+  of porting, the key difference being they communicate information
+  to the runtime for performance reasons, and we communicate to programmers
+  to actively help improve their annotations.

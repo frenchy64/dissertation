@@ -95,7 +95,7 @@ presents the user:
 
 Our approach's global squashing further distinguishes our approach.
 Figure 4 introduces :node3, which may or may not be shared between
-functions nodes and nodes' .  squashGlobal's aggressive merging
+functions nodes and nodes'. squashGlobal's aggressive merging
 decides they are related anyway because of the shared :op key.
 
 To our knowledge, all other automatic annotation systems treat plain
@@ -120,4 +120,7 @@ with Van Horn et al, Furr et al, Siek & Tobin-Hochstadt). Our lazy
 tracking is inspired by contract checking a la Findler & Felleisen,
 and thus is related to Guo et al, which we will cite. While our
 inference procedure always produces an answer, it does not insert
-dynamic checks as in soft typing or quasi-static typing.
+dynamic checks as in soft typing or quasi-static typing. We agree with
+with Rastogi et al that the porting process is iterative, however their
+inference optimizes programs and ours communicates suggested annotations
+to programmers.
