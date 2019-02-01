@@ -48,12 +48,12 @@ consisted of only straightforward changes.  As noted, we omitted the
 changes for dj&mo (fixed in final version), but we *did* succesfully
 port them (see MD column).
 
-For mini.occ, we infer 3 *mutually-recursive types* for types,
-propositions, and expressions, with 14 total cases.  Names are
-(always) derived from local information (L242-252) and entirely depend
-on the squashing algorithm's effectiveness -- they end up named `T`,
-`P`, and `E` because each uses a unique dispatch key `:T`, `:P`, and
-`:E`.
+For mini.occ (a type checker), we infer 3 *mutually-recursive types*
+for types, propositions, and expressions, with 14 total cases.  Names
+are (always) derived from local information (L242-252) and entirely
+depend on the squashing algorithm's effectiveness -- they end up named
+`T`, `P`, and `E` because each uses a unique dispatch key `:T`, `:P`,
+and `:E`.
 
 While porting the entire 10,000+ LOC of the cljs.compiler was not
 feasible, our experiment on it shows promising results for using the
