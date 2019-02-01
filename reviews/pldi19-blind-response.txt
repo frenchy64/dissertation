@@ -1,4 +1,6 @@
-We thank the reviewers for their time and thorough reviews.
+We thank the reviewers for their time and thorough reviews. Several
+reviewers provide helpful suggestions for improvements to the
+technical presentation; we will adopt these in a revised version.
 
 ## Evaluation
 
@@ -63,14 +65,21 @@ compiler (Figure 5), however the porting effort would still be very
 large, although hopefully following the form of mini.occ.
 
 
-RELATED WORK
+## Related Work
 
+Several reviewers mention additional related work, as well as
+requesting more detail on our relationship to existing systems such as
+TypeWiz.
 
+#### TypeWiz
 
-Compare Figure 13's modest changes to the difficultly of applying the porting workflow to Figure 1 starting with TypeWiz (Figure 2).
+Compare Figure 13's modest changes to the difficultly of applying the
+porting workflow to Figure 1 starting with TypeWiz (Figure 2).
 
-The programmer must immediately reverse engineer the overprecise type from the flat annotation.
-This type grows linearly with test coverage (L150)---tree height=3 better demonstrates the unreasonable task this presents the user:
+The programmer must immediately reverse engineer the overprecise type
+from the flat annotation.  This type grows linearly with test coverage
+(L150)---tree height=3 better demonstrates the unreasonable task this
+presents the user:
 
   function nodes(t: {left: {left: {op: string, val: number},
                             op: string,
@@ -85,32 +94,30 @@ This type grows linearly with test coverage (L150)---tree height=3 better demons
                    |{op: string, val: number}) ...
 
 Our approach's global squashing further distinguishes our approach.
-Figure 4 introduces :node3, which may or may not be shared between functions nodes and nodes' .
-squashGlobal's aggressive merging decides they are related anyway because of the shared :op key.
+Figure 4 introduces :node3, which may or may not be shared between
+functions nodes and nodes' .  squashGlobal's aggressive merging
+decides they are related anyway because of the shared :op key.
 
-If they are not actually shared, the (recognizable) Op type can easily be remixed/copied
-and a combination of manual search+replace for occurrences and attempting to check with TC can guide to the correct annotation. 
-`squashGlobal` can be skipped by the tool to reduce such unwanted sharing across functions.
-A distinct (recursive) Op' would be automatically inferred only for nodes'. (RE: B's ANF question)
+To our knowledge, all other automatic annotation systems treat plain
+data as trivially as TypeWiz (eg [4,7,10,12,15,20]).  Without
+the special effort of recovering recursive types, there is no choice
+but to either throw away valuable information (eg Pytype) or
+suffer from enormous types (TypeWiz).
 
-To our knowledge, all other automatic annotation systems treat plain data as trivially as TypeWiz (especially [4,7,10,12,15,20]).
-Without the special effort of recovering recursive types,
-there is no choice but to either throw away valuable information like Pytype L1289
-(our tool tries to only throws away superfluous information like L1065)
-or suffer from enormous types (TypeWiz).
+The DB schema inference papers are helpful, and we will discuss
+them. Note that Baazizi et al recursively merge types, as we do, but
+do not generate recursive types, the key novelty in our work. Bex et
+al do generate recursive schemas, but have the benefit of nominal tag
+names, similar to class-structured data in programming
+languages. Their paper rules out schemas that would describe idiomatic
+Clojure use of maps.
 
-RE: B's Related work:
-- SAC 2009: 
-- STOP 2009: 
-- ICL 2010
-- WadlerFest: 
-- our lazy tracking is a simple extension of [13] (see L865)
-
-
-TECHNICAL PRESENTATION
-
-We will:
-
-- add declarative specifications to non-trivial metafunctions
-- clarify missing syntax cases
-- fix L576
+Review B also lists a wide variety of related work from the optional
+and gradual typing literature. This work primarily focuses on static
+typing and verification as well as runtime monitoring of types, which
+are not closely related to our work (eg Dimoulas et al, Nguyen's work
+with Van Horn et al, Furr et al, Siek & Tobin-Hochstadt). Our lazy
+tracking is inspired by contract checking a la Findler & Felleisen,
+and thus is related to Guo et al, which we will cite. While our
+inference procedure always produces an answer, it does not insert
+dynamic checks as in soft typing or quasi-static typing.
