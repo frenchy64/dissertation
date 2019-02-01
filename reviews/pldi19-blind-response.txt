@@ -102,8 +102,8 @@ suffer from enormous types (TypeWiz).
 Our approach's global squashing further distinguishes our approach.
 Figure 4 introduces :node3, which may or may not be shared between
 functions nodes and nodes'. squashGlobal's aggressive merging
-decides they are related anyway because of the shared :op key
-(eliding squashGlobal prevents cross-function sharing, if desired).
+decides they are related anyway because of the shared :op key.
+Our tool can elide squashGlobal to prevent cross-function merging.
 
 The DB schema inference papers are helpful, and we will discuss
 them. Note that Baazizi et al recursively merge types, as we do, but
