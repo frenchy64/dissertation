@@ -6,11 +6,11 @@ EVALUATION
 Most reviewers seemed to enjoy the premise of our paper, but had significant reservations about our evaluation.
 In reading the reviews, it is clear that we failed to convey the *purpose* of our evaluation.
 
-Together with our methodology (Section 2), we present a simple porting *workflow* for programmers:
+Together with our methodology (Section 2), we present a simple porting workflow for programmers:
 
 1. Automate initial annotations
 2. Type check the program with Typed Clojure (TC)
-   (incorrectly annotated TC programs run as normal Clojure programs)
+   (RE: B: incorrectly annotated TC programs run as ordinary Clojure programs)
 3. Respond to static typing errors by scanning the program/annotations and making minor changes.
 4. Go to 2. until ported.
 
@@ -44,6 +44,7 @@ complex Clojure programs. Anecdotally, the tool discovers the key types expected
 however the porting effort would still be very large and perhaps mostly simulated by porting the
 similarly structured mini.occ.
 
+- We will include timing and memory information (see Figure 5's caption)
 
 
 
@@ -54,7 +55,7 @@ RELATED WORK
 Compare Figure 13's modest changes to the difficultly of applying the porting workflow to Figure 1 starting with TypeWiz (Figure 2).
 
 The programmer must immediately reverse engineer the overprecise type from the flat annotation.
-This type grows linearly with test coverage---tree height=3 better demonstrates the unreasonable task this presents the user:
+This type grows linearly with test coverage (L150)---tree height=3 better demonstrates the unreasonable task this presents the user:
 
   function nodes(t: {left: {left: {op: string, val: number},
                             op: string,
@@ -83,6 +84,12 @@ there is no choice but to either throw away valuable information like Pytype L12
 (our tool tries to only throws away superfluous information like L1065)
 or suffer from enormous types (TypeWiz).
 
+RE: B's Related work:
+- SAC 2009: 
+- STOP 2009: 
+- ICL 2010
+- WadlerFest: 
+- our lazy tracking is a simple extension of [13] (see L865)
 
 
 TECHNICAL PRESENTATION
