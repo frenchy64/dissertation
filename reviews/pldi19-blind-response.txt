@@ -22,8 +22,8 @@ work immediately, but this is impossible. Full static type inference
 (as used in many prior systems) is undecideable for the Typed Clojure
 type system, and similarly for other optional type systems. Dynamic
 inference relies on both usually-incomplete test suites and the
-ability to generalize from them. Further, most programs that being
-this porting process are ill-typed for at least minor reasons, even if
+ability to generalize from them. Further, most programs ported with
+this process are ill-typed for at least minor reasons, even if
 every annotation was generated automatically. Our workflow is thus the
 only plausible approach.
 
