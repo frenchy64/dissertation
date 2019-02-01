@@ -141,8 +141,9 @@ They were taken directly from the code bases as-is, emulating the experience
 of a real programmer applying our tool. We agree with A that 
 "coming up with good test suites is extremely labor-intensive", so the tool cannot
 simply ask the user to write more tests for the tool's benefit. As we explain
-in "Evaluation" above, the difficulty of the problem our work tackles makes
-many such issues unavoidable.
+in "Evaluation" above, the difficulty of the problem domain makes
+many such issues unavoidable, and leaves us to make more out of the coverage
+we *do* have (comparing Figure 2 & 3 shows we do exactly this).
 
 Review A expected Experiment 3 "to be proven formally, rather than evaluated".
 As explained in "Evaluation" above, creating recursive types must be an unsound process,
