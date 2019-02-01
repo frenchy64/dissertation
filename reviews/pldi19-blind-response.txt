@@ -38,7 +38,9 @@ Experiment 2 then tests whether our porting workflow (Steps 2-4) is effective.
 
 Experiment 3 raises confidence that initial annotations (Step 1) are meaningfully
 underprecise by enforcing them with Clojure's clojure.spec (whose semantics weaken
-this result for higher-order functions (L1225-1227)).
+this result for higher-order functions (L1225-1227)). It's possible
+to `collect` and `infer` more specific invariants using spec (eg positive numbers),
+but here spec is used as a proxy to enforce the type annotations.
 
 The key Experiment 2 evaluates the porting workflow not in terms of
 number of changes, but the *kinds* of changes needed---simple changes
@@ -48,9 +50,10 @@ Porting 5 real-world programs consisted of only straightforward changes (Figure 
 As noted, we omitted the changes for dj&mo (fixed in final version), but we *did*
 successfully port them (see MD column).
 
-For data.json (a JSON-processor), we infer exclusively-homogeneous maps and vectors,
-whose members are sometimes overprecise like `all-different?` (L1053-1069).
-Several functions actually accepted keyword arguments, like `lex-partitions-H` (L1175-1192).
+For data.json (a JSON-processor), we infer exclusively-homogeneous
+non-recursive maps and vectors whose members are sometimes overprecise 
+like `all-different?` (L1053-1069). Several functions actually accepted 
+keyword arguments, like `lex-partitions-H` (L1175-1192).
 
 For mini.occ (a type checker), we infer 3 *mutually-recursive types*
 for types, propositions, and expressions, with 14 total cases.  Names
@@ -63,8 +66,9 @@ While porting the entire 10,000+ LOC ClojureScript compiler was not
 feasible, our cljs.compiler experiment shows promising results for 
 using the methodology and tool with large-scale, complex Clojure programs.
 Anecdotally, the tool discovers the key types expected for an
-emitter (Figure 5), however the porting effort remains large,
-although hopefully following the form of mini.occ.
+emitter (Figure 5, eg, emit-dot emits JavaScript for an AST representing
+ClojureScript's `.` operator, and so takes an Op), however the porting effort
+remains large, although hopefully following the form of mini.occ.
 
 
 ## Related Work
