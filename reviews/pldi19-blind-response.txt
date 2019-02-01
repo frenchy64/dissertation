@@ -133,3 +133,60 @@ dynamic checks as in soft typing or quasi-static typing. We agree with
 with Rastogi et al that the porting process is iterative, however their
 inference optimizes programs and ours communicates suggested annotations
 to programmers.
+
+## Direct questions
+
+Review A asks "Where did the test suites used in the evaluation come from?".
+They were taken directly from the code bases as-is, emulating the experience
+of a real programmer applying our tool. We agree with A that 
+"coming up with good test suites is extremely labor-intensive", so the tool cannot
+simply ask the user to write more tests for the tool's benefit. As we explain
+in "Evaluation" above, the difficulty of the problem our work tackles makes
+many such issues unavoidable.
+
+Review A expected Experiment 3 "to be proven formally, rather than evaluated".
+As explained in "Evaluation" above, creating recursive types must be an unsound process,
+whose effectiveness requires other means to evaluate than soundness.
+
+Review A is concerned about the caveat about using spec (L1225), and asks
+why a spec must be inferred for a function that is already spec'ed.
+We fix the misleading prose to reflect that we in fact generate *all* specs via the tool.
+The *caveat* is that spec's higher-order function specs are checked generatively,
+and so slightly weaken the result of Experiment 3 (that the annotations are meaningfully
+underprecise). This is because generative semantics is more permissive than
+standard "proxy" semantics for higher-order functions.
+
+Review A, B are concerned that there is no detail on how to generate good names.
+Name generation uses exclusively local information, hinted at in L242-252, and so is only
+as good as the recursive squashing algorithms. We will make this clearer.
+
+Review B is concerned there is no formal example for generating recursive types.
+
+Review D is concerned that space-efficient/lazy tracking aren't evaluated.
+Both are crucial optimizations for tractable time & memory performance,
+especially for cljs.compiler, whose instrumented unit tests refused to complete
+without them. We will be clearer in the paper, but our entire evaluation enabled *both* features.
+
+Review D is concerned that accuracy of type annotations w.r.t. a ground truth
+isn't propertly evaluated
+
+
+Review D is concerned that inference of contracts is neither novel nor well evaluated.
+As explained in "Evaluation" above, Experiment 3's primary purpose is evaluating
+that initial *type* annotations are meaningfully underprecise. There is nothing
+interesting about our generated contracts because they are simply transliterated types.
+We will make this clear in the paper.
+
+Review D is concerned that we cherry picked the "left-leaning" TypeWiz examples to make
+our tool appear superior (L147-152).
+We sincerely tried to show off the strengths of TypeWiz (and similar class-based systems) by showing
+the recursive class-based examples in Section 1.
+In the realm of class-based systems, it is so easy to infer the Node class as recursive, that is it 
+difficult to consider how to *not* infer it as recursive (given sufficient tests).
+This is a tough act to follow when starting from *plain data*, and yet our algorithm *outperforms*
+TypeWiz via our novel squashing algorithm (Figure 3) using *identical* test coverage.
+
+Review D asks if our approach scales to larger programs.
+
+Review D asks if our approach is amenable to non-hash-map data structures.
+
