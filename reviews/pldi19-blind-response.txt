@@ -1,51 +1,66 @@
 We thank the reviewers for their time and thorough reviews.
 
-EVALUATION
+## Evaluation
 
+The most significant questions raised by the reviewers concern the
+empirical evaluation of our tool. To understand this evaluation, it is
+imperative to consider the _workflow_ our tool is a part of (we will
+emphasize this more in the paper).
 
-Most reviewers seemed to enjoy the premise of our paper, but had significant reservations about our evaluation.
-In reading the reviews, it is clear that we failed to convey the *purpose* of our evaluation.
+That workflow is:
+1. Automatically generate an initial set of annotations.
 
-Together with our methodology (Section 2), we present a simple porting workflow for programmers:
+2. Type check the program with Typed Clojure (incorrectly annotated
+   programs run as normal Clojure programs)
 
-1. Automate initial annotations
-2. Type check the program with Typed Clojure (TC)
-   (RE: B: incorrectly annotated TC programs run as ordinary Clojure programs)
-3. Respond to static typing errors by scanning the program/annotations and making minor changes.
-4. Go to 2. until ported.
+3. Fix static typing errors by making (hopefully minor) changes.
 
-Our evaluation shows that combining this workflow with our methodology
-results in a semi-automated recipe for porting untyped Clojure programs.
+4. Repeat steps 2&3 until the program type checks.
 
-Experiment 1 ensures initial annotations are navigatable (Step 1).
+Of course, it would be better to automatically generate types that
+work immediately, but this is impossible. Full static type inference
+(as used in many prior systems) is undecideable for the Typed Clojure
+type system, and similarly for other optional type systems. Dynamic
+inference relies on both usually-incomplete test suites and the
+ability to generalize from them. Further, most programs that being
+this porting process are ill-typed for at least minor reasons, even if
+every annotation was generated automatically. Our workflow is thus the
+only plausible approach.
 
-Experiment 2 (E2) tests whether our porting workflow is effective starting from types
-generated following our methodology. (Step 2-4)
+Our evaluation shows that following this workflow results in a
+tool-assisted recipe for porting untyped Clojure programs.
 
-Experiment 3 raises confidence that generated types are meaningfully underprecise, given that emitting
-*sound* recursive types via a simple dynamic analysis is not plausible. (Step 1)
+Experiment 1 demonstrates that initial annotations are navigatable (Step 1)
 
-The key experiment E2 evaluates the porting workflow not in terms of number of changes (lower=>better),
-but instead the *kinds* of changes needed (simpler=>better).
+Experiment 2 tests whether our porting workflow is effective starting from types
+generated following our methodology (Steps 2-4).
 
-Figure 13 shows the porting workflow for 5 real-world programs consisted of only straightforward changes.
-As reviews noted, we failed to enumerate the changes for dj&mo (fixed in final version), but we *did* succesfully port them (see MD column).
+Experiment 3 raises confidence that generated types are meaningfully
+underprecise, given that emitting *sound* recursive types via a simple
+dynamic analysis is not plausible. (Step 1)
 
-For mini.occ (a type checker), we infer 3 *mutually-recursive types* for types T, propositions P, and expressions E, with 14 total cases.
-Names are (always) derived from local information (L242-252) and entirely depend on the squashing algorithm's effectiveness --
-they are so named here because each uses a unique dispatch key :T, :P, and :E.
+The key Experiment 2 evaluates the porting workflow not in terms of
+number of changes, but the *kinds* of changes needed---simple changes
+are significantly preferred.
 
-The missing data/prose will show how the workflow constructively guides the user through the entire
-process of porting an untyped program using recursive plain-data, without burdening the
-user with complex decisions, like whether a type is recursive (unlike our related work, below).
+Figure 13 shows the porting workflow for 5 real-world programs
+consisted of only straightforward changes.  As noted, we omitted the
+changes for dj&mo (fixed in final version), but we *did* succesfully
+port them (see MD column).
 
-The cljs.compiler shows promising results for using the methodology and tool with large-scale,
-complex Clojure programs. Anecdotally, the tool discovers the key types expected for a compiler (Figure 5),
-however the porting effort would still be very large and perhaps mostly simulated by porting the
-similarly structured mini.occ.
+For mini.occ (a type checker), we infer 3 *mutually-recursive types*
+for types, propositions, and expressions, with 14 total cases.  Names
+are (always) derived from local information (L242-252) and entirely
+depend on the squashing algorithm's effectiveness -- they end up named
+`T`, `P`, and `E` because each uses a unique dispatch key `:T`, `:P`,
+and `:E`.
 
-- We will include timing and memory information (see Figure 5's caption)
-
+While porting the entire 10,000+ LOC of the cljs.compiler was not
+feasible, our experiment on it shows promising results for using the
+methodology and tool with large-scale, complex Clojure
+programs. Anecdotally, the tool discovers the key types expected for a
+compiler (Figure 5), however the porting effort would still be very
+large, although hopefully following the form of mini.occ.
 
 
 RELATED WORK
