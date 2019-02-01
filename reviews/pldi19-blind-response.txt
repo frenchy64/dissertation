@@ -66,7 +66,7 @@ While porting the entire 10,000+ LOC ClojureScript compiler was not
 feasible, our cljs.compiler experiment shows promising results for 
 using the methodology and tool with large-scale, complex Clojure programs.
 Anecdotally, the tool discovers the key types expected for an
-emitter (Figure 5, eg, emit-dot emits JavaScript for an AST representing
+emitter (Figure 5, eg, `emit-dot` emits JavaScript for an AST representing
 ClojureScript's `.` operator, and so takes an Op), however the porting effort
 remains large, although hopefully following the form of mini.occ.
 
@@ -101,15 +101,11 @@ Now, the porting process is unreasonable even for a toy example:
 
 To our knowledge, all other automatic annotation systems treat plain
 data as trivially as TypeWiz (eg [4,7,10,12,15,20]). Without
-the special effort of recovering recursive types, there is no choice
-but to either throw away valuable information (eg Pytype) or
-suffer from enormous types (TypeWiz).
+recovering recursive types, there is no choice but to throw away
+valuable information (eg Pytype) or suffer from enormous types (TypeWiz).
 
-Our approach's global squashing further distinguishes our approach.
-Figure 4 introduces :node3, which may or may not be shared between
-functions nodes and nodes'. squashGlobal's aggressive merging
-decides they are related anyway because of the shared :op key.
-Our tool can elide squashGlobal to prevent cross-function merging.
+Our global squashing further distinguishes our approach (optional,
+to handle excessive cross-function merging).
 
 The DB schema inference papers are helpful, and we will discuss
 them. Note that Baazizi et al recursively merge types, as we do, but
