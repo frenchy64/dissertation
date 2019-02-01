@@ -32,7 +32,7 @@ only plausible approach.
 Our evaluation shows that following this workflow results in a
 tool-assisted recipe for porting untyped Clojure programs.
 
-Experiment 1 demonstrates that initial annotations are navigatable (Step 1)
+Experiment 1 demonstrates that initial annotations are navigable (Step 1)
 
 Experiment 2 tests whether our porting workflow is effective starting from types
 generated following our methodology (Steps 2-4).
