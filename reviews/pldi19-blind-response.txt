@@ -30,7 +30,9 @@ every annotation was generated automatically. Our workflow is thus the
 only plausible approach.
 
 Our evaluation shows that following this workflow results in a
-tool-assisted recipe for porting untyped Clojure programs.
+tool-assisted recipe for porting untyped Clojure programs (sorely
+needed from lack of available Typed Clojure annotations, see
+"Further Challenges" [5]).
 
 Experiment 1 demonstrates that initial annotations (Step 1) are navigable.
 
