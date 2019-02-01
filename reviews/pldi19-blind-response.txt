@@ -77,7 +77,7 @@ Our ability to "Squash the work!" of porting real-world programs
 is clear after using TypeWiz to port our tiny opening example (Figure 1).
 
 The programmer must (L134-135) reverse engineer the overprecise annotation (Figure 2)
-to discover what it refers to, and ponder whether it should be recursive.
+to ponder what it refers to and whether it should be recursive.
 Extending coverage slightly to height=3 balloons the annotation size linearly (L150).
 Now, the porting process is unreasonable even for a toy example:
 
