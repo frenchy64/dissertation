@@ -91,6 +91,7 @@ to ponder what it refers to and whether it should be recursive.
 Extending coverage slightly to height=3 balloons the annotation size linearly (L150).
 Now, the porting process is unreasonable even for a toy example:
 
+```
   function nodes(t: {left: {left: {op: string, val: number},
                             op: string,
                             right: {op: string, val: number}},
@@ -102,6 +103,7 @@ Now, the porting process is unreasonable even for a toy example:
                      op: string,
                      right: {op: string, val: number}}
                    |{op: string, val: number}) ...
+```
 
 To our knowledge, all other automatic annotation systems treat plain
 data as trivially as TypeWiz (eg [4,7,10,12,15,20]). Without
