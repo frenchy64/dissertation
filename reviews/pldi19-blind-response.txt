@@ -63,38 +63,18 @@ compiler (Figure 5), however the porting effort would still be very
 large, although hopefully following the form of mini.occ.
 
 
-
-
 RELATED WORK
 
 
 
-Consider the drastically different experiences of porting Figure 1 using our
-workflow, starting with 1) or 2).
+Compare Figure 13's modest changes to the difficultly of applying the porting workflow to Figure 1 starting with TypeWiz (Figure 2).
 
-
-1) Figure 2 (TypeWiz):
-
-  function nodes(t:{left: {op: string, val: number},
-                    op: string,
-                    right: {op: string, val: number}}
-                  |{op: string, val: number}) ...
-
-2) Figure 3 (Our tool):
-
-  (defalias Op
-    (U '{:op ':node, :left Op, :right Op}
-       '{:op ':leaf, :val Int}))
-  (ann nodes [Op -> Int])
-
-With 1), applications of tree height >2 will type error, so
-the programmer must reverse engineer the recursive definition of Tree (L106-108)
-from the flat annotation. This type grows linearly with test coverage---the height=2 TypeWiz
-annotation was the smallest we could fit in the paper! Height=3 better demonstrates
-the unreasonable task this presents the user:
+The programmer must immediately reverse engineer the overprecise type from the flat annotation.
+This type grows linearly with test coverage---tree height=3 better demonstrates the unreasonable task this presents the user:
 
   function nodes(t: {left: {left: {op: string, val: number},
-                            op: string, right: {op: string, val: number}},
+                            op: string,
+                            right: {op: string, val: number}},
                      op: string,
                      right: {left: {op: string, val: number},
                              op: string, 
@@ -104,29 +84,20 @@ the unreasonable task this presents the user:
                      right: {op: string, val: number}}
                    |{op: string, val: number}) ...
 
-With 2), a recursive type already exists, and so no lengthy diagnosis is needed. In fact,
-it type checks all valid uses of 'nodes'.
-
-To make things harder, Figure 4 we introduce :node3, which may or may not be shared between
-nodes and nodes' (related to B's 'staged' AST question).
-Our algorithm decides they are related anyway (via squashGlobal) because of the shared :op key.
+Our approach's global squashing further distinguishes our approach.
+Figure 4 introduces :node3, which may or may not be shared between functions nodes and nodes' .
+squashGlobal's aggressive merging decides they are related anyway because of the shared :op key.
 
 If they are not actually shared, the (recognizable) Op type can easily be remixed/copied
-and a combination of manual search+replace for occurrences and attempting to check with TC
-can guide to the correct annotation.
+and a combination of manual search+replace for occurrences and attempting to check with TC can guide to the correct annotation. 
+`squashGlobal` can be skipped by the tool to reduce such unwanted sharing across functions.
+A distinct (recursive) Op' would be automatically inferred only for nodes'. (RE: B's ANF question)
 
-One way our tool can reduce such unwanted sharing is by eliding squashGlobal (which only squashes
-immediately nested types via squashLocal).
-Then, a distinct Op' would be automatically inferred only for nodes'.
-
-TypeWiz and similar tools excel at using existing class names to
-create recursive types, because recursive types are created automatically when an instance
-of itself is used in a field or method (L151-152).
-
-Our key novelty is recovering this recursive structure *without* the help of existing names.
 To our knowledge, all other automatic annotation systems treat plain data as trivially as TypeWiz (especially [4,7,10,12,15,20]).
 Without the special effort of recovering recursive types,
-there is no choice but to either throw away valuable information (Pytype L1289), or suffer from enormous types (TypeWiz).
+there is no choice but to either throw away valuable information like Pytype L1289
+(our tool tries to only throws away superfluous information like L1065)
+or suffer from enormous types (TypeWiz).
 
 
 
