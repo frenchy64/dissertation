@@ -32,14 +32,14 @@ only plausible approach.
 Our evaluation shows that following this workflow results in a
 tool-assisted recipe for porting untyped Clojure programs.
 
-Experiment 1 demonstrates that initial annotations are navigable (Step 1)
+Experiment 1 demonstrates that initial annotations are navigable (Step 1).
 
 Experiment 2 tests whether our porting workflow is effective starting from types
 generated following our methodology (Steps 2-4).
 
-Experiment 3 raises confidence that generated types are meaningfully
-underprecise, given that emitting *sound* recursive types via a simple
-dynamic analysis is not plausible. (Step 1)
+Experiment 3 raises confidence that initial annotations are meaningfully
+underprecise by enforcing them as contracts, given that emitting *sound*
+recursive types via a simple dynamic analysis is not plausible (Step 1).
 
 The key Experiment 2 evaluates the porting workflow not in terms of
 number of changes, but the *kinds* of changes needed---simple changes
@@ -73,13 +73,12 @@ TypeWiz.
 
 #### TypeWiz
 
-Compare Figure 13's modest changes to the difficultly of applying the
-porting workflow to Figure 1 starting with TypeWiz (Figure 2).
+Our ability to "Squash the work!" of porting real-world programs
+is clear after using TypeWiz to port our tiny opening example (Figure 1).
 
-The programmer must immediately reverse engineer the overprecise type
-from the flat annotation.  This type grows linearly with test coverage
-(L150)---tree height=3 better demonstrates the unreasonable task this
-presents the user:
+The programmer must (L134-135) reverse engineer the overprecise annotation (Figure 2).
+Extending coverage slightly to height=3 balloons the annotation size linearly (L150).
+Now, the porting process is unreasonable even for our toy example:
 
   function nodes(t: {left: {left: {op: string, val: number},
                             op: string,
