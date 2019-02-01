@@ -37,9 +37,8 @@ Experiment 1 demonstrates that initial annotations (Step 1) are navigable.
 Experiment 2 then tests whether our porting workflow (Steps 2-4) is effective.
 
 Experiment 3 raises confidence that initial annotations (Step 1) are meaningfully
-underprecise by enforcing them with Clojure's built-in clojure.spec, since *sound*
-recursive types from simple dynamic analyses is not plausible.
-Spec's semantics weaken this result for higher-order functions (L1225-1227).
+underprecise by enforcing them with Clojure's clojure.spec (whose semantics weaken
+this result for higher-order functions (L1225-1227)).
 
 The key Experiment 2 evaluates the porting workflow not in terms of
 number of changes, but the *kinds* of changes needed---simple changes
@@ -48,6 +47,10 @@ are significantly preferred.
 Porting 5 real-world programs consisted of only straightforward changes (Figure 13).
 As noted, we omitted the changes for dj&mo (fixed in final version), but we *did*
 successfully port them (see MD column).
+
+For data.json (a JSON-processor), we infer exclusively-homogeneous maps and vectors,
+some whose members are overprecise like `all-different?` (L1053-1069).
+Several functions accepted keyword arguments, like `lex-partitions-H` (L1175-1192).
 
 For mini.occ (a type checker), we infer 3 *mutually-recursive types*
 for types, propositions, and expressions, with 14 total cases.  Names
