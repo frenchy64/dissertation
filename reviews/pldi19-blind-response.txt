@@ -76,9 +76,10 @@ TypeWiz.
 Our ability to "Squash the work!" of porting real-world programs
 is clear after using TypeWiz to port our tiny opening example (Figure 1).
 
-The programmer must (L134-135) reverse engineer the overprecise annotation (Figure 2).
+The programmer must (L134-135) reverse engineer the overprecise annotation (Figure 2)
+to discover what it refers to, and ponder whether it should be recursive.
 Extending coverage slightly to height=3 balloons the annotation size linearly (L150).
-Now, the porting process is unreasonable even for our toy example:
+Now, the porting process is unreasonable even for a toy example:
 
   function nodes(t: {left: {left: {op: string, val: number},
                             op: string,
@@ -92,16 +93,17 @@ Now, the porting process is unreasonable even for our toy example:
                      right: {op: string, val: number}}
                    |{op: string, val: number}) ...
 
-Our approach's global squashing further distinguishes our approach.
-Figure 4 introduces :node3, which may or may not be shared between
-functions nodes and nodes'. squashGlobal's aggressive merging
-decides they are related anyway because of the shared :op key.
-
 To our knowledge, all other automatic annotation systems treat plain
-data as trivially as TypeWiz (eg [4,7,10,12,15,20]).  Without
+data as trivially as TypeWiz (eg [4,7,10,12,15,20]). Without
 the special effort of recovering recursive types, there is no choice
 but to either throw away valuable information (eg Pytype) or
 suffer from enormous types (TypeWiz).
+
+Our approach's global squashing further distinguishes our approach.
+Figure 4 introduces :node3, which may or may not be shared between
+functions nodes and nodes'. squashGlobal's aggressive merging
+decides they are related anyway because of the shared :op key
+(eliding squashGlobal prevents cross-function sharing, if desired).
 
 The DB schema inference papers are helpful, and we will discuss
 them. Note that Baazizi et al recursively merge types, as we do, but
