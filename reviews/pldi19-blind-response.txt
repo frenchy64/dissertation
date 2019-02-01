@@ -3,35 +3,47 @@ We thank the reviewers for their time and thorough reviews.
 EVALUATION
 
 
-Most reviewers seemed to like the premise of our paper, but had
-significant reservations about our evaluation.
-In reading the reviews, it is clear that we failed to convey
-the *purpose* of our evaluation.
+Most reviewers seemed to enjoy the premise of our paper, but had significant reservations about our evaluation.
+In reading the reviews, it is clear that we failed to convey the *purpose* of our evaluation.
 
-Our evaluation tests whether our *workflow* is effective starting from types
-generated following our *methodology* (Section 2).
+We present a porting *workflow* for programmers:
 
-Our workflow is:
-
-1. Run our tool, generating initial annotations
+1. Automate initial annotations
 2. Type check the program with Typed Clojure (TC)
    (incorrectly annotated TC programs run as normal Clojure programs)
-3. Respond to static typing errors by scanning the program and making minor changes.
+3. Respond to static typing errors by scanning the program/annotations and making minor changes.
 4. Go to 2. until ported.
 
-Figure 13 demonstrates that this workflow works for 5 real-world programs,
-and quantifies the exact changes needed.
-As reviews noted, we failed to enumerate the changes for dj&mo (fixed in final version),
-but we *did* succesfully port them (see MD column).
+Our evaluation shows that combining this workflow with our methodology (Section 2)
+results in a semi-automated recipe for porting untyped Clojure programs.
 
-For mini.occ, we infer 3 *mutually-recursive types* (representations for
-types, propositions, and expressions) named T, P, and E, with 14 total cases (5, 5, 4, respectively).
+Experiment 1 ensures initial annotations are navigatable (Step 1)
+
+Experiment 2 (E2) tests whether our porting workflow is effective starting from types
+generated following our methodology (Step 2-4)
+
+Experiment 3 raises confidence that generated types are meaningfully underprecise, given that emitting
+*sound* recursive types via a simple dynamic analysis is not plausible. (Step 1)
+
+The key experiment E2 evaluates the porting workflow not in terms of number of changes (lower=better),
+but the *kinds* of changes needed (less complex=better).
+
+Figure 13 shows the porting workflow for 5 real-world programs consisted of only straightforward changes.
+As reviews noted, we failed to enumerate the changes for dj&mo (fixed in final version), but we *did* succesfully port them (see MD column).
+
+For mini.occ, we infer 3 *mutually-recursive types* for types T, propositions P, and expressions E, with 14 total cases.
 Names are (always) derived from local information (L242-252) and entirely depend on the squashing
-algorithm's effectiveness -- here each uses a unique dispatch key :T, :P, and :E.
+algorithm's effectiveness -- they are so named here because each uses a unique dispatch key :T, :P, and :E.
 
-The missing data will show how the workflow constructively guides the user through the entire
+The missing data/prose will show how the workflow constructively guides the user through the entire
 process of porting an untyped program using recursive plain-data, without burdening the
-user with complex decisions (unlike our related work when posed with the same problem, described next).
+user with complex decisions (unlike our related work when posed with the same problem, described below).
+
+The cljs.compiler shows promising results for using the methodology and tool with large-scale,
+complex Clojure programs. Anecdotally, the tool discovers the key types expected for a compiler (Figure 5),
+however the porting effort would still be very large and perhaps mostly simulated by porting the
+similarly structured mini.occ.
+
 
 
 
@@ -61,7 +73,7 @@ With 1), applications of tree height >2 will type error, so
 the programmer must reverse engineer the recursive definition of Tree (L106-108)
 from the flat annotation. This type grows linearly with test coverage---the height=2 TypeWiz
 annotation was the smallest we could fit in the paper! Height=3 better demonstrates
-the unreasonable task we gave given the user:
+the unreasonable task this presents the user:
 
   function nodes(t: {left: {left: {op: string, val: number},
                             op: string, right: {op: string, val: number}},
@@ -77,12 +89,13 @@ the unreasonable task we gave given the user:
 With 2), a recursive type already exists, and so no lengthy diagnosis is needed. In fact,
 it type checks all valid uses of 'nodes'.
 
-Figure 4 we introduces :node3 to further stress our approach, which may or may not be shared between
+To make things harder, Figure 4 we introduce :node3, which may or may not be shared between
 nodes and nodes' (related to B's 'staged' AST question).
 Our algorithm decides they are related anyway (via squashGlobal) because of the shared :op key.
 
-If they are not actually shared, the Op type can easily be remixed/copied and a combination of manual search+replace
-for occurrences and attempting to check with TC can guide to the correct annotation.
+If they are not actually shared, the (recognizable) Op type can easily be remixed/copied
+and a combination of manual search+replace for occurrences and attempting to check with TC
+can guide to the correct annotation.
 
 One way our tool can reduce such unwanted sharing is by eliding squashGlobal (which only squashes
 immediately nested types via squashLocal).
@@ -94,7 +107,15 @@ of itself is used in a field or method (L151-152).
 
 Our key novelty is recovering this recursive structure *without* the help of existing names.
 To our knowledge, all other automatic annotation systems treat plain data as trivially as TypeWiz (especially [4,7,10,12,15,20]).
-Without the special effort of recovering recursive types, there is no choice but to either 
-throw away valuable information (Pytype L1289), or suffer from enormous types (TypeWiz).
+Without the special effort of recovering recursive types,
+there is no choice but to either throw away valuable information (Pytype L1289), or suffer from enormous types (TypeWiz).
 
 
+
+TECHNICAL PRESENTATION
+
+We will:
+
+- add declarative specifications to non-trivial metafunctions
+- clarify missing syntax cases
+- fix L576
