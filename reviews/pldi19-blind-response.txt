@@ -49,8 +49,8 @@ As noted, we omitted the changes for dj&mo (fixed in final version), but we *did
 successfully port them (see MD column).
 
 For data.json (a JSON-processor), we infer exclusively-homogeneous maps and vectors,
-some whose members are overprecise like `all-different?` (L1053-1069).
-Several functions accepted keyword arguments, like `lex-partitions-H` (L1175-1192).
+whose members are sometimes overprecise like `all-different?` (L1053-1069).
+Several functions actually accepted keyword arguments, like `lex-partitions-H` (L1175-1192).
 
 For mini.occ (a type checker), we infer 3 *mutually-recursive types*
 for types, propositions, and expressions, with 14 total cases.  Names
