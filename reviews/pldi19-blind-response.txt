@@ -32,23 +32,22 @@ only plausible approach.
 Our evaluation shows that following this workflow results in a
 tool-assisted recipe for porting untyped Clojure programs.
 
-Experiment 1 demonstrates that initial annotations are navigable (Step 1).
+Experiment 1 demonstrates that initial annotations (Step 1) are navigable.
 
-Experiment 2 tests whether our porting workflow is effective starting from types
-generated following our methodology (Steps 2-4).
+Experiment 2 then tests whether our porting workflow (Steps 2-4) is effective.
 
-Experiment 3 raises confidence that initial annotations are meaningfully
-underprecise by enforcing them as contracts, given that emitting *sound*
-recursive types via a simple dynamic analysis is not plausible (Step 1).
+Experiment 3 raises confidence that initial annotations (Step 1) are meaningfully
+underprecise by enforcing them with Clojure's built-in clojure.spec, since *sound*
+recursive types from simple dynamic analyses is not plausible.
+Spec's semantics weaken this result for higher-order functions (L1225-1227).
 
 The key Experiment 2 evaluates the porting workflow not in terms of
 number of changes, but the *kinds* of changes needed---simple changes
 are significantly preferred.
 
-Figure 13 shows the porting workflow for 5 real-world programs
-consisted of only straightforward changes.  As noted, we omitted the
-changes for dj&mo (fixed in final version), but we *did* successfully
-port them (see MD column).
+Porting 5 real-world programs consisted of only straightforward changes (Figure 13).
+As noted, we omitted the changes for dj&mo (fixed in final version), but we *did*
+successfully port them (see MD column).
 
 For mini.occ (a type checker), we infer 3 *mutually-recursive types*
 for types, propositions, and expressions, with 14 total cases.  Names
@@ -57,12 +56,12 @@ depend on the squashing algorithm's effectiveness -- they end up named
 `T`, `P`, and `E` because each uses a unique dispatch key `:T`, `:P`,
 and `:E`.
 
-While porting the entire 10,000+ LOC of the ClojureScript compiler was not
-feasible, our experiment on the cljs.compiler file shows promising results for 
+While porting the entire 10,000+ LOC ClojureScript compiler was not
+feasible, our cljs.compiler experiment shows promising results for 
 using the methodology and tool with large-scale, complex Clojure programs.
-Anecdotally, the tool discovers the key types expected for a
-compiler (Figure 5), however the porting effort would still be very
-large, although hopefully following the form of mini.occ.
+Anecdotally, the tool discovers the key types expected for an
+emitter (Figure 5), however the porting effort remains large,
+although hopefully following the form of mini.occ.
 
 
 ## Related Work
