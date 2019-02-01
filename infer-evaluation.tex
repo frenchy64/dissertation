@@ -188,9 +188,8 @@ We observed some frequent reasons for why changes were needed
 (summarized in \figref{infer:fig:gentype}).
 
 \paragraph{Uncalled functions}
-Some functions not called at all in the unit tests.
-This results in very general type annotations that need
-manual changes to be useful.
+A function without tests receives a broad type annotation that
+must be amended.
 %
 For example, the startrek-clojure game has several exit
 conditions, one of which is running out of time.
@@ -235,8 +234,8 @@ So we amend the signature as
 
 
 \paragraph{Over-precision}
-Returns of function types are often too restrictive, as the unit
-tests may have not been complete.
+Function types are often too restrictive due to
+insufficient unit tests.
 
 There are several instances of this in math.combinatorics.
 The \clj{all-different?} function
