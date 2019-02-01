@@ -6,7 +6,7 @@ EVALUATION
 Most reviewers seemed to enjoy the premise of our paper, but had significant reservations about our evaluation.
 In reading the reviews, it is clear that we failed to convey the *purpose* of our evaluation.
 
-Together with our methodolgy (Section 2), we present a simple porting *workflow* for programmers:
+Together with our methodology (Section 2), we present a simple porting *workflow* for programmers:
 
 1. Automate initial annotations
 2. Type check the program with Typed Clojure (TC)
