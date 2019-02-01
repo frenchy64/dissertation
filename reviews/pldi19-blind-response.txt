@@ -3,9 +3,10 @@ We thank the reviewers for their time and thorough reviews.
 EVALUATION
 
 
-Most reviewers had reservations about our evaluation.
-
-We will clarify (here and in the paper) the *purpose* of our evaluation to the reader.
+Most reviewers seemed to like the premise of our paper, but had
+significant reservations about our evaluation.
+In reading the reviews, it is clear that we failed to convey
+the *purpose* of our evaluation.
 
 Our evaluation tests whether our *workflow* is effective starting from types
 generated following our *methodology* (Section 2).
@@ -23,15 +24,14 @@ and quantifies the exact changes needed.
 As reviews noted, we failed to enumerate the changes for dj&mo (fixed in final version),
 but we *did* succesfully port them (see MD column).
 
-For the type checker mini.occ, we infer 3 *mutually-recursive types* (representations for
+For mini.occ, we infer 3 *mutually-recursive types* (representations for
 types, propositions, and expressions) named T, P, and E, with 14 total cases (5, 5, 4, respectively).
 Names are (always) derived from local information (L242-252) and entirely depend on the squashing
 algorithm's effectiveness -- here each uses a unique dispatch key :T, :P, and :E.
 
 The missing data will show how the workflow constructively guides the user through the entire
 process of porting an untyped program using recursive plain-data, without burdening the
-user with complex decisions (unlike our related work on the same problem, described next).
-
+user with complex decisions (unlike our related work when posed with the same problem, described next).
 
 
 
@@ -39,25 +39,62 @@ RELATED WORK
 
 
 
-Section 1 will be amended to emphasise the drastically different experiences of applying our workflow
-to porting a type-erased Figure 1 starting from
+Consider the drastically different experiences of porting Figure 1 using our
+workflow, starting with 1) or 2).
 
-1) Figure 2 (TypeWiz), and
-2) Figure 3 (Our tool).
 
-With 1), applications of tree height >2 will throw an error, so
+1) Figure 2 (TypeWiz):
+
+  function nodes(t:{left: {op: string, val: number},
+                    op: string,
+                    right: {op: string, val: number}}
+                  |{op: string, val: number}) ...
+
+2) Figure 3 (Our tool):
+
+  (defalias Op
+    (U '{:op ':node, :left Op, :right Op}
+       '{:op ':leaf, :val Int}))
+  (ann nodes [Op -> Int])
+
+With 1), applications of tree height >2 will type error, so
 the programmer must reverse engineer the recursive definition of Tree (L106-108)
-from the flat annotation (which grows linearly with test coverage---the height=2 TypeWiz
-annotation was the smallest we could fit in the paper!).
+from the flat annotation. This type grows linearly with test coverage---the height=2 TypeWiz
+annotation was the smallest we could fit in the paper! Height=3 better demonstrates
+the unreasonable task we gave given the user:
 
-With 2), a recursive type already exists, and so no lengthy diagnosis is needed.
+  function nodes(t: {left: {left: {op: string, val: number},
+                            op: string, right: {op: string, val: number}},
+                     op: string,
+                     right: {left: {op: string, val: number},
+                             op: string, 
+                             right: {op: string, val: number}}}
+                   |{left: {op: string, val: number},
+                     op: string,
+                     right: {op: string, val: number}}
+                   |{op: string, val: number}) ...
 
-Starting instead with Figure 4, we introduce :node3, which may or may not be shared between
-nodes and nodes' (like B's 'staged' AST question).
-Our algorithm decides they are related (via squashGlobal).
-If they are not shared, the Op type can easily be remixed/copied and a combination of manual search+replace
-for occurrences and attempting to check with TC can guide to the correct
-annotation.
+With 2), a recursive type already exists, and so no lengthy diagnosis is needed. In fact,
+it type checks all valid uses of 'nodes'.
+
+Figure 4 we introduces :node3 to further stress our approach, which may or may not be shared between
+nodes and nodes' (related to B's 'staged' AST question).
+Our algorithm decides they are related anyway (via squashGlobal) because of the shared :op key.
+
+If they are not actually shared, the Op type can easily be remixed/copied and a combination of manual search+replace
+for occurrences and attempting to check with TC can guide to the correct annotation.
+
 One way our tool can reduce such unwanted sharing is by eliding squashGlobal (which only squashes
 immediately nested types via squashLocal).
 Then, a distinct Op' would be automatically inferred only for nodes'.
+
+TypeWiz and similar tools excel at using existing class names to
+create recursive types, because recursive types are created automatically when an instance
+of itself is used in a field or method (L151-152).
+
+Our key novelty is recovering this recursive structure *without* the help of existing names.
+To our knowledge, all other automatic annotation systems treat plain data as trivially as TypeWiz (especially [4,7,10,12,15,20]).
+Without the special effort of recovering recursive types, there is no choice but to either 
+throw away valuable information (Pytype L1289), or suffer from enormous types (TypeWiz).
+
+
