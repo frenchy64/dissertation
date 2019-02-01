@@ -21,7 +21,7 @@ That workflow is:
 
 Of course, it would be better to automatically generate types that
 work immediately, but this is impossible. Full static type inference
-(as used in many prior systems) is undecideable for the Typed Clojure
+(as used in many prior systems) is undecidable for the Typed Clojure
 type system, and similarly for other optional type systems. Dynamic
 inference relies on both usually-incomplete test suites and the
 ability to generalize from them. Further, most programs ported with
@@ -47,7 +47,7 @@ are significantly preferred.
 
 Figure 13 shows the porting workflow for 5 real-world programs
 consisted of only straightforward changes.  As noted, we omitted the
-changes for dj&mo (fixed in final version), but we *did* succesfully
+changes for dj&mo (fixed in final version), but we *did* successfully
 port them (see MD column).
 
 For mini.occ (a type checker), we infer 3 *mutually-recursive types*
