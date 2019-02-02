@@ -169,23 +169,20 @@ Review B is concerned that there is no formal example for generating recursive t
 As suggested, we will choose a running example (related to inferring
 Figure 3) to explain local and global squashing.
 
-%%Review B showed interest in further development of alternative squashing algorithms
-%%to better handle cases
-%%proposes that the aggressive merging required for the `:node3` case (L191-195)
-%%yields an incorrect type for `nodes` (Figure 1).
-%%Because `case`'s fall-through behavior is throwing a runtime error, Typed Clojure
-%%permits nodes 
-
-Review B notes that the aggressive squashing algorithm incorrectly merges types for 'staged' AST's.
+Review B notes that the aggressive squashing algorithm is not always desirable,
+and incorrectly merges AST types for 'staged' AST's.
 They are correct. Similar issues occur with nanopass compilers, and eg
 if mini.occ's `T`/`P`/`E` all shared the same dispatch key (see above).
 Without changing the algorithm, the aggressive merging would result in a
 large recursive type that itself refers to named types.
 The user would have to rearrange the type into as many pieces as necessary,
 utilizing their (assumed) familiarity with the code base.
+If the passes are defined in separate files, they will not combine (L345-346).
 Alternatively, our tool supports eliding squashGlobal altogether to
-support such situations, which would result in smaller recursive types for each stage
+disable cross-function sharing, which would result in smaller recursive types for each stage
 (assuming they are processed by different functions).
+As Review B suggests, we will more thoroughly discuss the design space for
+`squash{Local,Global}`, and better contextualize the current implementations.
 
 Review B asks how lazy/eager tracking is mixed in the implementation.
 Lazy tracking is always used, but this can lead to a shortage of data
@@ -206,7 +203,6 @@ diminishes the manual effort to amend cases like `all-different` and
 
 Review B asserts that not fully porting cljs.compiler "significantly weakens your evaluation", and
 For reasons above ("Evaluation") cljs.compiler was only evaluated visually (Experiment 1).
-
 
 Review D wonders if the approach is useful in practice if eg., data.json generates 168
 lines of types, but manual amendment requires 94 new lines and removing 125 lines.
@@ -264,5 +260,6 @@ Yes, eg see our discussion of data.json above. Besides maps and functions, small
 vectors (ie. tuples) are the next most common *heterogeneous* data structure that our
 tool infers. It extends $\sqcup$ (Figure 8) to upcast to homogeneous vectors
 if combinations of differently-sized vectors are joined.
-*Unexpected* tuples in generated types are trivially manually upcast, and
-also inform the user of shortcomings of their test suite.
+In generated types, unexpected tuples can be straightforwardly upcast manually, while
+providing cheap test coverage information (eg a function accidentally tested
+only with 3-tuples).
