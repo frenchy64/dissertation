@@ -54,8 +54,10 @@ successfully port them (see MD column).
 
 For data.json (a JSON-processor), we infer exclusively-homogeneous
 non-recursive maps and vectors whose members are sometimes overprecise 
-like `all-different?` (L1053-1069). Several functions actually accepted 
-keyword arguments, like `lex-partitions-H` (L1175-1192).
+like `all-different?` (L1053-1069). The main porting challenge was
+amending function annotations to use keyword arguments -- this was more
+involved than `lex-partitions-H` (L1175-1192) because the types for
+keyword arguments were unfortunately dispersed in several union types.
 
 For mini.occ (a type checker), we infer 3 *mutually-recursive types*
 for types, propositions, and expressions, with 14 total cases.  Names
@@ -141,17 +143,19 @@ They were taken directly from the code bases as-is, emulating the experience
 of a real programmer applying our tool. We agree with A that 
 "coming up with good test suites is extremely labor-intensive", so the tool cannot
 simply ask the user to write more tests for the tool's benefit. As we explain
-in "Evaluation" above, the difficulty of the problem domain makes
-many such issues unavoidable, and leaves us to make more out of the coverage
-we *do* have (comparing Figure 2 & 3 shows we do exactly this).
+in "Evaluation" above, the difficulty of the problem domain
+forces us to make better use of the coverage we *do* have (comparing Figure 2 & 3
+shows we do exactly this).
 
-Review A expected Experiment 3 "to be proven formally, rather than evaluated".
+Review A expected Experiment 3 to be proven formally, rather than evaluated.
 As explained in "Evaluation" above, creating recursive types must be an unsound process,
-whose effectiveness requires other means to evaluate than soundness.
+whose effectiveness requires other means to evaluate than soundness,
+like enforcing equivalent contracts while rerunning its training data.
 
 Review A is concerned about the caveat about using spec (L1225), and asks
 why a spec must be inferred for a function that is already spec'ed.
-We fix the misleading prose to reflect that we in fact generate *all* specs via the tool.
+We will clarify in the prose that we in fact generate *all* specs via the tool.
+There is no existing spec.
 The *caveat* is that spec's higher-order function specs are checked generatively,
 and so slightly weaken the result of Experiment 3 (that the annotations are meaningfully
 underprecise). This is because generative semantics is more permissive than
@@ -161,16 +165,63 @@ Review A, B are concerned that there is no detail on how to generate good names.
 Name generation uses exclusively local information, hinted at in L242-252, and so is only
 as good as the recursive squashing algorithms. We will make this clearer.
 
-Review B is concerned there is no formal example for generating recursive types.
+Review B is concerned that there is no formal example for generating recursive types.
+As suggested, we will choose a running example (related to inferring
+Figure 3) to explain local and global squashing.
+
+%%Review B showed interest in further development of alternative squashing algorithms
+%%to better handle cases
+%%proposes that the aggressive merging required for the `:node3` case (L191-195)
+%%yields an incorrect type for `nodes` (Figure 1).
+%%Because `case`'s fall-through behavior is throwing a runtime error, Typed Clojure
+%%permits nodes 
+
+Review B asks how lazy/eager tracking is mixed in the implementation.
+Lazy tracking is always used, but this can lead to a shortage of data
+(eg exercising functions that do not fully traverse their arguments).
+To build immunity to this situation without significant costs,
+we force a shallow depth/width of lazily tracked values to collect more inference results. 
+
+Review A asserts that our tool is not ready, citing several shortcomings like generating
+variadic and optional arguments that can be "eliminated quite easily".
+We will expand on the subtleties of building such a general tool in the paper.
+Our experience shows that some Clojure idioms are difficult to automatically disambiguate,
+and require supervision to prevent valuable information being thrown away.
+For example, positional, rest, and keyword arguments have identical representations,
+and prematurely choosing one throws information away (eg argument order).
+We found that concentrating on squashing maps into recognizable, recursive units
+diminishes the manual effort to amend cases like `all-different` and
+`lex-partitions-H` because the programmer is often simply rearranging existing names.
+
+Review B asserts that not fully porting cljs.compiler "significantly weakens your evaluation", and
+For reasons above ("Evaluation") cljs.compiler was only evaluated visually (Experiment 1).
+
+
+Review D wonders if the approach is useful in practice if eg., data.json generates 168
+lines of types, but manual amendment requires 94 new lines and removing 125 lines.
+The MD metric (Figure 13) cannot be taken alone -- it is simply
+`git`'s line diff from the initial annotations.
+As we clarify above, Experiment 2 measures the *kinds* of changes needed, which,
+in turn, motivate our overall _workflow_ for porting.
+Unfortunately, we omitted the other columns for data.json (we will add them
+in the final paper, we outline the major issues above) but they 
+consist of the kinds of changes we already mention.
+The fully ported data.json stands at 659 LOC, adding 131 LOC to the untyped file,
+but that does not necessarily mean it was easier to write those lines from scratch,
+which Experiment 2 helps us decide for ourselves.
 
 Review D is concerned that space-efficient/lazy tracking aren't evaluated.
 Both are crucial optimizations for tractable time & memory performance,
 especially for cljs.compiler, whose instrumented unit tests refused to complete
 without them. We will be clearer in the paper, but our entire evaluation enabled *both* features.
 
-Review D is concerned that accuracy of type annotations w.r.t. a ground truth
-isn't propertly evaluated
-
+Review D says that accuracy of type annotations should be evaluated against a ground truth,
+which "would be much more convincing than the anecdotical evidence reported in Experiment 1".
+As explained above ("Evaluation"), it is impossible to emulate a hand-crafted
+ground truth automatically, so the goal instead becomes guiding the programmer to craft it
+themselves from a suitable base. Experiment 2 tests this goal by quantifying the
+*kinds* of changes needed. Experiment 1 and 3 together form a valuable evaluation
+of Step 1 of our workflow.
 
 Review D is concerned that inference of contracts is neither novel nor well evaluated.
 As explained in "Evaluation" above, Experiment 3's primary purpose is evaluating
@@ -188,6 +239,16 @@ This is a tough act to follow when starting from *plain data*, and yet our algor
 TypeWiz via our novel squashing algorithm (Figure 3) using *identical* test coverage.
 
 Review D asks if our approach scales to larger programs.
+We will address this in the paper.
+The ClojureScript emitter cljs.compiler is so-far 
+our most thorough scaling of Step 1 of our workflow (for both tractable dynamic analysis
+and managing large amounts of inference results), inspiring (and requiring)
+our lazy and space-efficient tracking optimizations, along with more efficient
+squashing mechanisms (L658-698) and an alternative toEnv (Figure 8)
+implementation with better asymptotic complexity that avoids redundant joins
+by grouping inference result by their paths and joining the longest paths first
+(AST's can be deeply nested, and this avoids recalculating the deep joins triggered
+by `update`'s second-last case, Figure 8).
 
 Review D asks if our approach is amenable to non-hash-map data structures.
 
