@@ -176,6 +176,17 @@ Figure 3) to explain local and global squashing.
 %%Because `case`'s fall-through behavior is throwing a runtime error, Typed Clojure
 %%permits nodes 
 
+Review B notes that the aggressive squashing algorithm incorrectly merges types for 'staged' AST's.
+They are correct. Similar issues occur with nanopass compilers, and eg
+if mini.occ's `T`/`P`/`E` all shared the same dispatch key (see above).
+Without changing the algorithm, the aggressive merging would result in a
+large recursive type that itself refers to named types.
+The user would have to rearrange the type into as many pieces as necessary,
+utilizing their (assumed) familiarity with the code base.
+Alternatively, our tool supports eliding squashGlobal altogether to
+support such situations, which would result in smaller recursive types for each stage
+(assuming they are processed by different functions).
+
 Review B asks how lazy/eager tracking is mixed in the implementation.
 Lazy tracking is always used, but this can lead to a shortage of data
 (eg exercising functions that do not fully traverse their arguments).
