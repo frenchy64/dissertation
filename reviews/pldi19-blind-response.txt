@@ -39,8 +39,7 @@ Experiment 1 demonstrates that initial annotations (Step 1) are navigable.
 Experiment 2 then tests whether our porting workflow (Steps 2-4) is effective.
 
 Experiment 3 raises confidence that initial annotations (Step 1) are meaningfully
-underprecise by enforcing them with Clojure's clojure.spec (whose semantics weaken
-this result for higher-order functions (L1225-1227)). It's possible
+underprecise by enforcing them with Clojure's clojure.spec. It's possible
 to `collect` and `infer` more specific invariants using spec (eg positive numbers),
 but here spec is used as a proxy to enforce the type annotations.
 
@@ -71,10 +70,12 @@ feasible, our cljs.compiler experiment shows promising results for
 using the methodology and tool with large-scale, complex Clojure programs
 (with reasonable timing/memory overhead, added in final version).
 
-Anecdotally, the tool discovers the key types expected for an
-emitter (Figure 5, eg, `emit-dot` emits JavaScript for an AST representing
-ClojureScript's `.` operator, and so takes an `Op`), however the porting effort
-remains large, although hopefully following the form of mini.occ.
+Anecdotally, the tool's squashing discovers the key types expected for an
+emitter (Figure 5), but sometimes leaves underprecise types.
+eg, `emit-dot` emits JavaScript for an AST representing
+ClojureScript's `.` operator, so its input (L301) should be a subset of `Op`.
+The porting effort, however, remains large, although hopefully following
+the form of mini.occ given enough improvements to Typed Clojure (L1200-1209).
 
 
 ## Related Work
@@ -88,8 +89,8 @@ TypeWiz.
 Our ability to "Squash the work!" of porting real-world programs
 is clear after using TypeWiz to port our tiny opening example (Figure 1).
 
-The programmer must (L134-135) reverse engineer the overprecise annotation (Figure 2)
-to ponder what it refers to and whether it should be recursive.
+The programmer must reverse engineer the overprecise annotation 
+to ponder what it refers to and whether it should be recursive (Figure 2, because L134-135).
 Extending coverage slightly to height=3 balloons the annotation size linearly (L150).
 Now, the porting process is unreasonable even for a toy example:
 
