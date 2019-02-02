@@ -245,10 +245,13 @@ our most thorough scaling of Step 1 of our workflow (for both tractable dynamic 
 and managing large amounts of inference results), inspiring (and requiring)
 our lazy and space-efficient tracking optimizations, along with more efficient
 squashing mechanisms (L658-698) and an alternative toEnv (Figure 8)
-implementation with better asymptotic complexity that avoids redundant joins
-by grouping inference result by their paths and joining the longest paths first
-(AST's can be deeply nested, and this avoids recalculating the deep joins triggered
-by `update`'s second-last case, Figure 8).
+implementation with better asymptotic complexity that avoids redundant deep
+joins triggered by `update`'s second-last case (Figure 8).
 
 Review D asks if our approach is amenable to non-hash-map data structures.
-
+Yes, eg see our discussion of data.json above. Besides maps and functions, small fixed-sized
+vectors (ie. tuples) are the next most common *heterogeneous* data structure that our
+tool infers. It extends $\sqcup$ (Figure 8) to upcast to homogeneous vectors
+if combinations of differently-sized vectors are joined.
+*Unexpected* tuples in generated types are trivially manually upcast, and
+also inform the user of shortcomings of their test suite.
