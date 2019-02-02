@@ -183,7 +183,7 @@ above ("Evaluation") and in Section 2.
 Review B notes that the aggressive squashing algorithm is not always desirable,
 and incorrectly merges AST types for 'staged' AST's.
 They are correct. Similar issues occur with nanopass compilers, and eg
-if mini.occ's `T`/`P`/`E` all shared the same dispatch key (see above).
+if mini.occ's `T`/`P`/`E` all shared the same dispatch key (see "Evaluation" above).
 Without changing the algorithm, the aggressive merging would result in a
 large recursive type that itself refers to named types.
 The user would have to rearrange the type into as many pieces as necessary,
