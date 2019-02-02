@@ -159,7 +159,7 @@ We will clarify in the prose that we in fact generate *all* specs via the tool.
 There is no existing spec.
 The *caveat* is that spec's higher-order function specs are checked generatively,
 and so slightly weaken the result of Experiment 3 (that the annotations are meaningfully
-underprecise). This is because generative semantics is more permissive than
+underprecise). This is because generative semantics are more permissive than
 standard "proxy" semantics for higher-order functions.
 
 Review A, B are concerned that there is no detail on how to generate good names.
@@ -201,9 +201,6 @@ and prematurely choosing one throws information away (eg argument order).
 We found that concentrating on squashing maps into recognizable, recursive units
 diminishes the manual effort to amend cases like `all-different` and
 `lex-partitions-H` because the programmer is often simply rearranging existing names.
-
-Review B asserts that not fully porting cljs.compiler "significantly weakens your evaluation", and
-For reasons above ("Evaluation") cljs.compiler was only evaluated visually (Experiment 1).
 
 Review D wonders if the approach is useful in practice if eg., data.json generates 168
 lines of types, but manual amendment requires 94 new lines and removing 125 lines.
