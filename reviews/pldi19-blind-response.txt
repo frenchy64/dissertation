@@ -166,9 +166,22 @@ Review A, B are concerned that there is no detail on how to generate good names.
 Name generation uses exclusively local information, hinted at in L242-252, and so is only
 as good as the recursive squashing algorithms. We will make this clearer.
 
-Review B is concerned that there is no formal example for generating recursive types.
+Review B, C are concerned that there is no formal example for generating recursive types.
 As suggested, we will choose a running example (related to inferring
-Figure 3) to explain local and global squashing.
+Figure 3) to explain squashLocal and squashGlobal, and use a declarative style
+of explanation.
+
+Review A, C, D noticed Section 3.2.1 ended abruptly.
+We will fix this along with a more compelling (recursive) running example.
+
+Review B, D asks whether `mini.occ` or `data.json` were ported.
+Yes (see "Evaluation" above), and we will add their Figure 13 entries.
+
+Review B asks what does the word 'generalized' mean on L199, and
+Review D says this is a non-contribution.
+We meant "applies beyond Clojure", but we will clarify the wording
+to encapsulate our approach's methodology and workflow both described
+above ("Evaluation") and in Section 2.
 
 Review B notes that the aggressive squashing algorithm is not always desirable,
 and incorrectly merges AST types for 'staged' AST's.
@@ -185,7 +198,10 @@ disable cross-function sharing, which would result in smaller recursive types fo
 As Review B suggests, we will more thoroughly discuss the design space for
 `squash{Local,Global}`, and better contextualize the current implementations.
 
-Review B asks how lazy/eager tracking is mixed in the implementation.
+Review C, D had reservations about the presentation of 'paths'.
+We will better explain this concept earlier in the formalism.
+
+Review B, D asks how lazy/eager tracking is mixed in the implementation.
 Lazy tracking is always used, but this can lead to a shortage of data
 (eg exercising functions that do not fully traverse their arguments).
 To build immunity to this situation without significant costs,
@@ -261,3 +277,10 @@ if combinations of differently-sized vectors are joined.
 In generated types, unexpected tuples can be straightforwardly upcast manually, while
 providing cheap test coverage information (eg a function accidentally tested
 only with 3-tuples).
+
+Review C, D note that `inferRec` is missing.
+It will be added as
+  `inferRec = squashGlobal . squashLocal`
+
+Review D asks what's conceptually new compared to [4,20,18].
+They do not infer recursive types for plain data (see "TypeWiz" section above).
