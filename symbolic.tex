@@ -1141,8 +1141,8 @@ as in the instantiation of \clj{map}:
                         (if (subtype? (TypeOf x) (Seqable Int)) Int Str)
                         (if (subtype? (TypeOf x) (Seqable Int)) Int Str))
                   g x)))
-             (IFn [[Int -> Int] -> [Int -> Int]]
-                  [[Str -> Str] -> [Str -> Str]]))]
+             (IFn [[Int -> Int] -> [(Seqable Int) -> (Seqable Int)]]
+                  [[Str -> Str] -> [(Seqable Str) -> (Seqable Str)]]))]
   ((f (fn [y :- Int] y)) [1 2 3])
   ((f (fn [z :- Str] z)) ["a" "b" "c"]))
 \end{cljlisting}
