@@ -1122,12 +1122,8 @@ as in the instantiation of \clj{map}:
 
 \subsubsection{Inferring Conditional types}
 
-Since inserting conditional types solves many woes, we now
-explore when we decide to insert conditional types.
-Here, the most attractive use of conditional types is to check the
+The most attractive use of conditional types is to check the
 same piece of code at different types.
-Since a piece of code is only checked twice in the case of a function
-intersection,
 
 % Complications with functions nested in other data structures
 
@@ -1150,8 +1146,9 @@ $$
                          \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}\\
                          &\alt& \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
-                         \alt \ltiEnclosingFnType{n}
-                         \alt \ltiMu{\ltitvar{}}{\ltiT{}}
+                         \alt \ltiEnclosingFnType{n}\\
+                         &\alt& \ltiMu{\ltitvar{}}{\ltiIFn{\ova{\ltiFn{\ova{\ltiT{}}}{\ltiT{}}}}}
+                         \alt \ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
@@ -1342,59 +1339,6 @@ and concatenation
                {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
     }
 
-%    \infer [(I-UAbs)]
-%    {}
-%    {
-%    \ltitfjudgement{\ltiFuel{}}
-%                   {\ltiEnv{}}
-%                   {\ltiufun{\ltivar{}}{\ltiE{}}}
-%                   {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-%                   {\ltiFuel{}}
-%    }
-%
-%    \infer [(I-UApp)]
-%    {
-%    \ltitfjudgement{\ltiFuel{1}}
-%                   {\ltiEnv{}}{\ltiF{}}
-%                   {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
-%                   {\ltiFuel{2}}
-%                  \\\\
-%    \ltitfjudgement{\ltiFuel{2}}
-%                  {\ltiEnv{}}
-%                  {\ltiE{}}
-%                  {\ltiS{}}
-%                  {\ltiFuel{3}}
-%                  \\\\
-%    \ltiifsubtype{\ltiFuel{3}}
-%                 {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
-%                 {\ltiArrow{\ltiS{}}{}{\ltiT{}}}
-%                 {\ltiFuel{4}}
-%    }
-%    {
-%    \ltitfjudgement{\ltiFuel{1}}
-%                   {\ltiEnv{}}
-%                   {\ltiapp{\ltiF{}}{\ltiE{}}}
-%                   {\ltiT{}}
-%                   {\ltiFuel{4}}
-%    }
-%
-%    \infer [(S-Closure)]
-%    {
-%    \ltiFuel{1} > 0
-%    \\
-%    \ltitfjudgement{\ltiFuel{1}-1}
-%                   {\ltiEnv{},\hastype{\ltivar{}}{\ltiT{}}}
-%                   {\ltiE{}}
-%                   {\ltiS{}}
-%                   {\ltiFuel{2}}
-%    }
-%    {
-%    \ltiifsubtype{\ltiFuel{1}}
-%                 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-%                 {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
-%                 {\ltiFuel{2}}
-%    }
-
   \end{mathpar}
   \caption{Type system for internal language:
    \ltitjudgement{\ltiEnv{}}
@@ -1403,24 +1347,6 @@ and concatenation
                  and 
                  \ltiisubtype{\ltiT{}}{\ltiS{}}.
   }
-%  \caption{Type system for internal language:
-%  \ltitfjudgement{\ltiFuel{}}
-%                 {\ltiEnv{}}
-%                 {\ltiE{}}
-%                 {\ltiT{}}
-%                 {\ltiFuel{}}
-%                 and
-%                 \ltiifsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}{\ltiFuel{}}
-%  (abbreviated
-%   \ltitjudgement{\ltiEnv{}}
-%                 {\ltiE{}}
-%                 {\ltiT{}}
-%                 and 
-%                 \ltiisubtype{\ltiT{}}{\ltiS{}}, respectively,
-%                 when fuel
-%                 propagates directly from left-to-right through its premises
-%                 like \textsc{I-UApp}).
-%  }
   \label{symbolic:figure:internal-language-type-system}
 \end{figure}
 
@@ -1675,7 +1601,7 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
     \infer[SC-Closure]
     {
-    \ltitfjudgement{\ltiFuel{}}
+    \lticfjudgement{\ltiFuel{}}
                    {\ltiEnv{},\ova{\ltitvar{}}, \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}}}
                    {\ltiE{}}
                    {\ltiSynChk{\ltiS{}}}
@@ -1926,7 +1852,7 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
     \infer[C-AppClosure]
     {
-    \ltitfjudgement{\ltiFuel{1}}
+    \lticfjudgement{\ltiFuel{1}}
                    {\ltiEnv{}}
                    {\ltiF{}}
                    {\ltiChk{\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}}
@@ -1940,7 +1866,7 @@ they are assumed to have the same color, and similarly for two occurrences of \l
                   \\
     \ltiFuel{3} > 0
     \\
-    \ltitfjudgement{\ltiFuel{3} - 1}
+    \lticfjudgement{\ltiFuel{3} - 1}
                    {\ltiEnvp{},\hastype{\ltivar{}}{\ltiSyn{\ltiS{}}}}
                    {\ltiEp{}}
                    {\ltiSynChk{\ltiT{}}}

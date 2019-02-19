@@ -55,6 +55,7 @@
 \newcommand\ltiTypeCaseClause[2]{\ma{#1 \Rightarrow #2}}
 \newcommand\ltiEnclosingFnType[1]{\ma{(\mathsf{EnclosingFn}\ #1)}}
 \newcommand\ltiMu[2]{\ma{\mu #1. #2}}
+\newcommand\ltiAppAll[2]{\ma{(\mathsf{App}\ #1\ #2)}}
 \newcommand\ltiUnion[1]{\ma{(\bigcup #1)}}
 \newcommand\ltiIntersection[1]{\ma{(\bigcap #1)}}
 \newbfop\ltiSeqableOp{S}
@@ -79,8 +80,6 @@
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
-% non-colored type system (internal language) with fuel
-\newcommand\ltitfjudgement[5]{\ma{#1, #2 \vdash {\hastype{#3}{#4}} \dashv #5}}
 % non-colored subtyping (deprecated)
 \newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored)
