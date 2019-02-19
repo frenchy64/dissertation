@@ -1136,19 +1136,21 @@ $$
                          \ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}} \alt
                          \ltiapp{\ltiF{}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
-                         \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}\\
-                         &\alt& \ltiann{\ltiE{}}{\ltiT{}}
+                         \ltiRec{\ova{\ltivar{} = \ltiE{}}} \alt
+                         \ltiann{\ltiE{}}{\ltiT{}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiIntersection{\ova{\ltiT{}}} \alt
-                         \ltiUnion{\ova{\ltiT{}}} \alt
-                         \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
+                         \ltiUnion{\ova{\ltiT{}}}
+                         \alt \ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}
                          \alt
-                         \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}\\
-                         &\alt& \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
+                         \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
+                         \\&\alt&
+                         \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
                          \alt \ltiEnclosingFnType{n}\\
-                         &\alt& \ltiMu{\ltitvar{}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
+                         &\alt& \ltiMu{\ltitvar{}}{\ltiT{}}
                          \alt \ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
+                         \alt \ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
@@ -1160,7 +1162,7 @@ $$
 
 \end{array}
 $$
-\caption{Internal Language Syntax (\ltiFsub with records)}
+\caption{Internal Language Syntax}
 \label{symbolic:figure:internal-language}
 \end{figure}
 
@@ -1210,7 +1212,7 @@ and concatenation
     \infer [(I-Abs)]
     { 
     \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
-    \\
+    \\\\
     \lticheckFn{\ltiEnclosingFnStack{}}
                {\ltiEnv{}}
                {\ltivar{}}
@@ -1225,34 +1227,22 @@ and concatenation
 
     \infer [(I-App)]
     {
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiF{}}
-                  {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
-                  \\
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiSp{}}
-                  \\
-    \ltiisubtype{\ltiSp{}}{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}
+                     {\ltiEnv{}}
+                     {\ltiF{}}
+                     {\ltiT{}}
+                  \\\\
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}
+                     {\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiS{}}
+                  \\\\
+    \lticheckApp{\ltiT{}}{\ltiS{}}{\ltiTp{}}
     }
     {
     \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
-                  {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
-    }
-
-    \infer [($\text{I-App}_{\ltiBot}$)]
-    {
-    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
-                  {\ltiBot}
-                  \\
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiR{}}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\overline{\ltiT{}}}{\ltiE{}}}
-                  {\ltiBot}
+                     {\ltiapp{\ltiF{}}{\ltiE{}}}
+                     {\ltiTp{}}
     }
 
     \infer [(I-Sel)]
@@ -1411,8 +1401,8 @@ and concatenation
     \infer[]
     {
     \overrightarrow{
-    \ltitstkjudgement{\ltiFn{\ltiT{}}{\ltiS{}}, \ltiEnclosingFnStack{}}
-                     {\ova{\ltitvar{}}, \hastype{\ltivar{}}{\ltiT{}}, \ltiEnv{}}
+    \ltitstkjudgement{\ltiFn{\ltiT{}}{\ltiS{}} :: \ltiEnclosingFnStack{}}
+                     {\hastype{\ltivar{}}{\ltiT{}} :: \ltiEnv{}}
                      {\ltiE{}}
                      {\ltiS{}}
                      }
@@ -1421,7 +1411,7 @@ and concatenation
                 {\ltiEnv{}}
                 {\ltivar{}}
                 {\ltiE{}}
-                {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}}
+                {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
                 }
 
     \infer[]
@@ -1482,6 +1472,20 @@ and concatenation
                 {\ltivar{}}
                 {\ltiE{}}
                 {\ltiMu{\ltitvar{}}{\ltiT{}}}
+                }
+
+    \infer[]
+    { \lticheckFn{\ltiEnclosingFnStack{}}
+                 {\ova{\ltitvar{}}::\ltiEnv{}}
+                 {\ltivar{}}
+                 {\ltiE{}}
+                 {\ltiT{}}
+                 }
+    {\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                 }
 
 
