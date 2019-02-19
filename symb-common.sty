@@ -10,14 +10,15 @@
 \newmeta\ltiF{f}
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
-\newcommand\ltifunmono[3]{\ma{\abs{#1}{#2}{#3}}}
+\newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
+\newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 %\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
 \newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
+\newcommand\ltiann[2]{\ma{(\textsf{ann}\ #1\ #2)}}
 \newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
-\newcommand\ltireannotatelhs[3]{\ma{\metafunctionfont{rechk}(#1,#2,#3)}}
 \newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
 \newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
 \newcommand\ltiALPHA{\alpha}
@@ -46,14 +47,24 @@
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
+\newmeta\ltiEnclosingFnStack{\ma{\Sigma}}
 \newmeta\ltiWild{?}
 \newcommand\ltiTop{\ma{\top}}
 \newcommand\ltiBot{\ma{\bot}}
+\newcommand\ltiTypeCase[2]{\ma{(\mathsf{TypeCase}\ #1\ #2)}}
+\newcommand\ltiTypeCaseClause[2]{\ma{#1 \Rightarrow #2}}
+\newcommand\ltiEnclosingFnType[1]{\ma{(\mathsf{EnclosingFn}\ #1)}}
+\newcommand\ltiMu[2]{\ma{\mu #1. #2}}
+\newcommand\ltiUnion[1]{\ma{(\bigcup #1)}}
+\newcommand\ltiIntersection[1]{\ma{(\bigcap #1)}}
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
 \newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
+\newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
+\newcommand\ltiIFn[1]{\ma{(\textsf{IFn} #1)}}
+\newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
 \newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
 \newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}
 \newcommand\ltiClosure[2]{\ma{#1 @ #2}}

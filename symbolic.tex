@@ -635,36 +635,9 @@ identical code and scope.
 
 We formalize symbolic closure types in the style of local type inference~\cite{PierceLTI}
 enhanced with colored types~\cite{coloredlti01}.
-Like those papers, we define an internal and an external language,
+Like those papers, we define separate internal and an external languages,
 such that the external compiles to the internal by inferring 
 and inserting local type arguments.
-Unlike those papers,
-we have a peculiar relationship between the two languages:
-they are \emph{mutually recursive}.
-
-We can better understand this issue by reviewing the idea of
-a syntactic elaboration phase before type checking,
-one of the more influential applications of which is
-the intuition behind
-Milner's let-polymorphism~\cite{milner1978theory}.
-There, a program type checks
-as if every let-binding is inlined
-with a copy of its bound expression.
-This elaboration phase (conceptually) happens
-before type checking, but is never repeated.
-
-In our system, the introduction of symbolic closure types requires a similar
-intuition except copies of un-elaborated code
-are saved
-to check later
-(similar to how runtime closures save their code to be applied later).
-Now, the elaboration is sprinkled across our system:
-the line between internal and external
-languages is blurred because compiling the external language
-to the internal language may also insert terms from the
-external language (that, for example, may require the external language's
-local type argument inference to type check)
-via symbolic closure types.
 
 %Using fuel, we can ensure that type-checking in the external language always terminates.
 %Then, if type-checking is successful, we know that a finite
@@ -1164,23 +1137,30 @@ intersection,
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifun{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}} \alt
-                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
+                         \ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}} \alt
+                         \ltiapp{\ltiF{}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
-                         \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}
-                         \\&\alt& \ltireannotatelhs{\ltiEnv{}}{\ltiT{}}{\ltiE{}}
+                         \ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}\\
+                         &\alt& \ltiann{\ltiE{}}{\ltiT{}}
                       &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
-                         \ltiTop \alt
-                         \ltiBot \alt
-                         \ltiArrow{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}} \alt
-                         \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}
+                         \ltiIntersection{\ova{\ltiT{}}} \alt
+                         \ltiUnion{\ova{\ltiT{}}} \alt
+                         \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ova{\ltiT{}}}{\ltiT{}}}}}
+                         \alt
+                         \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}\\
+                         &\alt& \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
+                         \alt \ltiEnclosingFnType{n}
+                         \alt \ltiMu{\ltitvar{}}{\ltiT{}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
                   \ltitvar{} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
+  \ltiEnclosingFnStack{} &::=& \ova{\ltiT{}}
+                      &\mbox{Enclosing Function Stack} \\
+
 \end{array}
 $$
 \caption{Internal Language Syntax (\ltiFsub with records)}
@@ -1240,18 +1220,6 @@ and concatenation
                   {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
                   {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
                  }
-
-    \infer[(I-ReChk)]
-    { 
-    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                  {\ltiE{}}
-                  {\ltiS{}}
-    }
-    {
-    \ltitjudgement{\ltiEnvp{}}
-                  {\ltireannotatelhs{\ltiEnv{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiArrowMono{\ltiT{}}{\ltiS{}}}
-    }
 
     \infer [(I-App)]
     {
