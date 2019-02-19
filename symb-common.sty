@@ -80,12 +80,8 @@
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % non-colored type system (internal language)
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
-% non-colored subtyping (deprecated)
-\newcommand\ltisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 % subtype for internal types (not colored)
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
-% subtype for internal types (not colored) with fuel
-\newcommand\ltiifsubtype[4]{\ma{#1 \vdash #2 \mathbin{<:} #3 \dashv #4}}
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for colored (external) types 
 \newcommand\lticsubtype[2]{\ma{#1 \lticsubtypesymbol #2}}
