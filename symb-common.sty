@@ -73,26 +73,32 @@
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
 % type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
-% colored type system (external language)
+% external type system
 \newcommand\lticjudgementvdash{\ma{\vdash^{c}}}
 \newcommand\lticjudgement[3]{\ma{#1 \lticjudgementvdash {\hastype{#2}{#3}}}}
-% colored type system (external language) with fuel
+% external type system with fuel
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
-% non-colored type system (internal language)
+% internal type system
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
-% subtype for internal types (not colored)
+% internal type system with enclosed fn stack
+\newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1,#2}{#3}{#4}}}
+% subtype for internal types
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 \newcommand\lticsubtypesymbol{\ma{\leq}}
-% subtype for colored (external) types 
+% subtype for external types 
 \newcommand\lticsubtype[2]{\ma{#1 \lticsubtypesymbol #2}}
-% subtype for colored (external) types, with fuel
+% subtype for external types, with fuel
 \newcommand\lticfsubtype[4]{\ma{#1 \vdash #2 \lticsubtypesymbol #3 \dashv #4}}
 % can't be used in a caption
 \newcommand\ltiinvertedleq{\ma{\mathrel{\raisebox{.1em}{\reflectbox{\rotatebox[origin=c]{180}{$\leq$}}}}}}
-% subtype for colored (external) types but inverted colors
+% subtype for external types but inverted colors
 \newcommand\lticsubtypeinv[2]{\ma{#1 \ltiinvertedleq #2}}
-% subtype for colored (external) types but inverted colors with fuel
+% subtype for external types but inverted colors with fuel
 \newcommand\lticfsubtypeinv[4]{\ma{#1 \vdash #2 \ltiinvertedleq #3 \dashv #4}}
+% expand EnclosingFn in internal language
+\newcommand\ltiexpandEnclosingFn[3]{\ma{\texttt{expandEF}(#1, #2) = #3}}
+% Stack Env x e t
+\newcommand\lticheckFn[5]{\ma{\texttt{checkFn}(#1, #2, #3, #4, #5)}}
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}

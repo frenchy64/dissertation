@@ -1201,36 +1201,41 @@ and concatenation
     \infer [(I-Var)]
     {}
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltivar{}}
-                  {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}
+                     {\ltiEnv{}}
+                    {\ltivar{}}
+                    {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                  }
 
     \infer [(I-Abs)]
     { 
-    \ltitjudgement{\ltiEnv{},\overline{\ltitvar{}},\hastype{\ltivar{}}{\ltiT{}}}
-                 {\ltiE{}}
-                 {\ltiS{}}
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
+    \\
+    \lticheckFn{\ltiEnclosingFnStack{}}
+               {\ltiEnv{}}
+               {\ltivar{}}
+               {\ltiE{}}
+               {\ltiTp{}}
     }
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltifun{\overline{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiE{}}}
-                  {\ltiArrow{\ltiT{}}{\overline{\ltitvar{}}}{\ltiS{}}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                  {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
+                  {\ltiTp{}}
                  }
 
     \infer [(I-App)]
     {
-    \ltitjudgement{\ltiEnv{}}{\ltiF{}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiF{}}
                   {\ltiArrow{\ltiS{}}{\overline{\ltitvar{}}}{\ltiT{}}}
                   \\
-    \ltitjudgement{\ltiEnv{}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiSp{}}
                   \\
     \ltiisubtype{\ltiSp{}}{\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiS{}}}
     }
     {
-    \ltitjudgement{\ltiEnv{}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
                   {\ltiappinst{\ltiF{}}{\overline{\ltiR{}}}{\ltiE{}}}
                   {\ltireplace{\overline{\ltiR{}}}{\overline{\ltitvar{}}}{\ltiT{}}}
     }
