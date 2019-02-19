@@ -55,7 +55,8 @@
 \newcommand\ltiTypeCaseClause[2]{\ma{#1 \Rightarrow #2}}
 \newcommand\ltiEnclosingFnType[1]{\ma{(\mathsf{EnclosingFn}\ #1)}}
 \newcommand\ltiMu[2]{\ma{\mu #1. #2}}
-\newcommand\ltiAppAll[2]{\ma{(\mathsf{App}\ #1\ #2)}}
+\newcommand\ltiAppAllOne[1]{\ma{(\mathsf{App}\ #1)}}
+\newcommand\ltiAppAll[2]{\ma{\ltiAppAllOne{#1\ #2}}}
 \newcommand\ltiUnion[1]{\ma{(\bigcup #1)}}
 \newcommand\ltiIntersection[1]{\ma{(\bigcap #1)}}
 \newbfop\ltiSeqableOp{S}
@@ -81,7 +82,7 @@
 % internal type system
 \newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
 % internal type system with enclosed fn stack
-\newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1,#2}{#3}{#4}}}
+\newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1;#2}{#3}{#4}}}
 % subtype for internal types
 \newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
 \newcommand\lticsubtypesymbol{\ma{\leq}}
@@ -96,7 +97,9 @@
 % subtype for external types but inverted colors with fuel
 \newcommand\lticfsubtypeinv[4]{\ma{#1 \vdash #2 \ltiinvertedleq #3 \dashv #4}}
 % expand EnclosingFn in internal language
-\newcommand\ltiexpandEnclosingFn[3]{\ma{\texttt{expandEF}(#1, #2) = #3}}
+\newcommand\ltiexpandEnclosingFnLHS[2]{\ma{\texttt{res}(#1, #2)}}
+\newcommand\ltiexpandEnclosingFn[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} = #3}}
+\newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}
 % Stack Env x e t
 \newcommand\lticheckFn[5]{\ma{\texttt{checkFn}(#1, #2, #3, #4, #5)}}
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}

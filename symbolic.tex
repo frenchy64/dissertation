@@ -1142,12 +1142,12 @@ $$
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
                          \ltiIntersection{\ova{\ltiT{}}} \alt
                          \ltiUnion{\ova{\ltiT{}}} \alt
-                         \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ova{\ltiT{}}}{\ltiT{}}}}}
+                         \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
                          \alt
                          \ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}\\
                          &\alt& \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
                          \alt \ltiEnclosingFnType{n}\\
-                         &\alt& \ltiMu{\ltitvar{}}{\ltiIFn{\ova{\ltiFn{\ova{\ltiT{}}}{\ltiT{}}}}}
+                         &\alt& \ltiMu{\ltitvar{}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
                          \alt \ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
@@ -1343,7 +1343,6 @@ and concatenation
     \ltiisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
                {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
     }
-
   \end{mathpar}
   \caption{Type system for internal language:
    \ltitjudgement{\ltiEnv{}}
@@ -1353,6 +1352,142 @@ and concatenation
                  \ltiisubtype{\ltiT{}}{\ltiS{}}.
   }
   \label{symbolic:figure:internal-language-type-system}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \begin{array}{rcl}
+      \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiT{}}\\\\
+
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiIntersection{\ova{\ltiT{}}}}
+                                {\ltiIntersection{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiUnion{\ova{\ltiT{}}}}
+                                {\ltiUnion{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}}
+                                {\ltiPoly{\ova{\ltitvar{}}}
+                                         {\ltiIFn{\ova{\ltiFn{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}
+                                                             {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{}}}}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
+                                {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiTypeCase{\ltiT{}}
+                                             {\ova{\ltiTypeCaseClause{\ltiS{i}}
+                                                                     {\ltiSp{i}}}}}
+                                {\ltiIntersection{\ova{\ltiTp{i}}}}
+                                \\
+                                &&\text{where }
+                                   \ltiTp{i} = 
+                                   \left\{
+                                   \begin{array}{ll}
+                                     \ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiSp{i}}, & \text{if }
+                                               \ltiisubtype
+                                                {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}
+                                                {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{i}}}
+                                                \\
+                                                \ltiTop{}, &\text{otherwise}
+                                   \end{array}
+                                   \right.
+                                                \\
+      \ltiexpandEnclosingFnalign{[\ltiT{1}, ..., \ltiT{i}, ..., \ltiT{n}]}
+                                {\ltiEnclosingFnType{i}}
+                                {\ltiT{i}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiMu{\ltitvar{}}
+                                       {\ltiIFn{\ova{\ltiFn{\ltiS{}}
+                                                           {\ltiT{}}}}}}
+                                {\ltiMu{\ltitvar{}}
+                                       {\ltiIFn{\ova{\ltiFn{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{}}}
+                                                           {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiAppAllOne{\ova{\ltiT{}}}}
+                                {\ltiAppAllOne{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
+    \end{array}
+
+    \infer[]
+    {
+    \overrightarrow{
+    \ltitstkjudgement{\ltiFn{\ltiT{}}{\ltiS{}}, \ltiEnclosingFnStack{}}
+                     {\ova{\ltitvar{}}, \hastype{\ltivar{}}{\ltiT{}}, \ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiS{}}
+                     }
+                 }
+    {\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}}
+                }
+
+    \infer[]
+    { \exists i.
+      \lticheckFn{\ltiEnclosingFnStack{}}
+                 {\ltiEnv{}}
+                 {\ltivar{}}
+                 {\ltiE{}}
+                 {\ltiT{i}}
+                 }
+    {\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiUnion{\ova{\ltiT{i}}}}
+                }
+
+    \infer[]
+    { \overrightarrow{
+        \lticheckFn{\ltiEnclosingFnStack{}}
+                   {\ltiEnv{}}
+                   {\ltivar{}}
+                   {\ltiE{}}
+                   {\ltiT{}}
+                   }
+                   }
+    {\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiIntersection{\ova{\ltiT{}}}}
+                }
+
+    \infer[]
+    { \lticheckFn{\ltiEnclosingFnStack{}}
+                 {\ltiEnv{}}
+                 {\ltivar{}}
+                 {\ltiE{}}
+                 {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                 }
+    {\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                           {\ova{\ltiS{}}}}
+                }
+
+    \infer[]
+    { \lticheckFn{\ltiEnclosingFnStack{}}
+                 {\ltiEnv{}}
+                 {\ltivar{}}
+                 {\ltiE{}}
+                 {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
+                 }
+    {\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiMu{\ltitvar{}}{\ltiT{}}}
+                }
+
+
+  \end{mathpar}
+
+  \caption{Metafunctions for internal language}
 \end{figure}
 
 \figref{symbolic:figure:internal-language-type-system}
