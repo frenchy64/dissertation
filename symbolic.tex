@@ -1159,6 +1159,8 @@ $$
                       &\mbox{Environments} \\
   \ltiEnclosingFnStack{} &::=& \ova{\ltiT{}}
                       &\mbox{Enclosing Function Stack} \\
+  \ltiSubtypeSeen{} &::=& \ova{\ltiSeenEntry{\ltiT{}}{\ltiT{}}}
+                      &\mbox{Subtype Seen List} \\
 
 \end{array}
 $$
@@ -1200,7 +1202,7 @@ and concatenation
 
 \begin{figure}
   \begin{mathpar}
-    \infer [(I-Var)]
+    \infer [I-Var]
     {}
     {
     \ltitstkjudgement{\ltiEnclosingFnStack{}}
@@ -1209,7 +1211,7 @@ and concatenation
                     {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                  }
 
-    \infer [(I-Abs)]
+    \infer [I-Abs]
     { 
     \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
     \\\\
@@ -1225,7 +1227,21 @@ and concatenation
                   {\ltiTp{}}
                  }
 
-    \infer [(I-App)]
+    \infer [I-Ann]
+    { 
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
+    \\\\
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiTp{}}
+    }
+    {
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                  {\ltiann{\ltiE{}}{\ltiT{}}}
+                  {\ltiTp{}}
+                 }
+
+    \infer [I-App]
     {
     \ltitstkjudgement{\ltiEnclosingFnStack{}}
                      {\ltiEnv{}}
@@ -1245,101 +1261,175 @@ and concatenation
                      {\ltiTp{}}
     }
 
-    \infer [(I-Sel)]
+    \infer [I-Sel]
     {
-    \ltitjudgement{\ltiEnv{}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
                   {\ltiF{}}
-                  {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+                  {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
     }
     {
-    \ltitjudgement{\ltiEnv{}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
                   {\ltisel{\ltiF{}}{\ltivar{i}}}
                   {\ltiT{i}}
     }
 
-    \infer [($\text{I-Sel}_{\ltiBot}$)]
+    \infer [I-Rec]
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiBot}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                     {\ltiF{i}}
+                     {\ltiT{i}}
     }
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiF{}}{\ltivar{i}}}
-                  {\ltiBot}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                     {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+                     {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
     }
 
-    \infer [(I-Rec)]
+    \infer [I-Sub]
     {
-    \ltitjudgement{\ltiEnv{}}
-                 {\ltiF{1}}
-                 {\ltiT{1}}
-                 \\
-                 ...
-                 \\
-    \ltitjudgement{\ltiEnv{}}
-                 {\ltiF{n}}
-                 {\ltiT{n}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiS{}}
+                     \\
+                     \ltiisubtype{\ltiS{}}{\ltiT{}}
     }
     {
-    \ltitjudgement{\ltiEnv{}}
-                 {\ltiRec{\ltivar{1} = \ltiF{1}, ..., \ltivar{n} = \ltiF{n}}}
-                 {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiT{}}
     }
 
     %\\\\
 
-    \infer [(S-Bot)]
+    \infer [S-Refl]
     {}
     {
-    \ltiisubtype{\ltiBot}{\ltiT{}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiT{}}
     }
 
-    \infer [(S-Top)]
-    {}
+    \infer [S-Trans]
     {
-    \ltiisubtype{\ltiT{}}{\ltiTop}
-    }
-
-    \infer [(S-Var)]
-    {}
-    {
-    \ltiisubtype{\ltitvar{}}{\ltitvar{}}
-    }
-
-    \infer [(S-Rec)]
-    {
-    \ltiisubtype{\ltiT{1}}
-               {\ltiTp{1}}
-                 \\
-                 ...
-                 \\
-    \ltiisubtype{\ltiT{n}}
-               {\ltiTp{n}}
-    }
-    {
-    \ltiisubtype{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{n}},
-                        \hastype{\ltivar{n+1}}{\ltiT{1}}, ..., \hastype{\ltivar{n}}{\ltiT{m}}}}
-               {\ltiRec{\hastype{\ltivar{1}}{\ltiTp{1}}, ..., \hastype{\ltivar{n}}{\ltiTp{n}}}}
-    }
-
-    \infer [(S-FunPoly)]
-    {
-    \ltiisubtype{\ltiT{1}}{\ltiTp{1}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiTp{}}
     \\
-    \ltiisubtype{\ltiT{2}}{\ltiTp{2}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiTp{}}{\ltiT{}}
     }
     {
-    \ltiisubtype{\ltiArrow{\ltiTp{1}}{\overline{\ltitvar{}}}{\ltiT{2}}}
-               {\ltiArrow{\ltiT{1}}{\overline{\ltitvar{}}}{\ltiTp{2}}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiT{}}
     }
+
+    \infer [S-UnionL]
+    { \overrightarrow {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiUnion{\ova{\ltiT{}}}}{\ltiS{}} }
+
+    \infer [S-UnionR]
+    { \exists i. \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiT{}} {\ltiS{i}}}
+    { \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiT{}} {\ltiUnion{\ova{\ltiS{}}}}}
+
+    \infer [S-IntersectL]
+    { \exists i. \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{i}} {\ltiS{}}}
+    { \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiIntersection{\ova{\ltiT{}}}}{\ltiS{}} }
+
+    \infer [S-IntersectR]
+    { \overrightarrow {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiIntersection{\ova{\ltiS{}}}} }
+
+    \infer [S-Rec]
+    {
+    \overrightarrow{\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}},
+                             \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
+                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiS{}}}}}
+    }
+
+    \infer [S-Poly]
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}
+                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiS{}}}
+    }
+
+    \infer [S-MuL]
+    {
+     \ltiSeenEntry{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltiS{}} \in \ltiSubtypeSeen{}
+     \\\\
+    \text{ or }
+     \\\\
+    \ltiisubtypeseen{\ltiSeenConcat{\ltiSeenEntry{\ltiMu{\ltitvar{}}{\ltiT{}}}
+                                                 {\ltiS{}}}
+                                   {\ltiSubtypeSeen{}}}
+                    {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}{\ltiS{}}
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiMu{\ltitvar{}}{\ltiT{}}}
+                    {\ltiS{}}
+    }
+
+    \infer [S-MuR]
+    {
+     \ltiSeenEntry{\ltiS{}}{\ltiMu{\ltitvar{}}{\ltiT{}}} \in \ltiSubtypeSeen{}
+     \\\\
+    \text{ or }
+     \\\\
+    \ltiisubtypeseen{\ltiSeenConcat{\ltiSeenEntry{\ltiS{}}
+                                                 {{\ltiMu{\ltitvar{}}{\ltiT{}}}}}
+                                   {\ltiSubtypeSeen{}}}
+                    {\ltiS{}}
+                    {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiS{}}
+                    {\ltiMu{\ltitvar{}}{\ltiT{}}}
+    }
+
+    \infer [S-AppR]
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+                    {\ltiT{}}
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+                    {\ltiAppAll{\ltiT{}}{\ova{\ltiS{}}}}
+    }
+
+    \infer [S-AppL]
+    {
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
+                    {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+    }
+
+    % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
+    \infer [S-IFn]
+    { \forall i \in 1...n.
+        \exists j \in 1...m.
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{i}}{\ltiSp{j}}
+          \wedge
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{j}}{\ltiTp{i}}
+    }
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                      {\ltiIFn{\ova{\ltiFn{\ltiSp{}}{\ltiT{}}}^m}}
+                      {\ltiIFn{\ova{\ltiFn{\ltiS{}}{\ltiTp{}}}^n}}
+                   }
   \end{mathpar}
   \caption{Type system for internal language:
-   \ltitjudgement{\ltiEnv{}}
-                 {\ltiE{}}
-                 {\ltiT{}}
+   \ltitstkjudgement{\ltiEnclosingFnStack{}}
+                    {\ltiEnv{}}
+                    {\ltiE{}}
+                    {\ltiT{}}
                  and 
-                 \ltiisubtype{\ltiT{}}{\ltiS{}}.
+                 \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}.
   }
   \label{symbolic:figure:internal-language-type-system}
 \end{figure}
@@ -1356,10 +1446,12 @@ and concatenation
                                 {\ltiUnion{\ova{\ltiT{}}}}
                                 {\ltiUnion{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
-                                {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}}
-                                {\ltiPoly{\ova{\ltitvar{}}}
-                                         {\ltiIFn{\ova{\ltiFn{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}
-                                                             {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{}}}}}}}\\
+                                {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                                {\ltiPoly{\ova{\ltitvar{}}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}\\
+      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+                                {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                                {\ltiIFn{\ova{\ltiFn{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}
+                                                    {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{}}}}}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
                                 {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
                                 {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}}\\
@@ -1378,7 +1470,7 @@ and concatenation
                                                 {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}
                                                 {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{i}}}
                                                 \\
-                                                \ltiTop{}, &\text{otherwise}
+                                                \ltiTop, &\text{otherwise}
                                    \end{array}
                                    \right.
                                                 \\
@@ -1387,11 +1479,9 @@ and concatenation
                                 {\ltiT{i}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
                                 {\ltiMu{\ltitvar{}}
-                                       {\ltiIFn{\ova{\ltiFn{\ltiS{}}
-                                                           {\ltiT{}}}}}}
+                                       {\ltiT{}}}
                                 {\ltiMu{\ltitvar{}}
-                                       {\ltiIFn{\ova{\ltiFn{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{}}}
-                                                           {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}}}\\
+                                       {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
                                 {\ltiAppAllOne{\ova{\ltiT{}}}}
                                 {\ltiAppAllOne{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
@@ -1401,8 +1491,8 @@ and concatenation
     \infer[]
     {
     \overrightarrow{
-    \ltitstkjudgement{\ltiFn{\ltiT{}}{\ltiS{}} :: \ltiEnclosingFnStack{}}
-                     {\hastype{\ltivar{}}{\ltiT{}} :: \ltiEnv{}}
+    \ltitstkjudgement{\ltiStackConcat{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}{\ltiEnclosingFnStack{}}}
+                     {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
                      {\ltiE{}}
                      {\ltiS{}}
                      }
@@ -1476,7 +1566,7 @@ and concatenation
 
     \infer[]
     { \lticheckFn{\ltiEnclosingFnStack{}}
-                 {\ova{\ltitvar{}}::\ltiEnv{}}
+                 {\ltiEnvConcat{\ova{\ltitvar{}}}{\ltiEnv{}}}
                  {\ltivar{}}
                  {\ltiE{}}
                  {\ltiT{}}
@@ -1487,8 +1577,63 @@ and concatenation
                 {\ltiE{}}
                 {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                 }
+                \\
+    \infer[]
+    { \ltiSp{i} = \left\{
+                     \begin{array}{ll}
+                       \ltiS{i}, &\text{ if } \ltiisubtype{\ltiTp{}}{\ltiT{i}} \arcr
+                       \ltiTop,  &\text{ otherwise}
+                     \end{array}
+                   \right.
+                 }
+    {\lticheckApp{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                 {\ltiTp{}}
+                 {\ltiIntersection{\ova{\ltiSp{}}}}
+                }
 
+    \infer[]
+    { \overrightarrow{\lticheckApp{\ltiT{}}
+                                  {\ltiS{}}
+                                  {\ltiSp{}}}
+                 }
+    {\lticheckApp{\ltiUnion{\ova{\ltiT{}}}}
+                 {\ltiS{}}
+                 {\ltiUnion{\ova{\ltiSp{}}}}
+                }
 
+    \infer[]
+    { \ltiSp{i} = \left\{
+                     \begin{array}{ll}
+                       \ltiTp{i}, &\text{ if } \lticheckApp{\ltiT{i}}{\ltiS{}}{\ltiTp{i}} \arcr
+                       \ltiTop,  &\text{ otherwise}
+                     \end{array}
+                   \right.
+                 }
+    {\lticheckApp{\ltiIntersection{\ova{\ltiT{}}}}
+                 {\ltiS{}}
+                 {\ltiIntersection{\ova{\ltiSp{}}}}
+                }
+
+    \infer[]
+    {\lticheckApp{\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                 {\ltiS{}}
+                 {\ltiSp{}}
+                }
+    {\lticheckApp{\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                            {\ova{\ltiS{}}}}
+                 {\ltiS{}}
+                 {\ltiSp{}}
+                }
+
+    \infer[]
+    {\lticheckApp{\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
+                 {\ltiS{}}
+                 {\ltiSp{}}
+                }
+    {\lticheckApp{\ltiMu{\ltitvar{}}{\ltiT{}}}
+                 {\ltiS{}}
+                 {\ltiSp{}}
+                }
   \end{mathpar}
 
   \caption{Metafunctions for internal language}
@@ -1501,7 +1646,67 @@ The main judgment
 says that expression \ltiE{} is of type \ltiT{}
 in environment \ltiEnv{}.
 
-\subsection{External Language}
+\subsection{Symbolic closure language}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
+                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
+                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
+                         \ltisel{\ltiE{}}{\ltivar{}} \alt
+                         \ltiRec{\ova{\ltivar{} = \ltiE{}}}
+                      &\mbox{Terms} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
+                         \ltiIntersection{\ova{\ltiT{}}} \alt
+                         \ltiUnion{\ova{\ltiT{}}}
+                         \alt 
+                         \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
+                      &\mbox{Types} \\
+  \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
+                  \ltiEmptyEnv{} \alt
+                  \ltitvar{} \alt
+                  \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
+                      &\mbox{Environments} \\
+  \ltiEnclosingFnStack{} &::=& \ova{\ltiT{}}
+                      &\mbox{Enclosing Function Stack} \\
+\end{array}
+$$
+\caption{Symbolic Closure Language Syntax}
+\label{symbolic:figure:SC-language-syntax}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [Var]
+    {}
+    {
+    \ltitSstkjudgement{\ltiFuel{}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltivar{}}
+                      {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+                      {\ltiFuel{}}
+                      {\ltivar{}}
+                 }
+  \end{mathpar}
+  \caption{Type system for Symbolic Closure Language:
+   \ltitSstkjudgement{\ltiFuel{}}
+                     {\ltiEnclosingFnStack{}}
+                     {\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     {\ltiFuelp{}}
+                     {\ltiF{}}
+                 and 
+                 \ltiSsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}.
+  }
+  \label{symbolic:figure:SC-language-type-system}
+\end{figure}
+
+\subsection{External Language with type-argument synthesis}
+
+\subsection{External Language with bidirectional checking}
 
 \begin{figure}
 $$
@@ -1864,25 +2069,17 @@ they are assumed to have the same color, and similarly for two occurrences of \l
 
     \infer [(C-Rec)]
     {
-    \lticfjudgement{\ltiFuel{1}}
+    \lticfjudgement{\ltiFuel{i}}
                   {\ltiEnv{}}
-                  {\ltiE{1}}
-                  {\ltiSynChk{\ltiT{1}}}
-                  {\ltiFuel{2}}
-                 \\
-                 ...
-                 \\
-    \lticfjudgement{\ltiFuel{n}}
-                  {\ltiEnv{}}
-                  {\ltiE{n}}
-                  {\ltiSynChk{\ltiT{n}}}
-                  {\ltiFuel{n+1}}
+                  {\ltiE{i}}
+                  {\ltiSynChk{\ltiT{i}}}
+                  {\ltiFuel{i+1}}
     }
     {
     \lticfjudgement{\ltiFuel{1}}
                   {\ltiEnv{}}
-                  {\ltiRec{\ltivar{1} = \ltiE{1}, ..., \ltivar{n} = \ltiE{n}}}
-                  {\ltiSyn{\ltiRec{\hastype{\ltivar{1}}{\ltiSynChk{\ltiT{1}}}, ..., \hastype{\ltivar{n}}{\ltiSynChk{\ltiT{n}}}}}}
+                  {\ltiRec{\ova{\ltivar{} = \ltiE{}}^n}}
+                  {\ltiSyn{\ltiRec{\ova{\hastype{\ltivar{}}{\ltiSynChk{\ltiT{}}}}^n}}}
                   {\ltiFuel{n+1}}
     }
 

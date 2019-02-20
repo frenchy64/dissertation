@@ -4,7 +4,15 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 
+% support nesting arrays in mathpartir rules.
+% this defines a command \arcr that is like \\ for inner arrays.
+% from: https://gist.github.com/lambdageek/075ea17f362bc455467a
+\makeatletter % allow us to mention @-commands
+\def\arcr{\@arraycr}
+\makeatother
+
 \newmeta\ltivar{x}
+\newmeta\ltivarp{x'}
 \newmeta\ltiE{\esope}
 \newmeta\ltiEp{\esope'}
 \newmeta\ltiF{f}
@@ -47,7 +55,8 @@
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
-\newmeta\ltiEnclosingFnStack{\ma{\Sigma}}
+\newmeta\ltiEnclosingFnStack{\ma{S}}
+\newmeta\ltiSubtypeSeen{\ma{R}}
 \newmeta\ltiWild{?}
 \newcommand\ltiTop{\ma{\top}}
 \newcommand\ltiBot{\ma{\bot}}
@@ -62,6 +71,9 @@
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
 \newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
+\newcommand\ltiStackConcat[2]{\ma{#1 , #2}}
+\newcommand\ltiSeenConcat[2]{\ma{#1 , #2}}
+\newcommand\ltiSeenEntry[2]{\ma{[#1 , #2]}}
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
@@ -79,12 +91,30 @@
 \newcommand\lticjudgement[3]{\ma{#1 \lticjudgementvdash {\hastype{#2}{#3}}}}
 % external type system with fuel
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
+
+\newcommand\ltisubtypeseparator{\ma{\leq}}
+
+%% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
+\newcommand\ltiinternallabel{\ma{\text{I}}}
+\newcommand\ltiinternalvdash{\ma{\vdash_{\ltiinternallabel}}}
 % internal type system
-\newcommand\ltitjudgement[3]{\ma{#1 \vdash {\hastype{#2}{#3}}}}
+\newcommand\ltitjudgement[3]{\ma{#1 \ltiinternalvdash {\hastype{#2}{#3}}}}
 % internal type system with enclosed fn stack
 \newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1;#2}{#3}{#4}}}
+% subtype for internal types with `seen` set
+\newcommand\ltiisubtypeseen[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
 % subtype for internal types
-\newcommand\ltiisubtype[2]{\ma{#1 \mathbin{<:} #2}}
+\newcommand\ltiisubtype[2]{\ma{\ltiisubtypeseen{}{#1}{#2}}}
+
+%% symbolic closure language (no bidirectional type checking or type argument synthesis)
+\newcommand\ltisclanglabel{\ma{\text{S}}}
+\newcommand\ltisclangvdash{\ma{\vdash_{\ltiinternallabel}}}
+% symbolic closure type system, with enclosed fn stack
+% Fuel Stack Env |- E : T ; Fuel ; E
+\newcommand\ltitSstkjudgement[7]{\ma{#1 ; #2 ; #3 \ltisclangvdash {\hastype{#4}{#5}} ; #6 ; #7}}
+% subtype for symbolic closure language types
+\newcommand\ltiSsubtype[3]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3}}
+
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 
 \newcommand\lticsubtype[2]{\ma{#1 \lticsubtypesymbol #2}}
@@ -103,7 +133,7 @@
 % Stack Env x e t
 \newcommand\lticheckFn[5]{\ma{\texttt{chkFn}(#1, #2, #3, #4, #5)}}
 % t t -> t
-\newcommand\lticheckApp[3]{\ma{\texttt{chkApp}(#1, #2) = #3}}
+\newcommand\lticheckApp[3]{\ma{\texttt{synApp}(#1, #2) = #3}}
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
