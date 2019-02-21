@@ -69,6 +69,7 @@
 \newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Sigma}}
 \newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
 \newmeta\ltiCombinedThreadedEnvp{\ltiCombinedThreadedEnvsymbol'}
+\newmeta\ltiCombinedThreadedEnvpp{\ltiCombinedThreadedEnvsymbol''}
 \newcommand\ltimakeCombinedThreadedEnv[2]{\ma{(#1 ; #2)}}
 
 % combined stack environments
@@ -144,7 +145,8 @@
 % CombinedThreadedEnv Stack Env |- E : T ; CombinedThreadedEnv ; E*
 \newcommand\ltitSstkjudgement[7]{\ma{#1 ; #2 ; #3 \ltisclangvdash {\hastype{#4}{#5}} ; #6 ; #7}}
 % subtype for symbolic closure language types
-\newcommand\ltiSsubtype[3]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3}}
+% ThreadedEnv T T => T ThreadedEnv
+\newcommand\ltiSsubtype[4]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3 ; #4}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\texttt{mrgTags}(#1, #2)}}
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
 \newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} &=& #3}}

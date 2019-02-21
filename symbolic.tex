@@ -1599,7 +1599,10 @@ and concatenation
                 }}
                 \\
     \infer[]
-    { \ltiSp{i} = \left\{
+    { 
+     \exists i. \ltiisubtype{\ltiTp{}}{\ltiT{i}}
+      \\
+      \ltiSp{i} = \left\{
                      \begin{array}{ll}
                        \ltiS{i}, &\text{ if } \ltiisubtype{\ltiTp{}}{\ltiT{i}} \arcr
                        \ltiTop,  &\text{ otherwise}
@@ -1622,7 +1625,9 @@ and concatenation
                 }
 
     \infer[]
-    { \ltiSp{i} = \left\{
+    { \exists i. \lticheckApp{\ltiT{i}}{\ltiS{}}{\ltiTp{i}}
+      \\
+      \ltiSp{i} = \left\{
                      \begin{array}{ll}
                        \ltiTp{i}, &\text{ if } \lticheckApp{\ltiT{i}}{\ltiS{}}{\ltiTp{i}} \arcr
                        \ltiTop,  &\text{ otherwise}
@@ -1813,7 +1818,7 @@ $$
                      {\ltiCombinedThreadedEnv{}}
                      {\ltiEl{}}
                  and 
-                 \ltiSsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}.
+                 \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiS{}}{\ltiCombinedThreadedEnv{}}.
   }
   \label{symbolic:figure:SC-language-type-system}
 \end{figure}
@@ -1875,6 +1880,86 @@ $$
                                      \\
   \end{array}
   $$
+  \begin{mathpar}
+    \infer[]
+    {}
+    {\boxed{\lticheckAppSC{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiT{}}{\ltiT{}}{\ltiCombinedThreadedEnv{}}
+                }}
+                \\
+    \infer[]
+    { 
+      1 \leq i \leq n
+      \\\\
+     \exists i. \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiTp{}}{\ltiT{i}}{\ltiCombinedThreadedEnvpp{i}}
+    \\\\
+      (\ltiSp{i}, \ltiCombinedThreadedEnvp{i})
+        = \left\{
+                     \begin{array}{ll}
+                       (\ltiS{i},\ltiCombinedThreadedEnv{i})
+                       , &\text{if } \ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
+                                                  {\ltiTp{}}
+                                                  {\ltiT{i}}
+                                                  {\ltiCombinedThreadedEnv{i}}
+                                                  \arcr
+                       (\ltiTop, \ltiCombinedThreadedEnv{i-1})  &\text{otherwise}
+                     \end{array}
+                   \right.
+                 }
+    {\lticheckAppSC{\ltiCombinedThreadedEnv{0}}
+                   {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
+                   {\ltiTp{}}
+                   {\ltiIntersection{\ova{\ltiSp{}}}}
+                   {\ltiCombinedThreadedEnvp{n}}
+                }
+
+    \infer[]
+    { 1 \leq i \leq n
+      \\\\
+      \lticheckAppSC{\ltiCombinedThreadedEnv{i-1}}
+                    {\ltiT{i}}
+                    {\ltiS{}}
+                    {\ltiSp{i}}
+                    {\ltiCombinedThreadedEnv{i}}
+                  }
+    {\lticheckAppSC{\ltiCombinedThreadedEnv{0}}
+                   {\ltiUnion{\ova{\ltiT{}}^n}}
+                   {\ltiS{}}
+                   {\ltiUnion{\ova{\ltiSp{}}^n}}
+                   {\ltiCombinedThreadedEnv{n}}
+                }
+
+    \infer[]
+    { 1 \leq i \leq n
+      \\
+      \exists i. \lticheckAppSC{\ltiCombinedThreadedEnv{0}}
+                               {\ltiT{i}}
+                               {\ltiS{}}
+                               {\ltiTp{i}}
+                               {\ltiCombinedThreadedEnvpp{i}}
+      \\\\
+      (\ltiSp{i}, \ltiCombinedThreadedEnv{i})
+                 = \left\{
+                     \begin{array}{ll}
+                       (\ltiTp{i},\ltiCombinedThreadedEnvp{i}),
+                                  &\text{if } \lticheckAppSC{\ltiCombinedThreadedEnv{i-1}}
+                                                             {\ltiT{i}}
+                                                             {\ltiS{}}
+                                                             {\ltiTp{i}}
+                                                             {\ltiCombinedThreadedEnvp{i}} \arcr
+                       (\ltiTop, \ltiCombinedThreadedEnv{i-1}),
+                                  &\text{otherwise}
+                     \end{array}
+                   \right.
+                 }
+    {\lticheckAppSC{\ltiCombinedThreadedEnv{0}}
+                   {\ltiIntersection{\ova{\ltiT{}}^n}}
+                   {\ltiS{}}
+                   {\ltiIntersection{\ova{\ltiSp{}}^n}}
+                   {\ltiCombinedThreadedEnv{n}}
+                }
+
+
+  \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
 \end{figure}
 
