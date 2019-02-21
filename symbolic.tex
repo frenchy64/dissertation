@@ -1750,8 +1750,75 @@ $$
                      {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiFlp{}}}
                  }
 
+    \infer [Ann]
+    { 
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
+    \\\\
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiTp{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiEl{}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                       {\ltiEnclosingFnStack{}}
+                       {\ltiEnv{}}
+                       {\ltiann{\ltiE{}}{\ltiT{}}}
+                       {\ltiTp{}}
+                       {\ltiCombinedThreadedEnvp{}}
+                       {\ltiann{\ltiEl{}}{\ltiT{}}}
+                 }
+
+    \infer [App]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnv{2}}
+                      {\ltiFl{}}
+                  \\\\
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiS{}}
+                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiEl{}}
+                  \\\\
+    \lticheckAppSC{\ltiCombinedThreadedEnv{3}}{\ltiT{}}{\ltiS{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{4}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiapp{\ltiF{}}{\ltiE{}}}
+                      {\ltiTp{}}
+                      {\ltiCombinedThreadedEnv{4}}
+                      {\ltiapp{\ltiFl{}}{\ltiEl{}}}
+    }
+
   \end{mathpar}
 
+  \caption{Type system for Symbolic Closure Language:
+   \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                     {\ltiEnclosingFnStack{}}
+                     {\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     {\ltiCombinedThreadedEnv{}}
+                     {\ltiEl{}}
+                 and 
+                 \ltiSsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}.
+  }
+  \label{symbolic:figure:SC-language-type-system}
+\end{figure}
+
+\begin{figure}
   $$
   \begin{array}{rll}
     \boxed{\ltimergeTaggedTerms{\ltiEl{}}{\ltiEl{}}{\ltiEl{}}}
@@ -1808,20 +1875,7 @@ $$
                                      \\
   \end{array}
   $$
-
-
-  \caption{Type system for Symbolic Closure Language:
-   \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                     {\ltiEnclosingFnStack{}}
-                     {\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiCombinedThreadedEnv{}}
-                     {\ltiEl{}}
-                 and 
-                 \ltiSsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}.
-  }
-  \label{symbolic:figure:SC-language-type-system}
+  \caption{Metafunctions for Symbolic Closure language}
 \end{figure}
 
 \subsection{External Language with type-argument synthesis}
