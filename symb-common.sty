@@ -14,13 +14,20 @@
 \newmeta\ltivar{x}
 \newmeta\ltivarp{x'}
 \newmeta\ltiE{\esope}
+\newmeta\ltiEl{\esope^{*}}
 \newmeta\ltiEp{\esope'}
 \newmeta\ltiF{f}
+\newmeta\ltiFl{f^*}
+\newmeta\ltiClosureID{\mathbb{I}}
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
 \newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
+% Stack Env ID
+\newcommand\ltiufunelabentry[3]{\ma{#1;#2;#3}}
+% ElabEntry x E
+\newcommand\ltiufunelab[3]{\ma{\l^{#1} #2 . #3}}
 %\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
 \newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
@@ -47,16 +54,21 @@
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
-\newcommand\ltiFuelsymbol{\Delta}
+\newcommand\ltiFuelsymbol{\mathbb{F}}
 \newmeta\ltiFuel{\ltiFuelsymbol}
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
+\newmeta\ltiClosureCache{\mathbb{C}}
+\newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Delta}}
+\newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
+\newmeta\ltiCombinedThreadedEnvp{\ltiCombinedThreadedEnvsymbol'}
+\newcommand\ltimakeCombinedThreadedEnv[2]{\ma{[#1 ; #2]}}
 \newmeta\ltinat{n}
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
-\newmeta\ltiEnclosingFnStack{\ma{S}}
-\newmeta\ltiSubtypeSeen{\ma{R}}
+\newmeta\ltiEnclosingFnStack{\ma{\mathbb{S}}}
+\newmeta\ltiSubtypeSeen{\ma{\mathbb{M}}}
 \newmeta\ltiWild{?}
 \newcommand\ltiTop{\ma{\top}}
 \newcommand\ltiBot{\ma{\bot}}
@@ -82,6 +94,8 @@
 \newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
 \newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}
 \newcommand\ltiClosure[2]{\ma{#1 @ #2}}
+% Stack Env Id E
+\newcommand\ltiClosureWithStkID[4]{\ma{(#1;#2) @^{#3} #4}}
 \newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
 % type inference algorithm
@@ -108,10 +122,10 @@
 
 %% symbolic closure language (no bidirectional type checking or type argument synthesis)
 \newcommand\ltisclanglabel{\ma{\text{S}}}
-\newcommand\ltisclangvdash{\ma{\vdash_{\ltiinternallabel}}}
+\newcommand\ltisclangvdash{\ma{\vdash_{\ltisclanglabel}}}
 % symbolic closure type system, with enclosed fn stack
-% Fuel Stack Env |- E : T ; Fuel ; E
-\newcommand\ltitSstkjudgement[7]{\ma{#1 ; #2 ; #3 \ltisclangvdash {\hastype{#4}{#5}} ; #6 ; #7}}
+% Fuel Cache Stack Env |- E : T ; Fuel ; Cache ; E
+\newcommand\ltitSstkjudgement[9]{\ma{#1 ; #2 ; #3 ; #4 \ltisclangvdash {\hastype{#5}{#6}} ; #7 ; #8 ; #9}}
 % subtype for symbolic closure language types
 \newcommand\ltiSsubtype[3]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3}}
 
@@ -132,6 +146,8 @@
 \newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}
 % Stack Env x e t
 \newcommand\lticheckFn[5]{\ma{\texttt{chkFn}(#1, #2, #3, #4, #5)}}
+% ThreadedEnv Stack Env x e t => e* ; ThreadedEnv
+\newcommand\lticheckFnelab[8]{\ma{\texttt{chk+elabFn}(#1, #2, #3, #4, #5, #6) = #7 ; #8}}
 % t t -> t
 \newcommand\lticheckApp[3]{\ma{\texttt{synApp}(#1, #2) = #3}}
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}

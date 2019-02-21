@@ -1651,25 +1651,26 @@ in environment \ltiEnv{}.
 \begin{figure}
 $$
 \begin{array}{lrll}
-  \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
-                         \ltiappinst{\ltiF{}}{\ova{\ltiT{}}}{\ltiE{}} \alt
-                         \ltisel{\ltiE{}}{\ltivar{}} \alt
-                         \ltiRec{\ova{\ltivar{} = \ltiE{}}}
+  \ltiE{}, \ltiF{} &::=& ... \alt \ltiufun{\ltivar{}}{\ltiE{}}
                       &\mbox{Terms} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
-                         \ltiIntersection{\ova{\ltiT{}}} \alt
-                         \ltiUnion{\ova{\ltiT{}}}
-                         \alt 
-                         \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
+  \ltiEl{}, \ltiFl{} &::=& ... \alt
+                         \ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                            {\ltiEnv{}}
+                                                            {\ltiClosureID{}}}}
+                                     {\ltivar{}}
+                                     {\ltiEl{}}
+                      &\mbox{Closure-Tagged Terms} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& ...
+                         \alt \ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Types} \\
-  \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
-                  \ltiEmptyEnv{} \alt
-                  \ltitvar{} \alt
-                  \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
-                      &\mbox{Environments} \\
-  \ltiEnclosingFnStack{} &::=& \ova{\ltiT{}}
-                      &\mbox{Enclosing Function Stack} \\
+  \ltiClosureID{} &::=& n
+                      &\mbox{Closure Identifier} \\
+  \ltiFuel{} &::=& \ltinat{}
+                      &\mbox{Closure Fuel} \\
+  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow \ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
+                      &\mbox{Closure Cache} \\
+  \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
+                      &\mbox{Combined Threaded Environments} \\
 \end{array}
 $$
 \caption{Symbolic Closure Language Syntax}
@@ -1682,22 +1683,81 @@ $$
     {}
     {
     \ltitSstkjudgement{\ltiFuel{}}
+                      {\ltiClosureCache{}}
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltivar{}}
                       {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                       {\ltiFuel{}}
+                      {\ltiClosureCache{}}
                       {\ltivar{}}
                  }
+
+    \infer [Abs]
+    {
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
+    \\\\
+    \lticheckFnelab{\ltiCombinedThreadedEnv{}}
+               {\ltiEnclosingFnStack{}}
+               {\ltiEnv{}}
+               {\ltivar{}}
+               {\ltiE{}}
+               {\ltiTp{}}
+               {\ltiEl{}}
+               {\ltiCombinedThreadedEnv{}}
+    }
+    {
+    \ltitSstkjudgement{\ltiFuel{}}
+                     {\ltiClosureCache{}}
+                     {\ltiEnclosingFnStack{}}
+                     {\ltiEnv{}}
+                     {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
+                     {\ltiTp{}}
+                     {\ltiFuel{}}
+                     {\ltiClosureCache{}}
+                     {\ltiEl{}}
+                 }
+
+                 \\
+    \infer[]
+    {
+    \overrightarrow{
+    \ltitSstkjudgement{\ltiFuel{}}
+                     {\ltiClosureCache{}}
+                     {\ltiStackConcat{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}{\ltiEnclosingFnStack{}}}
+                     {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
+                     {\ltiE{}}
+                     {\ltiS{}}
+                     {\ltiFuelp{}}
+                     {\ltiClosureCache{}}
+                     {\ltiEl{}}
+                     }
+                 }
+    {\lticheckFnelab
+                {\ltiCombinedThreadedEnv{}}
+                {\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                % TODO merge
+                {\ltiEl{}}
+                {\ltiCombinedThreadedEnv{}}
+                }
+
   \end{mathpar}
+
+
   \caption{Type system for Symbolic Closure Language:
    \ltitSstkjudgement{\ltiFuel{}}
+                     {\ltiClosureCache{}}
                      {\ltiEnclosingFnStack{}}
                      {\ltiEnv{}}
                      {\ltiE{}}
                      {\ltiT{}}
                      {\ltiFuelp{}}
-                     {\ltiF{}}
+                     {\ltiClosureCache{}}
+                     {\ltiEl{}}
                  and 
                  \ltiSsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}.
   }
