@@ -170,8 +170,9 @@
 \newcommand\lticheckFn[5]{\ma{\texttt{chkFn}(#1, #2, #3, #4, #5)}}
 % t t -> t
 \newcommand\lticheckApp[3]{\ma{\texttt{synApp}(#1, #2) = #3}}
-% ThreadedEnv t t -> t ; ThreadedEnv
-\newcommand\lticheckAppSC[5]{\ma{\texttt{synAppSC}(#1, #2, #3) = #4 ; #5}}
+% ThreadedEnv t t -> InterfaceT ; ThreadedEnv
+\newcommand\lticheckAppSC[5]{\ma{\texttt{appOpT}(#1, #2, #3) = #4 ; #5}}
+\newcommand\ltimonoRng[2]{\ma{\texttt{monoRng}(#1) = #2}}
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}

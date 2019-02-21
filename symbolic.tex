@@ -1579,7 +1579,8 @@ and concatenation
 
     \infer[]
     { \lticheckFn{\ltiEnclosingFnStack{}}
-                 {\ltiEnvConcat{\ova{\ltitvar{}}}{\ltiEnv{}}}
+                 % parens to disambiguate from commas
+                 {(\ltiEnvConcat{\ova{\ltitvar{}}}{\ltiEnv{}})}
                  {\ltivar{}}
                  {\ltiE{}}
                  {\ltiT{}}
@@ -1640,12 +1641,12 @@ and concatenation
                 }
 
     \infer[]
-    {\lticheckApp{\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+    {\lticheckApp{\ltireplace{\ova{\ltiTp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
                  {\ltiS{}}
                  {\ltiSp{}}
                 }
     {\lticheckApp{\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                            {\ova{\ltiS{}}}}
+                            {\ova{\ltiTp{}}}}
                  {\ltiS{}}
                  {\ltiSp{}}
                 }
@@ -1796,13 +1797,15 @@ $$
                       {\ltiEl{}}
                   \\\\
     \lticheckAppSC{\ltiCombinedThreadedEnv{3}}{\ltiT{}}{\ltiS{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{4}}
+    \\\\
+    \ltimonoRng{\ltiTp{}}{\ltiTpp{}}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
-                      {\ltiTp{}}
+                      {\ltiTpp{}}
                       {\ltiCombinedThreadedEnv{4}}
                       {\ltiapp{\ltiFl{}}{\ltiEl{}}}
     }
@@ -1892,16 +1895,16 @@ $$
       \\\\
      \exists i. \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiTp{}}{\ltiT{i}}{\ltiCombinedThreadedEnvpp{i}}
     \\\\
-      (\ltiSp{i}, \ltiCombinedThreadedEnvp{i})
+      (\ltiSp{i}, \ltiCombinedThreadedEnv{i})
         = \left\{
-                     \begin{array}{ll}
-                       (\ltiS{i},\ltiCombinedThreadedEnv{i})
+                     \begin{array}{lll}
+                       (\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}, &\ltiCombinedThreadedEnvp{i})
                        , &\text{if } \ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
                                                   {\ltiTp{}}
                                                   {\ltiT{i}}
-                                                  {\ltiCombinedThreadedEnv{i}}
+                                                  {\ltiCombinedThreadedEnvp{i}}
                                                   \arcr
-                       (\ltiTop, \ltiCombinedThreadedEnv{i-1})  &\text{otherwise}
+                       (\ltiTop, &\ltiCombinedThreadedEnv{i-1}),  &\text{otherwise}
                      \end{array}
                    \right.
                  }
@@ -1909,7 +1912,7 @@ $$
                    {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
                    {\ltiTp{}}
                    {\ltiIntersection{\ova{\ltiSp{}}}}
-                   {\ltiCombinedThreadedEnvp{n}}
+                   {\ltiCombinedThreadedEnv{n}}
                 }
 
     \infer[]
@@ -1939,14 +1942,14 @@ $$
       \\\\
       (\ltiSp{i}, \ltiCombinedThreadedEnv{i})
                  = \left\{
-                     \begin{array}{ll}
-                       (\ltiTp{i},\ltiCombinedThreadedEnvp{i}),
+                     \begin{array}{lll}
+                       (\ltiTp{i}, &\ltiCombinedThreadedEnvp{i}),
                                   &\text{if } \lticheckAppSC{\ltiCombinedThreadedEnv{i-1}}
                                                              {\ltiT{i}}
                                                              {\ltiS{}}
                                                              {\ltiTp{i}}
                                                              {\ltiCombinedThreadedEnvp{i}} \arcr
-                       (\ltiTop, \ltiCombinedThreadedEnv{i-1}),
+                       (\ltiTop, &\ltiCombinedThreadedEnv{i-1}),
                                   &\text{otherwise}
                      \end{array}
                    \right.
@@ -1958,6 +1961,23 @@ $$
                    {\ltiCombinedThreadedEnv{n}}
                 }
 
+    \infer[]
+    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
+                   {\ltireplace{\ova{\ltiTp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                   {\ltiS{}}
+                   {\ltiSp{}}
+                   {\ltiCombinedThreadedEnvp{}}
+                }
+    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
+                   {\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                              {\ova{\ltiTp{}}}}
+                   {\ltiS{}}
+                   {\ltiSp{}}
+                   {\ltiCombinedThreadedEnvp{}}
+                }
+
+    % no checkAppSC case needed for Mu because we only insert them after elaboration,
+    % and disallow their use in user annotations in the SC language
 
   \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
