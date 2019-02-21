@@ -1159,6 +1159,8 @@ $$
                       &\mbox{Environments} \\
   \ltiEnclosingFnStack{} &::=& \ova{\ltiT{}}
                       &\mbox{Enclosing Function Stack} \\
+  \ltiCombinedStackEnv{} &::=& \ltimakeCombinedStackEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}
+                      &\mbox{Combined Stack Environments} \\
   \ltiSubtypeSeen{} &::=& \ova{\ltiSeenEntry{\ltiT{}}{\ltiT{}}}
                       &\mbox{Subtype Seen List} \\
 
@@ -1437,7 +1439,7 @@ and concatenation
 \begin{figure}
   \begin{mathpar}
     \begin{array}{rcl}
-      \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiT{}}\\\\
+      \boxed{\ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiT{}}}\\\\
 
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
                                 {\ltiIntersection{\ova{\ltiT{}}}}
@@ -1487,6 +1489,17 @@ and concatenation
                                 {\ltiAppAllOne{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
+    \\
+
+    \infer[]
+    {}
+    {\boxed{\lticheckFn{\ltiEnclosingFnStack{}}
+                {\ltiEnv{}}
+                {\ltivar{}}
+                {\ltiE{}}
+                {\ltiT{}}}
+                }
+    \\
 
     \infer[]
     {
@@ -1577,6 +1590,13 @@ and concatenation
                 {\ltiE{}}
                 {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                 }
+                \\
+    \infer[]
+    {}
+    {\boxed{\lticheckApp{\ltiT{}}
+                 {\ltiT{}}
+                 {\ltiT{}}
+                }}
                 \\
     \infer[]
     { \ltiSp{i} = \left\{
@@ -1682,81 +1702,121 @@ $$
     \infer [Var]
     {}
     {
-    \ltitSstkjudgement{\ltiFuel{}}
-                      {\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltivar{}}
                       {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                      {\ltiFuel{}}
-                      {\ltiClosureCache{}}
+                      {\ltiCombinedThreadedEnv{}}
                       {\ltivar{}}
                  }
 
     \infer [Abs]
     {
-    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}
+                         {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}}
+                         \\\\
+                         1 \leq i \leq n
     \\\\
-    \lticheckFnelab{\ltiCombinedThreadedEnv{}}
-               {\ltiEnclosingFnStack{}}
-               {\ltiEnv{}}
-               {\ltivar{}}
-               {\ltiE{}}
-               {\ltiTp{}}
-               {\ltiEl{}}
-               {\ltiCombinedThreadedEnv{}}
-    }
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
+                     {\ltiStackConcat{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}{\ltiEnclosingFnStack{}}}
+                     {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
+                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                                 {\ltiEnv{}}}}
+                     {\ltiE{}}
+                     {\ltiS{i}}
+                     {\ltiCombinedThreadedEnv{i}}
+                     {\ltiEl{i}}
+                 \\\\
+                 \ltiFl{0} = \ltiE{}
+                 \\\\
+                 \ltiFlp{} =
+                 \left\{
+                 \begin{array}{lll}
+                   \ltiFl{0}, &\text{if } n=0 \arcr
+                   \ltiEl{1}, &\text{if } n=1 \arcr
+                   \ltiFl{n}, & \text{otherwise, where} \arcr
+                   &\text{ } \ltimergeTaggedTerms{\ltiFl{i-1}}{\ltiEl{i}}{\ltiFl{i}}, 
+                 \end{array}
+                 \right.
+                 }
     {
-    \ltitSstkjudgement{\ltiFuel{}}
-                     {\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
                      {\ltiEnclosingFnStack{}}
                      {\ltiEnv{}}
                      {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
                      {\ltiTp{}}
-                     {\ltiFuel{}}
-                     {\ltiClosureCache{}}
-                     {\ltiEl{}}
+                     {\ltiCombinedThreadedEnv{n}}
+                     {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiFlp{}}}
                  }
-
-                 \\
-    \infer[]
-    {
-    \overrightarrow{
-    \ltitSstkjudgement{\ltiFuel{}}
-                     {\ltiClosureCache{}}
-                     {\ltiStackConcat{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}{\ltiEnclosingFnStack{}}}
-                     {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
-                     {\ltiE{}}
-                     {\ltiS{}}
-                     {\ltiFuelp{}}
-                     {\ltiClosureCache{}}
-                     {\ltiEl{}}
-                     }
-                 }
-    {\lticheckFnelab
-                {\ltiCombinedThreadedEnv{}}
-                {\ltiEnclosingFnStack{}}
-                {\ltiEnv{}}
-                {\ltivar{}}
-                {\ltiE{}}
-                {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
-                % TODO merge
-                {\ltiEl{}}
-                {\ltiCombinedThreadedEnv{}}
-                }
 
   \end{mathpar}
 
+  $$
+  \begin{array}{rll}
+    \boxed{\ltimergeTaggedTerms{\ltiEl{}}{\ltiEl{}}{\ltiEl{}}}
+    \\\\
+
+    \ltimergeTaggedTermsalign{\ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                            {\ltiEnv{}}
+                                                            {\ltiClosureID{}}}^n}
+                                     {\ltivar{}}
+                                     {\ltiEl{1}}}
+                             {\ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                            {\ltiEnv{}}
+                                                            {\ltiClosureID{}}}^m}
+                                     {\ltivar{}}
+                                     {\ltiEl{2}}}
+                             {\ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                            {\ltiEnv{}}
+                                                            {\ltiClosureID{}}}^n
+                                           \ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                            {\ltiEnv{}}
+                                                            {\ltiClosureID{}}}^m
+                                                            }
+                                     {\ltivar{}}
+                                     {\ltimergeTaggedTermsLHS{\ltiEl{1}}{\ltiEl{2}}}}
+                                     \\
+
+    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEl{1}}}
+                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEl{2}}}
+                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltimergeTaggedTermsLHS{\ltiEl{1}}{\ltiEl{2}}}}
+                                     \\
+
+    \ltimergeTaggedTermsalign{\ltiapp{\ltiFl{1}}{\ltiEl{1}}}
+                             {\ltiapp{\ltiFl{2}}{\ltiEl{2}}}
+                             {\ltiapp{\ltimergeTaggedTermsLHS{\ltiFl{1}}{\ltiFl{2}}}
+                                     {\ltimergeTaggedTermsLHS{\ltiEl{1}}{\ltiEl{2}}}}
+                                     \\
+    \ltimergeTaggedTermsalign{\ltisel{\ltiEl{1}}{\ltivar{}}}
+                             {\ltisel{\ltiEl{2}}{\ltivar{}}}
+                             {\ltisel{\ltimergeTaggedTermsLHS{\ltiEl{1}}{\ltiEl{2}}}{\ltivar{}}}
+                                     \\
+    \ltimergeTaggedTermsalign{\ltiRec{\ova{\ltivar{} = \ltiEl{}}}}
+                             {\ltiRec{\ova{\ltivar{} = \ltiElp{}}}}
+                             {\ltiRec{\ova{\ltivar{} = \ltimergeTaggedTermsLHS{\ltiEl{}}{\ltiElp{}}}}}
+                                     \\
+                                     % no annotations inserted yet, will be identical
+    \ltimergeTaggedTermsalign{\ltiann{\ltiEl{1}}{\ltiT{}}}
+                             {\ltiann{\ltiEl{2}}{\ltiT{}}}
+                             {\ltiann{\ltimergeTaggedTermsLHS{\ltiEl{1}}{\ltiEl{2}}}
+                                     {\ltiT{}}}
+                                     \\
+    \ltimergeTaggedTermsalign{\ltivar{}}
+                             {\ltivar{}}
+                             {\ltivar{}}
+                                     \\
+  \end{array}
+  $$
+
 
   \caption{Type system for Symbolic Closure Language:
-   \ltitSstkjudgement{\ltiFuel{}}
-                     {\ltiClosureCache{}}
+   \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
                      {\ltiEnclosingFnStack{}}
                      {\ltiEnv{}}
                      {\ltiE{}}
                      {\ltiT{}}
-                     {\ltiFuelp{}}
-                     {\ltiClosureCache{}}
+                     {\ltiCombinedThreadedEnv{}}
                      {\ltiEl{}}
                  and 
                  \ltiSsubtype{\ltiFuel{}}{\ltiT{}}{\ltiS{}}.

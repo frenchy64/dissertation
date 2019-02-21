@@ -13,11 +13,16 @@
 
 \newmeta\ltivar{x}
 \newmeta\ltivarp{x'}
-\newmeta\ltiE{\esope}
-\newmeta\ltiEl{\esope^{*}}
-\newmeta\ltiEp{\esope'}
-\newmeta\ltiF{f}
-\newmeta\ltiFl{f^*}
+\newcommand\ltiEsymbol{\esope}
+\newmeta\ltiE{\ltiEsymbol}
+\newmeta\ltiEp{\ltiEsymbol'}
+\newcommand\ltiFsymbol{\ma{f}}
+\newmeta\ltiF{\ltiFsymbol}
+% tagged terms
+\newmeta\ltiEl{\ltiEsymbol^{*}}
+\newmeta\ltiElp{\ltiEsymbol'^{*}}
+\newmeta\ltiFl{\ltiFsymbol^{*}}
+\newmeta\ltiFlp{\ltiFsymbol'^{*}}
 \newmeta\ltiClosureID{\mathbb{I}}
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
@@ -54,20 +59,31 @@
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
+
+% threaded environments
 \newcommand\ltiFuelsymbol{\mathbb{F}}
 \newmeta\ltiFuel{\ltiFuelsymbol}
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
 \newmeta\ltiClosureCache{\mathbb{C}}
-\newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Delta}}
+\newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Sigma}}
 \newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
 \newmeta\ltiCombinedThreadedEnvp{\ltiCombinedThreadedEnvsymbol'}
-\newcommand\ltimakeCombinedThreadedEnv[2]{\ma{[#1 ; #2]}}
+\newcommand\ltimakeCombinedThreadedEnv[2]{\ma{(#1 ; #2)}}
+
+% combined stack environments
+\newcommand\ltiCombinedStackEnvsymbol{\ma{\Delta}}
+\newmeta\ltiCombinedStackEnv{\ltiCombinedThreadedEnvsymbol}
+\newmeta\ltiCombinedStackEnvp{\ltiCombinedThreadedEnvsymbol'}
+\newcommand\ltimakeCombinedStackEnv[2]{\ma{(#1 ; #2)}}
+
 \newmeta\ltinat{n}
 \newmeta\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
-\newmeta\ltiEnclosingFnStack{\ma{\mathbb{S}}}
+\newcommand\ltiEnclosingFnStacksymbol{\ma{\mathbb{S}}}
+\newmeta\ltiEnclosingFnStack{\ltiEnclosingFnStacksymbol}
+\newmeta\ltiEnclosingFnStackp{\ltiEnclosingFnStacksymbol'}
 \newmeta\ltiSubtypeSeen{\ma{\mathbb{M}}}
 \newmeta\ltiWild{?}
 \newcommand\ltiTop{\ma{\top}}
@@ -80,6 +96,7 @@
 \newcommand\ltiAppAll[2]{\ma{\ltiAppAllOne{#1\ #2}}}
 \newcommand\ltiUnion[1]{\ma{(\bigcup #1)}}
 \newcommand\ltiIntersection[1]{\ma{(\bigcap #1)}}
+\newcommand\ltiIntersecttwo[2]{\ma{(\cap\ #1\ #2)}}
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
 \newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
@@ -124,10 +141,13 @@
 \newcommand\ltisclanglabel{\ma{\text{S}}}
 \newcommand\ltisclangvdash{\ma{\vdash_{\ltisclanglabel}}}
 % symbolic closure type system, with enclosed fn stack
-% Fuel Cache Stack Env |- E : T ; Fuel ; Cache ; E
-\newcommand\ltitSstkjudgement[9]{\ma{#1 ; #2 ; #3 ; #4 \ltisclangvdash {\hastype{#5}{#6}} ; #7 ; #8 ; #9}}
+% CombinedThreadedEnv Stack Env |- E : T ; CombinedThreadedEnv ; E*
+\newcommand\ltitSstkjudgement[7]{\ma{#1 ; #2 ; #3 \ltisclangvdash {\hastype{#4}{#5}} ; #6 ; #7}}
 % subtype for symbolic closure language types
 \newcommand\ltiSsubtype[3]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3}}
+\newcommand\ltimergeTaggedTermsLHS[2]{\ma{\texttt{mrgTags}(#1, #2)}}
+\newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
+\newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} &=& #3}}
 
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 
@@ -146,7 +166,7 @@
 \newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}
 % Stack Env x e t
 \newcommand\lticheckFn[5]{\ma{\texttt{chkFn}(#1, #2, #3, #4, #5)}}
-% ThreadedEnv Stack Env x e t => e* ; ThreadedEnv
+% ThreadedEnv Stack Env x e t => ThreadedEnv ; e*
 \newcommand\lticheckFnelab[8]{\ma{\texttt{chk+elabFn}(#1, #2, #3, #4, #5, #6) = #7 ; #8}}
 % t t -> t
 \newcommand\lticheckApp[3]{\ma{\texttt{synApp}(#1, #2) = #3}}
