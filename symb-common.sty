@@ -65,7 +65,10 @@
 \newmeta\ltiFuel{\ltiFuelsymbol}
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
-\newmeta\ltiClosureCache{\mathbb{C}}
+\newcommand\ltiClosureCachesymbol{\mathbb{C}}
+\newmeta\ltiClosureCache{\ltiClosureCachesymbol}
+\newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
+\newmeta\ltiClosureCachepp{\ltiClosureCachesymbol''}
 \newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Sigma}}
 \newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
 \newmeta\ltiCombinedThreadedEnvp{\ltiCombinedThreadedEnvsymbol'}
@@ -107,7 +110,9 @@
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
-\newcommand\ltiIFn[1]{\ma{(\textsf{IFn} #1)}}
+\newcommand\ltiIFnsymbol{\ma{\textsf{IFn}}}
+\newcommand\ltiIFn[1]{\ma{(\ltiIFnsymbol\ #1)}}
+\newcommand\ltiEmptyIFn{\ma{(\ltiIFnsymbol)}}
 \newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
 \newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
 \newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}

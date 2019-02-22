@@ -1404,8 +1404,7 @@ and concatenation
     }
 
     \infer [S-AppL]
-    {
-    }
+    {}
     {
     \ltiisubtypeseen{\ltiSubtypeSeen{}}
                     {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
@@ -1852,7 +1851,7 @@ $$
                       {\ltiRec{\ova{\ltivar{} = \ltiFl{}}^n}}
     }
 
-    \infer [I-Sub]
+    \infer [Sub]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnclosingFnStack{}}
@@ -1877,6 +1876,26 @@ $$
                       {\ltiEl{}}
     }
 
+    \infer [UAbs]
+    {
+    \ltiClosureID{} \text{ is fresh}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiufun{\ltivar{}}{\ltiE{}}}
+                      {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}
+                                           {\ltiEnv{}}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                      {\ltiCombinedThreadedEnv{}}
+                      {\ltiufunelab{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                     {\ltiEnv{}}
+                                                     {\ltiClosureID{}}}
+                                 {\ltivar{}}
+                                 {\ltiE{}}}
+                 }
   \end{mathpar}
 
   \caption{Type system for Symbolic Closure Language:
@@ -1887,10 +1906,218 @@ $$
                      {\ltiT{}}
                      {\ltiCombinedThreadedEnv{}}
                      {\ltiEl{}}
-                 and 
-                 \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiS{}}{\ltiCombinedThreadedEnv{}}.
   }
   \label{symbolic:figure:SC-language-type-system}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [S-Refl]
+    {}
+    {
+     \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                 {\ltiT{}}
+                 {\ltiT{}}
+                 {\ltiCombinedThreadedEnv{}}
+    }
+
+    \infer [S-Trans]
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{2}}
+    \\
+    \ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiTp{}}{\ltiT{}}{\ltiCombinedThreadedEnv{3}}
+    }
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiT{}}{\ltiCombinedThreadedEnv{3}}
+    }
+
+    \infer [S-UnionL]
+    { \overrightarrow {\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}{\ltiT{i}}{\ltiS{}}{\ltiCombinedThreadedEnv{i}}}}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiUnion{\ova{\ltiT{}}^n}}{\ltiS{}}{\ltiCombinedThreadedEnv{n}} }
+
+    \infer [S-UnionR]
+    { 
+    \ltiCombinedThreadedEnvp{}
+    \in
+    \{ \ltiCombinedThreadedEnv{i} |
+    \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                             {\ltiT{}}
+                             {\ltiS{i}}
+                             {\ltiCombinedThreadedEnv{i}}
+                             \}
+    }
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiT{}} 
+                  {\ltiUnion{\ova{\ltiS{}}}}
+                  {\ltiCombinedThreadedEnvp{}}
+                  }
+
+    \infer [S-IntersectL]
+    { \ltiCombinedThreadedEnvp{}
+    \in
+    \{ \ltiCombinedThreadedEnv{i} |
+    \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiT{i}}
+                  {\ltiS{}}
+                  {\ltiCombinedThreadedEnv{i}}
+                  \}
+    }
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiIntersection{\ova{\ltiT{}}}}
+                  {\ltiS{}}
+                  {\ltiCombinedThreadedEnvp{}}
+    }
+
+    \infer [S-IntersectR]
+    { \overrightarrow {\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
+                                   {\ltiT{}}
+                                   {\ltiS{i}}
+                                   {\ltiCombinedThreadedEnv{i}}
+                                   }}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiT{}}
+                  {\ltiIntersection{\ova{\ltiS{}}^n}}
+                  {\ltiCombinedThreadedEnv{n}}
+                  }
+
+    \infer [S-Rec]
+    {
+    \overrightarrow{\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
+                                {\ltiT{}}
+                                {\ltiS{}}
+                                {\ltiCombinedThreadedEnv{i}}
+                                }
+    }
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n,
+                         \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
+                {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiS{}}}^n}}
+                {\ltiCombinedThreadedEnv{n}}
+    }
+
+    \infer [S-Poly]
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                {\ltiT{}}
+                {\ltiS{}}
+                {\ltiCombinedThreadedEnvp{}}
+    }
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                {\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}
+                {\ltiPoly{\overline{\ltitvar{}}}{\ltiS{}}}
+                {\ltiCombinedThreadedEnvp{}}
+    }
+
+    \infer [S-AppR]
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+                {\ltiT{}}
+                {\ltiCombinedThreadedEnvp{}}
+    }
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+                {\ltiAppAll{\ltiT{}}{\ova{\ltiS{}}}}
+                {\ltiCombinedThreadedEnvp{}}
+    }
+
+    \infer [S-AppL]
+    {}
+    {
+    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
+                {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                {\ltiCombinedThreadedEnv{}}
+    }
+
+    % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
+    \infer [S-Fn]
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiSp{}}{\ltiCombinedThreadedEnv{2}}
+      \\
+      \ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiT{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{3}}
+    }
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}
+                  {\ltiFn{\ltiSp{}}{\ltiT{}}}
+                  {\ltiFn{\ltiS{}}{\ltiTp{}}}
+                  {\ltiCombinedThreadedEnv{3}}
+       }
+
+    \infer [S-IFnL]
+    { \ltiCombinedThreadedEnvp{}
+    \in
+    \{ \ltiCombinedThreadedEnv{i} |
+    \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiT{i}}
+                  {\ltiS{}}
+                  {\ltiCombinedThreadedEnv{i}}
+                  \}
+    }
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiIFn{\ova{\ltiT{}}}}
+                  {\ltiS{}}
+                  {\ltiCombinedThreadedEnvp{}}
+    }
+
+    \infer [S-IFnR]
+    { \overrightarrow {\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
+                                   {\ltiT{}}
+                                   {\ltiS{i}}
+                                   {\ltiCombinedThreadedEnv{i}}
+                                   }}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+                  {\ltiT{}}
+                  {\ltiIFn{\ova{\ltiS{}}^n}}
+                  {\ltiCombinedThreadedEnv{n}}
+                  }
+
+    \infer [S-Closure]
+    {
+    0 < \ltiFuel{}
+    \\
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
+                                                  {\ltiClosureCache{}}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}
+                                    {\ltiEnv{}}}
+                      {\ltiE{}}
+                      {\ltiS{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                                  {\ltiClosureCachep{}}}
+                      {\ltiEl{}}
+                      \\\\
+    \ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}
+    =
+    \left\{
+    \begin{array}{lll}
+      \ltiTpp{}, & \text{if } (\ltiClosureID{},\ltiTpp{}) \in \ltiClosureCachep{} \arcr
+      \ltiEmptyIFn, & \text{otherwise}
+    \end{array}
+    \right.
+    \\\\
+    \ltiClosureCachepp{} = \ltireplace{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}} \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}
+                                      {\ltiClosureID{}}
+                                      {\ltiClosureCachep{}}
+    }
+    { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
+                                              {\ltiClosureCache{}}}
+                  {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}
+                                       {\ltiEnv{}}
+                                       {\ltiClosureID{}}
+                                       {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                  {\ltiFn{\ltiT{}}{\ltiS{}}}
+                  {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                              {\ltiClosureCachepp{}}}
+                  }
+
+  \end{mathpar}
+
+  \caption{Subtyping for Symbolic Closure Language:
+                 \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiS{}}{\ltiCombinedThreadedEnv{}}.
+  }
+  \label{symbolic:figure:SC-language-subtype}
 \end{figure}
 
 \begin{figure}
