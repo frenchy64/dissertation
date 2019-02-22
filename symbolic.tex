@@ -1810,6 +1810,73 @@ $$
                       {\ltiapp{\ltiFl{}}{\ltiEl{}}}
     }
 
+    \infer [Sel]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiFl{}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltisel{\ltiF{}}{\ltivar{i}}}
+                      {\ltiT{i}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltisel{\ltiFl{}}{\ltivar{i}}}
+    }
+
+    \infer [Rec]
+    {
+    1 \leq i \leq n
+    \\
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiF{i}}
+                      {\ltiT{i}}
+                      {\ltiCombinedThreadedEnv{i}}
+                      {\ltiFl{i}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiRec{\ova{\ltivar{} = \ltiF{}}^n}}
+                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
+                      {\ltiCombinedThreadedEnv{n}}
+                      {\ltiRec{\ova{\ltivar{} = \ltiFl{}}^n}}
+    }
+
+    \infer [I-Sub]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiS{}}
+                      {\ltiCombinedThreadedEnv{2}}
+                      {\ltiEl{}}
+                     \\
+                     \ltiSsubtype{\ltiCombinedThreadedEnv{2}}
+                                 {\ltiS{}}
+                                 {\ltiT{}}
+                                 {\ltiCombinedThreadedEnv{3}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiEl{}}
+    }
+
   \end{mathpar}
 
   \caption{Type system for Symbolic Closure Language:
@@ -1827,10 +1894,13 @@ $$
 \end{figure}
 
 \begin{figure}
+  \[
+    \boxed{\ltimergeTaggedTerms{\ltiEl{1}}{\ltiEl{2}}{\ltiEl{3}}
+    \text{ Recursively merges \ltiEl{1} and \ltiEl{2}, appending Closure tags.}
+    }
+    \]
   $$
   \begin{array}{rll}
-    \boxed{\ltimergeTaggedTerms{\ltiEl{}}{\ltiEl{}}{\ltiEl{}}}
-    \\\\
 
     \ltimergeTaggedTermsalign{\ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
                                                             {\ltiEnv{}}
@@ -1886,7 +1956,11 @@ $$
   \begin{mathpar}
     \infer[]
     {}
-    {\boxed{\lticheckAppSC{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiT{}}{\ltiT{}}{\ltiCombinedThreadedEnv{}}
+    {\boxed{\lticheckAppSC{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiS{}}{\ltiTp{}}{\ltiCombinedThreadedEnvp{}}
+    \text{
+    Returns a monomorphic instantiation of operator \ltiT{}
+    that accepts operand \ltiS{}.
+    }
                 }}
                 \\
     \infer[]
@@ -1980,6 +2054,36 @@ $$
     % and disallow their use in user annotations in the SC language
 
   \end{mathpar}
+
+  \[
+    \boxed{\ltimonoRng{\ltiT{}}{\ltiS{}}
+    \text{ Returns the range \ltiS{} of the monomorphic type \ltiT{}.}
+    }
+  \]
+
+  \[
+  \begin{array}{rlll}
+    \ltimonoRngalign{\ltiIntersection{\ova{\ltiT{}}^n}}
+                    {\ltiIntersection{\ova{\ltimonoRngLHS{\ltiT{}}}}}
+                    & \text{where } n>0
+                    \\
+    \ltimonoRngalign{\ltiUnion{\ova{\ltiT{}}}}
+                    {\ltiUnion{\ova{\ltimonoRngLHS{\ltiT{}}}}}
+                    \\
+    \ltimonoRngalign{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
+                    {\ltiIntersection{\ova{\ltiS{}}}}
+                    & \text{where } n>0
+                    \\
+    \ltimonoRngalign{\ltiMu{\ltitvar{}}{\ltiT{}}}
+                    {\ltimonoRngLHS{\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}}
+                    \\
+                    % TODO resolve under operator first
+    \ltimonoRngalign{\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
+                    {\ltimonoRngLHS{\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}}
+                    \\
+  \end{array}
+  \]
+
   \caption{Metafunctions for Symbolic Closure language}
 \end{figure}
 
