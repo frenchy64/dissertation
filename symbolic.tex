@@ -1879,9 +1879,16 @@ $$
     \infer [UAbs]
     {
     \ltiClosureID{} \text{ is fresh}
+    \\
+    \ltiClosureCachep{}
+    =
+    \ltireplace{\ltiEmptyIFn}
+               {\ltiClosureID{}}
+               {\ltiClosureCache{}}
     }
     {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
+                                                  {\ltiClosureCache{}}}
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltiufun{\ltivar{}}{\ltiE{}}}
@@ -1889,12 +1896,13 @@ $$
                                            {\ltiEnv{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      {\ltiCombinedThreadedEnv{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{}}
+                                                  {\ltiClosureCachep{}}}
                       {\ltiufunelab{\ltiufunelabentry{\ltiEnclosingFnStack{}}
                                                      {\ltiEnv{}}
                                                      {\ltiClosureID{}}}
-                                 {\ltivar{}}
-                                 {\ltiE{}}}
+                                   {\ltivar{}}
+                                   {\ltiE{}}}
                  }
   \end{mathpar}
 
@@ -2062,11 +2070,11 @@ $$
     }
 
     \infer [S-IFnR]
-    { \overrightarrow {\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
-                                   {\ltiT{}}
-                                   {\ltiS{i}}
-                                   {\ltiCombinedThreadedEnv{i}}
-                                   }}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}
+                  {\ltiT{}}
+                  {\ltiS{i}}
+                  {\ltiCombinedThreadedEnv{i}}
+                                  }
     { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
                   {\ltiT{}}
                   {\ltiIFn{\ova{\ltiS{}}^n}}
@@ -2088,14 +2096,7 @@ $$
                                                   {\ltiClosureCachep{}}}
                       {\ltiEl{}}
                       \\\\
-    \ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}
-    =
-    \left\{
-    \begin{array}{lll}
-      \ltiTpp{}, & \text{if } (\ltiClosureID{},\ltiTpp{}) \in \ltiClosureCachep{} \arcr
-      \ltiEmptyIFn, & \text{otherwise}
-    \end{array}
-    \right.
+    (\ltiClosureID{},\ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}) \in \ltiClosureCachep{}
     \\\\
     \ltiClosureCachepp{} = \ltireplace{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}} \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}
                                       {\ltiClosureID{}}
