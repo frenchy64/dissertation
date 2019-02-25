@@ -18,12 +18,15 @@
 \newmeta\ltiEp{\ltiEsymbol'}
 \newcommand\ltiFsymbol{\ma{f}}
 \newmeta\ltiF{\ltiFsymbol}
+\newmeta\ltiFp{\ltiFsymbol'}
 % tagged terms
-\newmeta\ltiEl{\ltiEsymbol^{*}}
-\newmeta\ltiElp{\ltiEsymbol'^{*}}
-\newmeta\ltiFl{\ltiFsymbol^{*}}
-\newmeta\ltiFlp{\ltiFsymbol'^{*}}
-\newmeta\ltiClosureID{\mathbb{I}}
+\newmeta\ltiEl{\ltiEsymbol^{}}
+\newmeta\ltiElp{\ltiEsymbol'^{}}
+\newmeta\ltiFl{\ltiFsymbol^{}}
+\newmeta\ltiFlp{\ltiFsymbol'^{}}
+\newcommand\ltiClosureIDsymbol{\ma{\mathbb{I}}}
+\newmeta\ltiClosureID{\ma{\ltiClosureIDsymbol}}
+\newmeta\ltiClosureIDp{\ma{\ltiClosureIDsymbol'}}
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
 \newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
@@ -31,8 +34,9 @@
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 % Stack Env ID
 \newcommand\ltiufunelabentry[3]{\ma{#1;#2;#3}}
+%% Closure-Tagged Term
 % ElabEntry x E
-\newcommand\ltiufunelab[3]{\ma{\l^{#1}_* #2 . #3}}
+\newcommand\ltiufunelab[3]{\ma{\l^{#1} #2 . #3}}
 %\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
 \newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
@@ -107,8 +111,11 @@
 \newbfop\ltiInt{I}
 \newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
 \newcommand\ltiStackConcat[2]{\ma{#1 , #2}}
+% Stack T
+\newcommand\ltiStackEmpty{\ma{[]}}
+\newcommand\ltiStackPush[2]{\ma{#1 :: #2}}
 \newcommand\ltiSeenConcat[2]{\ma{#1 , #2}}
-\newcommand\ltiSeenEntry[2]{\ma{[#1 , #2]}}
+\newcommand\ltiSeenEntry[2]{\ma{\langle #1 , #2 \rangle}}
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
@@ -158,9 +165,11 @@
 % subtype for symbolic closure language types
 % ThreadedEnv T T => T ThreadedEnv
 \newcommand\ltiSsubtype[4]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3 ; #4}}
-\newcommand\ltimergeTaggedTermsLHS[2]{\ma{\texttt{mrgTags}(#1, #2)}}
+\newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrgTags}}}
+\newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
+\newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
-\newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} &=& #3}}
+\newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHSalign{#1}{#2} &=& #3}}
 
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 
@@ -190,9 +199,15 @@
 % ThreadedEnv e* -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
+\newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
 % ThreadedEnv t -> t
-\newcommand\ltielimClosTLHS[2]{\ma{\texttt{elabT}(#1, #2)}}
-\newcommand\ltielimClosT[3]{\ma{\ltielimClosTLHS{#1}{#2} = #3}}
+\newcommand\ltielimClosTLHS[3]{\ma{\texttt{elabT}(#1, #2, #3)}}
+\newcommand\ltielimClosT[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} = #4}}
+\newcommand\ltielimClosTalign[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} &=& #4}}
+% Stack t -> t
+\newcommand\ltiwrapTypeCaseLHS[2]{\ma{\texttt{wrapTCase}(#1, #2)}}
+\newcommand\ltiwrapTypeCase[3]{\ma{\ltiwrapTypeCaseLHS{#1}{#2} = #3}}
+\newcommand\ltiwrapTypeCasealign[3]{\ma{\ltiwrapTypeCaseLHS{#1}{#2} &=& #3}}
 
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
