@@ -3,6 +3,7 @@
 *.log
 *.swp
 *.swo
+.*swn
 *.bbl
 *.blg
 *.loe

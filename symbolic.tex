@@ -1133,24 +1133,34 @@ same piece of code at different types.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}} \alt
+                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
                          \ltiapp{\ltiF{}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ova{\ltivar{} = \ltiE{}}} \alt
                          \ltiann{\ltiE{}}{\ltiT{}}
                       &\mbox{Terms} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} \alt
-                         \ltiIntersection{\ova{\ltiT{}}} \alt
-                         \ltiUnion{\ova{\ltiT{}}}
-                         \alt \ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}
+  \ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}} &\Leftrightarrow& \ltiann{\ltiufun{\ltivar{}}{\ltiE{}}}{\ltiT{}}
+  \\
+  \ltiapp{\ltiF{}}{\ova{\ltiE{i}}} &\Leftrightarrow& \ltiapp{\ltiF{}}{\ltiRec{\ova{\textsf{arg}_i = \ltiE{i}}}}
+  \\
+  \ltiufun{\ova{\ltivar{i}}}{\ltiE{}} &\Leftrightarrow& \ltiufun{\ltivarp{}}{\ltireplaceova{\ltisel{\ltivarp{}}{\textsf{arg}_i}}{\ltivar{i}}{\ltiE{}}},
+  \text{where \ltivarp{} is fresh}
+                      &\mbox{Term abbreviations} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} 
+                         \alt
+                         \ltiTop
+                         \alt
+                         \ltiBot
+                         \alt \ltiIFn{\ova{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiT{}}}}
                          \alt
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
-                         \\&\alt&
+                         \alt
+                         \ltiMu{\ltitvar{}}{\ltiT{}}
+                         \\&\alt& 
+                         \ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
+                         \alt
                          \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
-                         \alt \ltiEnclosingFnType{n}\\
-                         &\alt& \ltiMu{\ltitvar{}}{\ltiT{}}
-                         \alt \ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
-                         \alt \ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}
+                         \alt \ltiEnclosingFnType{n}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
@@ -1319,21 +1329,29 @@ and concatenation
     \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiT{}}
     }
 
-    \infer [S-UnionL]
-    { \overrightarrow {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}}
-    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiUnion{\ova{\ltiT{}}}}{\ltiS{}} }
+    \infer [S-Top]
+    {}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\Top}}
 
-    \infer [S-UnionR]
-    { \exists i. \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiT{}} {\ltiS{i}}}
-    { \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiT{}} {\ltiUnion{\ova{\ltiS{}}}}}
+    \infer [S-Bot]
+    {}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\Bot}{\ltiT{}}}
 
-    \infer [S-IntersectL]
-    { \exists i. \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{i}} {\ltiS{}}}
-    { \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiIntersection{\ova{\ltiT{}}}}{\ltiS{}} }
+    %\infer [S-UnionL]
+    %{ \overrightarrow {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}}
+    %{ \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiUnion{\ova{\ltiT{}}}}{\ltiS{}} }
 
-    \infer [S-IntersectR]
-    { \overrightarrow {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}}
-    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiIntersection{\ova{\ltiS{}}}} }
+    %\infer [S-UnionR]
+    %{ \exists i. \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiT{}} {\ltiS{i}}}
+    %{ \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiT{}} {\ltiUnion{\ova{\ltiS{}}}}}
+
+    %\infer [S-IntersectL]
+    %{ \exists i. \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{i}} {\ltiS{}}}
+    %{ \ltiisubtypeseen {\ltiSubtypeSeen{}}{\ltiIntersection{\ova{\ltiT{}}}}{\ltiS{}} }
+
+    %\infer [S-IntersectR]
+    %{ \overrightarrow {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}}
+    %{ \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiIntersection{\ova{\ltiS{}}}} }
 
     \infer [S-Rec]
     {
@@ -1346,15 +1364,15 @@ and concatenation
                     {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiS{}}}}}
     }
 
-    \infer [S-Poly]
-    {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}
-    }
-    {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}
-                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}
-                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiS{}}}
-    }
+    %\infer [S-Poly]
+    %{
+    %\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}
+    %}
+    %{
+    %\ltiisubtypeseen{\ltiSubtypeSeen{}}
+    %                {\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}
+    %                {\ltiPoly{\overline{\ltitvar{}}}{\ltiS{}}}
+    %}
 
     \infer [S-MuL]
     {
@@ -1676,8 +1694,8 @@ in environment \ltiEnv{}.
 \begin{figure}
 $$
 \begin{array}{lrll}
-  \ltiE{}, \ltiF{} &::=& ... \alt \ltiufun{\ltivar{}}{\ltiE{}}
-                      &\mbox{Terms} \\
+  \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
+                      &\mbox{Term abbreviations} \\
   \ltiEl{}, \ltiFl{} &::=& ... \alt
                          \ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
                                                             {\ltiEnv{}}
@@ -1692,7 +1710,7 @@ $$
                       &\mbox{Closure Identifier} \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Closure Fuel} \\
-  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow \ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}
+  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}{\ova{\ltiFl{}}}}}
                       &\mbox{Closure Cache} \\
   \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
                       &\mbox{Combined Threaded Environments} \\
@@ -1718,8 +1736,10 @@ $$
 
     \infer [Abs]
     {
-    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}
-                         {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}}
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}
+                         {\ltiT{}}
+                         {\ltiTp{}}
+    = \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
                          \\\\
                          1 \leq i \leq n
     \\\\
@@ -1882,9 +1902,9 @@ $$
     \\
     \ltiClosureCachep{}
     =
-    \ltireplace{\ltiEmptyIFn}
-               {\ltiClosureID{}}
-               {\ltiClosureCache{}}
+    \ltimapsto{\ltiClosureID{}}
+              {\ltiClosureCacheVal{\ltiEmptyIFn}{\varnothing}}
+              {\ltiClosureCache{}}
     }
     {
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
@@ -2096,11 +2116,12 @@ $$
                                                   {\ltiClosureCachep{}}}
                       {\ltiEl{}}
                       \\\\
-    (\ltiClosureID{},\ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}) \in \ltiClosureCachep{}
+    \ltiClosureCacheVal{\ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}{\ova{\ltiFl{}}} = \ltilookup{\ltiClosureID{}}{\ltiClosureCachep{}}
     \\\\
-    \ltiClosureCachepp{} = \ltireplace{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}} \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}
-                                      {\ltiClosureID{}}
-                                      {\ltiClosureCachep{}}
+    \ltiClosureCachepp{} = \ltimapsto{\ltiClosureID{}}
+                                     {\ltiClosureCacheVal{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}} \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}
+                                                         {\{\ltiEl{}\} \cup {\ova{\ltiFl{}}}}}
+                                     {\ltiClosureCachep{}}
     }
     { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
                                               {\ltiClosureCache{}}}
@@ -2195,7 +2216,7 @@ $$
     { 
       1 \leq i \leq n
       \\\\
-     \exists i. \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiTp{}}{\ltiT{i}}{\ltiCombinedThreadedEnvpp{i}}
+     \exists i, \ltiCombinedThreadedEnvpp{}. \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiTp{}}{\ltiT{i}}{\ltiCombinedThreadedEnvpp{}}
     \\\\
       (\ltiSp{i}, \ltiCombinedThreadedEnv{i})
         = \left\{
@@ -2278,6 +2299,15 @@ $$
                    {\ltiCombinedThreadedEnvp{}}
                 }
 
+    \infer[]
+    {TODO }
+    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
+                   {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                   {\ltiS{}}
+                   {\ltiSp{}}
+                   {\ltiCombinedThreadedEnvp{}}
+                }
+
     % no checkAppSC case needed for Mu because we only insert them after elaboration,
     % and disallow their use in user annotations in the SC language
 
@@ -2313,6 +2343,128 @@ $$
   \]
 
   \caption{Metafunctions for Symbolic Closure language}
+\end{figure}
+
+\begin{figure}
+
+  \[
+    \boxed{\ltielimClos{\ltiCombinedThreadedEnv{}}{\ltiEl{}}{\ltiE{}}
+    \text{ Converts symbolic closures in \ltiEl{} to explicit types in \ltiE{}}
+    }
+  \]
+
+  \begin{mathpar}
+    \infer[Var]
+    {}
+    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltivar{}}
+                 {\ltivar{}}
+                }
+
+    \infer [Abs]
+    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiEl{}}
+                 {\ltiE{}}
+                 }
+    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEl{}}}
+                 {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
+                 }
+
+    \infer [Ann]
+    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiEl{}}
+                 {\ltiE{}}
+                 \\\\
+     \ltielimClosT{\ltiCombinedThreadedEnv{}}
+                  {\ltiT{}}
+                  {\ltiTp{}}
+                 }
+    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiann{\ltiEl{}}{\ltiT{}}}
+                 {\ltiann{\ltiE{}}{\ltiTp{}}}
+                 }
+
+    \infer [App]
+    {
+    \ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiFl{}}
+                 {\ltiF{}}
+                 \\
+    \ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiEl{}}
+                 {\ltiE{}}
+                 }
+    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiapp{\ltiFl{}}{\ltiEl{}}}
+                 {\ltiapp{\ltiF{}}{\ltiE{}}}
+                 }
+
+    \infer [Sel]
+    {
+    \ltielimClos{\ltiCombinedThreadedEnv{}}
+                 {\ltiFl{}}
+                 {\ltiF{}}
+    }
+    {
+    \ltielimClos{\ltiCombinedThreadedEnv{}}
+                {\ltisel{\ltiFl{}}{\ltivar{}}}
+                {\ltisel{\ltiF{}}{\ltivar{}}}
+    }
+
+    \infer [Rec]
+    {
+    \ltielimClos{\ltiCombinedThreadedEnv{}}
+                {\ltiFl{i}}
+                {\ltiF{i}}
+                }
+    {
+    \ltielimClos{\ltiCombinedThreadedEnv{}}
+                {\ltiRec{\ova{\ltivar{} = \ltiFl{}}}}
+                {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+    }
+
+    \infer [UAbs]
+    {
+    1 \leq i \leq n
+    \\
+    \ltiClosureCacheVal{\ltiT{i}}{\ova{\ltiFl{}}^{m_i}_i} = \ltilookup{\ltiClosureID{i}}{\ltiClosureCachep{}}
+    \\\\
+    \ltiEp{i} =  \left\{
+                 \begin{array}{lll}
+                   \ltiFl{0}, &\text{if } m_i=0 \arcr
+                   \ltiEl{1}, &\text{if } m_i=1 \arcr
+                   \ltiFl{n}, & \text{otherwise, where} \arcr
+                   &\text{ } \ltimergeTaggedTerms{\ltiFl{i-1}}{\ltiEl{i}}{\ltiFl{i}}, 
+                 \end{array}
+                 \right.
+    \\\\
+    \ltielimClosT{\ltiCombinedThreadedEnv{}}{\ltiT{i}}{\ltiTp{i}}
+    }
+    { \ltielimClos{\ltiCombinedThreadedEnv{}}
+                  {\ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                      {\ltiEnv{}}
+                                                      {\ltiClosureID{}}}^n}
+                               {\ltivar{}}
+                               {\ltiE{}}}
+                  {\ltifuninterface{\ltiIntersection{\ova{\ltiTp{}}^n}}
+                                   {\ltivar{}}
+                                   {\ltiEp{}}}
+                  }
+
+
+  \end{mathpar}
+
+
+  \[
+    \boxed{\ltielimClosT{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiTp{}}
+    \text{ Converts symbolic closures in \ltiT{} to explicit types in \ltiTp{}}
+    }
+  \]
+  \begin{mathpar}
+    TODO
+  \end{mathpar}
+  \caption{Elaboration Metafunctions for Symbolic Closure language}
 \end{figure}
 
 \subsection{External Language with type-argument synthesis}

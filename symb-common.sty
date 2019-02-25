@@ -32,11 +32,12 @@
 % Stack Env ID
 \newcommand\ltiufunelabentry[3]{\ma{#1;#2;#3}}
 % ElabEntry x E
-\newcommand\ltiufunelab[3]{\ma{\l^{#1} #2 . #3}}
+\newcommand\ltiufunelab[3]{\ma{\l^{#1}_* #2 . #3}}
 %\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
 \newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
 \newcommand\ltiann[2]{\ma{(\textsf{ann}\ #1\ #2)}}
+\newcommand\ltilet[3]{\ma{(\textsf{let}\ [#1\ #2]\ #3)}}
 \newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
 \newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
@@ -69,6 +70,7 @@
 \newmeta\ltiClosureCache{\ltiClosureCachesymbol}
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
 \newmeta\ltiClosureCachepp{\ltiClosureCachesymbol''}
+\newcommand\ltiClosureCacheVal[2]{\ma{\langle #1, #2 \rangle}}
 \newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Sigma}}
 \newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
 \newmeta\ltiCombinedThreadedEnvp{\ltiCombinedThreadedEnvsymbol'}
@@ -92,9 +94,9 @@
 \newmeta\ltiWild{?}
 \newcommand\ltiTop{\ma{\top}}
 \newcommand\ltiBot{\ma{\bot}}
-\newcommand\ltiTypeCase[2]{\ma{(\mathsf{TypeCase}\ #1\ #2)}}
+\newcommand\ltiTypeCase[2]{\ma{(\mathsf{TCase}\ #1\ #2)}}
 \newcommand\ltiTypeCaseClause[2]{\ma{#1 \Rightarrow #2}}
-\newcommand\ltiEnclosingFnType[1]{\ma{(\mathsf{EnclosingFn}\ #1)}}
+\newcommand\ltiEnclosingFnType[1]{\ma{(\mathsf{EnclFn}\ #1)}}
 \newcommand\ltiMu[2]{\ma{\mu #1. #2}}
 \newcommand\ltiAppAllOne[1]{\ma{(\mathsf{App}\ #1)}}
 \newcommand\ltiAppAll[2]{\ma{\ltiAppAllOne{#1\ #2}}}
@@ -114,6 +116,7 @@
 \newcommand\ltiIFn[1]{\ma{(\ltiIFnsymbol\ #1)}}
 \newcommand\ltiEmptyIFn{\ma{(\ltiIFnsymbol)}}
 \newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
+\newcommand\ltiPolyFn[3]{\ma{[#1 \xrightarrow[]{#2} #3]}}
 \newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
 \newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}
 \newcommand\ltiClosure[2]{\ma{#1 @ #2}}
@@ -121,6 +124,9 @@
 \newcommand\ltiClosureWithStkID[4]{\ma{(#1;#2) @^{#3} #4}}
 \newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
+\newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
+\newcommand\ltimapsto[3]{\ma{[#1 \mapsto #2]#3}}
+\newcommand\ltilookup[2]{\ma{[#1]#2}}
 % type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
 % external type system
@@ -177,9 +183,17 @@
 \newcommand\lticheckApp[3]{\ma{\texttt{synApp}(#1, #2) = #3}}
 % ThreadedEnv t t -> InterfaceT ; ThreadedEnv
 \newcommand\lticheckAppSC[5]{\ma{\texttt{solveOp}(#1, #2, #3) = #4 ; #5}}
+% t -> t
 \newcommand\ltimonoRngLHS[1]{\ma{\texttt{monoRng}(#1)}}
 \newcommand\ltimonoRngalign[2]{\ma{\ltimonoRngLHS{#1} &=& #2}}
 \newcommand\ltimonoRng[2]{\ma{\ltimonoRngLHS{#1} = #2}}
+% ThreadedEnv e* -> e
+\newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
+\newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
+% ThreadedEnv t -> t
+\newcommand\ltielimClosTLHS[2]{\ma{\texttt{elabT}(#1, #2)}}
+\newcommand\ltielimClosT[3]{\ma{\ltielimClosTLHS{#1}{#2} = #3}}
+
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
