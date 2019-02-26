@@ -107,6 +107,10 @@
 \newcommand\ltiUnion[1]{\ma{(\bigcup #1)}}
 \newcommand\ltiIntersection[1]{\ma{(\bigcap #1)}}
 \newcommand\ltiIntersecttwo[2]{\ma{(\cap\ #1\ #2)}}
+\newcommand\ltiEmptyIntersection{\ma{(\cap)}}
+\newcommand\ltiMeetLHS[2]{\ma{#1 \wedge #2}}
+\newcommand\ltiMeet[3]{\ma{\ltiMeetLHS{#1}{#2} = #3}}
+\newcommand\ltiMeetalign[3]{\ma{\ltiMeetLHS{#1}{&#2} &=& #3}}
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
 \newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
@@ -183,6 +187,7 @@
 % subtype for external types but inverted colors with fuel
 \newcommand\lticfsubtypeinv[4]{\ma{#1 \vdash #2 \ltiinvertedleq #3 \dashv #4}}
 % expand EnclosingFn in internal language
+% Stack T -> T
 \newcommand\ltiexpandEnclosingFnLHS[2]{\ma{\texttt{res}(#1, #2)}}
 \newcommand\ltiexpandEnclosingFn[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} = #3}}
 \newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}

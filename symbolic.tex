@@ -1139,12 +1139,13 @@ $$
                          \ltiRec{\ova{\ltivar{} = \ltiE{}}} \alt
                          \ltiann{\ltiE{}}{\ltiT{}}
                       &\mbox{Terms} \\
-  \ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}} &\Leftrightarrow& \ltiann{\ltiufun{\ltivar{}}{\ltiE{}}}{\ltiT{}}
+  \ltiufun{\ova{\ltivar{i}}^n}{\ltiE{}} &\Leftrightarrow& \ltiufun{\ltivarp{}}{\ltireplaceova{\ltisel{\ltivarp{}}{\textsf{arg}_i}}{\ltivar{i}}{\ltiE{}}},
+  \text{where \ltivarp{} is fresh, } n \not= 1
   \\
-  \ltiapp{\ltiF{}}{\ova{\ltiE{i}}} &\Leftrightarrow& \ltiapp{\ltiF{}}{\ltiRec{\ova{\textsf{arg}_i = \ltiE{i}}}}
+  \ltifuninterface{\ltiT{}}{\ova{\ltivar{}}}{\ltiE{}} &\Leftrightarrow& \ltiann{\ltiufun{\ova{\ltivar{}}}{\ltiE{}}}{\ltiT{}}
   \\
-  \ltiufun{\ova{\ltivar{i}}}{\ltiE{}} &\Leftrightarrow& \ltiufun{\ltivarp{}}{\ltireplaceova{\ltisel{\ltivarp{}}{\textsf{arg}_i}}{\ltivar{i}}{\ltiE{}}},
-  \text{where \ltivarp{} is fresh}
+  \ltiapp{\ltiF{}}{\ova{\ltiE{i}}^n} &\Leftrightarrow& \ltiapp{\ltiF{}}{\ltiRec{\ova{\textsf{arg}_i = \ltiE{i}}}},
+  \text{where } n \not= 1
                       &\mbox{Term abbreviations} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} 
                          \alt
@@ -1157,12 +1158,15 @@ $$
                          \alt
                          \ltiMu{\ltitvar{}}{\ltiT{}}
                          \\&\alt& 
-                         \ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
-                         \alt
+                         %\ltiAppAll{\ltiT{}}{\ova{\ltiT{}}}
+                         %\alt
                          \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
                          \alt \ltiEnclosingFnType{n}
                       &\mbox{Types} \\
-  \ltiFn{\ova{\ltiT{i}}}{\ltiS{}} &\Leftrightarrow& \ltiFn{\ltiRec{\hastype{\textsf{arg}_i}{\ltiT{i}}}}{\ltiS{}}
+  %\Top &\Leftrightarrow& \ltiEmptyIntersection
+  % \\
+  \ltiFn{\ova{\ltiT{i}}^n}{\ltiS{}} &\Leftrightarrow& \ltiFn{\ltiRec{\ova{\hastype{\textsf{arg}_i}{\ltiT{i}}}}}{\ltiS{}},
+        \text{where } n\not=1
                       &\mbox{Type abbreviations} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv{} \alt
@@ -1411,25 +1415,25 @@ and concatenation
                     {\ltiMu{\ltitvar{}}{\ltiT{}}}
     }
 
-    \infer [S-AppR]
-    {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}
-                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
-                    {\ltiT{}}
-    }
-    {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}
-                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
-                    {\ltiAppAll{\ltiT{}}{\ova{\ltiS{}}}}
-    }
-
-    \infer [S-AppL]
-    {}
-    {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}
-                    {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
-                    {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-    }
+%    \infer [S-AppR]
+%    {
+%    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+%                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+%                    {\ltiT{}}
+%    }
+%    {
+%    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+%                    {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+%                    {\ltiAppAll{\ltiT{}}{\ova{\ltiS{}}}}
+%    }
+%
+%    \infer [S-AppL]
+%    {}
+%    {
+%    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+%                    {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
+%                    {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+%    }
 
     % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
     \infer [S-IFn]
@@ -1483,7 +1487,9 @@ and concatenation
                                    \ltiTp{i} = 
                                    \left\{
                                    \begin{array}{ll}
-                                     \ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiSp{i}}, & \text{if }
+                                     \ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}
+                                                             {\ltiSp{i}},
+                                                 & \text{if }
                                                \ltiisubtype
                                                 {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}
                                                 {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiS{i}}}
@@ -1491,13 +1497,7 @@ and concatenation
                                                 \ltiTop, &\text{otherwise}
                                    \end{array}
                                    \right.
-                                                \\
-      %\ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
-      %                          {\ltiIntersection{\ova{\ltiT{}}}}
-      %                          {\ltiIntersection{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
-      %\ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
-      %                          {\ltiUnion{\ova{\ltiT{}}}}
-      %                          {\ltiUnion{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
+                                   \\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
                                 {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                                 {\ltiPoly{\ova{\ltitvar{}}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}\\
@@ -1509,13 +1509,14 @@ and concatenation
                                 {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
                                 {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
-                                {\ltiMu{\ltitvar{}}
-                                       {\ltiT{}}}
-                                {\ltiMu{\ltitvar{}}
-                                       {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}\\
-      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
-                                {\ltiAppAllOne{\ova{\ltiT{}}}}
-                                {\ltiAppAllOne{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
+                                {\ltiMu{\ltitvar{}}{\ltiT{}}}
+                                {\ltireplace{\ltiMu{\ltitvar{}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}
+                                            {\ltitvar{}}
+                                            {\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}
+                                                                \\
+%      \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}
+%                                {\ltiAppAllOne{\ova{\ltiT{}}}}
+%                                {\ltiAppAllOne{\ova{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}}\\
       \ltiexpandEnclosingFnalign{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
     \\
@@ -1528,7 +1529,7 @@ and concatenation
                 {\ltiE{}}
                 {\ltiT{}}
                 \text{ Check that function \ltiufun{\ltivar{}}{\ltiE{}}
-                is type \ltiT{} in contexts \ltiEnclosingFnStack{} and \ltiEnv{}.
+                is resolved type \ltiT{} in contexts \ltiEnclosingFnStack{} and \ltiEnv{}.
                 }
                 }
                 }
@@ -1550,67 +1551,20 @@ and concatenation
                 {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
                 }
 
-                % Union
 %    \infer[]
-%    { \exists i.
-%      \lticheckFn{\ltiEnclosingFnStack{}}
+%    { \lticheckFn{\ltiEnclosingFnStack{}}
 %                 {\ltiEnv{}}
 %                 {\ltivar{}}
 %                 {\ltiE{}}
-%                 {\ltiT{i}}
+%                 {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
 %                 }
 %    {\lticheckFn{\ltiEnclosingFnStack{}}
 %                {\ltiEnv{}}
 %                {\ltivar{}}
 %                {\ltiE{}}
-%                {\ltiUnion{\ova{\ltiT{i}}}}
+%                {\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+%                           {\ova{\ltiS{}}}}
 %                }
-
-                % Intersection
-%    \infer[]
-%    { \overrightarrow{
-%        \lticheckFn{\ltiEnclosingFnStack{}}
-%                   {\ltiEnv{}}
-%                   {\ltivar{}}
-%                   {\ltiE{}}
-%                   {\ltiT{}}
-%                   }
-%                   }
-%    {\lticheckFn{\ltiEnclosingFnStack{}}
-%                {\ltiEnv{}}
-%                {\ltivar{}}
-%                {\ltiE{}}
-%                {\ltiIntersection{\ova{\ltiT{}}}}
-%                }
-
-    \infer[]
-    { \lticheckFn{\ltiEnclosingFnStack{}}
-                 {\ltiEnv{}}
-                 {\ltivar{}}
-                 {\ltiE{}}
-                 {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                 }
-    {\lticheckFn{\ltiEnclosingFnStack{}}
-                {\ltiEnv{}}
-                {\ltivar{}}
-                {\ltiE{}}
-                {\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                           {\ova{\ltiS{}}}}
-                }
-
-    \infer[]
-    { \lticheckFn{\ltiEnclosingFnStack{}}
-                 {\ltiEnv{}}
-                 {\ltivar{}}
-                 {\ltiE{}}
-                 {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
-                 }
-    {\lticheckFn{\ltiEnclosingFnStack{}}
-                {\ltiEnv{}}
-                {\ltivar{}}
-                {\ltiE{}}
-                {\ltiMu{\ltitvar{}}{\ltiT{}}}
-                }
 
     \infer[]
     { \lticheckFn{\ltiEnclosingFnStack{}}
@@ -1681,16 +1635,16 @@ and concatenation
 %                 {\ltiIntersection{\ova{\ltiSp{}}}}
 %                }
 
-    \infer[]
-    {\lticheckApp{\ltireplace{\ova{\ltiTp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                 {\ltiS{}}
-                 {\ltiSp{}}
-                }
-    {\lticheckApp{\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                            {\ova{\ltiTp{}}}}
-                 {\ltiS{}}
-                 {\ltiSp{}}
-                }
+%    \infer[]
+%    {\lticheckApp{\ltireplace{\ova{\ltiTp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+%                 {\ltiS{}}
+%                 {\ltiSp{}}
+%                }
+%    {\lticheckApp{\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+%                            {\ova{\ltiTp{}}}}
+%                 {\ltiS{}}
+%                 {\ltiSp{}}
+%                }
 
     \infer[]
     {\lticheckApp{\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
@@ -1730,8 +1684,8 @@ $$
   \ltiT{}, \ltiS{}, \ltiR{} &::=& ...
                          \alt \ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Types} \\
-  \ltiClosureID{} &::=& n
-                      &\mbox{Closure Identifier} \\
+  \ltiClosureID{} &::=& \ltitvar{}
+                      &\mbox{Closure Identifiers} \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Closure Fuel} \\
   \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}{\ltiE{}}}}
@@ -1757,47 +1711,6 @@ $$
                       {\ltiCombinedThreadedEnv{}}
                       {\ltivar{}}
                  }
-
-%    \infer [Abs]
-%    {
-%    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}
-%                         {\ltiT{}}
-%                         {\ltiTp{}}
-%    = \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
-%                         \\\\
-%                         1 \leq i \leq n
-%    \\\\
-%    \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
-%                     {\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
-%                     {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
-%                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
-%                                                 {\ltiEnv{}}}}
-%                     {\ltiE{}}
-%                     {\ltiS{i}}
-%                     {\ltiCombinedThreadedEnv{i}}
-%                     {\ltiEl{i}}
-%                 \\\\
-%                 \ltiFl{0} = \ltiE{}
-%                 \\\\
-%                 \ltiFlp{} =
-%                 \left\{
-%                 \begin{array}{lll}
-%                   \ltiFl{0}, &\text{if } n=0 \arcr
-%                   \ltiEl{1}, &\text{if } n=1 \arcr
-%                   \ltiFl{n}, & \text{otherwise, where} \arcr
-%                   &\text{ } \ltimergeTaggedTerms{\ltiFl{i-1}}{\ltiEl{i}}{\ltiFl{i}}, 
-%                 \end{array}
-%                 \right.
-%                 }
-%    {
-%    \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
-%                     {\ltiEnclosingFnStack{}}
-%                     {\ltiEnv{}}
-%                     {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
-%                     {\ltiTp{}}
-%                     {\ltiCombinedThreadedEnv{n}}
-%                     {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiFlp{}}}
-%                 }
 
     \infer [Ann]
     { 
@@ -1931,6 +1844,13 @@ $$
     \ltimapsto{\ltiClosureID{}}
               {\ltiClosureCacheVal{\ltiEmptyIFn}{\ltiE{}}}
               {\ltiClosureCache{}}
+              \\\\
+              \ltiT{} = {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}
+                                           {\ltiEnv{}}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\ltivar{}}{\ltiE{}}}}
+              \\\\
+              \ltiwrapTypeCase{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
     }
     {
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
@@ -1938,17 +1858,16 @@ $$
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltiufun{\ltivar{}}{\ltiE{}}}
-                      {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}
-                                           {\ltiEnv{}}
-                                           {\ltiClosureID{}}
-                                           {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                      {\ltiT{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuel{}}
                                                   {\ltiClosureCachep{}}}
-                      {\ltiufunelab{\ltiufunelabentry{\ltiEnclosingFnStack{}}
-                                                     {\ltiEnv{}}
-                                                     {\ltiClosureID{}}}
-                                   {\ltivar{}}
-                                   {\ltiE{}}}
+                      {\ltiann
+                        {\ltiufunelab{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                                                       {\ltiEnv{}}
+                                                       {\ltiClosureID{}}}
+                                     {\ltivar{}}
+                                     {\ltiE{}}}
+                        {\ltiTp{}}}
                  }
   \end{mathpar}
 
@@ -2072,28 +1991,28 @@ $$
                 {\ltiCombinedThreadedEnvp{}}
     }
 
-    \infer [S-AppR]
-    {
-    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
-                {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
-                {\ltiT{}}
-                {\ltiCombinedThreadedEnvp{}}
-    }
-    {
-    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
-                {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
-                {\ltiAppAll{\ltiT{}}{\ova{\ltiS{}}}}
-                {\ltiCombinedThreadedEnvp{}}
-    }
-
-    \infer [S-AppL]
-    {}
-    {
-    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
-                {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
-                {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                {\ltiCombinedThreadedEnv{}}
-    }
+%    \infer [S-AppR]
+%    {
+%    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+%                {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+%                {\ltiT{}}
+%                {\ltiCombinedThreadedEnvp{}}
+%    }
+%    {
+%    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+%                {\ltiPoly{\overline{\ltitvar{}}}{\ltiTp{}}}
+%                {\ltiAppAll{\ltiT{}}{\ova{\ltiS{}}}}
+%                {\ltiCombinedThreadedEnvp{}}
+%    }
+%
+%    \infer [S-AppL]
+%    {}
+%    {
+%    \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+%                {\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
+%                {\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+%                {\ltiCombinedThreadedEnv{}}
+%    }
 
     % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
     \infer [S-Fn]
@@ -2335,20 +2254,20 @@ $$
     %               {\ltiCombinedThreadedEnv{n}}
     %            }
 
-    \infer[]
-    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
-                   {\ltireplace{\ova{\ltiTp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                   {\ltiS{}}
-                   {\ltiSp{}}
-                   {\ltiCombinedThreadedEnvp{}}
-                }
-    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
-                   {\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                              {\ova{\ltiTp{}}}}
-                   {\ltiS{}}
-                   {\ltiSp{}}
-                   {\ltiCombinedThreadedEnvp{}}
-                }
+%    \infer[]
+%    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
+%                   {\ltireplace{\ova{\ltiTp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+%                   {\ltiS{}}
+%                   {\ltiSp{}}
+%                   {\ltiCombinedThreadedEnvp{}}
+%                }
+%    {\lticheckAppSC{\ltiCombinedThreadedEnv{}}
+%                   {\ltiAppAll{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+%                              {\ova{\ltiTp{}}}}
+%                   {\ltiS{}}
+%                   {\ltiSp{}}
+%                   {\ltiCombinedThreadedEnvp{}}
+%                }
 
     \infer[]
     {TODO }
@@ -2390,9 +2309,8 @@ $$
                     {\ltimonoRngLHS{\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}}
                     \\
                     % TODO resolve under operator first
-    \ltimonoRngalign{\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
-                    {\ltimonoRngLHS{\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}}
-                    \\
+    %\ltimonoRngalign{\ltiAppAll{\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}{\ova{\ltiS{}}}}
+    %                {\ltimonoRngLHS{\ltireplace{\ova{\ltiS{}}}{\ova{\ltitvar{}}}{\ltiT{}}}}
   \end{array}
   \]
 
@@ -2402,29 +2320,29 @@ $$
 \begin{figure}
 
   \[
-    \boxed{\ltielimClos{\ltiCombinedThreadedEnv{}}{\ltiEl{}}{\ltiE{}}
-    \text{ Converts symbolic closures in \ltiEl{} to explicit types in \ltiE{}}
+    \boxed{\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
+    \text{ Converts symbolic closures in \ltiE{} to explicit types in \ltiEp{}}
     }
   \]
 
   \[
   \begin{array}{llll}
-    \ltielimClosalign{\ltiCombinedThreadedEnv{}}
+    \ltielimClosalign{\ltiClosureCache{}}
                      {\ltivar{}}
                      {\ltivar{}}
                      \\
-    \ltielimClosalign{\ltiCombinedThreadedEnv{}}
+    \ltielimClosalign{\ltiClosureCache{}}
                      {\ltiapp{\ltiF{}}{\ltiE{}}}
-                     {\ltiapp{\ltielimClosLHS{\ltiCombinedThreadedEnv{}}{\ltiF{}}}
-                             {\ltielimClosLHS{\ltiCombinedThreadedEnv{}}{\ltiE{}}}}
+                     {\ltiapp{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}
+                             {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
                              \\
-    \ltielimClosalign{\ltiCombinedThreadedEnv{}}
+    \ltielimClosalign{\ltiClosureCache{}}
                      {\ltisel{\ltiF{}}{\ltivar{}}}
-                     {\ltisel{\ltielimClosLHS{\ltiCombinedThreadedEnv{}}{\ltiF{}}}{\ltivar{}}}
+                     {\ltisel{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}{\ltivar{}}}
                      \\
-    \ltielimClosalign{\ltiCombinedThreadedEnv{}}
+    \ltielimClosalign{\ltiClosureCache{}}
                      {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
-                     {\ltiRec{\ova{\ltivar{} = \ltielimClosLHS{\ltiCombinedThreadedEnv{}}{\ltiF{}}}}}
+                     {\ltiRec{\ova{\ltivar{} = \ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}}}
   \end{array}
   \]
 
@@ -2435,27 +2353,23 @@ $$
     \\
     \ltiClosureCacheVal{\ltiT{i}}{\ltiF{i}} = \ltilookup{\ltiClosureID{i}}{\ltiClosureCachep{}}
     \\\\
-    \ltimergeTaggedTerms{\ltiE{i-1}}{\ltiF{i}}{\ltiE{i}}
-    \\\\
-    \ltielimClosT{\varnothing}{\ltiCombinedThreadedEnv{}}{\ltiT{i}}{\ltiS{i}}
+    \ltimergeTaggedTerms{\ltiE{i-1}}{\ltielimClosLHS{\ltiEnclosingFnStack{}}{\ltiF{i}}}{\ltiE{i}}
     }
-    { \ltielimClos{\ltiCombinedThreadedEnv{}}
+    { \ltielimClos{\ltiClosureCache{}}
                   {\ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
                                                       {\ltiEnv{}}
                                                       {\ltiClosureID{}}}^n}
                                {\ltivar{}}
                                {\ltiE{0}}}
-                  {\ltifuninterface{\ltiIntersection{\ova{\ltiS{}}^n}}
-                                   {\ltivar{}}
-                                   {\ltiE{n}}}
+                  {\ltiufun{\ltivar{}}{\ltiE{n}}}
                   }
 
     \infer [Elab-Ann]
-    {\ltielimClos{\ltiCombinedThreadedEnv{}}{\ltiE{}}{\ltiEp{}}
+    {\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
     \\\\
-    \ltielimClosT{\varnothing}{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiTp{}}
+    \ltielimClosT{\varnothing}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
     }
-    {\ltielimClos{\ltiCombinedThreadedEnv{}}
+    {\ltielimClos{\ltiClosureCache{}}
                  {\ltiann{\ltiE{}}{\ltiT{}}}
                  {\ltiann{\ltiEp{}}
                          {\ltiTp{}}}}
@@ -2463,67 +2377,76 @@ $$
 
 
   \[
-    \boxed{\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiT{}}{\ltiTp{}}
-    \text{ Converts symbolic closures in \ltiT{} to explicit types in \ltiTp{}}
+    \boxed{\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
+    \text{ Converts symbolic closures in unresolved \ltiT{} to explicit types in \ltiTp{}}
     }
   \]
 
   \[
   \begin{array}{llll}
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltitvar{}}{\ltitvar{}}\\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiTop}{\ltiTop}\\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiBot}{\ltiBot}\\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltitvar{}}{\ltitvar{}}\\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTop}{\ltiTop}\\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiBot}{\ltiBot}\\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
+                      {\ltiEnclosingFnType{n}}
+                      {\ltiEnclosingFnType{n}}
+                                          \\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
-                      {\ltiIFn{\ova{\ltiFn{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiT{}}}
-                                          {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiS{}}}}}}
+                      {\ltiIFn{\ova{\ltiFn{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
+                                          {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}}}}
                                           \\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
-                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiT{}}}}}}
+                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}}}
                                           \\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
-                      {\ltiMu{\ltitvar{}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiT{}}}}
+                      {\ltiMu{\ltitvar{}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}
                                           \\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}
-                      {\ltiAppAllOne{\ltiT{}}}
-                      {\ltiAppAllOne{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}{\ltiT{}}}}
-                                          \\
+    %\ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
+    %                  {\ltiAppAllOne{\ova{\ltiT{}}}}
+    %                  {\ltiAppAllOne{\ova{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}}
+    %                                      \\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
+                      {\ltiTypeCase{\ltiT{}}
+                                   {\ova{\ltiTypeCaseClause{\ltiS{}}{\ltiSp{}}}}}
+                      {\ltiTypeCase{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
+                                   {\ova{\ltiTypeCaseClause{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}
+                                                           {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiSp{}}}}}}
   \end{array}
   \]
 
-  % FIXME make the seen list a mapping from Closure ID's to type variables instead of using
-  % an implicit gensym
   \begin{mathpar}
+
+    \infer[Elab-UnseenClosure]
+    {
+    \ltiClosureIDp{} \not\in \ova{\ltiClosureID{}}
+    \\\\
+    \ltiClosureCacheVal{\ltiT{}}{\ltiF{}} = \ltilookup{\ltiClosureIDp{}}{\ltiClosureCache{}}
+    \\\\
+    \ltielimClosT{(\ltiClosureIDp{}, \ova{\ltiClosureID{}})}
+                 {\ltiClosureCache{}}
+                 {\ltiT{i}}
+                 {\ltiS{}}
+    \\\\
+    \ltitvar{} = \ltiClosureIDp{}
+    }
+    {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
+                  {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureIDp{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                  {\ltiMu{\ltitvar{}}
+                         {\ltiS{}}}
+                  }
+
     \infer[Elab-SeenClosure]
     {
     \ltiClosureIDp{} \in \ova{\ltiClosureID{}}
     \\
     \ltitvar{} = \ltiClosureIDp{}
     }
-    {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}
+    {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                   {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureIDp{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                   {\ltitvar{}}
-                  }
-
-    \infer[Elab-UnseenClosure]
-    {
-    \ltiClosureIDp{} \not\in \ova{\ltiClosureID{}}
-    \\\\
-    \ltiClosureCacheVal{\ltiT{i}}{\ltiF{i}} = \ltilookup{\ltiClosureID{i}}{\ltiClosureCachep{}}
-    \\\\
-    \ltielimClosT{(\ltiClosureIDp{}, \ova{\ltiClosureID{}})}
-                 {\ltiCombinedThreadedEnv{}}
-                 {\ltiT{i}}
-                 {\ltiS{}}
-    \\\\
-    \ltitvar{} = \ltiClosureIDp{}
-    }
-    {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiCombinedThreadedEnv{}}
-                  {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureIDp{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                  {\ltiMu{\ltitvar{}}
-                         {\ltiS{}}}
                   }
   \end{mathpar}
 
