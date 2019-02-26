@@ -60,6 +60,7 @@
 \newmeta\ltiTpp{\esoptau''}
 \newmeta\ltiS{\esopsigma}
 \newmeta\ltiSp{\esopsigma'}
+\newmeta\ltiSpp{\esopsigma''}
 \newcommand\ltiRletter{\chi}
 \newmeta\ltiR{\ltiRletter}
 \newmeta\ltiRp{\ltiRletter'}
@@ -141,6 +142,15 @@
 \newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
 \newcommand\ltimapsto[3]{\ma{[#1 \mapsto #2]#3}}
 \newcommand\ltilookup[2]{\ma{[#1]#2}}
+% T T -> Subst
+\newcommand\ltimatchTLHS[3]{\ma{\texttt{match}(#1,#2,#3)}}
+\newcommand\ltimatchT[4]{\ma{\ltimatchTLHS{#1}{#2}{#3} = #4}}
+\newcommand\ltimatchTalign[4]{\ma{\ltimatchTLHS{#1}{&#2}{&#3} &=& #4}}
+\newcommand\ltiEmptyMatchSubst{\{\}}
+\newcommand\ltiMatchSubst[1]{\{#1\}}
+\newcommand\ltiMatchSubstEntry[2]{\ma{#1 \mapsto #2}}
+\newcommand\ltimergeMatchSubstsLHS[1]{\ma{\texttt{mergeMatchSubsts}(#1)}}
+\newcommand\ltimergeMatchSubsts[2]{\ma{\ltimergeMatchSubstsLHS{#1} = #2}}
 % type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
 % external type system
@@ -194,16 +204,6 @@
 \newcommand\ltiexpandEnclosingFnLHS[2]{\ma{\texttt{res}(#1, #2)}}
 \newcommand\ltiexpandEnclosingFn[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} = #3}}
 \newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}
-% Stack Env x e t
-\newcommand\lticheckFn[5]{\ma{\texttt{chkFn}(#1, #2, #3, #4, #5)}}
-% t t -> t
-\newcommand\lticheckApp[3]{\ma{\texttt{synApp}(#1, #2) = #3}}
-% ThreadedEnv t t -> InterfaceT ; ThreadedEnv
-\newcommand\lticheckAppSC[5]{\ma{\texttt{solveOp}(#1, #2, #3) = #4 ; #5}}
-% t -> t
-\newcommand\ltimonoRngLHS[1]{\ma{\texttt{monoRng}(#1)}}
-\newcommand\ltimonoRngalign[2]{\ma{\ltimonoRngLHS{#1} &=& #2}}
-\newcommand\ltimonoRng[2]{\ma{\ltimonoRngLHS{#1} = #2}}
 % ThreadedEnv e* -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
