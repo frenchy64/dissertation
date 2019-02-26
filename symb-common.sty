@@ -11,8 +11,10 @@
 \def\arcr{\@arraycr}
 \makeatother
 
-\newmeta\ltivar{x}
-\newmeta\ltivarp{x'}
+\newcommand\ltivarsymbol{\ma{x}}
+\newmeta\ltivar{\ltivarsymbol}
+\newmeta\ltivarp{\ltivarsymbol'}
+\newmeta\ltivarpp{\ltivarsymbol''}
 \newcommand\ltiEsymbol{\esope}
 \newmeta\ltiE{\ltiEsymbol}
 \newmeta\ltiEp{\ltiEsymbol'}
@@ -109,6 +111,7 @@
 \newcommand\ltiIntersecttwo[2]{\ma{(\cap\ #1\ #2)}}
 \newcommand\ltiEmptyIntersection{\ma{(\cap)}}
 \newcommand\ltiMeetLHS[2]{\ma{#1 \wedge #2}}
+\newcommand\ltiMeetMany[1]{\ma{\bigwedge #1}}
 \newcommand\ltiMeet[3]{\ma{\ltiMeetLHS{#1}{#2} = #3}}
 \newcommand\ltiMeetalign[3]{\ma{\ltiMeetLHS{#1}{&#2} &=& #3}}
 \newbfop\ltiSeqableOp{S}
