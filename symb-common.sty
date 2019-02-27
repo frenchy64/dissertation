@@ -76,6 +76,7 @@
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
 \newcommand\ltiClosureCachesymbol{\mathbb{C}}
+\newcommand\ltiEmptyClosureCache{\varnothing}
 \newmeta\ltiClosureCache{\ltiClosureCachesymbol}
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
 \newmeta\ltiClosureCachepp{\ltiClosureCachesymbol''}
@@ -93,7 +94,7 @@
 \newcommand\ltimakeCombinedStackEnv[2]{\ma{(#1 ; #2)}}
 
 \newmeta\ltinat{n}
-\newmeta\ltiEmptyEnv{\ma{\epsilon}}
+\newcommand\ltiEmptyEnv{\ma{\epsilon}}
 \newmeta\ltiEnv{\ma{\Gamma}}
 \newmeta\ltiEnvp{\ma{\Gamma}'}
 \newcommand\ltiEnclosingFnStacksymbol{\ma{\mathbb{S}}}
@@ -194,6 +195,10 @@
 \newcommand\ltiupdateClosureCacheLHS[5]{\ma{\texttt{recordClosure}(#1,#2,#3,#4,#5)}}
 \newcommand\ltiupdateClosureCache[6]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5} = #6}}
 \newcommand\ltiupdateClosureCachealign[6]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5} &=& #6}}
+% elabDriver
+% E -> E
+\newcommand\ltielabDriverLHS[1]{\ma{\texttt{elabDriver}(#1)}}
+\newcommand\ltielabDriver[2]{\ma{\ltielabDriverLHS{#1} = #2}}
 
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 

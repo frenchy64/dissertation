@@ -1166,7 +1166,7 @@ $$
         \text{where } n\not=1
                       &\mbox{Type abbreviations} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
-                  \ltiEmptyEnv{} \alt
+                  \ltiEmptyEnv \alt
                   \ltitvar{} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
@@ -1208,7 +1208,7 @@ consist of
 entries for local bindings
 \hastype{\ltivar{}}{\ltiT{}},
 the empty environment
-\ltiEmptyEnv{},
+\ltiEmptyEnv,
 in-scope type variables 
 \ltitvar{},
 and concatenation
@@ -1912,7 +1912,7 @@ $$
                      {\ltiE{}}
                      {\ltiT{}}
                      {\ltiCombinedThreadedEnv{}}
-                     {\ltiEl{}}
+                     {\ltiEp{}}
   }
   \label{symbolic:figure:SC-language-type-system}
 \end{figure}
@@ -2201,6 +2201,33 @@ $$
 \begin{figure}
 
   \[
+    \boxed{\ltielabDriver{\ltiE{}}{\ltiEp{}}
+    \text{ Elaborates \ltiE{} from symbolic closure language to \ltiEp{} in internal language.
+    }
+    }
+  \]
+
+  \begin{mathpar}
+    \infer[ElabDriver]
+    {
+     \exists \ltiFuel{}.\ 
+     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+                       {\ltiStackEmpty}
+                       {\ltiEmptyEnv}
+                       {\ltiE{1}}
+                       {\ltiT{}}
+                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                                   {\ltiClosureCache{}}}
+                       {\ltiE{2}}
+                       \\\\
+     \ltielimClos{\ltiClosureCache{}}{\ltiE{2}}{\ltiE{3}}
+    }
+    {
+    \ltielabDriver{\ltiE{1}}{\ltiE{3}}
+    }
+  \end{mathpar}
+
+  \[
     \boxed{\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
     \text{ Converts symbolic closures in \ltiE{} to explicit types in \ltiEp{}}
     }
@@ -2407,7 +2434,7 @@ $$
                          \ltiSynChk{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
                       &\mbox{Colored types} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiSyn{\ltiT{}}} \alt
-                  \ltiEmptyEnv{} \alt
+                  \ltiEmptyEnv \alt
                   \ltiSyn{\ltitvar{}} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
