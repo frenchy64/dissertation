@@ -1231,7 +1231,7 @@ and concatenation
     \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiTp{}}
                          {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
     \\\\
-    \ltitstkjudgement{\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
+    \ltitstkjudgement{\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
                      {\ltiEnvConcat{\ova{\ltitvar{}}}
                                    {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
                                                  {\ltiEnv{}}}}
@@ -1541,7 +1541,7 @@ and concatenation
       \ltimatchTalign{\ova{\ltitvar{}}}{\ltitvarp{}}{\ltitvarp{}}{\ltiEmptyMatchSubst},
       \text{ where } \ltitvarp{} \not\in \ova{\ltitvar{}}
       \\
-      \ltimatchTalign{\ova{\ltitvar{}}}{\ltiTop}{\ltiTop}{\ltiEmptyMatchSubst}\\
+      \ltimatchTalign{\ova{\ltitvar{}}}{\ltiT{}}{\ltiTop}{\ltiEmptyMatchSubst}\\
       \ltimatchTalign{\ova{\ltitvar{}}}{\ltiBot}{\ltiBot}{\ltiEmptyMatchSubst}\\
       \ltimatchTalign{\ova{\ltitvar{}}}
                      {\ltiMu{\ltitvarp{}}{\ltiT{}}}
@@ -1719,29 +1719,77 @@ $$
                        (\ltiTop, &\ltiCombinedThreadedEnvp{i-1}),  &\text{otherwise}
                      \end{array}
                    \right.
+                   \\\\
+                   \ltiwrapTypeCase{\ltiEnclosingFnStack{}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}{\ltiSpp{}}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
-                      {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
-                      {\ltiCombinedThreadedEnv{n}}
-                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+                      {\ltiMeetMany{\ova{\ltiSp{}}}}
+                      {\ltiCombinedThreadedEnvp{n}}
+                      {\ltiapp{\ltiann{\ltiFp{}}{\ltiSpp{}}}
+                              {\ltiEp{}}}
     }
 
     \infer [App-Closure]
     {
-    TODO
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiTpp{}}
+                      {\ltiCombinedThreadedEnv{2}}
+                      {\ltiFp{}}
+                  \\\\
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
+                      {\ltiEnclosingFnStack{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiTp{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{}}
+                                                  {\ltiClosureCache{}}}
+                      {\ltiEpp{}}
+                  \\\\
+    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}
+                         {\ltiTpp{}}
+                         {\ltiClosureWithStkID{\ltiEnclosingFnStackp{}}
+                                              {\ltiEnvp{}}
+                                              {\ltiClosureID{}}
+                                              {\ltiufun{\ltivar{}}{\ltiEp{}}}}
+                                              \\\\
+    0 < \ltiFuel{}
+    \\\\
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
+                                                  {\ltiClosureCache{}}}
+                      {\ltiStackPush{\ltiEnclosingFnStackp{}}
+                                    {\ltiIFn{\ltiFn{\ltiTp{}}{\ltiTop}}}}
+                      {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiTp{}}}
+                                    {\ltiEnvp{}}}
+                      {\ltiE{}}
+                      {\ltiS{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                                  {\ltiClosureCachep{}}}
+                      {\ltiFpp{}}
+                      \\\\
+    \ltiupdateClosureCache{\ltiClosureCachep{}}{\ltiClosureID{}}{\ltiTp{}}{\ltiS{}}{\ltiFpp{}}{\ltiClosureCachepp{}}
+    \\\\
+    \ltiwrapTypeCase{\ltiEnclosingFnStack{}}
+                    {\ltiIFn{\ltiFn{\ltiTp{}}{\ltiSp{}}}}
+                    {\ltiSpp{}}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
-                      {\ltiClosureWithStkID{\ltiEnclosingFnStack{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      {\ltiCombinedThreadedEnv{n}}
-                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+                      {\ltiS{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                                  {\ltiClosureCachepp{}}}
+                      {\ltiapp{\ltiann{\ltiFpp{}}
+                                      {\ltiSpp{}}}
+                              {\ltiEpp{}}}
     }
 
     \infer [App\Bot]
@@ -1780,9 +1828,14 @@ $$
                       {\ltiEnclosingFnStack{}}
                       {\ltiEnv{}}
                       {\ltiF{}}
-                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
+                      {\ltiS{}}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiFp{}}
+                      \\
+                      % expand recursive types
+    \ltiexpandEnclosingFn{\ltiCombinedThreadedEnvp{}}
+                         {\ltiS{}}
+                         {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}}}}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
@@ -1814,31 +1867,6 @@ $$
                       {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
                       {\ltiCombinedThreadedEnv{n}}
                       {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
-    }
-
-    \infer [Sub]
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
-                      {\ltiEnclosingFnStack{}}
-                      {\ltiEnv{}}
-                      {\ltiE{}}
-                      {\ltiS{}}
-                      {\ltiCombinedThreadedEnv{2}}
-                      {\ltiEp{}}
-                     \\\\
-                     \ltiSsubtype{\ltiCombinedThreadedEnv{2}}
-                                 {\ltiS{}}
-                                 {\ltiT{}}
-                                 {\ltiCombinedThreadedEnv{3}}
-    }
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
-                      {\ltiEnclosingFnStack{}}
-                      {\ltiEnv{}}
-                      {\ltiE{}}
-                      {\ltiT{}}
-                      {\ltiCombinedThreadedEnv{3}}
-                      {\ltiEp{}}
     }
 
     \infer [UAbs]
@@ -2044,21 +2072,19 @@ $$
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
                       {\ltiStackPush{\ltiEnclosingFnStack{}}
-                                    {\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                                    {\ltiIFn{\ltiFn{\ltiT{}}{\ltiTop}}}}
                       {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}
                                     {\ltiEnv{}}}
                       {\ltiE{}}
-                      {\ltiS{}}
-                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
-                                                  {\ltiClosureCachep{}}}
-                      {\ltiEl{}}
+                      {\ltiSp{}}
+                      {\ltiCombinedThreadedEnv{}}
+                      {\ltiEp{}}
                       \\\\
-    \ltiClosureCacheVal{\ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}{\ltiF{}} = \ltilookup{\ltiClosureID{}}{\ltiClosureCachep{}}
-    \\\\
-    \ltiClosureCachepp{} = \ltimapsto{\ltiClosureID{}}
-                                     {\ltiClosureCacheVal{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}} \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}
-                                                         {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}
-                                     {\ltiClosureCachep{}}
+    \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiSp{}}{\ltiS{}}
+                {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                            {\ltiClosureCachep{}}}
+                      \\\\
+    \ltiupdateClosureCache{\ltiClosureCachep{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiEp{}}{\ltiClosureCachepp{}}
     }
     { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
                                               {\ltiClosureCache{}}}
@@ -2146,6 +2172,29 @@ $$
                                      \\
   \end{array}
   $$
+
+  \begin{mathpar}
+    \infer[]
+    {}
+    {\boxed{\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
+    \text{ Record closure \ltiClosureID{} as \ltiFn{\ltiT{}}{\ltiS{}}, with elaboration \ltiE{}.
+    }
+    }
+    }
+
+    \\
+    \infer[]
+    {
+    \ltiClosureCacheVal{\ltiIFn{\ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}{\ltiF{}} = \ltilookup{\ltiClosureID{}}{\ltiClosureCache{}}
+    \\\\
+    \ltiClosureCachep{} = \ltimapsto{\ltiClosureID{}}
+                                    {\ltiClosureCacheVal{\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}} \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}}}
+                                                        {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}
+                                    {\ltiClosureCache{}}
+    }
+    {\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
+    }
+  \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
 \end{figure}
 

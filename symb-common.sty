@@ -18,9 +18,11 @@
 \newcommand\ltiEsymbol{\esope}
 \newmeta\ltiE{\ltiEsymbol}
 \newmeta\ltiEp{\ltiEsymbol'}
+\newmeta\ltiEpp{\ltiEsymbol''}
 \newcommand\ltiFsymbol{\ma{f}}
 \newmeta\ltiF{\ltiFsymbol}
 \newmeta\ltiFp{\ltiFsymbol'}
+\newmeta\ltiFpp{\ltiFsymbol''}
 % tagged terms
 \newmeta\ltiEl{\ltiEsymbol^{}}
 \newmeta\ltiElp{\ltiEsymbol'^{}}
@@ -187,6 +189,11 @@
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
 \newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHSalign{#1}{#2} &=& #3}}
+% update closure cache
+% ClosureCache ClosureID T_in T_out E => ClosureCache
+\newcommand\ltiupdateClosureCacheLHS[5]{\ma{\texttt{recordClosure}(#1,#2,#3,#4,#5)}}
+\newcommand\ltiupdateClosureCache[6]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5} = #6}}
+\newcommand\ltiupdateClosureCachealign[6]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5} &=& #6}}
 
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 
