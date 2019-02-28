@@ -81,17 +81,17 @@
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
 \newmeta\ltiClosureCachepp{\ltiClosureCachesymbol''}
 \newcommand\ltiClosureCacheVal[2]{\ma{\langle #1, #2 \rangle}}
-\newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Sigma}}
+\newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Delta}}
 \newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
 \newmeta\ltiCombinedThreadedEnvp{\ltiCombinedThreadedEnvsymbol'}
 \newmeta\ltiCombinedThreadedEnvpp{\ltiCombinedThreadedEnvsymbol''}
-\newcommand\ltimakeCombinedThreadedEnv[2]{\ma{(#1 ; #2)}}
+\newcommand\ltimakeCombinedThreadedEnv[2]{\ma{#1 ; #2}}
 
 % combined stack environments
-\newcommand\ltiCombinedStackEnvsymbol{\ma{\Delta}}
-\newmeta\ltiCombinedStackEnv{\ltiCombinedThreadedEnvsymbol}
-\newmeta\ltiCombinedStackEnvp{\ltiCombinedThreadedEnvsymbol'}
-\newcommand\ltimakeCombinedStackEnv[2]{\ma{(#1 ; #2)}}
+\newcommand\ltiCombinedStackEnvsymbol{\ma{\Sigma}}
+\newmeta\ltiCombinedStackEnv{\ltiCombinedStackEnvsymbol}
+\newmeta\ltiCombinedStackEnvp{\ltiCombinedStackEnvsymbol'}
+\newcommand\ltimakeCombinedStackEnv[2]{\ma{#1 ; #2}}
 
 \newmeta\ltinat{n}
 \newcommand\ltiEmptyEnv{\ma{\epsilon}}
@@ -145,6 +145,8 @@
 \newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
 \newcommand\ltimapsto[3]{\ma{[#1 \mapsto #2]#3}}
 \newcommand\ltilookup[2]{\ma{[#1]#2}}
+\newcommand\ltifvLHS[1]{\ma{\texttt{fv}(#1)}}
+\newcommand\ltifv[2]{\ma{\ltifvLHS{#1} = #2}}
 % T T -> Subst
 \newcommand\ltimatchTLHS[3]{\ma{\texttt{match}(#1,#2,#3)}}
 \newcommand\ltimatchT[4]{\ma{\ltimatchTLHS{#1}{#2}{#3} = #4}}
@@ -167,8 +169,9 @@
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
 \newcommand\ltiinternallabel{\ma{\text{I}}}
 \newcommand\ltiinternalvdash{\ma{\vdash_{\ltiinternallabel}}}
+\newcommand\ltiinternalalgvdash{\ma{\vdash^a_{\ltiinternallabel}}}
 % internal type system
-\newcommand\ltitjudgement[3]{\ma{#1 \ltiinternalvdash {\hastype{#2}{#3}}}}
+\newcommand\ltitjudgement[3]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}}}}
 % internal type system with enclosed fn stack
 \newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1;#2}{#3}{#4}}}
 % subtype for internal types with `seen` set
@@ -178,13 +181,21 @@
 
 %% symbolic closure language (no bidirectional type checking or type argument synthesis)
 \newcommand\ltisclanglabel{\ma{\text{S}}}
+\newcommand\ltisclangalgvdash{\ma{\vdash^a_{\ltisclanglabel}}}
+\newcommand\ltisclangdeclvdash{\ma{\vdash^d_{\ltisclanglabel}}}
 \newcommand\ltisclangvdash{\ma{\vdash_{\ltisclanglabel}}}
 % symbolic closure type system, with enclosed fn stack
 % CombinedThreadedEnv Stack Env |- E : T ; CombinedThreadedEnv ; E*
-\newcommand\ltitSstkjudgement[7]{\ma{#1 ; #2 ; #3 \ltisclangvdash {\hastype{#4}{#5}} ; #6 ; #7}}
-% subtype for symbolic closure language types
+\newcommand\ltitSstkjudgement[7]{\ma{#1 ; #2 ; #3 \ltisclangalgvdash {\hastype{#4}{#5}} ; #6 ; #7}}
+% declarative symbolic closure type system
+% Env E T => T ; E
+\newcommand\ltitSdjudgement[4]{\ma{#1 \ltisclangdeclvdash {\hastype{#2}{#3}} \Rightarrow #4}}
+% algorithmic subtyping for symbolic closure language types
 % ThreadedEnv T T => T ThreadedEnv
-\newcommand\ltiSsubtype[4]{\ma{#1 \ltisclangvdash #2 \ltisubtypeseparator #3 ; #4}}
+\newcommand\ltiSsubtype[4]{\ma{#1 \ltisclangalgvdash #2 \ltisubtypeseparator #3 ; #4}}
+% declarative subtyping for symbolic closure language
+% T <: T
+\newcommand\ltiSdsubtype[2]{\ma{\ltisclangdeclvdash #1 \ltisubtypeseparator #2}}
 \newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrgTags}}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
