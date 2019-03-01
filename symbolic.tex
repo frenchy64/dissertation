@@ -1133,18 +1133,14 @@ same piece of code at different types.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltiufun{\ltivar{}}{\ltiE{}} \alt
-                         \ltiapp{\ltiF{}}{\ltiE{}} \alt
+                         \ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStack{}}{\ova{\ltitvar{}}}}}
+                                               {\ova{\ltistackmapping{\ltiEnclosingFnStack{}}{\ltiT{}}}}
+                                               {\ltivar{}}{\ltiE{}}
+                         \alt
+                         \ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnclosingFnStack{}}{\ltiT{}}}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
-                         \ltiRec{\ova{\ltivar{} = \ltiE{}}} \alt
-                         \ltiann{\ltiE{}}{\ltiT{}}
+                         \ltiRec{\ova{\ltivar{} = \ltiE{}}}
                       &\mbox{Terms} \\
-  \ltiufun{\ova{\ltivar{i}}^n}{\ltiE{}} &\Leftrightarrow& \ltiufun{\ltivarp{}}{\ltireplaceova{\ltisel{\ltivarp{}}{\textsf{arg}_i}}{\ltivar{i}}{\ltiE{}}},
-  \text{where \ltivarp{} is fresh, } n \not= 1
-  \\
-  \ltiapp{\ltiF{}}{\ova{\ltiE{i}}^n} &\Leftrightarrow& \ltiapp{\ltiF{}}{\ltiRec{\ova{\textsf{arg}_i = \ltiE{i}}}},
-  \text{where } n \not= 1
-                      &\mbox{Term abbreviations} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& \ltitvar{} 
                          \alt
                          \ltiTop
@@ -1156,15 +1152,7 @@ $$
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
                          \ltiMu{\ltitvar{}}{\ltiT{}}
-                         \\&\alt& 
-                         \ltiTypeCase{\ltiT{}}{\ova{\ltiTypeCaseClause{\ltiT{}}{\ltiT{}}}}
-                         \alt \ltiEnclosingFnType{n}
                       &\mbox{Types} \\
-  %\Top &\Leftrightarrow& \ltiEmptyIntersection
-  % \\
-  \ltiFn{\ova{\ltiT{i}}^n}{\ltiS{}} &\Leftrightarrow& \ltiFn{\ltiRec{\ova{\hastype{\textsf{arg}_i}{\ltiT{i}}}}}{\ltiS{}},
-        \text{where } n\not=1
-                      &\mbox{Type abbreviations} \\
   \ltiEnv{} &::=& \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltiEmptyEnv \alt
                   \ltitvar{} \alt
@@ -1228,10 +1216,13 @@ and concatenation
 
     \infer [I-Abs]
     { 
-    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiTp{}}
-                         {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
+    \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+    \\
+    \ova{\ltitvar{}} = \ova{\ltitvarp{j}}
+    \\
+    \ltiSp{j} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
     \\\\
-    \ltitstkjudgement{\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
+    \ltitstkjudgement{\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
                      {\ltiEnvConcat{\ova{\ltitvar{}}}
                                    {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
                                                  {\ltiEnv{}}}}
@@ -1240,32 +1231,10 @@ and concatenation
     }
     {
     \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                     {\ltiann{\ltiufun{\ltivar{}}{\ltiE{}}}{\ltiTp{}}}
+                     {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltitvarp{j}}}}}
+                                            {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ltiSp{j}}}}
+                                            {\ltivar{}}{\ltiE{}}}
                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
-                 }
-
-    \infer [I-UAbs]
-    {}
-    {
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                     {\ltiufun{\ltivar{}}{\ltiE{}}}
-                     {\ltiEmptyIFn}
-                 }
-
-    \infer [I-Ann]
-    { 
-    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}{\ltiT{}}{\ltiTp{}}
-    \\\\
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiTpp{}}
-                     \\\\
-                     \ltiisubtype{\ltiTpp{}}{\ltiTp{}}
-    }
-    {
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                  {\ltiann{\ltiE{}}{\ltiT{}}}
-                  {\ltiTp{}}
                  }
 
     \infer [I-App]
@@ -1273,16 +1242,17 @@ and concatenation
     \ltitstkjudgement{\ltiEnclosingFnStack{}}
                      {\ltiEnv{}}
                      {\ltiF{}}
-                     {\ltiTpp{}}
+                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiTpp{}}}
                   \\\\
     \ltitstkjudgement{\ltiEnclosingFnStack{}}
                      {\ltiEnv{}}
                      {\ltiE{}}
                      {\ltiTp{}}
                   \\\\
-    \ltiexpandEnclosingFn{\ltiEnclosingFnStack{}}
-                         {\ltiTpp{}}
-                         {\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
+                  \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+                  \\\\
+                  \ltireplace{\ova{\ltiR{}}}{\ltitvar{}}{\ltiTpp{}} =
+                  \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
                   \\\\
      \exists i. \ltiisubtype{\ltiTp{}}{\ltiT{i}}
       \\\\
@@ -1295,7 +1265,7 @@ and concatenation
     }
     {
     \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                     {\ltiapp{\ltiF{}}{\ltiE{}}}
+                     {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltiR{j}}}}}{\ltiE{}}}
                      {\ltiMeetMany{\ova{\ltiSp{}}}}
     }
 
@@ -1315,7 +1285,7 @@ and concatenation
     }
     {
     \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                     {\ltiapp{\ltiF{}}{\ltiE{}}}
+                     {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltiR{j}}}}}{\ltiE{}}}
                      {\ltiBot{}}
     }
 
@@ -1764,8 +1734,8 @@ $$
     \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
                     {\ltiufun{\ltivar{}}{\ltiE{}}}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiTp{}}}
-                    {\ltifuntparaminterface{\ltiEnclosingFnStack{} \mapsto \ova{\ltitvar{}}}
-                                           {\ltiEnclosingFnStack{} \mapsto \ltiTp{}}
+                    {\ltifuntparaminterface{\ltistackmapping{\ltiEnclosingFnStack{}}{\ova{\ltitvar{}}}}
+                                           {\ltistackmapping{\ltiEnclosingFnStack{}}{\ltiTp{}}}
                                            {\ltivar{}}
                                            {\ltiEp{}}}
                  }
