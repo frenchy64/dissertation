@@ -1691,14 +1691,44 @@ $$
                                 {\ltiEp{}}}
     }
 
+    \infer [AppInst]
+    {
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+                    {\ltiF{}}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
+                    {\ltiFp{}}
+                    \\\\
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+                    {\ltiE{}}
+                    {\ltiTp{}}
+                    {\ltiEp{}}
+                  \\\\
+                  \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+                  \\
+                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiR{j}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+    }
+    {
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+                    {\ltiappinst{\ltiFp{}}
+                                {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltiR{j}}}}}
+                                {\ltiEp{}}}
+                    {\ltiSp{}}
+                    {\ltiappinst{\ltiFp{}}
+                                {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltiR{j}}}}}
+                                {\ltiEp{}}}
+    }
+
+
     \infer [Abs]
     {
-    \ltiSp{} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+    \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+    \\\\
+    \ltiSp{j} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
     \\\\
      \ltitSdjudgement{\ltimakeCombinedThreadedEnv
                       {\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
                       {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
-                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                    {\ltiEnvConcat{\ova{\ltitvar{i}}}
                                                   {\ltiEnv{}}}}}
                      {\ltiE{}}
                      {\ltiS{i}}
@@ -1706,9 +1736,13 @@ $$
     }
     {
     \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
-                    {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiSp{}}{\ltivar{}}{\ltiE{}}}
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSp{}}}
-                    {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiSp{}}{\ltivar{}}{\ltiE{}}}
+                    {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltitvar{j}}}}}
+                                           {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ltiSp{j}}}}
+                                           {\ltivar{}}{\ltiE{}}}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSp{j}}}
+                    {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltitvar{j}}}}}
+                                           {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ltiSp{j}}}}
+                                           {\ltivar{}}{\ltiE{}}}
                  }
 
     \infer [UAbs]
@@ -1717,22 +1751,25 @@ $$
     \\\\
     \ltifv{\ltiTp{}}{\ova{\ltitvar{}}}
     \\\\
-     \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
+     \ltitSdjudgement{\ltimakeCombinedThreadedEnv
+                      {\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
+                      {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\ltiEnv{}}}}
+                                                 {\ltiEnv{}}}}}
                      {\ltiE{}}
                      {\ltiS{i}}
                      {\ltiEp{}}
     }
     {
-    \ltitSdjudgement{\ltiEnv{}}
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
                     {\ltiufun{\ltivar{}}{\ltiE{}}}
-                    {\ltiTp{}}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiTp{}}}
                     {\ltifuntparaminterface{\ltiEnclosingFnStack{} \mapsto \ova{\ltitvar{}}}
                                            {\ltiEnclosingFnStack{} \mapsto \ltiTp{}}
                                            {\ltivar{}}
                                            {\ltiEp{}}}
                  }
+
                  \\
                  \infer[S-Refl]
                  {}

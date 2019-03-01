@@ -35,7 +35,9 @@
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
 \newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
 % tvars T x e
-\newcommand\ltifuntparaminterface[4]{\ma{\l^{#2}_{[#1]} #3 . #4}}
+\newcommand\ltifuntparaminterface[4]{\ma{\l^{#2}_{#1} #3 . #4}}
+% EnclosingFnStack => T
+\newcommand\ltistackmapping[2]{\ma{#1 \mapsto #2}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 % Stack Env ID
@@ -104,6 +106,7 @@
 \newcommand\ltiEnclosingFnStacksymbol{\ma{\mathbb{S}}}
 \newmeta\ltiEnclosingFnStack{\ltiEnclosingFnStacksymbol}
 \newmeta\ltiEnclosingFnStackp{\ltiEnclosingFnStacksymbol'}
+\newmeta\ltiEnclosingFnStackpp{\ltiEnclosingFnStacksymbol''}
 \newmeta\ltiSubtypeSeen{\ma{\mathbb{M}}}
 \newmeta\ltiWild{?}
 \newcommand\ltiTop{\ma{\top}}
