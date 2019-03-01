@@ -1622,7 +1622,8 @@ in environment \ltiEnv{}.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& ... \alt
-                         \ltiufunelab{\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
+                         \ltifunelab{\ltiT{}}
+                                    {\ova{\ltiufunelabentry{\ltiEnclosingFnStack{}}
                                                             {\ltiEnv{}}
                                                             {\ltiClosureID{}}}}
                                      {\ltivar{}}
@@ -1652,97 +1653,85 @@ $$
     \infer [Var]
     {}
     {
-       \ltitSdjudgement{\ltiEnv{}}
+       \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
                        {\ltivar{}}
                        {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                        {\ltivar{}}
                  }
 
-    \infer [Ann]
-    { 
-    \ltitSdjudgement{\ltiEnv{}}
-                       {\ltiE{}}
-                       {\ltiT{}}
-                       {\ltiEp{}}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                       {\ltiann{\ltiE{}}{\ltiT{}}}
-                       {\ltiT{}}
-                       {\ltiann{\ltiEp{}}{\ltiT{}}}
-                 }
-
-    \infer [Sub]
-    { 
-    \ltitSdjudgement{\ltiEnv{}}
-                      {\ltiE{}}
-                      {\ltiS{}}
-                      {\ltiEp{}}
-                      \\
-                      \ltiSdsubtype{\ltiS{}}{\ltiT{}}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                       {\ltiE{}}
-                       {\ltiT{}}
-                       {\ltiEp{}}
-                 }
-
     \infer [App]
     {
-    \ltitSdjudgement{\ltiEnv{}}
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
                     {\ltiF{}}
-                    {\ltiPoly{\ova{\ltitvar{}}^n}{\ltiFn{\ltiT{}}{\ltiS{}}}}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
                     {\ltiFp{}}
                     \\\\
-    \ltitSdjudgement{\ltiEnv{}}
-                       {\ltiE{}}
-                       {\ltiTp{}}
-                       {\ltiEp{}}
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+                    {\ltiE{}}
+                    {\ltiTp{}}
+                    {\ltiEp{}}
                   \\\\
-                       n>0
+                       |\ova{\ltitvar{}}|>0
                   \\\\
-                  \ltiSdsubtype{\ltiR{}}{\ltiT{}}
+                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                   \\\\
-                  TODO
+                  \forall \ltiRp. (
+                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                  \text{ implies }
+                  \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{i}}}
+                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{i}}}
+                  )
     }
     {
-    \ltitSdjudgement{\ltiEnv{}}
-                       {\ltiapp{\ltiF{}}{\ltiE{}}}
-                       {\ltiMeetMany{\ova{\ltiSp{}}}}
-                       {\ltiapp{\ltiann{\ltiFp{}}
-                                       {\ltiIFn{\ltiFn{\ltireplace{\ova{\ltiR{}}}
-                                                                  {\ova{\ltitvar{}}}
-                                                                  {\ltiT{}}}
-                                                      {\ltireplace{\ova{\ltiR{}}}
-                                                                  {\ova{\ltitvar{}}}
-                                                                  {\ltiS{}}}}}}
-                               {\ltiEp{}}}
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+                    {\ltiapp{\ltiF{}}{\ltiE{}}}
+                    {\ltiSp{}}
+                    {\ltiappinst{\ltiFp{}}
+                                {\ltiEnclosingFnStack{} \mapsto \ova{\ltiR{}}}
+                                {\ltiEp{}}}
     }
+
+    \infer [Abs]
+    {
+    \ltiSp{} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+    \\\\
+     \ltitSdjudgement{\ltimakeCombinedThreadedEnv
+                      {\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
+                      {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
+                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                                  {\ltiEnv{}}}}}
+                     {\ltiE{}}
+                     {\ltiS{i}}
+                     {\ltiEp{}}
+    }
+    {
+    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+                    {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiSp{}}{\ltivar{}}{\ltiE{}}}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSp{}}}
+                    {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiSp{}}{\ltivar{}}{\ltiE{}}}
+                 }
 
     \infer [UAbs]
     {
-              \ltiTp{} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
-                               \\\\
-                               \ova{\ltitvar{}}
-                               = \ltifvLHS{\ltiTp{}} \setminus \{\ltitvarp{}\}
-                               \\\\
-     \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltireplace{\ltiTp{}}{\ltitvarp{}}{\ltiT{i}}}}
+    \ltiTp{} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+    \\\\
+    \ltifv{\ltiTp{}}{\ova{\ltitvar{}}}
+    \\\\
+     \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\ltiEnv{}}}}
                      {\ltiE{}}
-                     {\ltireplace{\ltiTp{}}{\ltitvarp{}}{\ltiS{i}}}
+                     {\ltiS{i}}
                      {\ltiEp{}}
-              \\\\
-              \ltiwrapTypeCase{\ltiEnclosingFnStack{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiMu{\ltitvarp{}}{\ltiTp{}}}}{\ltiSp{}}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
-                       {\ltiufun{\ltivar{}}{\ltiE{}}}
-                       {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                       {\ltiann
-                         {\ltiufun{\ltivar{}}{\ltiEp{}}}
-                         {\ltiSp{}}}
+                    {\ltiufun{\ltivar{}}{\ltiE{}}}
+                    {\ltiTp{}}
+                    {\ltifuntparaminterface{\ltiEnclosingFnStack{} \mapsto \ova{\ltitvar{}}}
+                                           {\ltiEnclosingFnStack{} \mapsto \ltiTp{}}
+                                           {\ltivar{}}
+                                           {\ltiEp{}}}
                  }
                  \\
                  \infer[S-Refl]
@@ -1804,17 +1793,17 @@ $$
                   {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
                   }
 
-    \infer [S-Closure]
-    {
-      \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
-                      {\ltiE{}}
-                      {\ltiS{}}
-                      {\ltiEp{}}
-    }
-    {
-    \ltiSdsubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                 {\ltiFn{\ltiT{}}{\ltiS{}}}
-    }
+    %\infer [S-Closure]
+    %{
+    %  \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
+    %                  {\ltiE{}}
+    %                  {\ltiS{}}
+    %                  {\ltiEp{}}
+    %}
+    %{
+    %\ltiSdsubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+    %             {\ltiFn{\ltiT{}}{\ltiS{}}}
+    %}
   \end{mathpar}
 
   \caption{Declarative Type system for Symbolic Closure Language:

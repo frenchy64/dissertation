@@ -34,13 +34,17 @@
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
 \newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
+% tvars T x e
+\newcommand\ltifuntparaminterface[4]{\ma{\l^{#2}_{[#1]} #3 . #4}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 % Stack Env ID
 \newcommand\ltiufunelabentry[3]{\ma{#1;#2;#3}}
 %% Closure-Tagged Term
 % ElabEntry x E
-\newcommand\ltiufunelab[3]{\ma{\l^{#1} #2 . #3}}
+\newcommand\ltiufunelab[3]{\ma{\l_{#1} #2 . #3}}
+% T ElabEntry x E
+\newcommand\ltifunelab[4]{\ma{\l^{#1}_{#2} #3 . #4}}
 %\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
 \newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
 \newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
@@ -195,7 +199,7 @@
 \newcommand\ltiSsubtype[4]{\ma{#1 \ltisclangalgvdash #2 \ltisubtypeseparator #3 ; #4}}
 % declarative subtyping for symbolic closure language
 % T <: T
-\newcommand\ltiSdsubtype[2]{\ma{\ltisclangdeclvdash #1 \ltisubtypeseparator #2}}
+\newcommand\ltiSdsubtype[2]{\ma{#1 \ltisubtypeseparator #2}}
 \newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrgTags}}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
