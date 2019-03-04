@@ -1133,11 +1133,11 @@ same piece of code at different types.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStack{}}{\ova{\ltitvar{}}}}}
-                                               {\ova{\ltistackmapping{\ltiEnclosingFnStack{}}{\ltiT{}}}}
+                         \ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltitvar{}}}}}
+                                               {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}}
                                                {\ltivar{}}{\ltiE{}}
                          \alt
-                         \ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnclosingFnStack{}}{\ltiT{}}}}{\ltiE{}} \alt
+                         \ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
                          \ltiRec{\ova{\ltivar{} = \ltiE{}}}
                       &\mbox{Terms} \\
@@ -1158,10 +1158,6 @@ $$
                   \ltitvar{} \alt
                   \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}
                       &\mbox{Environments} \\
-  \ltiEnclosingFnStack{} &::=& \ltiStackEmpty \alt \ltiStackPush{\ltiEnclosingFnStack{}}{\ltiT{}}
-                      &\mbox{Enclosing Function Stack} \\
-  \ltiCombinedStackEnv{} &::=& \ltimakeCombinedStackEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                      &\mbox{Combined Type Environments} \\
   \ltiSubtypeSeen{} &::=& \ova{\ltiSeenEntry{\ltiT{}}{\ltiT{}}}
                       &\mbox{Subtype Seen List} \\
 
@@ -1208,32 +1204,31 @@ and concatenation
     \infer [I-Var]
     {}
     {
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}
-                     {\ltiEnv{}}
+    \ltitjudgement
+                    {\ltiEnv{}}
                     {\ltivar{}}
                     {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                  }
 
     \infer [I-Abs]
     { 
-    \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+    \ltiEnv{} = \ltiEnv{j}
     \\
     \ova{\ltitvar{}} = \ova{\ltitvarp{j}}
     \\
     \ltiSp{j} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
     \\\\
-    \ltitstkjudgement{\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
-                     {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                   {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
-                                                 {\ltiEnv{}}}}
-                     {\ltiE{}}
-                     {\ltiS{i}}
+    \ltitjudgement{\ltiEnvConcat{\ova{\ltitvar{}}}
+                                {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
+                                              {\ltiEnv{}}}}
+                  {\ltiE{}}
+                  {\ltiS{i}}
     }
     {
-    \ltitstkjudgement{\ltiEnclosingFnStack{}}{\ltiEnv{}}
-                     {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltitvarp{j}}}}}
-                                            {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ltiSp{j}}}}
-                                            {\ltivar{}}{\ltiE{}}}
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltitvarp{j}}}}}
+                                         {\ova{\ltistackmapping{\ltiEnvp{j}}{\ltiSp{j}}}}
+                                          {\ltivar{}}{\ltiE{}}}
                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
                  }
 
@@ -1623,7 +1618,7 @@ $$
     \infer [Var]
     {}
     {
-       \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+       \ltitSdjudgement{\ltiEnv{}}
                        {\ltivar{}}
                        {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
                        {\ltivar{}}
@@ -1631,12 +1626,12 @@ $$
 
     \infer [App]
     {
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
                     {\ltiFp{}}
                     \\\\
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiE{}}
                     {\ltiTp{}}
                     {\ltiEp{}}
@@ -1653,65 +1648,63 @@ $$
                   )
     }
     {
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiapp{\ltiF{}}{\ltiE{}}}
                     {\ltiSp{}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ltiEnclosingFnStack{} \mapsto \ova{\ltiR{}}}
+                                {\ltiEnv{} \mapsto \ova{\ltiR{}}}
                                 {\ltiEp{}}}
     }
 
     \infer [AppInst]
     {
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
                     {\ltiFp{}}
                     \\\\
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiE{}}
                     {\ltiTp{}}
                     {\ltiEp{}}
                   \\\\
-                  \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+                  \ltiEnv{} = \ltiEnv{j}
                   \\
                   \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiR{j}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
     }
     {
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltiR{j}}}}}
+                                {\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{j}}}}}
                                 {\ltiEp{}}}
                     {\ltiSp{}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltiR{j}}}}}
+                                {\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{j}}}}}
                                 {\ltiEp{}}}
     }
 
 
     \infer [Abs]
     {
-    \ltiEnclosingFnStack{} = \ltiEnclosingFnStackp{j}
+    \ltiEnv{} = \ltiEnvp{j}
     \\\\
     \ltiSp{j} = \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
     \\\\
-     \ltitSdjudgement{\ltimakeCombinedThreadedEnv
-                      {\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
-                      {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
-                                    {\ltiEnvConcat{\ova{\ltitvar{i}}}
-                                                  {\ltiEnv{}}}}}
+     \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
+                                   {\ltiEnvConcat{\ova{\ltitvar{i}}}
+                                                 {\ltiEnv{}}}}
                      {\ltiE{}}
                      {\ltiS{i}}
                      {\ltiEp{}}
     }
     {
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
-                    {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltitvar{j}}}}}
-                                           {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ltiSp{j}}}}
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltitvar{j}}}}}
+                                           {\ova{\ltistackmapping{\ltiEnvp{j}}{\ltiSp{j}}}}
                                            {\ltivar{}}{\ltiE{}}}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSp{j}}}
-                    {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ova{\ltitvar{j}}}}}
-                                           {\ova{\ltistackmapping{\ltiEnclosingFnStackp{j}}{\ltiSp{j}}}}
+                    {\ltifuntparaminterface{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltitvar{j}}}}}
+                                           {\ova{\ltistackmapping{\ltiEnvp{j}}{\ltiSp{j}}}}
                                            {\ltivar{}}{\ltiE{}}}
                  }
 
@@ -1721,11 +1714,9 @@ $$
     \\\\
     \ltifv{\ltiTp{}}{\ova{\ltitvar{}}}
     \\\\
-     \ltitSdjudgement{\ltimakeCombinedThreadedEnv
-                      {\ltiStackPush{\ltiEnclosingFnStack{}}{\ltiIFn{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}
-                      {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
+     \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\ltiEnv{}}}}}
+                                                 {\ltiEnv{}}}}
                      {\ltiE{}}
                      {\ltiS{i}}
                      {\ltiEp{}}
@@ -1733,11 +1724,11 @@ $$
                      TODO \text{ calc \ltiEp{}}
     }
     {
-    \ltitSdjudgement{\ltimakeCombinedThreadedEnv{\ltiEnclosingFnStack{}}{\ltiEnv{}}}
+    \ltitSdjudgement{\ltiEnv{}}
                     {\ltiufun{\ltivar{}}{\ltiE{}}}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiTp{}}}
-                    {\ltifuntparaminterface{\ltistackmapping{\ltiEnclosingFnStack{}}{\ova{\ltitvar{}}}}
-                                           {\ltistackmapping{\ltiEnclosingFnStack{}}{\ltiTp{}}}
+                    {\ltifuntparaminterface{\ltistackmapping{\ltiEnv{}}{\ova{\ltitvar{}}}}
+                                           {\ltistackmapping{\ltiEnv{}}{\ltiTp{}}}
                                            {\ltivar{}}
                                            {\ltiEp{}}}
                  }
@@ -2112,15 +2103,15 @@ $$
                  {\ltiCombinedThreadedEnv{}}
     }
 
-    \infer [S-Trans]
-    {
-    \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{2}}
-    \\
-    \ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiTp{}}{\ltiT{}}{\ltiCombinedThreadedEnv{3}}
-    }
-    {
-    \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiT{}}{\ltiCombinedThreadedEnv{3}}
-    }
+    %\infer [S-Trans]
+    %{
+    %\ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{2}}
+    %\\
+    %\ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiTp{}}{\ltiT{}}{\ltiCombinedThreadedEnv{3}}
+    %}
+    %{
+    %\ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiS{}}{\ltiT{}}{\ltiCombinedThreadedEnv{3}}
+    %}
 
     \infer [S-Top]
     {}
