@@ -1440,16 +1440,13 @@ and concatenation
           }
     {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiFn{\ltiSp{}}{\ltiT{}}}{\ltiFn{\ltiS{}}{\ltiTp{}}}}
 
-    \infer [S-CFn]
+    \infer [S-Context]
     {
     % FIXME ordering of contexts?
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiunifyContextsLHS{\ltistackmapping{\ltiEnv{}}{\ltiSp{}}}{\ltiEnvp{}}}
-          \\\\
-    % FIXME ordering of contexts?
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiunifyContextsLHS{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}{\ltiEnvp{}}}{\ltiTp{}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiunifyContextsLHS{\ltistackmapping{\ltiEnv{}}{\ltiS{}}}{\ltiEnvp{}}}{\ltiT{}}
           }
-    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{(\ltiContextualFn{\ltiEnv{}}{\ltiSp{}}{\ltiT{}})}
-                                        {(\ltiContextualFn{\ltiEnvp{}}{\ltiS{}}{\ltiTp{}})}
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{(\ltistackmapping{\ltiEnv{}}{\ltiS{}})}
+                                        {(\ltistackmapping{\ltiEnvp{}}{\ltiT{}})}
     }
 
 
