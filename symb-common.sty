@@ -128,7 +128,7 @@
 \newcommand\ltiMeetalign[3]{\ma{\ltiMeetLHS{#1}{&#2} &=& #3}}
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
-\newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
+\newcommand\ltiEnvConcat[2]{\ma{#1 :: #2}}
 \newcommand\ltiStackConcat[2]{\ma{#1 , #2}}
 % Stack T
 \newcommand\ltiStackEmpty{\ma{[]}}
@@ -238,7 +238,7 @@
 % StackMapping, Env => T
 \newcommand\ltiunifyContextsLHS[2]{\ma{\texttt{unifyContexts}(#1,#2)}}
 \newcommand\ltiunifyContexts[3]{\ma{\ltiunifyContextsLHS{#1}{#2} = #3}}
-\newcommand\ltiunifyContextsalign[3]{\ma{\ltiunifyContextsLHS{#1}{#2} &=& #3}}
+\newcommand\ltiunifyContextsalign[3]{\ma{\ltiunifyContextsLHS{#1}{&#2} &=& #3}}
 % ThreadedEnv e* -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}

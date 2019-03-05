@@ -1215,10 +1215,11 @@ and concatenation
     \ltiunfoldLHS{\ltiT{}} =
       \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}}}
     \\\\
+    \ltiEnvp{} = \ltiEnvConcat{\ltiEnv{}}
+                              {\ova{\ltitvar{}}}
+    \\\\
     \overrightarrow{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnv{}}
-                                {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiresolveLHS{\ltiEnvp{}}{\ltiT{i}}}}}
                   {\ltiE{}}
                   {\ltiS{i}}
                   }
@@ -1452,10 +1453,18 @@ and concatenation
                                     \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}}
                                    {\ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
                                    \\
-                                   &&\text{ where } \ova{\ltiunifyContexts{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}
+                                   &&\text{ where }\\
+                                   &&\text{ }
+                                   \begin{array}{lll}
+                                   \ova{\ltiunifyContexts{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}
                                                                           {\ltiEnv{}}
                                                                           {\ltiFn{\ltiTp{j}}{\ltiSp{j}}}
+                                                                          }\arcr
+                                   \ova{\ltiunifyContexts{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}
+                                                                          {\ltiEnv{}}
+                                                                          {undefined}
                                                                           }
+                                   \end{array}
                                    \\
       \ltiresolvealign{\ltiEnv{}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
@@ -1468,6 +1477,28 @@ and concatenation
                       {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}}}
                                                                 \\
       \ltiresolvealign{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
+    \end{array}
+
+    \boxed{\ltiunifyContexts{\ltistackmapping{\ltiEnvp{}}{\ltiT{}}}{\ltiEnv{}}{\ltiS{}}
+    \text{ Use \ltiT{}'s context \ltiEnvp{} to prepare \ltiT{} for use in current context \ltiEnv{}.
+    }
+    }
+
+    \begin{array}{llll}
+      \ltiunifyContextsalign{\ltistackmapping{\ltiEmptyEnv{}}{\ltiT{}}}{\ltiEnv{}}{\ltiT{}} \\
+      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ltiT{}}}
+                            {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                            {\ltiunifyContextsLHS{\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
+                                                                  {\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}
+                                                 {\ltiEnv{}}}\\
+      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ltiT{}}}
+                            {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
+                            {\ltiunifyContextsLHS{\ltistackmapping{\ltiEnvp{}}
+                                                                  {\ltiT{}}}
+                                                 {\ltiEnv{}}}
+                                                 \\
+                                                 &&&
+                                                 \text{ if } \ltiisubtype{\ltiSp{}}{\ltiS{}}
     \end{array}
   \end{mathpar}
   \caption{Metafunctions for internal language}
