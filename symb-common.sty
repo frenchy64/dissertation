@@ -37,7 +37,8 @@
 % tvars T x e
 \newcommand\ltifuntparaminterface[4]{\ma{\l^{#2}_{#1} #3 . #4}}
 % EnclosingFnStack => T
-\newcommand\ltistackmapping[2]{\ma{#1;#2}}
+\newcommand\ltistackmappingsymbol{\ma{\vdash}}
+\newcommand\ltistackmapping[2]{\ma{#1 \ltistackmappingsymbol #2}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
 % Stack Env ID
@@ -137,10 +138,13 @@
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
-\newcommand\ltiIFnsymbol{\ma{\textsf{IFn}}}
+\newcommand\ltiIFnsymbol{\ma{\bigcap}}
 \newcommand\ltiIFn[1]{\ma{(\ltiIFnsymbol\ #1)}}
+\newcommand\ltiSplitIFn[2]{\ma{({\ltiIFnsymbol}_{#2}^{#1})}}
 \newcommand\ltiEmptyIFn{\ma{(\ltiIFnsymbol)}}
 \newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
+% Env T T
+\newcommand\ltiContextualFn[3]{\ma{\ltistackmapping{#1}{\ltiFn{#2}{#3}}}}
 \newcommand\ltiPolyFn[3]{\ma{[#1 \xrightarrow[]{#2} #3]}}
 \newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
 \newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}
@@ -154,15 +158,6 @@
 \newcommand\ltilookup[2]{\ma{[#1]#2}}
 \newcommand\ltifvLHS[1]{\ma{\texttt{fv}(#1)}}
 \newcommand\ltifv[2]{\ma{\ltifvLHS{#1} = #2}}
-% T T -> Subst
-\newcommand\ltimatchTLHS[3]{\ma{\texttt{match}(#1,#2,#3)}}
-\newcommand\ltimatchT[4]{\ma{\ltimatchTLHS{#1}{#2}{#3} = #4}}
-\newcommand\ltimatchTalign[4]{\ma{\ltimatchTLHS{#1}{&#2}{&#3} &=& #4}}
-\newcommand\ltiEmptyMatchSubst{\{\}}
-\newcommand\ltiMatchSubst[1]{\{#1\}}
-\newcommand\ltiMatchSubstEntry[2]{\ma{#1 \mapsto #2}}
-\newcommand\ltimergeMatchSubstsLHS[1]{\ma{\texttt{mergeMatchSubsts}(#1)}}
-\newcommand\ltimergeMatchSubsts[2]{\ma{\ltimergeMatchSubstsLHS{#1} = #2}}
 % type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
 % external type system
@@ -176,7 +171,7 @@
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
 \newcommand\ltiinternallabel{\ma{\text{I}}}
 \newcommand\ltiinternalvdash{\ma{\vdash_{\ltiinternallabel}}}
-\newcommand\ltiinternalalgvdash{\ma{\vdash^a_{\ltiinternallabel}}}
+\newcommand\ltiinternalalgvdash{\ma{\vdash_{\ltiinternallabel}}}
 % internal type system
 \newcommand\ltitjudgement[3]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}}}}
 % internal type system with enclosed fn stack
@@ -234,6 +229,16 @@
 \newcommand\ltiexpandEnclosingFnLHS[2]{\ma{\texttt{res}(#1, #2)}}
 \newcommand\ltiexpandEnclosingFn[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} = #3}}
 \newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}
+\newcommand\ltiunfoldLHS[1]{\ma{\texttt{unfold}(#1)}}
+\newcommand\ltiunfold[2]{\ma{\ltiunfoldLHS{#1} = #2}}
+\newcommand\ltiunfoldalign[2]{\ma{\ltiunfoldLHS{#1} &=& #2}}
+\newcommand\ltiresolveLHS[2]{\ma{\texttt{resolve}(#1,#2)}}
+\newcommand\ltiresolve[3]{\ma{\ltiresolveLHS{#1}{#2} = #3}}
+\newcommand\ltiresolvealign[3]{\ma{\ltiresolveLHS{#1}{#2} &=& #3}}
+% StackMapping, Env => T
+\newcommand\ltiunifyContextsLHS[2]{\ma{\texttt{unifyContexts}(#1,#2)}}
+\newcommand\ltiunifyContexts[3]{\ma{\ltiunifyContextsLHS{#1}{#2} = #3}}
+\newcommand\ltiunifyContextsalign[3]{\ma{\ltiunifyContextsLHS{#1}{#2} &=& #3}}
 % ThreadedEnv e* -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
