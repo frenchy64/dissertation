@@ -1212,24 +1212,30 @@ and concatenation
 
     \infer [I-Abs]
     { 
+    i \in 1 ... n \\ j \in n+1 ... m
+    \\\\
     \ltiunfoldLHS{\ltiT{}} =
-      \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}}}
-    \\\\
-    \ltiEnvp{} = \ltiEnvConcat{\ltiEnv{}}
-                              {\ova{\ltitvar{}}}
+      \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}
     \\\\
     \overrightarrow{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiresolveLHS{\ltiEnvp{}}{\ltiT{i}}}}}
-                  {\ltiE{}}
-                  {\ltiS{i}}
-                  }
+    \ltiEnv{i} = \ltiEnvConcat{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\hastype{\ltivar{}}{\ltiresolveLHS{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\ltiT{i}}}}
+    }
     \\\\
     \overrightarrow{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnv{j}}
-                                {\hastype{\ltivar{}}{\ltiT{j}}}}
+    \ltitjudgement{\ltiEnv{i}}
                   {\ltiE{}}
-                  {\ltiS{j}}
+                  {\ltiSp{i}}
                   }
+    \\
+    \overrightarrow{\ltiisubtype{\ltiSp{i}}{\ltiresolveLHS{\ltiEnv{i}}{\ltiS{i}}}}
+    \\\\
+    \overrightarrow{
+    \ltitjudgement{\ltiEnvConcat{\ltiEnv{j}}{\hastype{\ltivar{}}{\ltiT{j}}}}
+                  {\ltiE{}}
+                  {\ltiSp{j}}
+                  }
+    \\
+    \overrightarrow{\ltiisubtype{\ltiSp{j}}{\ltiS{j}}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1240,18 +1246,26 @@ and concatenation
 
     \infer [I-App]
     {
+    1 \leq i \leq n
+    \\
+    1 \leq j \leq m
+    \\\\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
-                  {\ltiPoly{\ova{\ltitvar{}}}{\ltiTpp{}}}
+                  {\ltiSpp{}}
                   \\\\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiTp{}}
                   \\\\
-                  \ltiEnv{} = \ltiEnvp{j}
+                  \ltiunfold{\ltiSpp{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiTpp{}}}
+                  \\\\
+                  \exists! k \in 1...m.\ 
+                  \ltiunifyContexts{\ltistackmapping{\ltiEnvp{k}}{\ova{\ltiR{}}_k}}{\ltiEnv{}}
+                                   {\ova{\ltiR{}}}
                   \\\\
                   \ltireplace{\ova{\ltiR{}}}{\ltitvar{}}{\ltiTpp{}} =
-                  \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+                  \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
                   \\\\
      \exists i. \ltiisubtype{\ltiTp{}}{\ltiT{i}}
       \\\\
@@ -1266,7 +1280,7 @@ and concatenation
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{j}}}}}{\ltiE{}}}
+                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{}}_j}}^m}{\ltiE{}}}
                   {\ltiMeetMany{\ova{\ltiSp{}}}}
     }
 
@@ -1284,7 +1298,7 @@ and concatenation
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{j}}}}}{\ltiE{}}}
+                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{}}_j}}}{\ltiE{}}}
                   {\ltiBot{}}
     }
 
@@ -1394,20 +1408,51 @@ and concatenation
                     {\ltiMu{\ltitvar{}}{\ltiT{}}}
     }
 
-    % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
+    \infer [S-Poly]
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiT{}}
+    }
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiS{}}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                   }
+
+
     \infer [S-IFn]
     { \forall i \in 1...n.\ 
         \exists j \in 1...m.\ 
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{i}}{\ltiSp{j}}
-          \
-          \wedge
-          \
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{j}}{\ltiTp{i}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{i}}{\ltiT{j}}
+          \\\\
+      \forall i \in 1...p.\ 
+        \exists j \in 1...q.\ 
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiSp{i}}{\ltiTp{j}}
     }
     { \ltiisubtypeseen{\ltiSubtypeSeen{}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiSp{}}{\ltiT{}}}^m}}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiS{}}{\ltiTp{}}}^n}}}
+                      {\ltiSplitIFn{\ova{\ltiS{}}^m}{\ova{\ltiSp{}}^q}}
+                      {\ltiSplitIFn{\ova{\ltiT{}}^n}{\ova{\ltiTp{}}^p}}
                    }
+
+    \infer [S-Fn]
+    {
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiSp{}}
+          \\\\
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiTp{}}
+          }
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiFn{\ltiSp{}}{\ltiT{}}}{\ltiFn{\ltiS{}}{\ltiTp{}}}}
+
+    \infer [S-CFn]
+    {
+    % FIXME ordering of contexts?
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiunifyContextsLHS{\ltistackmapping{\ltiEnv{}}{\ltiSp{}}}{\ltiEnvp{}}}
+          \\\\
+    % FIXME ordering of contexts?
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiunifyContextsLHS{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}{\ltiEnvp{}}}{\ltiTp{}}
+          }
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{(\ltiContextualFn{\ltiEnv{}}{\ltiSp{}}{\ltiT{}})}
+                                        {(\ltiContextualFn{\ltiEnvp{}}{\ltiS{}}{\ltiTp{}})}
+    }
+
+
   \end{mathpar}
   \caption{Algorithmic Type system for internal language:
    \ltitstkjudgement{\ltiEnclosingFnStack{}}
@@ -1431,7 +1476,7 @@ and concatenation
       \ltiunfoldalign{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiunfoldLHS{\ltiT{}}}}\\
       \ltiunfoldalign{\ltiMu{\ltitvar{}}{\ltiT{}}}
-                     {\ltireplace{\ltiMu{\ltitvar{}}{\ltiexpandEnclosingFnLHS{\ltiEnclosingFnStack{}}{\ltiT{}}}}
+                     {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}
                                  {\ltitvar{}}
                                  {\ltiunfoldLHS{\ltiT{}}}}
                                                                 \\
@@ -1466,9 +1511,10 @@ and concatenation
                                                                           }
                                    \end{array}
                                    \\
-      \ltiresolvealign{\ltiEnv{}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
+                                   %don't want to resolve under Poly since it changes the environment
+      %\ltiresolvealign{\ltiEnv{}}
+      %                {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+      %                {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
       \ltiresolvealign{\ltiEnv{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
                       {\ltiMu{\ltitvar{}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
@@ -1479,22 +1525,21 @@ and concatenation
       \ltiresolvealign{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
 
-    \boxed{\ltiunifyContexts{\ltistackmapping{\ltiEnvp{}}{\ltiT{}}}{\ltiEnv{}}{\ltiS{}}
-    \text{ Use \ltiT{}'s context \ltiEnvp{} to prepare \ltiT{} for use in current context \ltiEnv{}.
+    \boxed{\ltiunifyContexts{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ltiS{}}
+    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ltiT{} for use in current context \ltiEnv{}.
     }
     }
 
     \begin{array}{llll}
-      \ltiunifyContextsalign{\ltistackmapping{\ltiEmptyEnv{}}{\ltiT{}}}{\ltiEnv{}}{\ltiT{}} \\
-      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ltiT{}}}
+      \ltiunifyContextsalign{\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiT{}}} \\
+      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
                             {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
                             {\ltiunifyContextsLHS{\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
-                                                                  {\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}
+                                                                  {\ova{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}}
                                                  {\ltiEnv{}}}\\
-      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ltiT{}}}
+      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
                             {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
-                            {\ltiunifyContextsLHS{\ltistackmapping{\ltiEnvp{}}
-                                                                  {\ltiT{}}}
+                            {\ltiunifyContextsLHS{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
                                                  {\ltiEnv{}}}
                                                  \\
                                                  &&&
