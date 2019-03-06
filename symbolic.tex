@@ -1149,11 +1149,10 @@ $$
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
                          \ltiMu{\ltitvar{}}{\ltiT{}}
-                         \alt \ltiSplitIFn{\ova{\ltiFnmeta{}}}
-                                            {\ova{\ltistackmapping{\ltiEnv{}}{\ltiFnmeta{}}}}
+                         \\
+                         &\alt& \ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}
+                                          {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}
                       &\mbox{Types} \\
-  \ltiFnmeta{} &::=& {\ltiFn{\ltiT{}}{\ltiT{}}}
-                      &\mbox{Function Types} \\
   \ltiEnv{} &::=& \ltiEmptyEnv \alt
                   \hastype{\ltivar{}}{\ltiT{}} \alt
                   \ltitvar{} \alt
@@ -1565,14 +1564,14 @@ $$
   \\
   \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
                       &\mbox{Term abbreviations} \\
-  \ltiFnmeta{} &::=& ... \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
-                      &\mbox{Function Types} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+                      &\mbox{Types} \\
   \ltiClosureID{} &::=& \ltitvar{}
                       &\mbox{Closure Identifiers} \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Closure Fuel} \\
   \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiSplitIFn{}
-                                                                                 {\ova{\ltistackmapping{\ltiEnv{}}{\ltiFnmeta{}}}}}
+                                                                                 {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}}
                                                                                 {\ltiE{}}}}
                       &\mbox{Closure Cache} \\
   \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
