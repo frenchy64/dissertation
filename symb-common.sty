@@ -41,8 +41,8 @@
 \newcommand\ltistackmapping[2]{\ma{#1 \ltistackmappingsymbol #2}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
-% Env ID
-\newcommand\ltiufunelabentry[2]{\ma{#1;#2}}
+% ID
+\newcommand\ltiufunelabentry[1]{\ma{#1}}
 %% Closure-Tagged Term
 % ElabEntry x E
 \newcommand\ltiufunelab[3]{\ma{\l_{#1} #2 . #3}}
@@ -143,6 +143,7 @@
 \newcommand\ltiSplitIFn[2]{\ma{({\ltiIFnsymbol}_{#2}^{#1})}}
 \newcommand\ltiEmptyIFn{\ma{(\ltiIFnsymbol)}}
 \newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
+\newmeta\ltiFnmeta{\ma{\gamma}}
 % Env T T
 \newcommand\ltiContextualFn[3]{\ma{\ltistackmapping{#1}{\ltiFn{#2}{#3}}}}
 \newcommand\ltiPolyFn[3]{\ma{[#1 \xrightarrow[]{#2} #3]}}
@@ -154,8 +155,8 @@
 \newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
 \newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
-\newcommand\ltimapsto[3]{\ma{[#1 \mapsto #2]#3}}
-\newcommand\ltilookup[2]{\ma{[#1]#2}}
+\newcommand\ltimapsto[3]{\ma{#1 [#2 \mapsto #3]}}
+\newcommand\ltilookup[2]{\ma{#1[#2]}}
 \newcommand\ltifvLHS[1]{\ma{\texttt{fv}(#1)}}
 \newcommand\ltifv[2]{\ma{\ltifvLHS{#1} = #2}}
 % type inference algorithm
@@ -193,21 +194,21 @@
 % Env E T => T ; E
 \newcommand\ltitSdjudgement[4]{\ma{#1 \ltisclangdeclvdash {\hastype{#2}{#3}} \Rightarrow #4}}
 % algorithmic subtyping for symbolic closure language types
-% ThreadedEnv T T => T ThreadedEnv
-\newcommand\ltiSsubtype[4]{\ma{#1 \ltisclangalgvdash #2 \ltisubtypeseparator #3 ; #4}}
+% ThreadedEnv Env T T => T ThreadedEnv
+\newcommand\ltiSsubtype[5]{\ma{#1 ; #2 \ltisclangalgvdash #3 \ltisubtypeseparator #4 ; #5}}
 % declarative subtyping for symbolic closure language
 % T <: T
 \newcommand\ltiSdsubtype[2]{\ma{#1 \ltisubtypeseparator #2}}
-\newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrgTags}}}
+\newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrg}}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
 \newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHSalign{#1}{#2} &=& #3}}
 % update closure cache
-% ClosureCache ClosureID T_in T_out E => ClosureCache
-\newcommand\ltiupdateClosureCacheLHS[5]{\ma{\texttt{recordClosure}(#1,#2,#3,#4,#5)}}
-\newcommand\ltiupdateClosureCache[6]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5} = #6}}
-\newcommand\ltiupdateClosureCachealign[6]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5} &=& #6}}
+% ClosureCache GammaApp ClosureID T_in T_out E => ClosureCache
+\newcommand\ltiupdateClosureCacheLHS[6]{\ma{\texttt{recordClosure}(#1,#2,#3,#4,#5,#6)}}
+\newcommand\ltiupdateClosureCache[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} = #7}}
+\newcommand\ltiupdateClosureCachealign[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} &=& #7}}
 % elabDriver
 % E -> E
 \newcommand\ltielabDriverLHS[1]{\ma{\texttt{elabDriver}(#1)}}
@@ -239,18 +240,14 @@
 \newcommand\ltiunifyContextsLHS[2]{\ma{\texttt{unifyContexts}(#1,#2)}}
 \newcommand\ltiunifyContexts[3]{\ma{\ltiunifyContextsLHS{#1}{#2} = #3}}
 \newcommand\ltiunifyContextsalign[3]{\ma{\ltiunifyContextsLHS{#1}{&#2} &=& #3}}
-% ThreadedEnv e* -> e
+% ClosureCache e -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
-% ThreadedEnv t -> t
+% ClosureCache t -> t
 \newcommand\ltielimClosTLHS[3]{\ma{\texttt{elabT}(#1, #2, #3)}}
 \newcommand\ltielimClosT[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltielimClosTalign[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} &=& #4}}
-% Stack t -> t
-\newcommand\ltiwrapTypeCaseLHS[2]{\ma{\texttt{wrapTCase}(#1, #2)}}
-\newcommand\ltiwrapTypeCase[3]{\ma{\ltiwrapTypeCaseLHS{#1}{#2} = #3}}
-\newcommand\ltiwrapTypeCasealign[3]{\ma{\ltiwrapTypeCaseLHS{#1}{#2} &=& #3}}
 
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
