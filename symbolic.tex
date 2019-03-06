@@ -1487,11 +1487,11 @@ and concatenation
       \ltiresolvealign{\ltiEnv{}}
                       {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
                                    {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
-                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}
-                                   }}
+                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
                       {\ltiSplitIFn{\ova{\ltiFn{\ltiresolveLHS{\ltiEnv{}}{\ltiT{i}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiS{i}}}}\ 
                                     \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}}
-                                   {\ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
+                                   {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
+                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
                                    \\
                                    &&\text{ where }\\
                                    &&\text{ }
@@ -1535,10 +1535,10 @@ and concatenation
       \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
                             {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
                             {\ltiunifyContextsLHS{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
-                                                 {\ltiEnv{}}}
+                                                 {\ltiEnv{}}},
                                                  \\
                                                  &&&
-                                                 \text{ if } \ltiisubtype{\ltiSp{}}{\ltiS{}}
+                                                 \text{if } \ltiisubtype{\ltiS{}}{\ltiSp{}}
     \end{array}
   \end{mathpar}
   \caption{Metafunctions for internal language}
@@ -2286,7 +2286,7 @@ $$
                        {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                                    {\ltiClosureCache{}}}
                        {\ltiE{2}}
-                       \\\\
+                       \\
      \ltielimClos{\ltiClosureCache{}}{\ltiE{2}}{\ltiE{3}}
     }
     {
@@ -2334,16 +2334,21 @@ $$
     \\
     \overrightarrow{
     \ltilookup{\ltiClosureCachep{}}{\ltiClosureID{i}} = 
-      \ltiClosureCacheVal{\ltiSplitIFn{}{\ova{\ltiContextualFn{\ltiEnv{j}^i}{\ltiT{j}^i}{\ltiS{j}^i}}}}{\ltiF{i}}
+      \ltiClosureCacheVal{\ltiSplitIFn{}{\overrightarrow{\ltiContextualFn{\ltiEnv{j}^i}{\ltiT{j}^i}{\ltiS{j}^i}}}}{\ltiF{i}}
     }
     \\
     \overrightarrow{
     \ltimergeTaggedTerms{\ltiE{i-1}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{i}}}{\ltiE{i}}
     }
+    \\\\
+    \ltiT{} = \ltiMu{\ltiClosureID{1}}{\ltireplaceova{\ltiClosureID{1}}{\ltiClosureID{i}}}
+                    {\ltiSplitIFn{}{\overrightarrow
+                              {\overrightarrow{\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{j}^i}}
+                                                    {\ltielimClosTLHS{\ltiClosureID{i}}{\ltiClosureCache{}}{\ltiT{j}^i}}
+                                                    {\ltielimClosTLHS{\ltiClosureID{i}}{\ltiClosureCache{}}{\ltiS{j}^i}}}}}}
     }
     { \ltielimClos{\ltiClosureCache{}}
-                  {\ltiufunelab{\ova{\ltiufunelabentry
-                                                      {\ltiClosureID{}}}^n}
+                  {\ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}^n}
                                {\ltivar{}}
                                {\ltiE{0}}}
                   {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{n}}}
@@ -2359,7 +2364,7 @@ $$
   \]
 
   \[
-  \begin{array}{llll}
+  \begin{array}{llllll}
     \ltielimClosEnvalign{\ltiClosureCache{}}{\ltiEmptyEnv}{\ltiEmptyEnv}
     \\
     \ltielimClosEnvalign{\ltiClosureCache{}}
@@ -2413,21 +2418,18 @@ $$
     \infer[Elab-UnseenClosure]
     {
     \ltiClosureIDp{} \not\in \ova{\ltiClosureID{}}
-    \\\\
+    \\
     \ltiClosureCacheVal{\ltiT{}}{\ltiF{}} = \ltilookup{\ltiClosureCache{}}{\ltiClosureIDp{}}
-    \\\\
+    \\
     \ltielimClosT{(\ltiClosureIDp{}, \ova{\ltiClosureID{}})}
                  {\ltiClosureCache{}}
                  {\ltiT{i}}
                  {\ltiS{}}
-                 \\\\
-    \ltifv{\ltiS{}}{\ova{\ltitvar{}}}
     }
     {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureIDp{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                  {\ltiPoly{\ova{\ltitvar{}}}
-                           {\ltiMu{\ltiClosureIDp{}}
-                                  {\ltiS{}}}}
+                  {\ltiMu{\ltiClosureIDp{}}
+                         {\ltiS{}}}
                   }
 
     \infer[Elab-SeenClosure]
