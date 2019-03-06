@@ -1149,8 +1149,7 @@ $$
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
                          \ltiMu{\ltitvar{}}{\ltiT{}}
-                         \\
-                         &\alt& \ltiSplitIFn{\ova{\ltiFnmeta{}}}
+                         \alt \ltiSplitIFn{\ova{\ltiFnmeta{}}}
                                             {\ova{\ltistackmapping{\ltiEnv{}}{\ltiFnmeta{}}}}
                       &\mbox{Types} \\
   \ltiFnmeta{} &::=& {\ltiFn{\ltiT{}}{\ltiT{}}}
@@ -1558,23 +1557,23 @@ in environment \ltiEnv{}.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& ... \alt
-                         \ltifunelab{\ltiT{}}
-                                    {\ova{\ltiufunelabentry{\ltiClosureID{}}}}
+                         \ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}}
                                      {\ltivar{}}
                                      {\ltiE{}}
                       &\mbox{Terms} \\
+  \ltiapp{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiappinst{\ltiE{}}{}{\ltiF{}}
+  \\
   \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
                       &\mbox{Term abbreviations} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& ...
-                         \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
-                      &\mbox{Types} \\
   \ltiFnmeta{} &::=& ... \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Function Types} \\
   \ltiClosureID{} &::=& \ltitvar{}
                       &\mbox{Closure Identifiers} \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Closure Fuel} \\
-  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}}{\ltiE{}}}}
+  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiSplitIFn{}
+                                                                                 {\ova{\ltistackmapping{\ltiEnv{}}{\ltiFnmeta{}}}}}
+                                                                                {\ltiE{}}}}
                       &\mbox{Closure Cache} \\
   \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
                       &\mbox{Combined Threaded Environments} \\
@@ -2020,13 +2019,13 @@ $$
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{2}}}
                       {\ltiEnvConcat{\ltiEnv{}}{\hastype{\ltivar{}}{\ltiBot}}}
-                      {\ltiEpp{}}
+                      {\ltiE{}}
                       {\ltiS{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                                   {\ltiClosureCache{3}}}
-                      {\ltiFpp{}}
+                      {\ltiEp{}}
                       \\\\
-    \ltiupdateClosureCache{\ltiClosureCache{3}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiBot}{\ltiS{}}{\ltiFpp{}}{\ltiClosureCache{4}}
+    \ltiupdateClosureCache{\ltiClosureCache{3}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiBot}{\ltiS{}}{\ltiEp{}}{\ltiClosureCache{4}}
     }
     {
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
@@ -2306,27 +2305,38 @@ $$
     \ltielimClosalign{\ltiClosureCache{}}{\ltivar{}}
                      {\ltivar{}}
                      \\
-    \ltielimClosalign{\ltiClosureCache{}}{\ltiapp{\ltiF{}}{\ltiE{}}}
-                     {\ltiapp{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}
-                             {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
+    \ltielimClosalign{\ltiClosureCache{}}
+                     {\ltiappinst{\ltiF{}}
+                                 {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}}
+                                 {\ltiE{}}}
+                     {\ltiappinst{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}
+                                 {\ova{\ltistackmapping{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
+                                                       {\ova{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiR{}}}}}}
+                                 {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
                              \\
     \ltielimClosalign{\ltiClosureCache{}}{\ltisel{\ltiF{}}{\ltivar{}}}
                      {\ltisel{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}{\ltivar{}}}
                      \\
     \ltielimClosalign{\ltiClosureCache{}}{\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
                      {\ltiRec{\ova{\ltivar{} = \ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}}}
+                     \\
+    \ltielimClosalign{\ltiClosureCache{}}{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
+                     {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
   \end{array}
   \]
 
   \begin{mathpar}
     \infer [Elab-UAbs]
     {
+    n>0
+    \\
     1 \leq i \leq n
     \\
     \overrightarrow{
-    \ltilookup{\ltiClosureCachep{}}{\ltiClosureID{i}} = \ltiClosureCacheVal{\ltiT{i}}{\ltiF{i}}
+    \ltilookup{\ltiClosureCachep{}}{\ltiClosureID{i}} = 
+      \ltiClosureCacheVal{\ltiSplitIFn{}{\ova{\ltiContextualFn{\ltiEnv{j}^i}{\ltiT{j}^i}{\ltiS{j}^i}}}}{\ltiF{i}}
     }
-    \\\\
+    \\
     \overrightarrow{
     \ltimergeTaggedTerms{\ltiE{i-1}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{i}}}{\ltiE{i}}
     }
@@ -2336,24 +2346,37 @@ $$
                                                       {\ltiClosureID{}}}^n}
                                {\ltivar{}}
                                {\ltiE{0}}}
-                  {\ltiufun{\ltivar{}}{\ltiE{n}}}
+                  {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{n}}}
                   }
-
-    \infer [Elab-Ann]
-    {\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
-    \\\\
-    \ltielimClosT{\varnothing}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
-    }
-    {\ltielimClos{\ltiClosureCache{}}
-                 {\ltiann{\ltiE{}}{\ltiT{}}}
-                 {\ltiann{\ltiEp{}}
-                         {\ltiTp{}}}}
   \end{mathpar}
 
 
   \[
+    \boxed{\ltielimClosEnv{\ltiClosureCache{}}{\ltiEnv{}}{\ltiEnvp{}}
+    \text{ Eliminates symbolic closures in \ltiEnv{} using \ltiClosureCache{}.
+    }
+    }
+  \]
+
+  \[
+  \begin{array}{llll}
+    \ltielimClosEnvalign{\ltiClosureCache{}}{\ltiEmptyEnv}{\ltiEmptyEnv}
+    \\
+    \ltielimClosEnvalign{\ltiClosureCache{}}
+                        {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
+                        {\ltiEnvConcat{\hastype{\ltivar{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}}
+                                      {\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}}
+    \\
+    \ltielimClosEnvalign{\ltiClosureCache{}}
+                        {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                        {\ltiEnvConcat{\ltitvar{}}
+                                      {\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}}
+  \end{array}
+  \]
+
+  \[
     \boxed{\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
-    \text{ Converts symbolic closures in unresolved \ltiT{} to explicit types in \ltiTp{}}
+    \text{ Converts symbolic closures in \ltiT{} to explicit types in \ltiTp{}}
     }
   \]
 
@@ -2363,13 +2386,13 @@ $$
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTop}{\ltiTop}\\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiBot}{\ltiBot}\\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
-                      {\ltiEnclosingFnType{n}}
-                      {\ltiEnclosingFnType{n}}
-                                          \\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
-                      {\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}}
-                      {\ltiIFn{\ova{\ltiFn{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
-                                          {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}}}}
+                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}
+                                   {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
+                      {\ltiSplitIFn{\ova{\ltiFn{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
+                                               {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}}}
+                                   {\ova{\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnvp{}}}
+                                                         {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTp{}}}
+                                                         {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiSp{}}}}}}
                                           \\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
@@ -2378,13 +2401,10 @@ $$
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
                       {\ltiMu{\ltitvar{}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}
-                                          \\
+                      \\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
-                      {\ltiTypeCase{\ltiT{}}
-                                   {\ova{\ltiTypeCaseClause{\ltiS{}}{\ltiSp{}}}}}
-                      {\ltiTypeCase{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
-                                   {\ova{\ltiTypeCaseClause{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}
-                                                           {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiSp{}}}}}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}
   \end{array}
   \]
 

@@ -37,7 +37,7 @@
 % tvars T x e
 \newcommand\ltifuntparaminterface[4]{\ma{\l^{#2}_{#1} #3 . #4}}
 % EnclosingFnStack => T
-\newcommand\ltistackmappingsymbol{\ma{\vdash}}
+\newcommand\ltistackmappingsymbol{\ma{@}}
 \newcommand\ltistackmapping[2]{\ma{#1 \ltistackmappingsymbol #2}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
 \newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
@@ -244,10 +244,14 @@
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
-% ClosureCache t -> t
+% ClosureID* ClosureCache t -> t
 \newcommand\ltielimClosTLHS[3]{\ma{\texttt{elabT}(#1, #2, #3)}}
 \newcommand\ltielimClosT[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltielimClosTalign[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} &=& #4}}
+% ClosureCache Env -> Env
+\newcommand\ltielimClosEnvLHS[2]{\ma{\texttt{elabEnv}(#1, #2)}}
+\newcommand\ltielimClosEnv[3]{\ma{\ltielimClosEnvLHS{#1}{#2} = #3}}
+\newcommand\ltielimClosEnvalign[3]{\ma{\ltielimClosEnvLHS{#1}{#2} &=& #3}}
 
 \newcommand\ltiagreeexcepttvars[3]{\ma{#1 \triangleleft_{#2} #3}}
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
