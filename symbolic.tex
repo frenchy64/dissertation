@@ -2008,7 +2008,7 @@ $$
                                   {\ltiEp{}}}
     }
 
-    \infer [App-Closure]
+    \infer [AppInf-Closure]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
@@ -2045,18 +2045,45 @@ $$
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
-                      {\ltiappinst{\ltiF{}}
-                                  {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
-                                  {\ltiE{}}}
+                      {\ltiapp{\ltiF{}}{\ltiE{}}}
                       {\ltiS{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                                   {\ltiClosureCachepp{}}}
                       {\ltiappinst{\ltiFp{}}
-                                  {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
+                                  {}
                                   {\ltiEp{}}}
     }
 
-    \infer [App\Bot]
+    \infer [AppInf\Bot]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnv{2}}
+                      {\ltiFp{}}
+                  \\\\
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiS{}}
+                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiEp{}}
+                  \\\\
+    \ltiSsubtype{\ltiCombinedThreadedEnv{3}}{\ltiEnv{}}{\ltiT{}}{\ltiBot}{\ltiCombinedThreadedEnv{4}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnv{}}
+                      {\ltiapp{\ltiF{}}{\ltiE{}}}
+                      {\ltiTpp{}}
+                      {\ltiCombinedThreadedEnv{4}}
+                      {\ltiappinst{\ltiFp{}}
+                                  {}
+                                  {\ltiEp{}}}
+    }
+
+    \infer [AppInst\Bot]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
@@ -2157,16 +2184,14 @@ $$
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
                                                   {\ltiClosureCache{1}}}
                       {\ltiEnv{}}
-                      {\ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureIDp{}}}}
-                                   {\ltivar{}}
-                                   {\ltiE{}}}
+                      {\ltiufun{\ltivar{}}{\ltiE{}}}
                       {\ltiClosureWithStkID
                                            {\ltiEnv{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiE{}}}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                                   {\ltiClosureCache{4}}}
-                      {\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}, \ova{\ltiufunelabentry{\ltiClosureIDp{}}}}
+                      {\ltiufunelab{\ltiClosureID{}}
                                    {\ltivar{}}
                                    {\ltiE{}}}
                  }
