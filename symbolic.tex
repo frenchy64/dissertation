@@ -1145,6 +1145,7 @@ $$
                          \alt
                          \ltiBot
                          \alt \ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}
+                         \alt \ltiExists{\ova{\ltitvar{}}}{\ltiT{}}
                          \alt
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
@@ -1212,25 +1213,21 @@ and concatenation
 
     \infer [I-Abs]
     { 
-    i \in 1 ... n \\ j \in n+1 ... m
+    i \in 1 ... n \\ j \in n+1\ ...\ n+m
     \\\\
     \ltiunfoldLHS{\ltiT{}} =
       \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}
     \\\\
     \overrightarrow{
-    \ltiEnv{i} = \ltiEnvConcat{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\hastype{\ltivar{}}{\ltiresolveLHS{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\ltiT{i}}}}
-    }
-    \\\\
-    \overrightarrow{
-    \ltitjudgement{\ltiEnv{i}}
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\hastype{\ltivar{}}{\ltiT{i}}}}
                   {\ltiE{}}
                   {\ltiSp{i}}
                   }
     \\
-    \overrightarrow{\ltiisubtype{\ltiSp{i}}{\ltiresolveLHS{\ltiEnv{i}}{\ltiS{i}}}}
+    \overrightarrow{\ltiisubtype{\ltiSp{i}}{\ltiS{i}}}
     \\\\
     \overrightarrow{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnv{j}}{\hastype{\ltivar{}}{\ltiT{j}}}}
+    \ltitjudgement{\ltiEnvConcat{\ltiEnv{FIXME}}{\hastype{\ltivar{}}{\ltiT{j}}}}
                   {\ltiE{}}
                   {\ltiSp{j}}
                   }
@@ -1258,14 +1255,15 @@ and concatenation
                   {\ltiE{}}
                   {\ltiTp{}}
                   \\\\
-                  \ltiunfold{\ltiSpp{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiTpp{}}}
+                  \ltiresolve{\ltiEnv{}}{\ltiSpp{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiTpp{}}}
                   \\\\
                   \exists! k \in 1...m.\ 
                   \ltiunifyContexts{\ltistackmapping{\ltiEnvp{k}}{\ova{\ltiR{}}_k}}{\ltiEnv{}}
                                    {\ova{\ltiR{}}}
                   \\\\
-                  \ltireplace{\ova{\ltiR{}}}{\ltitvar{}}{\ltiTpp{}} =
-                  \ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                  \ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiTpp{}} =
+                  \ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                              {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiRp{}}{\ltiRpp{}}}}
                   \\\\
      \exists i. \ltiisubtype{\ltiTp{}}{\ltiT{i}}
       \\\\
@@ -1478,23 +1476,26 @@ and concatenation
     \end{array}
 
     \boxed{\ltiresolve{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-    \text{ Resolve contextual types in \ltiT{} using \ltiEnv{}.
+    \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{}.
     }
     }
 
     \begin{array}{lcl}
       \ltiresolvealign{\ltiEnv{}}
-                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
-                                   {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
-                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
-                      {\ltiSplitIFn{\ova{\ltiFn{\ltiresolveLHS{\ltiEnv{}}{\ltiT{i}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiS{i}}}}\ 
+                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                                   {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m\ 
+                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}^p}}
+                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}\ 
                                     \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}}
-                                   {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
+                                   {% do we want to keep this around for further instantiations?
+                                    % I think resolve is only useful for top-level things that are thrown away like App
+                                    %\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
                                     \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
                                    \\
                                    &&\text{ where }\\
                                    &&\text{ }
                                    \begin{array}{lll}
+                                     1 \leq i \leq n < j \leq (n+m) < k \leq (n+m+p) \arcr
                                    \ova{\ltiunifyContexts{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}
                                                                           {\ltiEnv{}}
                                                                           {\ltiFn{\ltiTp{j}}{\ltiSp{j}}}
@@ -1505,17 +1506,13 @@ and concatenation
                                                                           }
                                    \end{array}
                                    \\
-                                   %don't want to resolve under Poly since it changes the environment
-      %\ltiresolvealign{\ltiEnv{}}
-      %                {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-      %                {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
+                                   % FIXME resolving under Poly technically changes the environment ... 
+      \ltiresolvealign{\ltiEnv{}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
       \ltiresolvealign{\ltiEnv{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
-                      {\ltiMu{\ltitvar{}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
-      \ltiresolvealign{\ltiEnv{}}
-                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
-                      {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}}}
-                                                                \\
+                      {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
       \ltiresolvealign{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
 
@@ -1539,6 +1536,43 @@ and concatenation
                                                  &&&
                                                  \text{if } \ltiisubtype{\ltiS{}}{\ltiSp{}}
     \end{array}
+
+    \boxed{\ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
+    \text{ Returns the type variables brought into scope by \ltiEnv{} in the order they were declared.
+    }
+    }
+
+    \begin{array}{lllll}
+      \ltiEnvTVarsalign{\ltiEmptyEnv}{\varnothing}
+      \\
+      \ltiEnvTVarsalign{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
+                       {\ltiEnvTVarsLHS{\ltiEnv{}}}
+      \\
+      \ltiEnvTVarsalign{\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                       {\ltitvar{},\ltiEnvTVarsLHS{\ltiEnv{}}}
+    \end{array}
+
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnv{}}
+    \\\\
+    \text{ Given definition and application contexts \ltiEnv{d} and \ltiEnv{a}, add 
+    type variables to \ltiEnv{d} only present in \ltiEnv{a}.
+    }
+    }
+    }
+
+    % assumes differently bound type variables are distinct
+    \infer[]
+    {
+    \ova{\ltitvar{}} = [\ltitvar{} | \ltitvar{} \in \ltiEnvTVarsLHS{\ltiEnv{a}}, \ltitvar{} \not\in \ltiEnvTVarsLHS{\ltiEnv{d}}]
+    }
+    {
+      \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnvConcat{\ltiEnv{d}}{\ova{\ltitvar{}}}}
+    }
+
   \end{mathpar}
   \caption{Metafunctions for internal language}
 \end{figure}
@@ -1662,7 +1696,9 @@ $$
 
     \infer [Abs]
     {
-    i \in 1 ... n \\ j \in n+1 ... m
+    i \in 1 ... n \\
+    % because we use the same tau symbol in i's and j's
+    j \in n+1\ ...\ n+m
     \\\\
     \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
                                     {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}}
@@ -1679,15 +1715,17 @@ $$
                      \overrightarrow{\ltiSdsubtype{\ltiSp{i}}{\ltiS{i}}}
                      \\\\
     \overrightarrow{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{j}}
+     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}{\ltiT{j}}}}}
+                                                 {\hastype{\ltivar{}}
+                                                          {\ltiT{j}}}}}
                      {\ltiE{}}
                      {\ltiSp{j}}
                      {\ltiEp{}}
                      }
-                     \\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{j}}{\ltiS{j}}}
+                     \\\\
+                     \overrightarrow{\ltiSdsubtype{\ltiSp{j}}
+                                                  {\ltiS{j}}}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -1698,7 +1736,9 @@ $$
 
     \infer [UAbs]
     {
-    i \in 1 ... n \\ j \in n+1 ... m
+    i \in 1 ... n \\
+    % because we use the same tau symbol in i's and j's
+    j \in n+1\ ...\ n+m
     \\\\
     \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
                                     {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}}
@@ -1715,15 +1755,17 @@ $$
                      \overrightarrow{\ltiSdsubtype{\ltiSp{i}}{\ltiS{i}}}
                      \\\\
     \overrightarrow{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{j}}
+     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}{\ltiT{j}}}}}
+                                                 {\hastype{\ltivar{}}
+                                                          {\ltiT{j}}}}}
                      {\ltiE{}}
                      {\ltiSp{j}}
                      {\ltiEp{}}
                      }
-                     \\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{j}}{\ltiS{j}}}
+                     \\\\
+                     \overrightarrow{\ltiSdsubtype{\ltiSp{j}}
+                                                  {\ltiS{j}}}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -1731,6 +1773,39 @@ $$
                     {\ltiTp{}}
                     {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
                  }
+
+    \infer [Sel]
+    {
+    1 \leq i \leq n
+    \\\\
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiF{}}
+                    {\ltiS{}}
+                    {\ltiFp{}}
+                     \\\\
+    \ltiSdsubtype{\ltiS{}}{\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
+    }
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                  {\ltisel{\ltiF{}}{\ltivar{i}}}
+                  {\ltiT{i}}
+                  {\ltisel{\ltiFp{}}{\ltivar{i}}}
+    }
+
+    \infer [Rec]
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiF{i}}
+                    {\ltiT{i}}
+                    {\ltiFp{i}}
+    }
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiRec{\ova{\ltivar{i} = \ltiF{i}}}}
+                    {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}}}}
+                    {\ltiRec{\ova{\ltivar{i} = \ltiFp{i}}}}
+    }
+
 
                  \\
                  \infer[S-Refl]
@@ -1904,9 +1979,11 @@ $$
                                               \\\\
     0 < \ltiFuel{}
     \\\\
+    \ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
+    \\\\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
-                      {\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiTp{}}}}
+                      {\ltiEnvConcat{\ova{\ltitvar{}}}{\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiTp{}}}}}
                       {\ltiEpp{}}
                       {\ltiS{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
@@ -2005,7 +2082,7 @@ $$
 
     \infer [UAbs]
     {
-    \ltiClosureID{} \text{ is fresh}
+    \ltiClosureID{} \not\in dom(\ltiClosureCache{1})
     \\
     \ltiClosureCache{2}
     =
@@ -2030,14 +2107,16 @@ $$
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
                                                   {\ltiClosureCache{1}}}
                       {\ltiEnv{}}
-                      {\ltiufun{\ltivar{}}{\ltiE{}}}
+                      {\ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureIDp{}}}}
+                                   {\ltivar{}}
+                                   {\ltiE{}}}
                       {\ltiClosureWithStkID
                                            {\ltiEnv{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiE{}}}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                                   {\ltiClosureCache{4}}}
-                      {\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
+                      {\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}, \ova{\ltiufunelabentry{\ltiClosureIDp{}}}}
                                    {\ltivar{}}
                                    {\ltiE{}}}
                  }
@@ -2187,15 +2266,16 @@ $$
 
 \begin{figure}
   \[
-    \boxed{\ltimergeTaggedTerms{\ltiEl{1}}{\ltiEl{2}}{\ltiEl{3}}
-    \text{ Recursively merges \ltiEl{1} and \ltiEl{2}, appending Closure tags.}
+    \boxed{\ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiE{3}}
+    \text{ Recursively merges \ltiE{1} and \ltiE{2}, appending Closure tags.}
     }
     \]
+
   $$
   \begin{array}{llll}
 
-    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEl{1}}}
-                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEl{2}}}
+    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{1}}}
+                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{2}}}
                              {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
                              \\
     \ltimergeTaggedTermsalign{\ltiufunelab{\ova{\ltiufunelabentry
@@ -2405,10 +2485,12 @@ $$
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
                       {\ltiMu{\ltitvar{}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}
+                      , \ltitvar{} \not\in \ova{\ltiClosureID{}}
                       \\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}}
+                      , \ova{\ltitvar{}} \cap \ova{\ltiClosureID{}} = \varnothing
   \end{array}
   \]
 
@@ -2418,11 +2500,13 @@ $$
     {
     \ltiClosureIDp{} \not\in \ova{\ltiClosureID{}}
     \\
-    \ltiClosureCacheVal{\ltiT{}}{\ltiF{}} = \ltilookup{\ltiClosureCache{}}{\ltiClosureIDp{}}
+    \ltilookup{\ltiClosureCache{}}{\ltiClosureIDp{}} = \ltiClosureCacheVal{\ltiT{}}{\ltiF{}}
+    \\\\
+    \ltiClosureID{} \not\in \ltifvLHS{\ltiT{}}
     \\
     \ltielimClosT{(\ltiClosureIDp{}, \ova{\ltiClosureID{}})}
                  {\ltiClosureCache{}}
-                 {\ltiT{i}}
+                 {\ltiT{}}
                  {\ltiS{}}
     }
     {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}

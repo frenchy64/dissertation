@@ -73,6 +73,7 @@
 \newcommand\ltiRletter{\chi}
 \newmeta\ltiR{\ltiRletter}
 \newmeta\ltiRp{\ltiRletter'}
+\newmeta\ltiRpp{\ltiRletter''}
 \newmeta\ltiP{P}
 \newmeta\ltiPp{P'}
 \newmeta\ltiV{V}
@@ -102,8 +103,10 @@
 
 \newmeta\ltinat{n}
 \newcommand\ltiEmptyEnv{\ma{\epsilon}}
-\newmeta\ltiEnv{\ma{\Gamma}}
-\newmeta\ltiEnvp{\ma{\Gamma}'}
+\newcommand\ltiEnvsymbol{\ma{\Gamma}}
+\newmeta\ltiEnv{\ma{\ltiEnvsymbol}}
+\newmeta\ltiEnvp{\ma{\ltiEnvsymbol'}}
+\newmeta\ltiEnvpp{\ma{\ltiEnvsymbol''}}
 \newcommand\ltiEnclosingFnStacksymbol{\ma{\mathbb{S}}}
 \newmeta\ltiEnclosingFnStack{\ltiEnclosingFnStacksymbol}
 \newmeta\ltiEnclosingFnStackp{\ltiEnclosingFnStacksymbol'}
@@ -138,6 +141,7 @@
 \newcommand\ltiSeqable[1]{\ma{\ltiSeqableOp #1}}
 \newcommand\ltiRec[1]{\ma{\{#1\}}}
 \newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
+\newcommand\ltiExists[2]{\ma{\exists #1. #2}}
 \newcommand\ltiIFnsymbol{\ma{\bigcap}}
 \newcommand\ltiIFn[1]{\ma{(\ltiIFnsymbol\ #1)}}
 \newcommand\ltiSplitIFn[2]{\ma{({\ltiIFnsymbol}_{#2}^{#1})}}
@@ -158,6 +162,14 @@
 \newcommand\ltilookup[2]{\ma{#1[#2]}}
 \newcommand\ltifvLHS[1]{\ma{\texttt{fv}(#1)}}
 \newcommand\ltifv[2]{\ma{\ltifvLHS{#1} = #2}}
+% Env -> Env
+\newcommand\ltiEnvTVarsLHS[1]{\ma{\texttt{envTV}(#1)}}
+\newcommand\ltiEnvTVars[2]{\ma{\ltiEnvTVarsLHS{#1} = #2}}
+\newcommand\ltiEnvTVarsalign[2]{\ma{\ltiEnvTVarsLHS{#1} &=& #2}}
+% DefEnv AppEnv -> Env
+\newcommand\ltiEnvMissingTVarsLHS[2]{\ma{\texttt{addTVars}(#1,#2)}}
+\newcommand\ltiEnvMissingTVars[3]{\ma{\ltiEnvMissingTVarsLHS{#1}{#2} = #3}}
+\newcommand\ltiEnvMissingTVarsalign[3]{\ma{\EnvMissingTVarsLHS{#1}{#2} &=& #3}}
 % type inference algorithm
 \newcommand\ltijudgement[4]{\ma{#1, #2 \vdash^{w} {\hastype{#3}{#4}}}}
 % external type system
