@@ -1633,7 +1633,7 @@ $$
                     {\ltiF{}}
                     {\ltiS{}^f}
                     {\ltiFp{}}
-                    \\\\
+                    \\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiE{}}
                     {\ltiS{}^a}
@@ -1678,28 +1678,42 @@ $$
 
     \infer [AppInst]
     {
+    1 \leq i \leq n \\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
+                    {\ltiT{}^f}
                     {\ltiFp{}}
-                    \\\\
+                    \\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiE{}}
                     {\ltiTp{}}
                     {\ltiEp{}}
                   \\\\
-                  \ltiEnv{} = \ltiEnv{j}
-                  \\
-                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiR{}}_j}{\ova{\ltitvar{}}}{\ltiT{i}}}
+         \ltiresolve{\ltiEnv{}}
+                    {\ltiT{}^f}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+                                                            {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+                  \\\\
+                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
+                        \ltiunifyContexts{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                  \\\\
+                  1 \leq j \leq m 
+                  \\ m > 0 
+                  \\ p = |\ova{\ltitvar{}}|
+                  \\ 1 \leq k \leq p
+                  \\\\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
+                  \\\\
+                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
+                                {\ova{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}^n}
                                 {\ltiE{}}}
                     {\ltiSp{}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}
+                                {\ova{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}^n
                                 %\ \ova{\ltistackmapping{\ltiEnv{k}}{\ova{\ltiR{}}_k}}
                                  }
                                 {\ltiEp{}}}
@@ -1834,8 +1848,19 @@ $$
                     {\ltiRec{\ova{\ltivar{i} = \ltiFp{i}}}}
     }
 
+  \end{mathpar}
 
-                 \\
+  \caption{Declarative Type system for Symbolic Closure Language:
+   \ltitSdjudgement{\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltiEp{}}
+  }
+  \label{symbolic:figure:SC-language-declarative-type-system}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
                  \infer[S-Refl]
                  {}
                  {
@@ -1894,29 +1919,12 @@ $$
     {\ltiSdsubtype{\ltiMu{\ltitvar{}}{\ltiT{}}}
                   {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
                   }
-
-    %\infer [S-Closure]
-    %{
-    %  \ltitSdjudgement{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
-    %                  {\ltiE{}}
-    %                  {\ltiS{}}
-    %                  {\ltiEp{}}
-    %}
-    %{
-    %\ltiSdsubtype{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-    %             {\ltiFn{\ltiT{}}{\ltiS{}}}
-    %}
   \end{mathpar}
 
-  \caption{Declarative Type system for Symbolic Closure Language:
-   \ltitSdjudgement{\ltiEnv{}}
-                      {\ltiE{}}
-                      {\ltiT{}}
-                      {\ltiEp{}}
-                      and
+  \caption{Subtyping for Declarative Type system for Symbolic Closure Language:
       \ltiSdsubtype{\ltiS{}}{\ltiT{}}
   }
-  \label{symbolic:figure:SC-language-declarative-type-system}
+  \label{symbolic:figure:SC-language-declarative-subtyping}
 \end{figure}
 
 
