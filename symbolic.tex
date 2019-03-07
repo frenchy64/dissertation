@@ -1627,41 +1627,52 @@ $$
                        {\ltivar{}}
                  }
 
-    \infer [App]
+    \infer [AppInf]
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}}}
+                    {\ltiS{}^f}
                     {\ltiFp{}}
                     \\\\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiE{}}
-                    {\ltiTp{}}
+                    {\ltiS{}^a}
                     {\ltiEp{}}
+                    \\\\
+         \ltiresolve{\ltiEnv{}}
+                    {\ltiS{}^f}
+                    {\ltiPoly{\ova{\ltitvar{}}}
+                             {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                                          {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+                  % omitted so we don't have to define a monomorphic fn app rule
+                  %\\\\
+                  %     |\ova{\ltitvar{}}|>0
                   \\\\
-                  \not\exists j \in 1...m. \ltiEnv{} = \ltiEnv{j}
+                  \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
+                  =
+                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\  |\ i \in 1...n, 
+                            \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                            \}
                   \\\\
-                       |\ova{\ltitvar{}}|>0
+                  m > 0 \\ 1 \leq j \leq m
                   \\\\
-                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
-                  \\\\
+                  \overrightarrow{
                   \forall \ltiRp. (
-                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                  \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{j}}}
                   \text{ implies }
-                  \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{i}}}
-                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{i}}}
+                  \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{j}}}
+                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{j}}}
                   )
+                  }
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}^m}
-                                {\ltiE{}}}
-                    {\ltiSp{}}
+                    {\ltiapp{\ltiF{}}{\ltiE{}}}
+                    {\ltiMeetMany{\overrightarrow{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}\ 
-                                 \ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}\ 
-                                 \ova{\ltistackmapping{\ltiEnv{k}}{\ova{\ltiR{}}_k}}}
+                                {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}
+                                %\ \ova{\ltistackmapping{\ltiEnvpp{}}{\ova{\ltiRpp{}}}}
+                                }
                                 {\ltiEp{}}}
     }
 
@@ -1688,8 +1699,9 @@ $$
                                 {\ltiE{}}}
                     {\ltiSp{}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}\ 
-                                 \ova{\ltistackmapping{\ltiEnv{k}}{\ova{\ltiR{}}_k}}}
+                                {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}
+                                %\ \ova{\ltistackmapping{\ltiEnv{k}}{\ova{\ltiR{}}_k}}
+                                 }
                                 {\ltiEp{}}}
     }
 
@@ -1707,9 +1719,9 @@ $$
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiE{}}
+                     {\ltiE{0}}
                      {\ltiSp{i}}
-                     {\ltiEp{}}
+                     {\ltiE{i}}
                      }
                      \\
                      \overrightarrow{\ltiSdsubtype{\ltiSp{i}}{\ltiS{i}}}
@@ -1719,19 +1731,27 @@ $$
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
                                                           {\ltiT{j}}}}}
-                     {\ltiE{}}
+                     {\ltiE{0}}
                      {\ltiSp{j}}
-                     {\ltiEp{}}
+                     {\ltiE{j}}
                      }
                      \\\\
                      \overrightarrow{\ltiSdsubtype{\ltiSp{j}}
                                                   {\ltiS{j}}}
+                     \\\\
+    k \in 1 ... n+m
+    \\
+    \ltiEp{0} = \ltiE{0}
+    \\
+                     \ova{
+                     \ltimergeTaggedTerms{\ltiEp{k-1}}{\ltiE{k}}{\ltiEp{k}}
+                     }
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{0}}}
                     {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{n+m}}}
                  }
 
     \infer [UAbs]
@@ -1747,9 +1767,9 @@ $$
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiE{}}
+                     {\ltiE{0}}
                      {\ltiSp{i}}
-                     {\ltiEp{}}
+                     {\ltiE{i}}
                      }
                      \\
                      \overrightarrow{\ltiSdsubtype{\ltiSp{i}}{\ltiS{i}}}
@@ -1759,19 +1779,27 @@ $$
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
                                                           {\ltiT{j}}}}}
-                     {\ltiE{}}
+                     {\ltiE{0}}
                      {\ltiSp{j}}
-                     {\ltiEp{}}
+                     {\ltiE{j}}
                      }
                      \\\\
                      \overrightarrow{\ltiSdsubtype{\ltiSp{j}}
                                                   {\ltiS{j}}}
+                     \\\\
+    k \in 1 ... n+m
+    \\
+    \ltiEp{0} = \ltiE{0}
+    \\
+                     \ova{
+                     \ltimergeTaggedTerms{\ltiEp{k-1}}{\ltiE{k}}{\ltiEp{k}}
+                     }
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiufun{\ltivar{}}{\ltiE{}}}
+                    {\ltiufun{\ltivar{}}{\ltiE{0}}}
                     {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{n+m}}}
                  }
 
     \infer [Sel]
