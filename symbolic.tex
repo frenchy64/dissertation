@@ -1227,7 +1227,9 @@ and concatenation
     \overrightarrow{\ltiisubtype{\ltiSp{i}}{\ltiS{i}}}
     \\\\
     \overrightarrow{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnv{FIXME}}{\hastype{\ltivar{}}{\ltiT{j}}}}
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
+                                {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                              {\hastype{\ltivar{}}{\ltiT{j}}}}}
                   {\ltiE{}}
                   {\ltiSp{j}}
                   }
@@ -1238,48 +1240,42 @@ and concatenation
     \ltitjudgement{\ltiEnv{}}
                   {\ltifuninterface{\ltiT{}}
                                    {\ltivar{}}{\ltiE{}}}
-                  {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}}}}
+                  {\ltiT{}}
                  }
 
-    \infer [I-App]
+    \infer [I-AppInst]
     {
-    1 \leq i \leq n
-    \\
-    1 \leq j \leq m
-    \\\\
+    1 \leq i \leq n \\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
-                  {\ltiSpp{}}
-                  \\\\
+                  {\ltiT{}^f}
+                    \\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiE{}}
-                  {\ltiTp{}}
+                  {\ltiT{}^a}
                   \\\\
-                  \ltiresolve{\ltiEnv{}}{\ltiSpp{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiTpp{}}}
+         \ltiresolve{\ltiEnv{}}
+                    {\ltiT{}^f}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                                                            {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
-                  \exists! k \in 1...m.\ 
-                  \ltiunifyContexts{\ltistackmapping{\ltiEnvp{k}}{\ova{\ltiR{}}_k}}{\ltiEnv{}}
-                                   {\ova{\ltiR{}}}
+                  \ltiIfindTA{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
                   \\\\
-                  \ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiTpp{}} =
-                  \ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
-                              {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiRp{}}{\ltiRpp{}}}}
+                  1 \leq j \leq m
                   \\\\
-     \exists i. \ltiisubtype{\ltiTp{}}{\ltiT{i}}
-      \\\\
-      \overrightarrow{
-      \ltiSp{i} = \left\{
-                     \begin{array}{ll}
-                       \ltiS{i}, &\text{ if } \ltiisubtype{\ltiTp{}}{\ltiT{i}} \arcr
-                       \ltiTop,  &\text{ otherwise}
-                     \end{array}
-                   \right.
-                   }
+                  \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
+                  =
+                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}{\ltiT{}^a}
+                  \}
+                  \\\\
+                  m > 0
     }
     {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{}}_j}}^m}{\ltiE{}}}
-                  {\ltiMeetMany{\ova{\ltiSp{}}}}
+      \ltitjudgement{\ltiEnv{}}
+                    {\ltiappinst{\ltiF{}}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+                                {\ltiE{}}}
+                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
     }
 
     \infer [I-App\Bot]
@@ -1475,6 +1471,49 @@ and concatenation
       \ltiunfoldalign{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
 
+    \boxed{\ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
+    \text{ Returns the type variables brought into scope by \ltiEnv{} in the order they were declared.
+    }
+    }
+
+    \begin{array}{lllll}
+      \ltiEnvTVarsalign{\ltiEmptyEnv}{\varnothing}
+      \\
+      \ltiEnvTVarsalign{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
+                       {\ltiEnvTVarsLHS{\ltiEnv{}}}
+      \\
+      \ltiEnvTVarsalign{\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                       {\ltitvar{},\ltiEnvTVarsLHS{\ltiEnv{}}}
+    \end{array}
+
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnv{}}
+    \\\\
+    \text{ Given definition and application contexts \ltiEnv{d} and \ltiEnv{a}, add 
+    type variables to \ltiEnv{d} only present in \ltiEnv{a}.
+    }
+    }
+    }
+
+    % assumes differently bound type variables are distinct
+    \infer[]
+    {
+    \ova{\ltitvar{}} = [\ltitvar{} | \ltitvar{} \in \ltiEnvTVarsLHS{\ltiEnv{a}}, \ltitvar{} \not\in \ltiEnvTVarsLHS{\ltiEnv{d}}]
+    }
+    {
+      \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnvConcat{\ltiEnv{d}}{\ova{\ltitvar{}}}}
+    }
+
+
+  \end{mathpar}
+  \caption{Language-agnostic Metafunctions}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
     \boxed{\ltiresolve{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
     \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{}.
     }
@@ -1487,9 +1526,9 @@ and concatenation
                                     \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}^p}}
                       {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}\ 
                                     \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}}
-                                   {% do we want to keep this around for further instantiations?
+                                   {% do we want to keep the j's around for further instantiations?
                                     % I think resolve is only useful for top-level things that are thrown away like App
-                                    %\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
+                                    \ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
                                     \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
                                    \\
                                    &&\text{ where }\\
@@ -1537,41 +1576,32 @@ and concatenation
                                                  \text{if } \ltiisubtype{\ltiS{}}{\ltiSp{}}
     \end{array}
 
-    \boxed{\ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
-    \text{ Returns the type variables brought into scope by \ltiEnv{} in the order they were declared.
-    }
-    }
-
-    \begin{array}{lllll}
-      \ltiEnvTVarsalign{\ltiEmptyEnv}{\varnothing}
-      \\
-      \ltiEnvTVarsalign{\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
-                       {\ltiEnvTVarsLHS{\ltiEnv{}}}
-      \\
-      \ltiEnvTVarsalign{\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
-                       {\ltitvar{},\ltiEnvTVarsLHS{\ltiEnv{}}}
-    \end{array}
-
     \boxed{
     \infer[]
     {}
     {
-    \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnv{}}
-    \\\\
-    \text{ Given definition and application contexts \ltiEnv{d} and \ltiEnv{a}, add 
-    type variables to \ltiEnv{d} only present in \ltiEnv{a}.
+    \ltiIfindTA{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
+    \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}}.
     }
     }
     }
 
-    % assumes differently bound type variables are distinct
     \infer[]
     {
-    \ova{\ltitvar{}} = [\ltitvar{} | \ltitvar{} \in \ltiEnvTVarsLHS{\ltiEnv{a}}, \ltitvar{} \not\in \ltiEnvTVarsLHS{\ltiEnv{d}}]
+                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
+                        \ltiunifyContexts{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                  \\\\
+                  1 \leq j \leq m 
+                  \\ m > 0 
+                  \\ p = |\ova{\ltitvar{}}|
+                  \\ 1 \leq k \leq p
+                  \\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
     }
     {
-      \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnvConcat{\ltiEnv{d}}{\ova{\ltitvar{}}}}
+     \ltiIfindTA{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
     }
+
 
   \end{mathpar}
   \caption{Metafunctions for internal language}
@@ -1688,7 +1718,7 @@ $$
                   \\\\
                   \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
                   \\\\
-                  \ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                  \overrightarrow{\ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -1955,10 +1985,12 @@ $$
 
     \infer [AppInst]
     {
+      1 \leq i \leq n
+      \\\\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
-                      {\ltiTpp{}}
+                      {\ltiT{}^f}
                       {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\\\
@@ -1969,11 +2001,19 @@ $$
                       {\ltiCombinedThreadedEnvp{0}}
                       {\ltiEp{}}
                   \\\\
-      1 \leq i \leq n
+    \ltiresolve{\ltiEnv{}}{\ltiT{}^f}{\ltiPoly{\ova{\ltitvar{}}}
+                                              {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                                                  {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
-    \ltiresolve{\ltiEnv{}}{\ltiTpp{}}{\ltiPoly{\ova{\ltitvar{}}}
-                                              {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
-                                                  {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}^1}{\ltiT{}^2}}}}}
+                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
+                        \ltiunifyContexts{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                  \\\\
+                  1 \leq j \leq m 
+                  \\ m > 0 
+                  \\ p = |\ova{\ltitvar{}}|
+                  \\ 1 \leq k \leq p
+                  \\\\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
     \\\\
     c_0 = 0
     \\\\
@@ -2008,7 +2048,7 @@ $$
                                   {\ltiEp{}}}
     }
 
-    \infer [AppInf-Closure]
+    \infer [AppInf-SC]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}

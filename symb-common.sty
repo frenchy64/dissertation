@@ -177,6 +177,10 @@
 \newcommand\lticjudgement[3]{\ma{#1 \lticjudgementvdash {\hastype{#2}{#3}}}}
 % external type system with fuel
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
+% type argument calculations (internal language)
+% Env TVar* StackMapping<Env,R*> -> R*
+\newcommand\ltiIfindTALHS[3]{\ma{\texttt{calcTA}_{\ltiinternallabel}(#1,#2,#3)}}
+\newcommand\ltiIfindTA[4]{\ma{\ltiIfindTALHS{#1}{#2}{#3} = #4}}
 
 \newcommand\ltisubtypeseparator{\ma{\leq}}
 
@@ -193,7 +197,7 @@
 % subtype for internal types
 \newcommand\ltiisubtype[2]{\ma{\ltiisubtypeseen{}{#1}{#2}}}
 
-%% symbolic closure language (no bidirectional type checking or type argument synthesis)
+%% symbolic closure language (no bidirectional type checking)
 \newcommand\ltisclanglabel{\ma{\text{S}}}
 \newcommand\ltisclangalgvdash{\ma{\vdash^a_{\ltisclanglabel}}}
 \newcommand\ltisclangdeclvdash{\ma{\vdash^d_{\ltisclanglabel}}}
