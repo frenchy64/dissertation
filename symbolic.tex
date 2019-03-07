@@ -1905,7 +1905,7 @@ $$
                       {\ltivar{}}
                  }
 
-    \infer [App]
+    \infer [AppInst]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
@@ -1923,25 +1923,29 @@ $$
                   \\\\
       1 \leq i \leq n
                   \\\\
-    \ltiunfold{\ltiTpp{}}{\ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}}
+    \ltiresolve{\ltiEnv{}}{\ltiTpp{}}{\ltiPoly{\ova{\ltitvar{}}}
+                                              {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
+                                                  {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}^1}{\ltiT{}^2}}}}}
     \\\\
-    \exists i \in 1...n, \ltiCombinedThreadedEnvpp{}. \ltiSsubtype{\ltiCombinedThreadedEnvp{0}}{\ltiEnv{}}{\ltiTp{}}{\ltiT{i}}{\ltiCombinedThreadedEnvpp{}}
+    c_0 = 0
     \\\\
     \overrightarrow{
-      (\ltiSp{i}, \ltiCombinedThreadedEnvp{i})
+      (\ltiSp{i}, \ltiCombinedThreadedEnvp{i}, c_i)
         = \left\{
-                     \begin{array}{lll}
-                       (\ltiS{i}, &\ltiCombinedThreadedEnvp{i})
+                     \begin{array}{llll}
+                       (\ltiS{i}, &\ltiCombinedThreadedEnvp{i}, &c_{i-1} + 1)
                        , &\text{if } \ltiSsubtype{\ltiCombinedThreadedEnvp{i-1}}
                                                  {\ltiEnv{}}
                                                   {\ltiTp{}}
                                                   {\ltiT{i}}
                                                   {\ltiCombinedThreadedEnvpp{i}}
                                                   \arcr
-                       (\ltiTop, &\ltiCombinedThreadedEnvp{i-1}),  &\text{otherwise}
+                       (\ltiTop, &\ltiCombinedThreadedEnvp{i-1}, &c_{i-1}),  &\text{otherwise}
                      \end{array}
                    \right.
                    }
+                   \\\\
+                   c_n > 1
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
@@ -1949,7 +1953,7 @@ $$
                       {\ltiappinst{\ltiF{}}
                                   {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
                                   {\ltiE{}}}
-                      {\ltiMeetMany{\ova{\ltiSp{}}}}
+                      {\ltiMeetMany{\ova{\ltiSp{i}}}}
                       {\ltiCombinedThreadedEnvp{n}}
                       {\ltiappinst{\ltiFp{}}
                                   {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
@@ -1979,11 +1983,9 @@ $$
                                               \\\\
     0 < \ltiFuel{}
     \\\\
-    \ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
-    \\\\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
-                      {\ltiEnvConcat{\ova{\ltitvar{}}}{\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiTp{}}}}}
+                      {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}{\hastype{\ltivar{}}{\ltiTp{}}}}
                       {\ltiEpp{}}
                       {\ltiS{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
@@ -2173,7 +2175,7 @@ $$
     \infer [S-Poly]
     {
     \ltiSsubtype{\ltiCombinedThreadedEnv{}}
-                {\ltiEnv{}}
+                {\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}
                 {\ltiT{}}
                 {\ltiS{}}
                 {\ltiCombinedThreadedEnvp{}}
@@ -2181,8 +2183,8 @@ $$
     {
     \ltiSsubtype{\ltiCombinedThreadedEnv{}}
                 {\ltiEnv{}}
-                {\ltiPoly{\overline{\ltitvar{}}}{\ltiT{}}}
-                {\ltiPoly{\overline{\ltitvar{}}}{\ltiS{}}}
+                {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+                {\ltiPoly{\ova{\ltitvar{}}}{\ltiS{}}}
                 {\ltiCombinedThreadedEnvp{}}
     }
 
@@ -2232,7 +2234,7 @@ $$
     \\\\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
-                      {\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiT{}}}}
+                      {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}{\hastype{\ltivar{}}{\ltiT{}}}}
                       {\ltiE{}}
                       {\ltiSp{}}
                       {\ltiCombinedThreadedEnv{}}
