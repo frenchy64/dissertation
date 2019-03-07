@@ -2412,7 +2412,7 @@ $$
     1 \leq i \leq n
     \\
     \overrightarrow{
-    \ltilookup{\ltiClosureCachep{}}{\ltiClosureID{i}} = 
+    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{i}} = 
       \ltiClosureCacheVal{\ltiSplitIFn{}{\overrightarrow{\ltiContextualFn{\ltiEnv{j}^i}{\ltiT{j}^i}{\ltiS{j}^i}}}}{\ltiF{i}}
     }
     \\
@@ -2420,11 +2420,12 @@ $$
     \ltimergeTaggedTerms{\ltiE{i-1}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{i}}}{\ltiE{i}}
     }
     \\\\
-    \ltiT{} = \ltiMu{\ltiClosureID{1}}{\ltireplaceova{\ltiClosureID{1}}{\ltiClosureID{i}}}
-                    {\ltiSplitIFn{}{\overrightarrow
+    % this unrolls recursive symbolic closure types once, at the benefit of not duplicating
+    % the freshening conditions in elimClosT
+    \ltiT{} =  \ltiSplitIFn{}{\overrightarrow
                               {\overrightarrow{\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{j}^i}}
-                                                    {\ltielimClosTLHS{\ltiClosureID{i}}{\ltiClosureCache{}}{\ltiT{j}^i}}
-                                                    {\ltielimClosTLHS{\ltiClosureID{i}}{\ltiClosureCache{}}{\ltiS{j}^i}}}}}}
+                                                    {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{j}^i}}
+                                                    {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiS{j}^i}}}}} 
     }
     { \ltielimClos{\ltiClosureCache{}}
                   {\ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}^n}
