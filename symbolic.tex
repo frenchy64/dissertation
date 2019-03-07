@@ -1584,36 +1584,20 @@ The main judgment
 says that expression \ltiE{} is of type \ltiT{}
 in environment \ltiEnv{}.
 
-\subsection{Symbolic closure language}
+\subsection{External language}
 
 \begin{figure}
 $$
 \begin{array}{lrll}
-  \ltiE{}, \ltiF{} &::=& ... \alt
-                         \ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}}
-                                     {\ltivar{}}
-                                     {\ltiE{}}
+  \ltiE{}, \ltiF{} &::=& ... \alt \ltiufun{\ltivar{}}{\ltiE{}}
+                         \alt \ltiapp{\ltiF{}}{\ltiE{}}
                       &\mbox{Terms} \\
-  \ltiapp{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiappinst{\ltiE{}}{}{\ltiF{}}
-  \\
   \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
                       &\mbox{Term abbreviations} \\
-  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
-                      &\mbox{Types} \\
-  \ltiClosureID{} &::=& \ltitvar{}
-                      &\mbox{Closure Identifiers} \\
-  \ltiFuel{} &::=& \ltinat{}
-                      &\mbox{Closure Fuel} \\
-  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiSplitIFn{}
-                                                                                 {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}}
-                                                                                {\ltiE{}}}}
-                      &\mbox{Closure Cache} \\
-  \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
-                      &\mbox{Combined Threaded Environments} \\
 \end{array}
 $$
-\caption{Symbolic Closure Language Syntax}
-\label{symbolic:figure:SC-language-syntax}
+\caption{External Language Syntax}
+\label{symbolic:figure:external-language-syntax}
 \end{figure}
 
 \begin{figure}
@@ -1850,13 +1834,13 @@ $$
 
   \end{mathpar}
 
-  \caption{Declarative Type system for Symbolic Closure Language:
+  \caption{Declarative Type system for External Language:
    \ltitSdjudgement{\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiT{}}
                       {\ltiEp{}}
   }
-  \label{symbolic:figure:SC-language-declarative-type-system}
+  \label{symbolic:figure:external-language-declarative-type-system}
 \end{figure}
 
 \begin{figure}
@@ -1921,10 +1905,38 @@ $$
                   }
   \end{mathpar}
 
-  \caption{Subtyping for Declarative Type system for Symbolic Closure Language:
+  \caption{External Language Declarative Subtyping:
       \ltiSdsubtype{\ltiS{}}{\ltiT{}}
   }
-  \label{symbolic:figure:SC-language-declarative-subtyping}
+  \label{symbolic:figure:external-language-declarative-subtyping}
+\end{figure}
+
+\subsection{Symbolic Closure language}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiE{}, \ltiF{} &::=& ... \alt
+                         \ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}}
+                                     {\ltivar{}}
+                                     {\ltiE{}}
+                      &\mbox{Terms} \\
+  \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+                      &\mbox{Types} \\
+  \ltiClosureID{} &::=& \ltitvar{}
+                      &\mbox{Closure Identifiers} \\
+  \ltiFuel{} &::=& \ltinat{}
+                      &\mbox{Closure Fuel} \\
+  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiSplitIFn{}
+                                                                                 {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}}
+                                                                                {\ltiE{}}}}
+                      &\mbox{Closure Cache} \\
+  \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
+                      &\mbox{Combined Threaded Environments} \\
+\end{array}
+$$
+\caption{Symbolic Closure Language Syntax}
+\label{symbolic:figure:SC-language-syntax}
 \end{figure}
 
 
