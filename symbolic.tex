@@ -1741,33 +1741,30 @@ $$
                     {\ltiEnv{}}
                     {\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
-                             {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                             {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
                                           {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   % omitted so we don't have to define a monomorphic fn app rule
                   %\\\\
                   %     |\ova{\ltitvar{}}|>0
                   \\\\
-                  \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
+                  \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}^m
                   =
                   \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\  |\ i \in 1...n, 
                             \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                             \}
-                  \\
-                  m > 0 \\ 1 \leq j \leq m
+                  \\ m > 0 
                   \\\\
-                  \overrightarrow{
-                  \forall \ltiRp. (
+                  \forall \ltiRp{}, j \in 1...m.\ (
                   \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{j}}}
                   \text{ implies }
                   \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{j}}}
                                {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{j}}}
                   )
-                  }
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiapp{\ltiF{}}{\ltiE{}}}
-                    {\ltiMeetMany{\overrightarrow{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
+                    {\ltiMeetMany{\overrightarrow{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
                     {\ltiappinst{\ltiFp{}}
                                 {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}
                                 %\ \ova{\ltistackmapping{\ltiEnvpp{}}{\ova{\ltiRpp{}}}}
@@ -1777,7 +1774,6 @@ $$
 
     \infer [AppInst]
     {
-    1 \leq i \leq n \\\\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
                     {\ltiT{}^f}
@@ -1791,14 +1787,12 @@ $$
          \ltiresolve{\ltiexternallanglabel}
                     {\ltiEnv{}}
                     {\ltiT{}^f}
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
                   \ltiIfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
                   \\\\
-                  1 \leq j \leq m
-                  \\\\
-                  \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
+                  \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}^m
                   =
                   \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                   \}
@@ -1808,23 +1802,20 @@ $$
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                 {\ltiE{}}}
-                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
+                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                 {\ltiEp{}}}
     }
 
 
     \infer [Abs]
     {
-    i \in 1 ... n \\
-    % because we use the same tau symbol in i's and j's
-    j \in n+1\ ...\ n+m
-    \\\\
     \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
-                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}}
+                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
+                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
     \\\\
     \overrightarrow{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
@@ -1832,47 +1823,40 @@ $$
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
                      {\ltiE{0}}
                      {\ltiSp{i}}
-                     {\ltiE{i}}
-                     }
-                     \\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{i}}{\ltiS{i}}}
+                     {\ltiE{}}
+                     }^{1 \leq i \leq n}
                      \\\\
     \overrightarrow{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
+     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
-                                                          {\ltiT{j}}}}}
+                                                          {\ltiT{i}}}}}
                      {\ltiE{0}}
-                     {\ltiSp{j}}
-                     {\ltiE{j}}
-                     }
+                     {\ltiSp{i}}
+                     {\ltiE{}}
+                     }^{n < i \leq m}
                      \\\\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{j}}
-                                                  {\ltiS{j}}}
-                     \\\\
-    k \in 1 ... n+m
-    \\
     \ltiEp{0} = \ltiE{0}
-    \\\\
-                     \ova{
-                     \ltimergeTaggedTerms{\ltiEp{k-1}}{\ltiE{k}}{\ltiEp{k}}
-                     }
+    \\
+                     \overrightarrow{\ltiSdsubtype{\ltiSp{i}}
+                                                  {\ltiS{i}}
+                                                  ,
+                                                  \ 
+                                                  \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
+                                                  }^{1 \leq i \leq m}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{0}}}
                     {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{n+m}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
                  }
 
     \infer [UAbs]
     {
-    i \in 1 ... n \\
-    % because we use the same tau symbol in i's and j's
-    j \in n+1\ ...\ n+m
-    \\\\
     \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
-                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}}
+                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
+                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
     \\\\
     \overrightarrow{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
@@ -1880,42 +1864,38 @@ $$
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
                      {\ltiE{0}}
                      {\ltiSp{i}}
-                     {\ltiE{i}}
-                     }
-                     \\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{i}}{\ltiS{i}}}
+                     {\ltiE{}}
+                     }^{1 \leq i \leq n}
                      \\\\
     \overrightarrow{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
+     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
-                                                          {\ltiT{j}}}}}
+                                                          {\ltiT{i}}}}}
                      {\ltiE{0}}
-                     {\ltiSp{j}}
-                     {\ltiE{j}}
-                     }
+                     {\ltiSp{i}}
+                     {\ltiE{}}
+                     }^{n < i \leq m}
                      \\\\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{j}}
-                                                  {\ltiS{j}}}
-                     \\\\
-    k \in 1 ... n+m
-    \\
     \ltiEp{0} = \ltiE{0}
     \\
-                     \ova{
-                     \ltimergeTaggedTerms{\ltiEp{k-1}}{\ltiE{k}}{\ltiEp{k}}
-                     }
+                     \overrightarrow{\ltiSdsubtype{\ltiSp{i}}
+                                                  {\ltiS{i}}
+                                                  ,
+                                                  \ 
+                                                  \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
+                                                  }^{1 \leq i \leq m}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiufun{\ltivar{}}{\ltiE{0}}}
                     {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{n+m}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
                  }
 
     \infer [Sel]
     {
-    1 \leq i \leq n
+    i \in 1...n
     \\\\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
@@ -1933,10 +1913,12 @@ $$
 
     \infer [Rec]
     {
+    \overrightarrow{
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{i}}
                     {\ltiT{i}}
                     {\ltiFp{i}}
+                    }
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -2088,7 +2070,7 @@ $$
 
     \infer [AppInst]
     {
-      1 \leq i \leq n
+      i \in 1 ... n
       \\\\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
