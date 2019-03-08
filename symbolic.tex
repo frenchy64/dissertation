@@ -1607,7 +1607,6 @@ and concatenation
      \ltiIfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
     }
 
-
   \end{mathpar}
   \caption{Metafunctions for internal and external language, where \ltiInternalOrExternalLang{} ranges over \ltiinternallabel{} and 
            \ltiexternallanglabel{}}
@@ -1638,6 +1637,23 @@ $$
 
 \begin{figure}
   \begin{mathpar}
+    \boxed
+    {
+    \infer[]
+    {}
+    {
+     \ltitSdjudgement{\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     {\ltiEp{}}
+                     \\\\
+     \text{External term \ltiE{} elaborates to internal term \ltiEp{}
+           with type \ltiT{} under context \ltiEnv{}.
+    }
+    }
+    }
+    \\\\
+
     \infer [Var]
     {}
     {
@@ -1674,7 +1690,7 @@ $$
                   \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\  |\ i \in 1...n, 
                             \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                             \}
-                  \\\\
+                  \\
                   m > 0 \\ 1 \leq j \leq m
                   \\\\
                   \overrightarrow{
@@ -1699,7 +1715,7 @@ $$
 
     \infer [AppInst]
     {
-    1 \leq i \leq n \\
+    1 \leq i \leq n \\\\
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiF{}}
                     {\ltiT{}^f}
@@ -1714,30 +1730,27 @@ $$
                     {\ltiEnv{}}
                     {\ltiT{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
-                                                            {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+                                                            {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
-                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
-                        \ltiunifyContexts{\ltiexternallanglabel{}}{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                  \ltiIfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
                   \\\\
-                  1 \leq j \leq m 
-                  \\ m > 0 
-                  \\ p = |\ova{\ltitvar{}}|
-                  \\ 1 \leq k \leq p
+                  1 \leq j \leq m
                   \\\\
-                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
+                  \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
+                  =
+                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}{\ltiT{}^a}
+                  \}
                   \\\\
-                  \overrightarrow{\ltiSdsubtype{\ltiTp{}}{\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}}
+                  m > 0
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}^n}
+                                {\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}
                                 {\ltiE{}}}
-                    {\ltiSp{}}
+                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}^n
-                                %\ \ova{\ltistackmapping{\ltiEnv{k}}{\ova{\ltiR{}}_k}}
-                                 }
+                                {\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}
                                 {\ltiEp{}}}
     }
 
@@ -1778,7 +1791,7 @@ $$
     k \in 1 ... n+m
     \\
     \ltiEp{0} = \ltiE{0}
-    \\
+    \\\\
                      \ova{
                      \ltimergeTaggedTerms{\ltiEp{k-1}}{\ltiE{k}}{\ltiEp{k}}
                      }
@@ -1872,11 +1885,7 @@ $$
 
   \end{mathpar}
 
-  \caption{Declarative Type system for External Language:
-   \ltitSdjudgement{\ltiEnv{}}
-                      {\ltiE{}}
-                      {\ltiT{}}
-                      {\ltiEp{}}
+  \caption{Declarative Type system for External Language
   }
   \label{symbolic:figure:external-language-declarative-type-system}
 \end{figure}
@@ -1980,6 +1989,30 @@ $$
 
 \begin{figure}
   \begin{mathpar}
+    \boxed
+    {
+    \infer[]
+    {}
+    {
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
+                      {\ltiEp{}}
+                     \\\\
+                     \text{Given fuel \ltiFuel{}, closure cache \ltiClosureCache{},
+                     and context \ltiEnv{}, external term \ltiE{} 
+                     is of symbolic-closure-language type \ltiT{}
+                     }
+                     \\\\
+                     \text{
+                     with updated fuel \ltiFuelp{} and closure cache \ltiClosureCachep{},
+                     and elaborated symbolic-closure-language term \ltiEp{}.
+                     }
+                     }
+                     }
+
     \infer [Var]
     {}
     {
@@ -2249,12 +2282,6 @@ $$
   \end{mathpar}
 
   \caption{Algorithmic Type system for Symbolic Closure Language:
-   \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                     {\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiCombinedThreadedEnv{}}
-                     {\ltiEp{}}
   }
   \label{symbolic:figure:SC-language-algorithmic-type-system}
 \end{figure}
@@ -2475,7 +2502,7 @@ $$
 
   \[
     \boxed{\ltielabDriver{\ltiE{}}{\ltiEp{}}
-    \text{ Elaborates \ltiE{} from symbolic closure language to \ltiEp{} in internal language.
+    \text{ Elaborates \ltiE{} from external language to \ltiEp{} in internal language.
     }
     }
   \]
