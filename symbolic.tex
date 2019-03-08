@@ -1145,7 +1145,6 @@ $$
                          \alt
                          \ltiBot
                          \alt \ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}
-                         \alt \ltiExists{\ova{\ltitvar{}}}{\ltiT{}}
                          \alt
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
@@ -1254,12 +1253,13 @@ and concatenation
                   {\ltiE{}}
                   {\ltiT{}^a}
                   \\\\
-         \ltiresolve{\ltiEnv{}}
+         \ltiresolve{\ltiinternallabel}
+                    {\ltiEnv{}}
                     {\ltiT{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
-                  \ltiIfindTA{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
+                  \ltiIfindTA{\ltiinternallabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
                   \\\\
                   1 \leq j \leq m
                   \\\\
@@ -1437,7 +1437,7 @@ and concatenation
     \infer [S-Context]
     {
     % FIXME ordering of contexts?
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiunifyContextsLHS{\ltistackmapping{\ltiEnv{}}{\ltiS{}}}{\ltiEnvp{}}}{\ltiT{}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnv{}}{\ltiS{}}}{\ltiEnvp{}}}{\ltiT{}}
           }
     {\ltiisubtypeseen{\ltiSubtypeSeen{}}{(\ltistackmapping{\ltiEnv{}}{\ltiS{}})}
                                         {(\ltistackmapping{\ltiEnvp{}}{\ltiT{}})}
@@ -1514,13 +1514,14 @@ and concatenation
 
 \begin{figure}
   \begin{mathpar}
-    \boxed{\ltiresolve{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-    \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{}.
+    \boxed{\ltiresolve{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+    \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{} (in language \ltiInternalOrExternalLang{}).
     }
     }
 
     \begin{array}{lcl}
-      \ltiresolvealign{\ltiEnv{}}
+      \ltiresolvealign{\ltiInternalOrExternalLang{}}
+                      {\ltiEnv{}}
                       {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
                                    {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m\ 
                                     \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}^p}}
@@ -1535,53 +1536,57 @@ and concatenation
                                    &&\text{ }
                                    \begin{array}{lll}
                                      1 \leq i \leq n < j \leq (n+m) < k \leq (n+m+p) \arcr
-                                   \ova{\ltiunifyContexts{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}
+                                   \ova{\ltiunifyContexts{\ltiInternalOrExternalLang{}}
+                                                         {\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}
                                                                           {\ltiEnv{}}
                                                                           {\ltiFn{\ltiTp{j}}{\ltiSp{j}}}
                                                                           }\arcr
-                                   \ova{\ltiunifyContexts{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}
+                                   \ova{\ltiunifyContexts{\ltiInternalOrExternalLang{}}
+                                                         {\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}
                                                                           {\ltiEnv{}}
                                                                           {undefined}
                                                                           }
                                    \end{array}
                                    \\
                                    % FIXME resolving under Poly technically changes the environment ... 
-      \ltiresolvealign{\ltiEnv{}}
+      \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
-      \ltiresolvealign{\ltiEnv{}}
+                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}}}\\
+      \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
-                      {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiresolveLHS{\ltiEnv{}}{\ltiT{}}}}\\
-      \ltiresolvealign{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
+                      {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiresolveLHS{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}}}\\
+      \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
 
-    \boxed{\ltiunifyContexts{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ltiS{}}
-    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}.
+    \boxed{\ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ltiS{}}
+    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}
+    (in language \ltiInternalOrExternalLang{}).
     }
     }
 
     \begin{array}{llll}
-      \ltiunifyContextsalign{\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiT{}}} \\
-      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiT{}}} \\
+      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
                             {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
-                            {\ltiunifyContextsLHS{\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
+                            {\ltiunifyContextsLHS{\ltiInternalOrExternalLang{}}
+                                                 {\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
                                                                   {\ova{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}}
                                                  {\ltiEnv{}}}\\
-      \ltiunifyContextsalign{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
                             {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
-                            {\ltiunifyContextsLHS{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                            {\ltiunifyContextsLHS{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
                                                  {\ltiEnv{}}},
                                                  \\
                                                  &&&
-                                                 \text{if } \ltiisubtype{\ltiS{}}{\ltiSp{}}
+                                                 \text{if } \ltiLsubtypeseen{\ltiInternalOrExternalLang{}}{}{\ltiS{}}{\ltiSp{}}
     \end{array}
 
     \boxed{
     \infer[]
     {}
     {
-    \ltiIfindTA{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
-    \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}}.
+    \ltiIfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
+    \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}} (in language \ltiInternalOrExternalLang{}).
     }
     }
     }
@@ -1589,7 +1594,7 @@ and concatenation
     \infer[]
     {
                   \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
-                        \ltiunifyContexts{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
                   \\\\
                   1 \leq j \leq m 
                   \\ m > 0 
@@ -1599,12 +1604,13 @@ and concatenation
                   \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
     }
     {
-     \ltiIfindTA{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
+     \ltiIfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
     }
 
 
   \end{mathpar}
-  \caption{Metafunctions for internal language}
+  \caption{Metafunctions for internal and external language, where \ltiInternalOrExternalLang{} ranges over \ltiinternallabel{} and 
+           \ltiexternallanglabel{}}
 \end{figure}
 
 \figref{symbolic:figure:internal-language-type-system}
@@ -1653,7 +1659,8 @@ $$
                     {\ltiS{}^a}
                     {\ltiEp{}}
                     \\\\
-         \ltiresolve{\ltiEnv{}}
+         \ltiresolve{\ltiexternallanglabel}
+                    {\ltiEnv{}}
                     {\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
                              {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
@@ -1703,13 +1710,14 @@ $$
                     {\ltiTp{}}
                     {\ltiEp{}}
                   \\\\
-         \ltiresolve{\ltiEnv{}}
+         \ltiresolve{\ltiexternallanglabel}
+                    {\ltiEnv{}}
                     {\ltiT{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
                                                             {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
                   \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
-                        \ltiunifyContexts{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                        \ltiunifyContexts{\ltiexternallanglabel{}}{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
                   \\\\
                   1 \leq j \leq m 
                   \\ m > 0 
@@ -2001,12 +2009,15 @@ $$
                       {\ltiCombinedThreadedEnvp{0}}
                       {\ltiEp{}}
                   \\\\
-    \ltiresolve{\ltiEnv{}}{\ltiT{}^f}{\ltiPoly{\ova{\ltitvar{}}}
+    \ltiresolve{\ltiexternallanglabel}
+               {\ltiEnv{}}
+               {\ltiT{}^f}
+               {\ltiPoly{\ova{\ltitvar{}}}
                                               {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
                                                   {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
                   \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
-                        \ltiunifyContexts{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
                   \\\\
                   1 \leq j \leq m 
                   \\ m > 0 
@@ -2048,7 +2059,7 @@ $$
                                   {\ltiEp{}}}
     }
 
-    \infer [AppInf-SC]
+    \infer [AppInf-Closure]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}

@@ -178,16 +178,17 @@
 % external type system with fuel
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % type argument calculations (internal language)
-% Env TVar* StackMapping<Env,R*> -> R*
-\newcommand\ltiIfindTALHS[3]{\ma{\texttt{calcTA}_{\ltiinternallabel}(#1,#2,#3)}}
-\newcommand\ltiIfindTA[4]{\ma{\ltiIfindTALHS{#1}{#2}{#3} = #4}}
+% Lang Env TVar* StackMapping<Env,R*> -> R*
+\newcommand\ltiIfindTALHS[4]{\ma{\texttt{calcTA}_{#1}(#2,#3,#4)}}
+\newcommand\ltiIfindTA[5]{\ma{\ltiIfindTALHS{#1}{#2}{#3}{#4} = #5}}
 
 \newcommand\ltisubtypeseparator{\ma{\leq}}
 
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
 \newcommand\ltiinternallabel{\ma{\text{I}}}
-\newcommand\ltiinternalvdash{\ma{\vdash_{\ltiinternallabel}}}
-\newcommand\ltiinternalalgvdash{\ma{\vdash_{\ltiinternallabel}}}
+\newcommand\ltiLvdash[1]{\ma{\vdash_{#1}}}
+\newcommand\ltiinternalvdash{\ma{\ltiLvdash{\ltiinternallabel}}}
+\newcommand\ltiinternalalgvdash{\ma{\ltiLvdash{\ltiinternallabel}}}
 % internal type system
 \newcommand\ltitjudgement[3]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}}}}
 % internal type system with enclosed fn stack
@@ -196,11 +197,16 @@
 \newcommand\ltiisubtypeseen[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
 % subtype for internal types
 \newcommand\ltiisubtype[2]{\ma{\ltiisubtypeseen{}{#1}{#2}}}
+% subtype (language agnostic
+% Lang Seen T T
+\newcommand\ltiLsubtypeseen[4]{\ma{#2 \ltiLvdash{#1} #3 \ltisubtypeseparator #4}}
 
+\newmeta\ltiInternalOrExternalLang{\ma{L}}
+\newcommand\ltiexternallanglabel{\ma{\text{E}}}
 %% symbolic closure language (no bidirectional type checking)
 \newcommand\ltisclanglabel{\ma{\text{S}}}
-\newcommand\ltisclangalgvdash{\ma{\vdash^a_{\ltisclanglabel}}}
-\newcommand\ltisclangdeclvdash{\ma{\vdash^d_{\ltisclanglabel}}}
+\newcommand\ltisclangalgvdash{\ma{\vdash_{\ltisclanglabel}}}
+\newcommand\ltisclangdeclvdash{\ma{\vdash_{\ltiexternallanglabel}}}
 \newcommand\ltisclangvdash{\ma{\vdash_{\ltisclanglabel}}}
 % symbolic closure type system, with enclosed fn stack
 % CombinedThreadedEnv Env |- E : T ; CombinedThreadedEnv ; E*
@@ -248,13 +254,14 @@
 \newcommand\ltiunfoldLHS[1]{\ma{\texttt{unfold}(#1)}}
 \newcommand\ltiunfold[2]{\ma{\ltiunfoldLHS{#1} = #2}}
 \newcommand\ltiunfoldalign[2]{\ma{\ltiunfoldLHS{#1} &=& #2}}
-\newcommand\ltiresolveLHS[2]{\ma{\texttt{resolve}(#1,#2)}}
-\newcommand\ltiresolve[3]{\ma{\ltiresolveLHS{#1}{#2} = #3}}
-\newcommand\ltiresolvealign[3]{\ma{\ltiresolveLHS{#1}{#2} &=& #3}}
-% StackMapping, Env => T
-\newcommand\ltiunifyContextsLHS[2]{\ma{\texttt{unifyContexts}(#1,#2)}}
-\newcommand\ltiunifyContexts[3]{\ma{\ltiunifyContextsLHS{#1}{#2} = #3}}
-\newcommand\ltiunifyContextsalign[3]{\ma{\ltiunifyContextsLHS{#1}{&#2} &=& #3}}
+% Lang Env T => T
+\newcommand\ltiresolveLHS[3]{\ma{\texttt{resolve}_{#1}(#2,#3)}}
+\newcommand\ltiresolve[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} = #4}}
+\newcommand\ltiresolvealign[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} &=& #4}}
+% Lang StackMapping, Env => T
+\newcommand\ltiunifyContextsLHS[3]{\ma{\texttt{unifyContexts}_{#1}(#2,#3)}}
+\newcommand\ltiunifyContexts[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{#3} = #4}}
+\newcommand\ltiunifyContextsalign[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{&#3} &=& #4}}
 % ClosureCache e -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
