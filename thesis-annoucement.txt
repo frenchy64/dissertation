@@ -1,0 +1,11 @@
+https://apps.iu.edu/kr-prd/kew/EDocLite?docId=81988601
+
+Typed Clojure is an optional type system for the Clojure programming language that aims to type check idiomatic Clojure code.  This dissertation formalizes Typed Clojure's underlying theory, studies its effectiveness in real-world code bases, and proposes several extensions to help address its shortcomings.
+
+We formalize Typed Clojure, including its characteristic features like hash-maps, multimethods, and Java interoperability, and prove the model type sound.  We conduct an empirical study of real-world Typed Clojure usage in over 19,000 lines of code, showing that its existing features correspond to actual usage patterns while revealing several usability shortcomings.
+
+First, the top-level annotation burden needed to port untyped code is prohibitively high. We present an automatic annotator for Typed Clojure to ease this burden, using runtime observations to synthesize heterogeneous, recursive type annotations. We evaluate our experience using the annotator by porting several open-source projects.
+
+Second, pre-expanding macros before type checking makes type checking brittle. We describe and implement a new analyzer for Clojure code that can provide the foundation of an alternative approach where the user provides custom type rules for macros.
+
+Third, too many local functions require annotations. We present a hybrid approach of symbolic execution and type checking that helps check some common higher-order Clojure idioms.
