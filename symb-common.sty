@@ -194,9 +194,12 @@
 % internal type system with enclosed fn stack
 \newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1;#2}{#3}{#4}}}
 % subtype for internal types with `seen` set
-\newcommand\ltiisubtypeseen[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
+% Seen Env T <: T
+\newcommand\ltiisubtypeseenSingleEnv[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
+\newcommand\ltiisubtypeseen[4]{\ma{\ltiisubtypeseenSingleEnv{#1 ; #2}{#3}{#4}}}
 % subtype for internal types
-\newcommand\ltiisubtype[2]{\ma{\ltiisubtypeseen{}{#1}{#2}}}
+% Env T <: T
+\newcommand\ltiisubtype[3]{\ma{\ltiisubtypeseenSingleEnv{#1}{#2}{#3}}}
 % subtype (language agnostic
 % Lang Seen T T
 \newcommand\ltiLsubtypeseen[4]{\ma{#2 \ltiLvdash{#1} #3 \ltisubtypeseparator #4}}

@@ -1223,7 +1223,7 @@ and concatenation
                   {\ltiSp{i}}
                   }
     \\
-    \overrightarrow{\ltiisubtype{\ltiSp{i}}{\ltiS{i}}}
+    \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{i}}{\ltiS{i}}}
     \\\\
     \overrightarrow{
     \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
@@ -1233,7 +1233,7 @@ and concatenation
                   {\ltiSp{j}}
                   }
     \\
-    \overrightarrow{\ltiisubtype{\ltiSp{j}}{\ltiS{j}}}
+    \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{j}}{\ltiS{j}}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1265,7 +1265,7 @@ and concatenation
                   \\\\
                   \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
                   =
-                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}{\ltiT{}^a}
+                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                   \}
                   \\\\
                   m > 0
@@ -1288,7 +1288,7 @@ and concatenation
                   {\ltiE{}}
                   {\ltiS{}}
                   \\\\
-    \ltiisubtype{\ltiT{}}{\ltiBot}
+    \ltiisubtype{\ltiEnv{}}{\ltiT{}}{\ltiBot}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1320,7 +1320,7 @@ and concatenation
                      {\ltiF{}}
                      {\ltiT{}}
                      \\
-                     \ltiisubtype{\ltiT{}}{\ltiBot}
+                     \ltiisubtype{\ltiEnv{}}{\ltiT{}}{\ltiBot}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1345,23 +1345,23 @@ and concatenation
     \infer [S-TVar]
     {}
     {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltitvar{}}{\ltitvar{}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltitvar{}}{\ltitvar{}}
     }
 
     \infer [S-Top]
     {}
-    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\Top}}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\Top}}
 
     \infer [S-Bot]
     {}
-    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\Bot}{\ltiT{}}}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\Bot}{\ltiT{}}}
 
     \infer [S-Rec]
     {
-    \overrightarrow{\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}}
+    \overrightarrow{\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}
     }
     {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
                     {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}},
                              \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
                     {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiS{}}}}}
@@ -1376,10 +1376,11 @@ and concatenation
     \ltiisubtypeseen{\ltiSeenConcat{\ltiSeenEntry{\ltiMu{\ltitvar{}}{\ltiT{}}}
                                                  {\ltiS{}}}
                                    {\ltiSubtypeSeen{}}}
+                    {\ltiEnv{}}
                     {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}{\ltiS{}}
     }
     {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
                     {\ltiMu{\ltitvar{}}{\ltiT{}}}
                     {\ltiS{}}
     }
@@ -1393,54 +1394,54 @@ and concatenation
     \ltiisubtypeseen{\ltiSeenConcat{\ltiSeenEntry{\ltiS{}}
                                                  {{\ltiMu{\ltitvar{}}{\ltiT{}}}}}
                                    {\ltiSubtypeSeen{}}}
+                    {\ltiEnv{}}
                     {\ltiS{}}
                     {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
     }
     {
     \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiEnv{}}
                     {\ltiS{}}
                     {\ltiMu{\ltitvar{}}{\ltiT{}}}
     }
 
     \infer [S-Poly]
     {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiT{}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{}}{\ltiT{}}
     }
-    { \ltiisubtypeseen{\ltiSubtypeSeen{}}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiS{}}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                    }
 
 
     \infer [S-IFn]
-    { \forall i \in 1...n.\ 
-        \exists j \in 1...m.\ 
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{i}}{\ltiT{j}}
-          \\\\
-      \forall i \in 1...p.\ 
+    { 
+      \forall i \in 1...n.\ 
         \exists j \in 1...q.\ 
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiSp{i}}{\ltiTp{j}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{j}}{\ltiT{i}}
     }
-    { \ltiisubtypeseen{\ltiSubtypeSeen{}}
-                      {\ltiSplitIFn{\ova{\ltiS{}}^m}{\ova{\ltiSp{}}^q}}
-                      {\ltiSplitIFn{\ova{\ltiT{}}^n}{\ova{\ltiTp{}}^p}}
+    { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
+                      {\ltiSplitIFn{\ltiS{1}...\ltiS{p}}{\ltiS{p+1}...\ltiS{q}}}
+                      {\ltiSplitIFn{\ltiT{1}...\ltiT{m}}{\ltiT{m+1}...\ltiT{n}}}
                    }
 
-    \infer [S-Fn]
+    \infer [SF-Fn]
     {
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiS{}}{\ltiSp{}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}
           \\\\
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiTp{}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiTp{}}
           }
-    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiFn{\ltiSp{}}{\ltiT{}}}{\ltiFn{\ltiS{}}{\ltiTp{}}}}
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiFn{\ltiSp{}}{\ltiT{}}}{\ltiFn{\ltiS{}}{\ltiTp{}}}}
 
-    \infer [S-Context]
+    \infer [SF-Context]
     {
     % FIXME ordering of contexts?
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnv{}}{\ltiS{}}}{\ltiEnvp{}}}{\ltiT{}}
+          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnvpp{}}{\ltiS{}}}{\ltiEnvp{}}}{\ltiT{}}
           }
-    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{(\ltistackmapping{\ltiEnv{}}{\ltiS{}})}
-                                        {(\ltistackmapping{\ltiEnvp{}}{\ltiT{}})}
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
+                     {(\ltistackmapping{\ltiEnvp{}}{\ltiS{}})}
+                     {(\ltistackmapping{\ltiEnvpp{}}{\ltiT{}})}
     }
 
 
@@ -1448,7 +1449,7 @@ and concatenation
   \caption{Algorithmic Type system for internal language:
    \ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}}
                  and 
-                 \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiT{}}{\ltiS{}}.
+                 \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}.
   }
   \label{symbolic:figure:internal-language-type-system}
 \end{figure}
@@ -1738,7 +1739,7 @@ $$
                   \\\\
                   \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
                   =
-                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}{\ltiT{}^a}
+                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                   \}
                   \\\\
                   m > 0
