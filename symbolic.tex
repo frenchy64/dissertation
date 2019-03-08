@@ -1558,9 +1558,8 @@ and concatenation
                                    {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}^n}}
                       {\ltiSplitIFn{\ova{\ltiTpp{}}\ 
                                     \ova{\ltiTp{}}}
-                                   {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}}}
-                                   \\
-                                   &&\text{ where }
+                                   {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}}},
+                                   \text{ where }
                                      \ova{\ltiTp{}} = 
                                      \{ \ltiTp{i} | i \in 1...n, 
                                         \ltiunifyContexts{\ltiInternalOrExternalLang{}}
@@ -1569,11 +1568,13 @@ and concatenation
                                                          {\ltiTp{i}}
                                                                           \}
                                    \\
-                                   % FIXME resolving under Poly technically changes the environment ... 
-      \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}
+                                   % FIXME is extending the environment correct here?
+      \ltiresolvealign{\ltiInternalOrExternalLang{}}
+                      {\ltiEnvConcat{\ltiEnv{}{\ova{\ltitvar{}}}}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}}}\\
-      \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}
+      \ltiresolvealign{\ltiInternalOrExternalLang{}}
+                      {\ltiEnv{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
                       {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiresolveLHS{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}}}\\
       \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
@@ -1588,18 +1589,24 @@ and concatenation
     (in language \ltiInternalOrExternalLang{}).
     }
     \\\\
-    \text{Helper function similar, except takes a prefix of the current context as first argument.
+    \text{Helper function also takes the already-processed prefix of the current context as first argument.
     }
     }
     }
 
-    \begin{array}{llll}
-      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}
-                            {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
-                                                  {\ltiEmptyEnv}
-                                                  {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
-                                                  {\ltiEnv{}}}
-                                                   \\
+    \infer[]
+    {}
+    {
+      \ltiunifyContexts{\ltiInternalOrExternalLang{}}
+                       {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                       {\ltiEnv{}}
+                       {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
+                                             {\ltiEmptyEnv}
+                                             {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                                             {\ltiEnv{}}}
+                                             }
+
+    \begin{array}{lllll}
       \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
                              {\ltiEnvpp{}}
                              {\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}
@@ -1611,8 +1618,8 @@ and concatenation
                              {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
                              {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
                                                    {\ltiEnvConcat{\ltiEnvpp{}}{\ltitvar{}}}
-                                                   {\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
-                                                                    {\ova{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}}
+                                                   {\ltireplace{\ltitvar{}}{\ltitvarp{}}
+                                                               {(\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}})}}
                                                    {\ltiEnv{}}}\\
       \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
                              {\ltiEnvpp{}}
@@ -1622,9 +1629,7 @@ and concatenation
                                                   {\ltiEnvConcat{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
                                                   {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
                                                   {\ltiEnv{}}},
-                                                 \\
-                                                 &&&
-                                                 \text{if } \ltiLsubtypeEnv{\ltiInternalOrExternalLang{}}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
+                                                 &\text{ if } \ltiLsubtypeEnv{\ltiInternalOrExternalLang{}}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
     \end{array}
 
     \boxed{
