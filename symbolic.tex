@@ -1553,32 +1553,21 @@ and concatenation
 
     \begin{array}{lcl}
       \ltiresolvealign{\ltiInternalOrExternalLang{}}
-                      {\ltiEnv{}}
-                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
-                                   {\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m\ 
-                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}^p}}
-                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}\ 
-                                    \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}}
-                                   {% do we want to keep the j's around for further instantiations?
-                                    % I think resolve is only useful for top-level things that are thrown away like App
-                                    \ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}\ 
-                                    \ova{\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}}}
+                      {\ltiEnvp{}}
+                      {\ltiSplitIFn{\ova{\ltiTpp{}}}
+                                   {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}^n}}
+                      {\ltiSplitIFn{\ova{\ltiTpp{}}\ 
+                                    \ova{\ltiTp{}}}
+                                   {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}}}
                                    \\
-                                   &&\text{ where }\\
-                                   &&\text{ }
-                                   \begin{array}{lll}
-                                     1 \leq i \leq n < j \leq (n+m) < k \leq (n+m+p) \arcr
-                                   \ova{\ltiunifyContexts{\ltiInternalOrExternalLang{}}
-                                                         {\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}
-                                                                          {\ltiEnv{}}
-                                                                          {\ltiFn{\ltiTp{j}}{\ltiSp{j}}}
-                                                                          }\arcr
-                                   \ova{\ltiunifyContexts{\ltiInternalOrExternalLang{}}
-                                                         {\ltiContextualFn{\ltiEnv{k}}{\ltiT{k}}{\ltiS{k}}}
-                                                                          {\ltiEnv{}}
-                                                                          {undefined}
-                                                                          }
-                                   \end{array}
+                                   &&\text{ where }
+                                     \ova{\ltiTp{}} = 
+                                     \{ \ltiTp{i} | i \in 1...n, 
+                                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}
+                                                         {\ltistackmapping{\ltiEnv{i}}{\ltiT{i}}}
+                                                         {\ltiEnvp{}}
+                                                         {\ltiTp{i}}
+                                                                          \}
                                    \\
                                    % FIXME resolving under Poly technically changes the environment ... 
       \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}
