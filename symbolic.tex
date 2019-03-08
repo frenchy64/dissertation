@@ -1203,28 +1203,25 @@ and concatenation
   \begin{mathpar}
     \infer [I-Abs]
     { 
-    i \in 1 ... n \\ j \in n+1\ ...\ n+m
-    \\\\
     \ltiunfoldLHS{\ltiT{}} =
-      \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}{\ova{\ltiContextualFn{\ltiEnv{j}}{\ltiT{j}}{\ltiS{j}}}^m}}
+      \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
+                                             {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
     \\\\
     \overrightarrow{
     \ltitjudgement{\ltiEnvConcat{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\hastype{\ltivar{}}{\ltiT{i}}}}
                   {\ltiE{}}
                   {\ltiSp{i}}
-                  }
-    \\
-    \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{i}}{\ltiS{i}}}
+                  }^{1\leq i \leq n}
     \\\\
     \overrightarrow{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnv{j}}}
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
                                 {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                              {\hastype{\ltivar{}}{\ltiT{j}}}}}
+                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
                   {\ltiE{}}
-                  {\ltiSp{j}}
-                  }
+                  {\ltiSp{i}}
+                  }^{n < i \leq m}
     \\\\
-    \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{j}}{\ltiS{j}}}
+    \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{i}}{\ltiS{i}}}^{1 \leq i \leq m}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1246,18 +1243,16 @@ and concatenation
          \ltiresolve{\ltiinternallabel}
                     {\ltiEnv{}}
                     {\ltiT{}^f}
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
+                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
                   \ltiIfindTA{\ltiinternallabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
                   \\
-                  j \in 1 ... m 
-                  \\
                   m > 0
                   \\\\
-                  \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
+                  \ova{\ltiSp{}}^m
                   =
-                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                  \{ \ltiS{i}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                   \}
     }
     {
@@ -1265,7 +1260,7 @@ and concatenation
                     {\ltiappinst{\ltiF{}}
                                 {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                 {\ltiE{}}}
-                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
+                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
     }
 
     \infer [I-Var]
@@ -1292,21 +1287,19 @@ and concatenation
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{j}}{\ova{\ltiR{}}_j}}}{\ltiE{}}}
+                  {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiR{}}}}}{\ltiE{}}}
                   {\ltiBot{}}
     }
 
 
     \infer [I-Sel]
     {
-    i \in 1...n
-    \\\\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
                   {\ltiS{}}
                      \\\\
     \ltiunfold{\ltiS{}}
-              {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
+              {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{i}}{\ltiT{i}} , ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1324,20 +1317,22 @@ and concatenation
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiF{}}{\ltivar{i}}}
+                  {\ltisel{\ltiF{}}{\ltivar{}}}
                   {\ltiBot}
     }
 
     \infer [I-Rec]
     {
+    \overrightarrow{
     \ltitjudgement{\ltiEnv{}}
-                     {\ltiF{i}}
-                     {\ltiT{i}}
+                  {\ltiF{}}
+                  {\ltiT{}}
+                  }
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                     {\ltiRec{\ova{\ltivar{i} = \ltiF{i}}}}
-                     {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}}}}
+                  {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+                  {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
     }
 
     %\\\\
