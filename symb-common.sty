@@ -201,8 +201,9 @@
 % Env T <: T
 \newcommand\ltiisubtype[3]{\ma{\ltiisubtypeseenSingleEnv{#1}{#2}{#3}}}
 % subtype (language agnostic
-% Lang Seen T T
-\newcommand\ltiLsubtypeseen[4]{\ma{#2 \ltiLvdash{#1} #3 \ltisubtypeseparator #4}}
+% Lang Seen+Env T T
+\newcommand\ltiLsubtypeseenSingleEnv[4]{\ma{#2 \ltiLvdash{#1} #3 \ltisubtypeseparator #4}}
+\newcommand\ltiLsubtypeEnv[4]{\ma{\ltiLsubtypeseenSingleEnv{#1}{#2}{#3}{#4}}}
 
 \newmeta\ltiInternalOrExternalLang{\ma{L}}
 \newcommand\ltiexternallanglabel{\ma{\text{E}}}
@@ -262,9 +263,13 @@
 \newcommand\ltiresolve[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiresolvealign[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} &=& #4}}
 % Lang StackMapping, Env => T
-\newcommand\ltiunifyContextsLHS[3]{\ma{\texttt{unifyContexts}_{#1}(#2,#3)}}
+\newcommand\ltiunifyContextsLHS[3]{\ma{\texttt{unifyCtx}_{#1}(#2,#3)}}
 \newcommand\ltiunifyContexts[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiunifyContextsalign[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{&#3} &=& #4}}
+% Lang AccumEnv StackMapping, CurrentEnv => T
+\newcommand\ltiunifyContextsHLHS[4]{\ma{\texttt{uc}_{#1}(#2,#3,#4)}}
+\newcommand\ltiunifyContextsH[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{#4} = #5}}
+\newcommand\ltiunifyContextsHalign[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % ClosureCache e -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}

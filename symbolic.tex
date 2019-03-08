@@ -1201,15 +1201,6 @@ and concatenation
 
 \begin{figure}
   \begin{mathpar}
-    \infer [I-Var]
-    {}
-    {
-    \ltitjudgement
-                    {\ltiEnv{}}
-                    {\ltivar{}}
-                    {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                 }
-
     \infer [I-Abs]
     { 
     i \in 1 ... n \\ j \in n+1\ ...\ n+m
@@ -1232,7 +1223,7 @@ and concatenation
                   {\ltiE{}}
                   {\ltiSp{j}}
                   }
-    \\
+    \\\\
     \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{j}}{\ltiS{j}}}
     }
     {
@@ -1244,7 +1235,6 @@ and concatenation
 
     \infer [I-AppInst]
     {
-    1 \leq i \leq n \\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
                   {\ltiT{}^f}
@@ -1260,15 +1250,15 @@ and concatenation
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
                   \ltiIfindTA{\ltiinternallabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
-                  \\\\
-                  1 \leq j \leq m
+                  \\
+                  j \in 1 ... m 
+                  \\
+                  m > 0
                   \\\\
                   \ova{\ltiFn{\ltiTp{j}}{\ltiSp{j}}}^m
                   =
                   \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                   \}
-                  \\\\
-                  m > 0
     }
     {
       \ltitjudgement{\ltiEnv{}}
@@ -1277,6 +1267,16 @@ and concatenation
                                 {\ltiE{}}}
                     {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{j}}}}}
     }
+
+    \infer [I-Var]
+    {}
+    {
+    \ltitjudgement
+                    {\ltiEnv{}}
+                    {\ltivar{}}
+                    {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+                 }
+
 
     \infer [I-App\Bot]
     {
@@ -1299,7 +1299,7 @@ and concatenation
 
     \infer [I-Sel]
     {
-    1 \leq i \leq n
+    i \in 1...n
     \\\\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
@@ -1319,7 +1319,7 @@ and concatenation
     \ltitjudgement{\ltiEnv{}}
                      {\ltiF{}}
                      {\ltiT{}}
-                     \\
+                     \\\\
                      \ltiisubtype{\ltiEnv{}}{\ltiT{}}{\ltiBot}
     }
     {
@@ -1407,7 +1407,10 @@ and concatenation
 
     \infer [S-Poly]
     {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{}}{\ltiT{}}
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}
+                    {\ltiS{}}
+                    {\ltiT{}}
     }
     { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiS{}}}
@@ -1432,16 +1435,49 @@ and concatenation
           \\\\
           \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiTp{}}
           }
-    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiFn{\ltiSp{}}{\ltiT{}}}{\ltiFn{\ltiS{}}{\ltiTp{}}}}
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnv{}}
+                     {\ltiFn{\ltiSp{}}{\ltiT{}}}
+                     {\ltiFn{\ltiS{}}{\ltiTp{}}}
+                     }
 
-    \infer [SF-Context]
+    \infer [SF-ContextBoth]
     {
-    % FIXME ordering of contexts?
-          \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnvpp{}}{\ltiS{}}}{\ltiEnvp{}}}{\ltiT{}}
-          }
-    {\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
+     \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnvpp{}}
+                     {\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnvpp{}}{\ltiS{}}}{\ltiEnvp{}}}
+                     {\ltiT{}}
+    }
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnv{}}
                      {(\ltistackmapping{\ltiEnvp{}}{\ltiS{}})}
                      {(\ltistackmapping{\ltiEnvpp{}}{\ltiT{}})}
+    }
+
+    \infer [SF-ContextL]
+    {
+     \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnv{}}
+                     {\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnvp{}}{\ltiS{}}}{\ltiEnv{}}}
+                     {\ltiT{}}
+    }
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnv{}}
+                     {(\ltistackmapping{\ltiEnvp{}}{\ltiS{}})}
+                     {\ltiT{}}
+    }
+
+    \infer [SF-ContextR]
+    {
+     \ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnv{}}
+                     {\ltiS{}}
+                     {\ltiunifyContextsLHS{\ltiinternallabel}{\ltistackmapping{\ltiEnvp{}}{\ltiT{}}}{\ltiEnv{}}}
+    }
+    {\ltiisubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiEnv{}}
+                     {\ltiS{}}
+                     {(\ltistackmapping{\ltiEnvp{}}{\ltiT{}})}
     }
 
 
@@ -1559,27 +1595,52 @@ and concatenation
       \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
 
-    \boxed{\ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ltiS{}}
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiS{}}}
     \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}
     (in language \ltiInternalOrExternalLang{}).
+    }
+    \\\\
+    \text{Helper function similar, except takes a prefix of the current context as first argument.
+    }
     }
     }
 
     \begin{array}{llll}
-      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiT{}}} \\
-      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
-                            {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
-                            {\ltiunifyContextsLHS{\ltiInternalOrExternalLang{}}
-                                                 {\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
-                                                                  {\ova{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}}
-                                                 {\ltiEnv{}}}\\
-      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+      \ltiunifyContextsalign{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}
+                            {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
+                                                  {\ltiEmptyEnv}
+                                                  {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                                                  {\ltiEnv{}}}
+                                                   \\
+      \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
+                             {\ltiEnvpp{}}
+                             {\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}
+                             {\ltiEnv{}}
+                             {\ova{\ltiT{}}} \\
+      \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
+                             {\ltiEnvpp{}}
+                             {\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                             {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                             {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
+                                                   {\ltiEnvConcat{\ltiEnvpp{}}{\ltitvar{}}}
+                                                   {\ltistackmapping{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiEnvp{}}}
+                                                                    {\ova{\ltireplace{\ltitvar{}}{\ltitvarp{}}{\ltiT{}}}}}
+                                                   {\ltiEnv{}}}\\
+      \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
+                             {\ltiEnvpp{}}
+                             {\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
                             {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
-                            {\ltiunifyContextsLHS{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
-                                                 {\ltiEnv{}}},
+                            {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
+                                                  {\ltiEnvConcat{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
+                                                  {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                                                  {\ltiEnv{}}},
                                                  \\
                                                  &&&
-                                                 \text{if } \ltiLsubtypeseen{\ltiInternalOrExternalLang{}}{}{\ltiS{}}{\ltiSp{}}
+                                                 \text{if } \ltiLsubtypeEnv{\ltiInternalOrExternalLang{}}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
     \end{array}
 
     \boxed{
