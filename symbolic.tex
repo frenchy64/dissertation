@@ -1149,8 +1149,7 @@ $$
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
                          \ltiMu{\ltitvar{}}{\ltiT{}}
-                         \\
-                         &\alt& \ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}
+                         \alt \ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}
                                           {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \ltiEmptyEnv \alt
@@ -1714,6 +1713,39 @@ $$
                        {\ltivar{}}
                  }
 
+    \infer [Sel]
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiF{}}
+                    {\ltiS{}}
+                    {\ltiFp{}}
+                     \\\\
+    \ltiSdsubtype{\ltiS{}}{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{i}}{\ltiT{i}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                  {\ltisel{\ltiF{}}{\ltivar{i}}}
+                  {\ltiT{i}}
+                  {\ltisel{\ltiFp{}}{\ltivar{i}}}
+    }
+
+    \infer [Rec]
+    {
+    \overrightarrow{
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiF{i}}
+                    {\ltiT{i}}
+                    {\ltiFp{i}}
+                    }
+                    ^{1 \leq i \leq n}
+    }
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiRec{\ova{\ltivar{} = \ltiF{}}^n}}
+                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
+                    {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
+    }
+
     \infer [AppInf]
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -1726,34 +1758,26 @@ $$
                     {\ltiS{}^a}
                     {\ltiEp{}}
                     \\\\
-         \ltiresolve{\ltiexternallanglabel}
-                    {\ltiEnv{}}
-                    {\ltiS{}^f}
+         \ltiunfold{\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
-                             {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
-                                          {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+                             {\ltiSplitIFn{\ltiFn{\ltiT{}}{\ltiS{}}}
+                                          }}
                   % omitted so we don't have to define a monomorphic fn app rule
                   %\\\\
                   %     |\ova{\ltitvar{}}|>0
                   \\\\
-                  \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}^m
-                  =
-                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\  |\ i \in 1...n, 
-                            \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
-                            \}
-                  \\ m > 0 
-                  \\\\
-                  \forall \ltiRp{}, j \in 1...m.\ (
-                  \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{j}}}
+                  \forall \ltiRp{}.
+                    (
+                  \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
                   \text{ implies }
-                  \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{j}}}
-                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{j}}}
+                  \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
+                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
                   )
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
                     {\ltiapp{\ltiF{}}{\ltiE{}}}
-                    {\ltiMeetMany{\overrightarrow{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
+                    {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
                     {\ltiappinst{\ltiFp{}}
                                 {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}
                                 %\ \ova{\ltistackmapping{\ltiEnvpp{}}{\ova{\ltiRpp{}}}}
@@ -1780,13 +1804,13 @@ $$
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
                   \ltiIfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
-                  \\\\
-                  \ova{\ltiFn{\ltiTp{}}{\ltiSp{}}}^m
-                  =
-                  \{ \ltiFn{\ltiT{i}}{\ltiS{i}}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
-                  \}
-                  \\\\
+                  \\
                   m > 0
+                  \\\\
+                  \ova{\ltiSp{}}^m
+                  =
+                  \{ \ltiS{i}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                  \}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -1806,13 +1830,15 @@ $$
                                     {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
                                                  {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
     \\\\
+                     m>0
+                     \\
     \overrightarrow{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiE{0}}
+                     {\ltiEp{0}}
                      {\ltiSp{i}}
-                     {\ltiE{}}
+                     {\ltiE{i}}
                      }^{1 \leq i \leq n}
                      \\\\
     \overrightarrow{
@@ -1820,23 +1846,21 @@ $$
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
                                                           {\ltiT{i}}}}}
-                     {\ltiE{0}}
+                     {\ltiEp{0}}
                      {\ltiSp{i}}
-                     {\ltiE{}}
+                     {\ltiE{i}}
                      }^{n < i \leq m}
                      \\\\
-    \ltiEp{0} = \ltiE{0}
-    \\
                      \overrightarrow{\ltiSdsubtype{\ltiSp{i}}
                                                   {\ltiS{i}}
                                                   ,
                                                   \ 
-                                                  \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
+                                                  \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
                                                   }^{1 \leq i \leq m}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{0}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{0}}}
                     {\ltiTp{}}
                     {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
                  }
@@ -1847,13 +1871,15 @@ $$
                                     {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
                                                  {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
     \\\\
+                     m>0
+                     \\
     \overrightarrow{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiE{0}}
+                     {\ltiEp{0}}
                      {\ltiSp{i}}
-                     {\ltiE{}}
+                     {\ltiE{i}}
                      }^{1 \leq i \leq n}
                      \\\\
     \overrightarrow{
@@ -1861,60 +1887,23 @@ $$
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
                                                           {\ltiT{i}}}}}
-                     {\ltiE{0}}
+                     {\ltiEp{0}}
                      {\ltiSp{i}}
-                     {\ltiE{}}
+                     {\ltiE{i}}
                      }^{n < i \leq m}
                      \\\\
-    \ltiEp{0} = \ltiE{0}
-    \\
                      \overrightarrow{\ltiSdsubtype{\ltiSp{i}}
                                                   {\ltiS{i}}
                                                   ,
-                                                  \ 
                                                   \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
                                                   }^{1 \leq i \leq m}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiufun{\ltivar{}}{\ltiE{0}}}
+                    {\ltiufun{\ltivar{}}{\ltiEp{0}}}
                     {\ltiTp{}}
                     {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
                  }
-
-    \infer [Sel]
-    {
-    i \in 1...n
-    \\\\
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiF{}}
-                    {\ltiS{}}
-                    {\ltiFp{}}
-                     \\\\
-    \ltiSdsubtype{\ltiS{}}{\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiF{}}{\ltivar{i}}}
-                  {\ltiT{i}}
-                  {\ltisel{\ltiFp{}}{\ltivar{i}}}
-    }
-
-    \infer [Rec]
-    {
-    \overrightarrow{
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiF{i}}
-                    {\ltiT{i}}
-                    {\ltiFp{i}}
-                    }
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiRec{\ova{\ltivar{i} = \ltiF{i}}}}
-                    {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}}}}
-                    {\ltiRec{\ova{\ltivar{i} = \ltiFp{i}}}}
-    }
 
   \end{mathpar}
 
