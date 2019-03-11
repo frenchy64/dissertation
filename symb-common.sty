@@ -228,8 +228,8 @@
 % ThreadedEnv Env T T => T ThreadedEnv
 \newcommand\ltiSsubtype[5]{\ma{#1 ; #2 \ltisclangalgvdash #3 \ltisubtypeseparator #4 ; #5}}
 % declarative subtyping for symbolic closure language
-% T <: T
-\newcommand\ltiSdsubtype[2]{\ma{#1 \ltisubtypeseparator #2}}
+% Env T <: T
+\newcommand\ltiSdsubtype[3]{\ma{#1 \ltisclangdeclvdash #2 \ltisubtypeseparator #3}}
 \newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrg}}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}

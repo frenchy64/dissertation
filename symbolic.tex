@@ -1723,7 +1723,7 @@ $$
                     {\ltiS{}}
                     {\ltiFp{}}
                      \\\\
-    \ltiSdsubtype{\ltiS{}}{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{i}}{\ltiT{i}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
+    \ltiSdsubtype{\ltiEnv{}}{\ltiS{}}{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{i}}{\ltiT{i}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
     }
     {
     \ltitSdjudgement{\ltiEnv{}}
@@ -1770,9 +1770,9 @@ $$
                   \\\\
                   \forall \ltiRp{}.
                     (
-                  \ltiSdsubtype{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                  \ltiSdsubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
                   \text{ implies }
-                  \ltiSdsubtype{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
+                  \ltiSdsubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
                                {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
                   )
     }
@@ -1799,11 +1799,14 @@ $$
                     {\ltiTp{}}
                     {\ltiEp{}}
                   \\\\
-         \ltiresolve{\ltiexternallanglabel}
+                  \ltiSdsubtype{\ltiEnv{}}{
+         \ltiresolveLHS{\ltiexternallanglabel}
                     {\ltiEnv{}}
-                    {\ltiT{}^f}
+                    {\ltiT{}^f}}
+                    {
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+                                                            }
                   \\\\
                   m > 0
                   \\
@@ -1853,7 +1856,7 @@ $$
                      {\ltiE{i}}
                      }^{n < i \leq m}
                      \\\\
-                     \overrightarrowcaption{\ltiSdsubtype{\ltiSp{i}}
+                     \overrightarrowcaption{\ltiSdsubtype{\ltiEnv{}}{\ltiSp{i}}
                                                   {\ltiS{i}}
                                                   ,
                                                   \ 
@@ -1894,7 +1897,7 @@ $$
                      {\ltiE{i}}
                      }^{n < i \leq m}
                      \\\\
-                     \overrightarrowcaption{\ltiSdsubtype{\ltiSp{i}}
+                     \overrightarrowcaption{\ltiSdsubtype{\ltiEnv{}}{\ltiSp{i}}
                                                   {\ltiS{i}}
                                                   ,
                                                   \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
@@ -1919,33 +1922,33 @@ $$
                  \infer[S-Refl]
                  {}
                  {
-                 \ltiSdsubtype{\ltiT{}}{\ltiT{}}
+                 \ltiSdsubtype{\ltiEnv{}}{\ltiT{}}{\ltiT{}}
                  }
 
                  \infer[S-Trans]
                  {
-                 \ltiSdsubtype{\ltiS{}}{\ltiSp{}}
+                 \ltiSdsubtype{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}
                  \\
-                 \ltiSdsubtype{\ltiSp{}}{\ltiT{}}
+                 \ltiSdsubtype{\ltiEnv{}}{\ltiSp{}}{\ltiT{}}
                  }
                  {
-                 \ltiSdsubtype{\ltiS{}}{\ltiT{}}
+                 \ltiSdsubtype{\ltiEnv{}}{\ltiS{}}{\ltiT{}}
                  }
 
     \infer [S-Top]
     {}
-    { \ltiSdsubtype{\ltiT{}}{\Top}}
+    { \ltiSdsubtype{\ltiEnv{}}{\ltiT{}}{\Top}}
 
     \infer [S-Bot]
     {}
-    { \ltiSdsubtype{\Bot}{\ltiT{}}}
+    { \ltiSdsubtype{\ltiEnv{}}{\Bot}{\ltiT{}}}
 
     \infer [S-Rec]
     {
-      \ltiSdsubtype{\ltiT{i}}{\ltiS{i}}
+      \ltiSdsubtype{\ltiEnv{}}{\ltiT{i}}{\ltiS{i}}
     }
     {
-    \ltiSdsubtype
+    \ltiSdsubtype{\ltiEnv{}}
                 {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}},
                          \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
                 {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiS{i}}}}}
@@ -1953,31 +1956,31 @@ $$
 
     \infer [S-IFn]
     {
-      \ltiSdsubtype{\ltiS{i}}{\ltiSp{i}}
+      \ltiSdsubtype{\ltiEnv{}}{\ltiS{i}}{\ltiSp{i}}
       \\
-      \ltiSdsubtype{\ltiT{i}}{\ltiTp{i}}
+      \ltiSdsubtype{\ltiEnv{}}{\ltiT{i}}{\ltiTp{i}}
     }
-    { \ltiSdsubtype{\ltiIFn{\ova{\ltiFn{\ltiSp{i}}{\ltiT{i}}}\ \ova{\ltiFn{\ltiSpp{}}{\ltiTpp{}}}}}
+    { \ltiSdsubtype{\ltiEnv{}}{\ltiIFn{\ova{\ltiFn{\ltiSp{i}}{\ltiT{i}}}\ \ova{\ltiFn{\ltiSpp{}}{\ltiTpp{}}}}}
                    {\ltiIFn{\ova{\ltiFn{\ltiS{i}}{\ltiTp{i}}}}}
        }
 
     \infer [S-Poly]
-    {\ltiSdsubtype{\ltiT{}}
+    {\ltiSdsubtype{\ltiEnv{}}{\ltiT{}}
                   {\ltiS{}}
     }
-    {\ltiSdsubtype{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
+    {\ltiSdsubtype{\ltiEnv{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
                   {\ltiPoly{\ova{\ltitvar{}}}{\ltiS{}}}
                   }
 
     \infer [S-Mu]
     {}
-    {\ltiSdsubtype{\ltiMu{\ltitvar{}}{\ltiT{}}}
+    {\ltiSdsubtype{\ltiEnv{}}{\ltiMu{\ltitvar{}}{\ltiT{}}}
                   {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
                   }
   \end{mathpar}
 
   \caption{External Language Declarative Subtyping:
-      \ltiSdsubtype{\ltiS{}}{\ltiT{}}
+      \ltiSdsubtype{\ltiEnv{}}{\ltiS{}}{\ltiT{}}
   }
   \label{symbolic:figure:external-language-declarative-subtyping}
 \end{figure}
