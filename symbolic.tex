@@ -1567,11 +1567,14 @@ and concatenation
                                                          {\ltiTp{i}}
                                                                           \}
                                    \\
-                                   % FIXME is extending the environment correct here?
       \ltiresolvealign{\ltiInternalOrExternalLang{}}
-                      {\ltiEnvConcat{\ltiEnv{}{\ova{\ltitvar{}}}}}
+                      {\ltiEnv{}}
                       {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiresolveLHS{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}}}\\
+                      {\ltiPoly{\ova{\ltitvar{}}}
+                               {\ltiresolveLHS{\ltiInternalOrExternalLang{}}
+                                              % FIXME is extending the environment correct here?
+                                              {\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}
+                                              {\ltiT{}}}}\\
       \ltiresolvealign{\ltiInternalOrExternalLang{}}
                       {\ltiEnv{}}
                       {\ltiMu{\ltitvar{}}{\ltiT{}}}
