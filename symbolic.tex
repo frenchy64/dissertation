@@ -2092,7 +2092,7 @@ $$
                       {\ltiappinst{\ltiF{}}
                                   {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                   {\ltiE{}}}
-                      {\ltiMeetMany{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}
+                      {\ltiMeetMany{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ova{\ltiSp{}}}}}
                       {\ltiCombinedThreadedEnvp{n}}
                       {\ltiappinst{\ltiFp{}}
                                   {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
@@ -2257,10 +2257,63 @@ $$
                       {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
     }
 
+    \infer [Abs]
+    {
+    \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
+                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
+                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
+    \\\\
+                     m>0
+                     \\
+    \overrightarrowcaption{
+     \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
+                     {\ltiEnvConcat{\ltiEnv{}}
+                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                                 {\hastype{\ltivar{}}{\ltiT{i}}}}}
+                     {\ltiEp{0}}
+                     {\ltiSp{i}}
+                     {\ltiE{i}}
+                     {\ltiCombinedThreadedEnv{i}}
+                     }^{1 \leq i \leq n}
+                     \\\\
+    \overrightarrowcaption{
+     \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
+                    {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
+                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                                 {\hastype{\ltivar{}}
+                                                          {\ltiT{i}}}}}
+                     {\ltiEp{0}}
+                     {\ltiSp{i}}
+                     {\ltiE{i}}
+                     {\ltiCombinedThreadedEnv{i}}
+                     }^{n < i \leq m}
+                     \\\\
+                     \ltiCombinedThreadedEnvp{0} = \ltiCombinedThreadedEnv{m}
+                     \\\\
+                     \overrightarrowcaption{
+                        \ltiSsubtype{\ltiCombinedThreadedEnvp{i-1}}
+                                                  {\ltiEnv{}}
+                                                  {\ltiSp{i}}
+                                                  {\ltiS{i}}
+                                                  {\ltiCombinedThreadedEnvp{i}}
+                                                  ,
+                                                  \ 
+                                                  \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
+                                                  }^{1 \leq i \leq m}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
+                    {\ltiEnv{}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{0}}}
+                    {\ltiTp{}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
+                    {\ltiCombinedThreadedEnvp{m}}
+                 }
+
     \infer [UAbs]
     {
     \ltiClosureID{} \not\in dom(\ltiClosureCache{1})
-    \\
+    \\\\
     \ltiClosureCache{2}
     =
     \ltimapsto{\ltiClosureCache{1}}
@@ -2297,7 +2350,7 @@ $$
                  }
   \end{mathpar}
 
-  \caption{Algorithmic Type system for Symbolic Closure Language:
+  \caption{Algorithmic Type system for Symbolic Closure Language (\textsc{AppInf} omitted)
   }
   \label{symbolic:figure:SC-language-algorithmic-type-system}
 \end{figure}
