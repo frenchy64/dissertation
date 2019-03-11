@@ -1206,13 +1206,13 @@ and concatenation
       \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
                                              {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
     \\\\
-    \overrightarrow{
+    \overrightarrowcaption{
     \ltitjudgement{\ltiEnvConcat{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\hastype{\ltivar{}}{\ltiT{i}}}}
                   {\ltiE{}}
                   {\ltiSp{i}}
                   }^{1\leq i \leq n}
     \\\\
-    \overrightarrow{
+    \overrightarrowcaption{
     \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
                                 {\ltiEnvConcat{\ova{\ltitvar{}}}
                                               {\hastype{\ltivar{}}{\ltiT{i}}}}}
@@ -1220,7 +1220,7 @@ and concatenation
                   {\ltiSp{i}}
                   }^{n < i \leq m}
     \\\\
-    \overrightarrow{\ltiisubtype{\ltiEnv{}}{\ltiSp{i}}{\ltiS{i}}}^{1 \leq i \leq m}
+    \overrightarrowcaption{\ltiisubtype{\ltiEnv{}}{\ltiSp{i}}{\ltiS{i}}}^{1 \leq i \leq m}
     }
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1245,7 +1245,7 @@ and concatenation
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
-                  \ltiIfindTA{\ltiinternallabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
+                  \ltiLfindTA{\ltiinternallabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
                   \\
                   m > 0
                   \\\\
@@ -1591,7 +1591,7 @@ and concatenation
     (in language \ltiInternalOrExternalLang{}).
     }
     \\\\
-    \text{Helper function also takes the already-processed prefix of the current context as first argument.
+    \text{Helper function also takes the already-processed prefix of the current context as second argument.
     }
     }
     }
@@ -1638,7 +1638,7 @@ and concatenation
     \infer[]
     {}
     {
-    \ltiIfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
+    \ltiLfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
     \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}} (in language \ltiInternalOrExternalLang{}).
     }
     }
@@ -1657,7 +1657,7 @@ and concatenation
                   \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
     }
     {
-     \ltiIfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
+     \ltiLfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
     }
 
   \end{mathpar}
@@ -1765,9 +1765,8 @@ $$
                     {\ltiPoly{\ova{\ltitvar{}}}
                              {\ltiSplitIFn{\ltiFn{\ltiT{}}{\ltiS{}}}
                                           }}
-                  % omitted so we don't have to define a monomorphic fn app rule
-                  %\\\\
-                  %     |\ova{\ltitvar{}}|>0
+                  \\
+                       |\ova{\ltitvar{}}|>0
                   \\\\
                   \forall \ltiRp{}.
                     (
@@ -1806,9 +1805,9 @@ $$
                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
                                                             {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
                   \\\\
-                  \ltiIfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
-                  \\
                   m > 0
+                  \\
+                  \ltiLfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
                   \\\\
                   \ova{\ltiSp{}}^m
                   =
@@ -1835,7 +1834,7 @@ $$
     \\\\
                      m>0
                      \\
-    \overrightarrow{
+    \overrightarrowcaption{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
@@ -1844,7 +1843,7 @@ $$
                      {\ltiE{i}}
                      }^{1 \leq i \leq n}
                      \\\\
-    \overrightarrow{
+    \overrightarrowcaption{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
@@ -1854,7 +1853,7 @@ $$
                      {\ltiE{i}}
                      }^{n < i \leq m}
                      \\\\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{i}}
+                     \overrightarrowcaption{\ltiSdsubtype{\ltiSp{i}}
                                                   {\ltiS{i}}
                                                   ,
                                                   \ 
@@ -1876,7 +1875,7 @@ $$
     \\\\
                      m>0
                      \\
-    \overrightarrow{
+    \overrightarrowcaption{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}{\ltiT{i}}}}}
@@ -1885,7 +1884,7 @@ $$
                      {\ltiE{i}}
                      }^{1 \leq i \leq n}
                      \\\\
-    \overrightarrow{
+    \overrightarrowcaption{
      \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
@@ -1895,7 +1894,7 @@ $$
                      {\ltiE{i}}
                      }^{n < i \leq m}
                      \\\\
-                     \overrightarrow{\ltiSdsubtype{\ltiSp{i}}
+                     \overrightarrowcaption{\ltiSdsubtype{\ltiSp{i}}
                                                   {\ltiS{i}}
                                                   ,
                                                   \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
@@ -2038,21 +2037,8 @@ $$
                      }
                      }
 
-    \infer [Var]
-    {}
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltivar{}}
-                      {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                      {\ltiCombinedThreadedEnv{}}
-                      {\ltivar{}}
-                 }
-
     \infer [AppInst]
     {
-      i \in 1 ... n
-      \\\\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
@@ -2063,59 +2049,66 @@ $$
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
-                      {\ltiTp{}}
-                      {\ltiCombinedThreadedEnvp{0}}
+                      {\ltiT{}^a}
+                      {\ltiCombinedThreadedEnv{3}}
                       {\ltiEp{}}
                   \\\\
-    \ltiresolve{\ltiexternallanglabel}
+    \ltiresolveSC{\ltiCombinedThreadedEnv{3}}
                {\ltiEnv{}}
                {\ltiT{}^f}
                {\ltiPoly{\ova{\ltitvar{}}}
-                                              {\ltiSplitIFn{\ova{\ltiFn{\ltiT{i}}{\ltiS{i}}}^n}
-                                                  {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+                        {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{n}}
+                                     {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+               {\ltiCombinedThreadedEnv{4}}
                   \\\\
-                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
-                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
-                  \\\\
-                  1 \leq j \leq m 
-                  \\ m > 0 
-                  \\ p = |\ova{\ltitvar{}}|
-                  \\ 1 \leq k \leq p
-                  \\\\
-                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
+                  \ltiSfindTA{\ltiCombinedThreadedEnvp{4}}
+                             {\ltiEnv{}}
+                             {\ova{\ltitvar{}}}
+                             {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+                             {\ova{\ltiR{}}}
+                             {\ltiCombinedThreadedEnvp{0}}
     \\\\
-    c_0 = 0
+     c_0 = 0 \\ c_n > 1
     \\\\
-    \overrightarrow{
+    \overrightarrowcaption{
       (\ltiSp{i}, \ltiCombinedThreadedEnvp{i}, c_i)
         = \left\{
                      \begin{array}{llll}
-                       (\ltiS{i}, &\ltiCombinedThreadedEnvp{i}, &c_{i-1} + 1)
+                       (\ltiS{i}, \ltiCombinedThreadedEnvp{i}, 1+c_{i-1})
                        , &\text{if } \ltiSsubtype{\ltiCombinedThreadedEnvp{i-1}}
                                                  {\ltiEnv{}}
-                                                  {\ltiTp{}}
-                                                  {\ltiT{i}}
-                                                  {\ltiCombinedThreadedEnvpp{i}}
+                                                 {\ltiT{}^a}
+                                                 {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+                                                 {\ltiCombinedThreadedEnvp{i}}
                                                   \arcr
-                       (\ltiTop, &\ltiCombinedThreadedEnvp{i-1}, &c_{i-1}),  &\text{otherwise}
+                       (\ltiTop, \ltiCombinedThreadedEnvp{i-1}, c_{i-1}),  &\text{otherwise}
                      \end{array}
                    \right.
-                   }
-                   \\\\
-                   c_n > 1
+                   }^{i \in 1 ... n}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiappinst{\ltiF{}}
-                                  {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
+                                  {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                   {\ltiE{}}}
-                      {\ltiMeetMany{\ova{\ltiSp{i}}}}
+                      {\ltiMeetMany{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}
                       {\ltiCombinedThreadedEnvp{n}}
                       {\ltiappinst{\ltiFp{}}
-                                  {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
+                                  {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                   {\ltiEp{}}}
     }
+
+    \infer [Var]
+    {}
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltivar{}}
+                      {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+                      {\ltiCombinedThreadedEnv{}}
+                      {\ltivar{}}
+                 }
 
     \infer [AppInf-Closure]
     {
@@ -2231,9 +2224,9 @@ $$
                       {\ltiS{}}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiFp{}}
-                      \\
+                      \\\\
     \ltiunfold{\ltiS{}}
-              {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}}}}
+              {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},..., \hastype{\ltivar{i}}{\ltiT{i}},..., \hastype{\ltivar{n}}{\ltiT{n}}}}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
@@ -2246,16 +2239,14 @@ $$
 
     \infer [Rec]
     {
-    1 \leq i \leq n
-    \\
-    \overrightarrow{
+    \overrightarrowcaption{
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
                       {\ltiEnv{}}
                       {\ltiF{i}}
                       {\ltiT{i}}
                       {\ltiCombinedThreadedEnv{i}}
                       {\ltiFp{i}}
-                      }
+                      }^{ 1 \leq i \leq n}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
@@ -2443,6 +2434,105 @@ $$
 \end{figure}
 
 \begin{figure}
+  \begin{mathpar}
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltiunifyContextsSC{\ltiCombinedThreadedEnv{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiS{}}}{\ltiCombinedThreadedEnvp{}}
+    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}.
+    }
+    \\\\
+    \text{Helper function also takes the already-processed prefix of the current context as second argument.
+    }
+    }
+    }
+
+    \infer[]
+    {}
+    {
+      \ltiunifyContextsSCLHS{\ltiCombinedThreadedEnv{}}
+                       {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                       {\ltiEnv{}}
+                       =
+                       {\ltiunifyContextsHSCLHS{\ltiCombinedThreadedEnv{}}
+                                               {\ltiEmptyEnv}
+                                               {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                                               {\ltiEnv{}}}
+                                             }
+
+    \begin{array}{lllll}
+      \ltiunifyContextsHSCalign{\ltiCombinedThreadedEnv{}}
+                             {\ltiEnvpp{}}
+                             {\ltistackmapping{\ltiEmptyEnv{}}{\ova{\ltiT{}}}}
+                             {\ltiEnv{}}
+                             {\ltiunifyContextsHSCRHS{\ova{\ltiT{}}}
+                                                     {\ltiCombinedThreadedEnv{}}}
+                                                     \\
+      \ltiunifyContextsHSCalign{\ltiCombinedThreadedEnv{}}
+                             {\ltiEnvpp{}}
+                             {\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                             {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                             {\ltiunifyContextsHSCLHS{\ltiCombinedThreadedEnv{}}
+                                                   {\ltiEnvConcat{\ltiEnvpp{}}{\ltitvar{}}}
+                                                   {\ltireplace{\ltitvar{}}{\ltitvarp{}}
+                                                               {(\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}})}}
+                                                   {\ltiEnv{}}}\\
+      \ltiunifyContextsHSCalign{\ltiCombinedThreadedEnv{}}
+                             {\ltiEnvpp{}}
+                             {\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                            {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
+                            {\ltiunifyContextsHSCLHS{\ltiCombinedThreadedEnvp{}}
+                                                  {\ltiEnvConcat{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
+                                                  {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
+                                                  {\ltiEnv{}}},
+                                                 \text{ if } \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+                                                                          {\ltiEnvpp{}}
+                                                                          {\ltiS{}}
+                                                                          {\ltiSp{}}
+                                                                          {\ltiCombinedThreadedEnvp{}}
+    \end{array}
+
+    \boxed{
+    \infer[]
+    {}
+    {
+           \ltiSfindTA{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ova{\ltitvar{}}}
+                      {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+                      {\ova{\ltiR{}}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      \\
+     \text{ With initial environments \ltiCombinedThreadedEnv{} and \ltiEnv{}, 
+     return the actual type arguments \ova{\ltiR{}} to provide for \ova{\ltitvar{}}.
+    }
+    }
+    }
+
+    \infer[]
+    {
+                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
+                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                  \\\\
+                  j \in 1 ... m 
+                  \\ m > 0 
+                  \\ p = |\ova{\ltitvar{}}|
+                  \\ k \in 1 ... p
+                  \\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
+                  }
+    { \ltiSfindTA{\ltiCombinedThreadedEnv{0}}
+                 {\ltiEnv{}}
+                 {\ova{\ltitvar{}}}
+                 {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+                 {\ova{\ltiRpp{}}}
+                 {\ltiCombinedThreadedEnvp{0}}
+                 }
+
+
+  \end{mathpar}
+
   \[
     \boxed{\ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiE{3}}
     \text{ Recursively merges \ltiE{1} and \ltiE{2}, appending Closure tags.}

@@ -179,10 +179,16 @@
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % type argument calculations (internal language)
 % Lang Env TVar* StackMapping<Env,R*> -> R*
-\newcommand\ltiIfindTALHS[4]{\ma{\texttt{calcTA}_{#1}(#2,#3,#4)}}
-\newcommand\ltiIfindTA[5]{\ma{\ltiIfindTALHS{#1}{#2}{#3}{#4} = #5}}
+\newcommand\ltiLfindTALHS[4]{\ma{\texttt{calcTA}_{#1}(#2,#3,#4)}}
+\newcommand\ltiLfindTA[5]{\ma{\ltiLfindTALHS{#1}{#2}{#3}{#4} = #5}}
+% CombinedEnv Env TVar* StackMapping<Env,R*> -> R* ; CombinedEnv
+\newcommand\ltiSfindTALHS[4]{\ma{\texttt{calcTAS}(#1,#2,#3,#4)}}
+\newcommand\ltiSfindTA[6]{\ma{\ltiSfindTALHS{#1}{#2}{#3}{#4} = #5 ; #6}}
 
 \newcommand\ltisubtypeseparator{\ma{\leq}}
+
+% wrap in an extra pair of parens so superscripts work
+\newcommand\overrightarrowcaption[1]{\ma{{\overrightarrow{#1}}}}
 
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
 \newcommand\ltiinternallabel{\ma{\text{I}}}
@@ -262,6 +268,10 @@
 \newcommand\ltiresolveLHS[3]{\ma{\texttt{resolve}_{#1}(#2,#3)}}
 \newcommand\ltiresolve[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiresolvealign[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} &=& #4}}
+% CombinedEnv Env T => T ; CombinedEnv
+\newcommand\ltiresolveSCLHS[3]{\ma{\texttt{resolveS}(#1,#2,#3)}}
+\newcommand\ltiresolveSC[5]{\ma{\ltiresolveSCLHS{#1}{#2}{#3} = #4 ; #5}}
+\newcommand\ltiresolveSCalign[5]{\ma{\ltiresolveSCLHS{#1}{#2}{#3} &=& #4 ; #5}}
 % Lang StackMapping, Env => T
 \newcommand\ltiunifyContextsLHS[3]{\ma{\texttt{unifyCtx}_{#1}(#2,#3)}}
 \newcommand\ltiunifyContexts[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{#3} = #4}}
@@ -270,6 +280,15 @@
 \newcommand\ltiunifyContextsHLHS[4]{\ma{\texttt{uc}_{#1}(#2,#3,#4)}}
 \newcommand\ltiunifyContextsH[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHalign[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{&#4} &=& #5}}
+% CombinedEnv StackMapping, Env => T ; CombinedEnv
+\newcommand\ltiunifyContextsSCLHS[3]{\ma{\texttt{unifyCtxSC}(#1,#2,#3)}}
+\newcommand\ltiunifyContextsSC[5]{\ma{\ltiunifyContextsSCLHS{#1}{#2}{#3} = #4 ; #5}}
+\newcommand\ltiunifyContextsSCalign[5]{\ma{\ltiunifyContextsSCLHS{#1}{#2}{&#3} &=& #4 ; #5}}
+% CombinedEnv AccumEnv StackMapping, CurrentEnv => T ; CombinedEnv
+\newcommand\ltiunifyContextsHSCLHS[4]{\ma{\texttt{ucSC}(#1,#2,#3,#4)}}
+\newcommand\ltiunifyContextsHSCRHS[2]{\ma{#1 ; #2}}
+\newcommand\ltiunifyContextsHSC[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{#4} = #5}}
+\newcommand\ltiunifyContextsHSCalign[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % ClosureCache e -> e
 \newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
