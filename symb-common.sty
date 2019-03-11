@@ -160,14 +160,14 @@
 \newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
 \newcommand\ltimapsto[3]{\ma{#1 [#2 \mapsto #3]}}
 \newcommand\ltilookup[2]{\ma{#1[#2]}}
-\newcommand\ltifvLHS[1]{\ma{\texttt{fv}(#1)}}
+\newcommand\ltifvLHS[1]{\ma{\metafunctionfont{fv}(#1)}}
 \newcommand\ltifv[2]{\ma{\ltifvLHS{#1} = #2}}
 % Env -> Env
-\newcommand\ltiEnvTVarsLHS[1]{\ma{\texttt{envTV}(#1)}}
+\newcommand\ltiEnvTVarsLHS[1]{\ma{\metafunctionfont{envTV}(#1)}}
 \newcommand\ltiEnvTVars[2]{\ma{\ltiEnvTVarsLHS{#1} = #2}}
 \newcommand\ltiEnvTVarsalign[2]{\ma{\ltiEnvTVarsLHS{#1} &=& #2}}
 % DefEnv AppEnv -> Env
-\newcommand\ltiEnvMissingTVarsLHS[2]{\ma{\texttt{addTV}(#1,#2)}}
+\newcommand\ltiEnvMissingTVarsLHS[2]{\ma{\metafunctionfont{addTV}(#1,#2)}}
 \newcommand\ltiEnvMissingTVars[3]{\ma{\ltiEnvMissingTVarsLHS{#1}{#2} = #3}}
 \newcommand\ltiEnvMissingTVarsalign[3]{\ma{\EnvMissingTVarsLHS{#1}{#2} &=& #3}}
 % type inference algorithm
@@ -179,10 +179,10 @@
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % type argument calculations (internal language)
 % Lang Env TVar* StackMapping<Env,R*> -> R*
-\newcommand\ltiLfindTALHS[4]{\ma{\texttt{calcTA}_{#1}(#2,#3,#4)}}
+\newcommand\ltiLfindTALHS[4]{\ma{\metafunctionfont{calcTA}_{#1}(#2,#3,#4)}}
 \newcommand\ltiLfindTA[5]{\ma{\ltiLfindTALHS{#1}{#2}{#3}{#4} = #5}}
 % CombinedEnv Env TVar* StackMapping<Env,R*> -> R* ; CombinedEnv
-\newcommand\ltiSfindTALHS[4]{\ma{\texttt{calcTAS}(#1,#2,#3,#4)}}
+\newcommand\ltiSfindTALHS[4]{\ma{\metafunctionfont{calcTAS}(#1,#2,#3,#4)}}
 \newcommand\ltiSfindTA[6]{\ma{\ltiSfindTALHS{#1}{#2}{#3}{#4} = #5 ; #6}}
 
 \newcommand\ltisubtypeseparator{\ma{\leq}}
@@ -191,7 +191,7 @@
 \newcommand\overrightarrowcaption[1]{\ma{{\overrightarrow{#1}}}}
 
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
-\newcommand\ltiinternallabel{\ma{\text{I}}}
+\newcommand\ltiinternallabel{\ma{\ltilanguagelabelfont{I}}}
 \newcommand\ltiLvdash[1]{\ma{\vdash_{#1}}}
 \newcommand\ltiinternalvdash{\ma{\ltiLvdash{\ltiinternallabel}}}
 \newcommand\ltiinternalalgvdash{\ma{\ltiLvdash{\ltiinternallabel}}}
@@ -211,10 +211,11 @@
 \newcommand\ltiLsubtypeseenSingleEnv[4]{\ma{#2 \ltiLvdash{#1} #3 \ltisubtypeseparator #4}}
 \newcommand\ltiLsubtypeEnv[4]{\ma{\ltiLsubtypeseenSingleEnv{#1}{#2}{#3}{#4}}}
 
+\newcommand\ltilanguagelabelfont[1]{\ma{\textnormal{#1}}}
 \newmeta\ltiInternalOrExternalLang{\ma{L}}
-\newcommand\ltiexternallanglabel{\ma{\text{E}}}
+\newcommand\ltiexternallanglabel{\ma{\ltilanguagelabelfont{E}}}
 %% symbolic closure language (no bidirectional type checking)
-\newcommand\ltisclanglabel{\ma{\text{S}}}
+\newcommand\ltisclanglabel{\ma{\ltilanguagelabelfont{S}}}
 \newcommand\ltisclangalgvdash{\ma{\vdash_{\ltisclanglabel}}}
 \newcommand\ltisclangdeclvdash{\ma{\vdash_{\ltiexternallanglabel}}}
 \newcommand\ltisclangvdash{\ma{\vdash_{\ltisclanglabel}}}
@@ -229,21 +230,23 @@
 \newcommand\ltiSsubtype[5]{\ma{#1 ; #2 \ltisclangalgvdash #3 \ltisubtypeseparator #4 ; #5}}
 % declarative subtyping for symbolic closure language
 % Env T <: T
-\newcommand\ltiSdsubtype[3]{\ma{#1 \ltisclangdeclvdash #2 \ltisubtypeseparator #3}}
-\newcommand\ltimergeTaggedTermssymbol{\ma{\texttt{mrg}}}
+\newcommand\ltiSdsubtype[3]{\ma{{#1} \ltisclangdeclvdash #2 \ltisubtypeseparator #3}}
+% Seen Env T <: T
+\newcommand\ltiSdsubtypeseen[4]{\ma{\ltiSdsubtype{#1;#2}{#3}{#4}}}
+\newcommand\ltimergeTaggedTermssymbol{\ma{\metafunctionfont{mrg}}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
 \newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHSalign{#1}{#2} &=& #3}}
 % update closure cache
 % ClosureCache GammaApp ClosureID T_in T_out E => ClosureCache
-\newcommand\ltiupdateClosureCacheLHS[6]{\ma{\texttt{recordClosure}(#1,#2,#3,#4,#5,#6)}}
+\newcommand\ltiupdateClosureCacheLHS[6]{\ma{\metafunctionfont{recordClosure}(#1,#2,#3,#4,#5,#6)}}
 \newcommand\ltiupdateClosureCache[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} = #7}}
 \newcommand\ltiupdateClosureCachealign[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} &=& #7}}
 % elabDriver
-% E -> E
-\newcommand\ltielabDriverLHS[1]{\ma{\texttt{elabDriver}(#1)}}
-\newcommand\ltielabDriver[2]{\ma{\ltielabDriverLHS{#1} = #2}}
+% E -> E ; T
+\newcommand\ltielabDriverLHS[1]{\ma{\metafunctionfont{elabDriver}(#1)}}
+\newcommand\ltielabDriver[3]{\ma{\ltielabDriverLHS{#1} = #2 ; #3}}
 
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 
@@ -258,47 +261,47 @@
 \newcommand\lticfsubtypeinv[4]{\ma{#1 \vdash #2 \ltiinvertedleq #3 \dashv #4}}
 % expand EnclosingFn in internal language
 % Stack T -> T
-\newcommand\ltiexpandEnclosingFnLHS[2]{\ma{\texttt{res}(#1, #2)}}
+\newcommand\ltiexpandEnclosingFnLHS[2]{\ma{\metafunctionfont{res}(#1, #2)}}
 \newcommand\ltiexpandEnclosingFn[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} = #3}}
 \newcommand\ltiexpandEnclosingFnalign[3]{\ma{\ltiexpandEnclosingFnLHS{#1}{#2} &=& #3}}
-\newcommand\ltiunfoldLHS[1]{\ma{\texttt{unfold}(#1)}}
+\newcommand\ltiunfoldLHS[1]{\ma{\metafunctionfont{unfold}(#1)}}
 \newcommand\ltiunfold[2]{\ma{\ltiunfoldLHS{#1} = #2}}
 \newcommand\ltiunfoldalign[2]{\ma{\ltiunfoldLHS{#1} &=& #2}}
 % Lang Env T => T
-\newcommand\ltiresolveLHS[3]{\ma{\texttt{resolve}_{#1}(#2,#3)}}
+\newcommand\ltiresolveLHS[3]{\ma{\metafunctionfont{resolve}_{#1}(#2,#3)}}
 \newcommand\ltiresolve[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiresolvealign[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} &=& #4}}
 % CombinedEnv Env T => T ; CombinedEnv
-\newcommand\ltiresolveSCLHS[3]{\ma{\texttt{resolveS}(#1,#2,#3)}}
+\newcommand\ltiresolveSCLHS[3]{\ma{\metafunctionfont{resolveS}(#1,#2,#3)}}
 \newcommand\ltiresolveSC[5]{\ma{\ltiresolveSCLHS{#1}{#2}{#3} = #4 ; #5}}
 \newcommand\ltiresolveSCalign[5]{\ma{\ltiresolveSCLHS{#1}{#2}{#3} &=& #4 ; #5}}
 % Lang StackMapping, Env => T
-\newcommand\ltiunifyContextsLHS[3]{\ma{\texttt{unifyCtx}_{#1}(#2,#3)}}
+\newcommand\ltiunifyContextsLHS[3]{\ma{\metafunctionfont{unifyCtx}_{#1}(#2,#3)}}
 \newcommand\ltiunifyContexts[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiunifyContextsalign[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{&#3} &=& #4}}
 % Lang AccumEnv StackMapping, CurrentEnv => T
-\newcommand\ltiunifyContextsHLHS[4]{\ma{\texttt{uc}_{#1}(#2,#3,#4)}}
+\newcommand\ltiunifyContextsHLHS[4]{\ma{\metafunctionfont{uc}_{#1}(#2,#3,#4)}}
 \newcommand\ltiunifyContextsH[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHalign[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % CombinedEnv StackMapping, Env => T ; CombinedEnv
-\newcommand\ltiunifyContextsSCLHS[3]{\ma{\texttt{unifyCtxSC}(#1,#2,#3)}}
+\newcommand\ltiunifyContextsSCLHS[3]{\ma{\metafunctionfont{unifyCtxSC}(#1,#2,#3)}}
 \newcommand\ltiunifyContextsSC[5]{\ma{\ltiunifyContextsSCLHS{#1}{#2}{#3} = #4 ; #5}}
 \newcommand\ltiunifyContextsSCalign[5]{\ma{\ltiunifyContextsSCLHS{#1}{#2}{&#3} &=& #4 ; #5}}
 % CombinedEnv AccumEnv StackMapping, CurrentEnv => T ; CombinedEnv
-\newcommand\ltiunifyContextsHSCLHS[4]{\ma{\texttt{ucSC}(#1,#2,#3,#4)}}
+\newcommand\ltiunifyContextsHSCLHS[4]{\ma{\metafunctionfont{ucSC}(#1,#2,#3,#4)}}
 \newcommand\ltiunifyContextsHSCRHS[2]{\ma{#1 ; #2}}
 \newcommand\ltiunifyContextsHSC[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHSCalign[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % ClosureCache e -> e
-\newcommand\ltielimClosLHS[2]{\ma{\texttt{elabE}(#1, #2)}}
+\newcommand\ltielimClosLHS[2]{\ma{\metafunctionfont{elabE}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
 % ClosureID* ClosureCache t -> t
-\newcommand\ltielimClosTLHS[3]{\ma{\texttt{elabT}(#1, #2, #3)}}
+\newcommand\ltielimClosTLHS[3]{\ma{\metafunctionfont{elabT}(#1, #2, #3)}}
 \newcommand\ltielimClosT[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltielimClosTalign[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} &=& #4}}
 % ClosureCache Env -> Env
-\newcommand\ltielimClosEnvLHS[2]{\ma{\texttt{elabEnv}(#1, #2)}}
+\newcommand\ltielimClosEnvLHS[2]{\ma{\metafunctionfont{elabEnv}(#1, #2)}}
 \newcommand\ltielimClosEnv[3]{\ma{\ltielimClosEnvLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosEnvalign[3]{\ma{\ltielimClosEnvLHS{#1}{#2} &=& #3}}
 
@@ -313,12 +316,12 @@
 \newcommand\ltidemote[3]{\ma{#1 \Downarrow^{#2} #3}}
 \newcommand\ltitv[1]{\ma{\text{tv}(#1)}}
 \newcommand\ltiCSet[1]{\ma{\{#1\}}}
-\newcommand\ltiCDep[3]{\ma{\texttt{dep}_{#1}^{#2}(#3)}}
+\newcommand\ltiCDep[3]{\ma{\metafunctionfont{dep}_{#1}^{#2}(#3)}}
 \newcommand\ltiCEntry[3]{\ma{#1 \mathbin{<:} #2 \mathbin{<:} #3}}
 \newcommand\ltiDEntry[2]{\ma{#1 \mathbin{<:}_d #2}}
 \newcommand\ltiCIntersect[2]{\ma{#1 \land #2}}
-\newcommand\ltiaccessibletv[2]{\ma{\texttt{accessibletv}_{#1}(#2)}}
-\newcommand\lticheckorder[6]{\ma{\texttt{checkorder}(#1, #2, #3, #4, #5, #6)}}
+\newcommand\ltiaccessibletv[2]{\ma{\metafunctionfont{accessibletv}_{#1}(#2)}}
+\newcommand\lticheckorder[6]{\ma{\metafunctionfont{checkorder}(#1, #2, #3, #4, #5, #6)}}
 
 \newcommand\ltiSyn[1]{\ma{{\color{blue} \textsubscript{$\wedge$} #1}}}
 \newcommand\ltiChk[1]{\ma{{\color{red} \textsuperscript{$\vee$} #1}}}
