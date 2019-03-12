@@ -1388,7 +1388,10 @@ Record terms and types have unordered fields.
     {
       \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
       \\\\
-      \text{\ltiT{} is a subtype of \ltiS{} in context \ltiEnv{}, with seen queries \ltiSubtypeSeen{} 
+      \text{\ltiT{} is a subtype of \ltiS{} in context \ltiEnv{}, 
+      }
+      \\\\
+      \text{with seen queries \ltiSubtypeSeen{} 
                  }
                  }
                  }
@@ -1406,17 +1409,6 @@ Record terms and types have unordered fields.
     \infer [S-Bot]
     {}
     { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\Bot}{\ltiT{}}}
-
-    \infer [S-Rec]
-    {
-    \overrightarrow{\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}
-    }
-    {
-    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
-                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}},
-                             \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
-                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiS{}}}}}
-    }
 
     \infer [S-MuL]
     {
@@ -1455,6 +1447,18 @@ Record terms and types have unordered fields.
                     {\ltiS{}}
                     {\ltiMu{\ltitvar{}}{\ltiT{}}}
     }
+
+    \infer [S-Rec]
+    {
+    \overrightarrow{\ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}
+    }
+    {
+    \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
+                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}},
+                             \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
+                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiS{}}}}}
+    }
+
 
     \infer [S-Poly]
     {
@@ -1658,8 +1662,47 @@ Record terms and types have unordered fields.
                                                  &\text{ if } \ltiisubtypeseen{\varnothing}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
     \end{array}
 
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiF{}}
+    \\\\
+    \text{Merge terms}
+    \\\\
+    \text{\ltiE{i} as \ltiF{}.}
+    }
+    }
+  \begin{array}{llll}
+
+    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{1}}}
+                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{2}}}
+                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
+                             \\
+    \ltimergeTaggedTermsalign{\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n}{\ltiE{}}}
+                             {\ltiappinst{\ltiFp{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}{\ltiEp{}}}
+                             {\ltiappinst{\ltimergeTaggedTermsLHS{\ltiF{}}{\ltiFp{}}}
+                                         {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n 
+                                          \ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}
+                                         {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiEp{}}}}
+                                     \\
+    \ltimergeTaggedTermsalign{\ltisel{\ltiE{1}}{\ltivar{}}}
+                             {\ltisel{\ltiE{2}}{\ltivar{}}}
+                             {\ltisel{\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}{\ltivar{}}}
+                                     \\
+    \ltimergeTaggedTermsalign{\ltiRec{\ova{\ltivar{} = \ltiE{}}}}
+                             {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+                             {\ltiRec{\ova{\ltivar{} = \ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}}
+                                     \\
+    \ltimergeTaggedTermsalign{\ltivar{}}
+                             {\ltivar{}}
+                             {\ltivar{}}
+                                     \\
+  \end{array}
+
   \end{mathpar}
-  \caption{Language-agnostic Metafunctions}
+  \caption{Type System Metafunctions}
+  \label{symbolic:figure:internal-language-metafunctions}
 \end{figure}
 
 \figref{symbolic:figure:internal-language-type-system}
@@ -1676,33 +1719,20 @@ $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& ... \alt \ltiufun{\ltivar{}}{\ltiE{}}
                          \alt \ltiapp{\ltiF{}}{\ltiE{}}
-                      &\mbox{Terms} \\
-  \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
-                      &\mbox{Term abbreviations} \\
+                      &\mbox{Terms} 
+      %\\
+%  \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
+%                      &\mbox{Term abbreviations} \\
 \end{array}
 $$
-\caption{External Language Syntax}
+\caption{External Language Syntax
+  (extends \figref{symbolic:figure:internal-language})
+  }
 \label{symbolic:figure:external-language-syntax}
 \end{figure}
 
 \begin{figure}
   \begin{mathpar}
-    \boxed
-    {
-    \infer[]
-    {}
-    {
-     \ltitSdjudgement{\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiEp{}}
-                     \\\\
-     \text{External term \ltiE{} elaborates to internal term \ltiEp{}
-           with type \ltiT{} under context \ltiEnv{}.
-    }
-    }
-    }
-    \\\\
 
 %    \infer [Var]
 %    {}
@@ -1746,75 +1776,34 @@ $$
 %                    {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
 %    }
 
-    \infer [E-UAbs]
-    {
-    \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
-                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
-                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
-    \\\\
-                     m>0
-                     \\
-    \overrightarrowcaption{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
-                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiEp{0}}
-                     {\ltiSp{i}}
-                     {\ltiE{i}}
-                     }^{1 \leq i \leq n}
-                     \\\\
-    \overrightarrowcaption{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
-                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}
-                                                          {\ltiT{i}}}}}
-                     {\ltiEp{0}}
-                     {\ltiSp{i}}
-                     {\ltiE{i}}
-                     }^{n < i \leq m}
-                     \\\\
-                     \overrightarrowcaption{\ltiSdsubtype{\ltiEnv{}}{\ltiSp{i}}
-                                                  {\ltiS{i}}
-                                                  ,
-                                                  \ \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
-                                                  }^{1 \leq i \leq m}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiufun{\ltivar{}}{\ltiEp{0}}}
-                    {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
-                 }
-
     \infer [E-AppInf]
     {
-    \ltitSdjudgement{\ltiEnv{}}
+    \ltitjudgement{\ltiEnv{}}
                     {\ltiF{}}
                     {\ltiS{}^f}
                     {\ltiFp{}}
                     \\
-    \ltitSdjudgement{\ltiEnv{}}
+    \ltitjudgement{\ltiEnv{}}
                     {\ltiE{}}
                     {\ltiS{}^a}
                     {\ltiEp{}}
-                    \\\\
-       \ltiSdsubtype{\ltiEnv{}}
-                    {\ltiunfoldLHS{\ltiS{}^f}}
+                    \\
+          \ltiunfold{\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
-                             {\ltiSplitIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                             {\ltiIFn{\ltiContextualFn{\ltiEmptyEnv}{\ltiT{}}{\ltiS{}}}}}
                   \\
                        |\ova{\ltitvar{}}|>0
                   \\\\
                   \forall \ltiRp{}.
                     (
-                  \ltiSdsubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                  \ltiisubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
                   \text{ implies }
-                  \ltiSdsubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
+                  \ltiisubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
                                {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
                   )
     }
     {
-    \ltitSdjudgement{\ltiEnv{}}
+    \ltitjudgement{\ltiEnv{}}
                     {\ltiapp{\ltiF{}}{\ltiE{}}}
                     {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
                     {\ltiappinst{\ltiFp{}}
@@ -1823,6 +1812,32 @@ $$
                                 }
                                 {\ltiEp{}}}
     }
+
+    \infer [E-UAbs]
+    { 
+    \ltiunfoldLHS{\ltiTp{}} =
+      \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n}}}
+    \\
+    n>0 \\\\
+    \overrightarrowcaption{
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}
+                                {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
+                  {\ltiE{0}}
+                  {\ltiSp{i}}
+                  {\ltiF{i}},
+                  \ \ \ \ 
+          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}{\ltiSp{i}}{\ltiS{i}},
+                  \ \ \ \
+          \ltimergeTaggedTerms{\ltiE{i-1}}{\ltiF{i}}{\ltiE{i}}
+                  }^{1 \leq i \leq n}
+    }
+    {
+    \ltitjudgement{\ltiEnvp{}}
+                  {\ltiufun{\ltivar{}}{\ltiE{0}}}
+                  {\ltiTp{}}
+                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{n}}}
+                 }
 
 %    \infer [AppInst]
 %    {
@@ -1908,7 +1923,7 @@ $$
 %                 }
   \end{mathpar}
 
-  \caption{Declarative Type system for External Language
+  \caption{External Language Specification
   }
   \label{symbolic:figure:external-language-declarative-type-system}
 \end{figure}
@@ -1937,7 +1952,7 @@ $$
                       &\mbox{Combined Threaded Environments} \\
 \end{array}
 $$
-\caption{Symbolic Closure Language Syntax}
+\caption{Symbolic Closure Language Syntax (extends \figref{symbolic:figure:external-language-syntax})}
 \label{symbolic:figure:SC-language-syntax}
 \end{figure}
 
@@ -2439,6 +2454,61 @@ $$
 
 \begin{figure}
   \begin{mathpar}
+   \boxed{
+   \infer[]
+   {}
+   {
+   \ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiE{3}}
+   \\\\
+    \text{Merge terms \ltiE{1} and \ltiE{2}}
+    \\\\
+    \text{
+  (extends \figref{symbolic:figure:internal-language-metafunctions})}
+   }}
+
+  \begin{array}{llll}
+    \ltimergeTaggedTermsalign{\ltiufunelab{\ova{\ltiufunelabentry
+                                                            {\ltiClosureID{}}}^n}
+                                     {\ltivar{}}
+                                     {\ltiE{1}}}
+                             {\ltiufunelab{\ova{\ltiufunelabentry
+                                                            {\ltiClosureID{}}}^m}
+                                     {\ltivar{}}
+                                     {\ltiE{2}}}
+                             {\ltiufunelab{\ova{\ltiufunelabentry
+                                                            {\ltiClosureID{}}}^n
+                                           \ova{\ltiufunelabentry
+                                                            {\ltiClosureID{}}}^m
+                                                            }
+                                     {\ltivar{}}
+                                     {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
+  \end{array}
+
+    \boxed{
+    \infer[]
+    {}
+    {\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
+    \\\\
+    \text{Record closure \ltiClosureID{} as \ltiFn{\ltiT{}}{\ltiS{}} under}
+    \\\\
+    \text{application context \ltiEnv{}, with elaboration \ltiE{}.}
+    }}
+
+    \infer[]
+    {
+    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = \ltiClosureCacheVal{\ltiSplitIFn{}{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
+                                                                         {\ltiF{}}
+    \\\\
+    \ltiClosureCachep{} = \ltimapsto{\ltiClosureCache{}}
+                                    {\ltiClosureID{}}
+                                    {\ltiClosureCacheVal{\ltiSplitIFn{}
+                                                         {\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}\ 
+                                                          \ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
+                                                        {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}
+    }
+    {\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
+    }
+
     \boxed{
     \infer[]
     {}
@@ -2553,85 +2623,6 @@ $$
                  {\ltiCombinedThreadedEnv{n}}
                  }
 
-
-  \end{mathpar}
-
-  \[
-    \boxed{\ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiE{3}}
-    \text{ Recursively merges \ltiE{1} and \ltiE{2}, appending Closure tags.}
-    }
-    \]
-
-  $$
-  \begin{array}{llll}
-
-    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{1}}}
-                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{2}}}
-                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
-                             \\
-    \ltimergeTaggedTermsalign{\ltiufunelab{\ova{\ltiufunelabentry
-                                                            {\ltiClosureID{}}}^n}
-                                     {\ltivar{}}
-                                     {\ltiE{1}}}
-                             {\ltiufunelab{\ova{\ltiufunelabentry
-                                                            {\ltiClosureID{}}}^m}
-                                     {\ltivar{}}
-                                     {\ltiE{2}}}
-                             {\ltiufunelab{\ova{\ltiufunelabentry
-                                                            {\ltiClosureID{}}}^n
-                                           \ova{\ltiufunelabentry
-                                                            {\ltiClosureID{}}}^m
-                                                            }
-                                     {\ltivar{}}
-                                     {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
-                                     \\
-    \ltimergeTaggedTermsalign{\ltiappinst{\ltiF{1}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n}{\ltiE{1}}}
-                             {\ltiappinst{\ltiF{2}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}{\ltiE{2}}}
-                             {\ltiappinst{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltiF{2}}}
-                                         {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n 
-                                          \ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}
-                                         {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
-                                     \\
-    \ltimergeTaggedTermsalign{\ltisel{\ltiE{1}}{\ltivar{}}}
-                             {\ltisel{\ltiE{2}}{\ltivar{}}}
-                             {\ltisel{\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}{\ltivar{}}}
-                                     \\
-    \ltimergeTaggedTermsalign{\ltiRec{\ova{\ltivar{} = \ltiE{}}}}
-                             {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
-                             {\ltiRec{\ova{\ltivar{} = \ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}}
-                                     \\
-    \ltimergeTaggedTermsalign{\ltivar{}}
-                             {\ltivar{}}
-                             {\ltivar{}}
-                                     \\
-  \end{array}
-  $$
-
-  \begin{mathpar}
-    \boxed{
-    \infer[]
-    {}
-    {\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
-    \\\\
-    \text{ Record closure \ltiClosureID{} as \ltiFn{\ltiT{}}{\ltiS{}} under application context \ltiEnv{}, with elaboration \ltiE{}.
-    }}
-    }
-
-    \\
-    \infer[]
-    {
-    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = \ltiClosureCacheVal{\ltiSplitIFn{}{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
-                                                                         {\ltiF{}}
-    \\\\
-    \ltiClosureCachep{} = \ltimapsto{\ltiClosureCache{}}
-                                    {\ltiClosureID{}}
-                                    {\ltiClosureCacheVal{\ltiSplitIFn{}
-                                                         {\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}\ 
-                                                          \ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
-                                                        {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}
-    }
-    {\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
-    }
   \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
 \end{figure}
