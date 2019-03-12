@@ -143,7 +143,7 @@
 \newcommand\ltiPoly[2]{\ma{\forall #1. #2}}
 \newcommand\ltiExists[2]{\ma{\exists #1. #2}}
 \newcommand\ltiIFnsymbol{\ma{\bigcap}}
-\newcommand\ltiIFn[1]{\ma{(\ltiIFnsymbol\ #1)}}
+\newcommand\ltiIFn[1]{\ma{(\ltiIFnsymbol #1)}}
 \newcommand\ltiSplitIFn[2]{\ma{({\ltiIFnsymbol}_{#2}^{#1})}}
 \newcommand\ltiEmptyIFn{\ma{(\ltiIFnsymbol)}}
 \newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
@@ -179,7 +179,7 @@
 \newcommand\lticfjudgement[5]{\ma{#1, #2 \lticjudgementvdash {\hastype{#3}{#4}} \dashv  #5}}
 % type argument calculations (internal language)
 % Lang Env TVar* StackMapping<Env,R*> -> R*
-\newcommand\ltiLfindTALHS[4]{\ma{\metafunctionfont{calcTA}_{#1}(#2,#3,#4)}}
+\newcommand\ltiLfindTALHS[4]{\ma{\metafunctionfont{calcTA}(#2,#3,#4)}}
 \newcommand\ltiLfindTA[5]{\ma{\ltiLfindTALHS{#1}{#2}{#3}{#4} = #5}}
 % CombinedEnv Env TVar* StackMapping<Env,R*> -> R* ; CombinedEnv
 \newcommand\ltiSfindTALHS[4]{\ma{\metafunctionfont{calcTAS}(#1,#2,#3,#4)}}
@@ -193,12 +193,11 @@
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
 \newcommand\ltiinternallabel{\ma{\ltilanguagelabelfont{I}}}
 \newcommand\ltiLvdash[1]{\ma{\vdash_{#1}}}
-\newcommand\ltiinternalvdash{\ma{\ltiLvdash{\ltiinternallabel}}}
-\newcommand\ltiinternalalgvdash{\ma{\ltiLvdash{\ltiinternallabel}}}
+\newcommand\ltiinternalvdash{\ma{\vdash}}
+\newcommand\ltiinternalalgvdash{\ma{\vdash}}
 % internal type system
-\newcommand\ltitjudgement[3]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}}}}
-% internal type system with enclosed fn stack
-\newcommand\ltitstkjudgement[4]{\ma{\ltitjudgement{#1;#2}{#3}{#4}}}
+% Env E : T => E'
+\newcommand\ltitjudgement[4]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}} \Rightarrow #4}}
 % subtype for internal types with `seen` set
 % Seen Env T <: T
 \newcommand\ltiisubtypeseenSingleEnv[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
@@ -268,7 +267,7 @@
 \newcommand\ltiunfold[2]{\ma{\ltiunfoldLHS{#1} = #2}}
 \newcommand\ltiunfoldalign[2]{\ma{\ltiunfoldLHS{#1} &=& #2}}
 % Lang Env T => T
-\newcommand\ltiresolveLHS[3]{\ma{\metafunctionfont{resolve}_{#1}(#2,#3)}}
+\newcommand\ltiresolveLHS[3]{\ma{\metafunctionfont{resolve}(#2,#3)}}
 \newcommand\ltiresolve[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiresolvealign[4]{\ma{\ltiresolveLHS{#1}{#2}{#3} &=& #4}}
 % CombinedEnv Env T => T ; CombinedEnv
@@ -276,11 +275,11 @@
 \newcommand\ltiresolveSC[5]{\ma{\ltiresolveSCLHS{#1}{#2}{#3} = #4 ; #5}}
 \newcommand\ltiresolveSCalign[5]{\ma{\ltiresolveSCLHS{#1}{#2}{#3} &=& #4 ; #5}}
 % Lang StackMapping, Env => T
-\newcommand\ltiunifyContextsLHS[3]{\ma{\metafunctionfont{unifyCtx}_{#1}(#2,#3)}}
+\newcommand\ltiunifyContextsLHS[3]{\ma{\metafunctionfont{unifyCtx}(#2,#3)}}
 \newcommand\ltiunifyContexts[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiunifyContextsalign[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{&#3} &=& #4}}
 % Lang AccumEnv StackMapping, CurrentEnv => T
-\newcommand\ltiunifyContextsHLHS[4]{\ma{\metafunctionfont{uc}_{#1}(#2,#3,#4)}}
+\newcommand\ltiunifyContextsHLHS[4]{\ma{\metafunctionfont{uc}(#2,#3,#4)}}
 \newcommand\ltiunifyContextsH[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHalign[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % CombinedEnv StackMapping, Env => T ; CombinedEnv

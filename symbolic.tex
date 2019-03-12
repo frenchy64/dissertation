@@ -1149,8 +1149,7 @@ $$
                          \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}
                          \alt
                          \ltiMu{\ltitvar{}}{\ltiT{}}
-                         \alt \ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiT{}}}}
-                                          {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}
+                         \alt \ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}
                       &\mbox{Types} \\
   \ltiEnv{} &::=& \ltiEmptyEnv \alt
                   \hastype{\ltivar{}}{\ltiT{}} \alt
@@ -1203,68 +1202,6 @@ Record terms and types have unordered fields.
 
 \begin{figure}
   \begin{mathpar}
-    \infer [I-Abs]
-    { 
-    \ltiunfoldLHS{\ltiT{}} =
-      \ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
-                                             {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
-    \\\\
-    \overrightarrowcaption{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}{\hastype{\ltivar{}}{\ltiT{i}}}}
-                  {\ltiE{}}
-                  {\ltiSp{i}}
-                  }^{1\leq i \leq n}
-    \\\\
-    \overrightarrowcaption{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
-                                {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                  {\ltiE{}}
-                  {\ltiSp{i}}
-                  }^{n < i \leq m}
-    \\\\
-    \overrightarrowcaption{\ltiisubtype{\ltiEnv{}}{\ltiSp{i}}{\ltiS{i}}}^{1 \leq i \leq m}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltifuninterface{\ltiT{}}
-                                   {\ltivar{}}{\ltiE{}}}
-                  {\ltiT{}}
-                 }
-
-    \infer [I-AppInst]
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiT{}^f}
-                    \\
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiT{}^a}
-                  \\\\
-         \ltiresolve{\ltiinternallabel}
-                    {\ltiEnv{}}
-                    {\ltiT{}^f}
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
-                                                            {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
-                  \\\\
-                  \ltiLfindTA{\ltiinternallabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
-                  \\
-                  m > 0
-                  \\\\
-                  \ova{\ltiSp{}}^m
-                  =
-                  \{ \ltiS{i}\ |\ i \in 1 ... n, \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
-                  \}
-    }
-    {
-      \ltitjudgement{\ltiEnv{}}
-                    {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
-                                {\ltiE{}}}
-                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
-    }
-
     \infer [I-Var]
     {}
     {
@@ -1272,18 +1209,111 @@ Record terms and types have unordered fields.
                     {\ltiEnv{}}
                     {\ltivar{}}
                     {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+                    {\ltivar{}}
                  }
 
+    \boxed{
+    \infer[]
+    {
+      \ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}}{\ltiEp{}}
+      \\\\
+      \text{\ltiE{} is of type \ltiT{} in context \ltiEnv{},
+      with elaboration \ltiEp{}.
+                 }
+                 }
+                 {}
+                 }
+
+
+    \infer [I-Abs]
+    { 
+    \ltiunfoldLHS{\ltiTp{}} =
+      \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n}}}
+    \\
+    n>0 \\\\
+    \overrightarrowcaption{
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}
+                                {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
+                  {\ltiE{0}}
+                  {\ltiSp{i}}
+                  {\ltiF{i}},
+                  \ \ \ \ 
+          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}{\ltiSp{i}}{\ltiS{i}},
+                  \ \ \ \
+          \ltimergeTaggedTerms{\ltiE{i-1}}{\ltiF{i}}{\ltiE{i}}
+                  }^{1 \leq i \leq n}
+    }
+    {
+    \ltitjudgement{\ltiEnvp{}}
+                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{0}}}
+                  {\ltiTp{}}
+                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{n}}}
+                 }
+
+    \infer [I-AppInst]
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiT{}^f}
+                  {\ltiFp{}}
+                    \\
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiT{}^a}
+                  {\ltiEp{}}
+                  \\
+         \ltiunfold{\ltiT{}^f}
+                   {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiT{}}{\ltiS{}}}^n}}}
+                  \\\\
+                  ({\ltiR{1}^1} ,..., {\ltiR{|\ova{\ltitvar{}}|}^1}) ,...,
+                  ({\ltiR{1}^m} ,..., {\ltiR{|\ova{\ltitvar{}}|}^m})
+                  = \{ \ova{\ltiR{}} | i \in 1 ... p, \text{ if }
+                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
+                  \\\\
+                  \\ m > 0 
+                  \\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ,..., {\ltiR{k}^m}} | k \in 1...|\ova{\ltitvar{}}|]
+                  \\\\
+                  \ova{\ltiSp{}}
+                  =
+                  \left\{ {\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiSp{i}}}
+                  \middle| i \in 1 ... n, 
+                  \begin{array}{lll}
+                  \text{ if }
+                  \ltiunifyContexts{\ltiInternalOrExternalLang{}}
+                                   {\ltistackmapping{\ltiEnvp{i}}{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+                                   {\ltiEnv{}}
+                                   {\ltiFn{\ltiTp{i}}{\ltiSp{i}}},\arcr
+                  \text{ and}
+                  \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiTp{i}}}
+                  \end{array}
+                  \right\}
+                  \\
+                  |\ova{\ltiSp{}}|>0
+    }
+    {
+      \ltitjudgement{\ltiEnv{}}
+                    {\ltiappinst{\ltiF{}}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}^p}
+                                {\ltiE{}}}
+                    {\ltiMeetMany{\ova{\ltiSp{}}}}
+                    {\ltiappinst{\ltiFp{}}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}^p}
+                                {\ltiEp{}}}
+    }
 
     \infer [I-App\Bot]
     {
     \ltitjudgement{\ltiEnv{}}
                   {\ltiF{}}
                   {\ltiT{}}
+                  {\ltiFp{}}
                   \\\\
     \ltitjudgement{\ltiEnv{}}
                   {\ltiE{}}
                   {\ltiS{}}
+                  {\ltiEp{}}
                   \\\\
     \ltiunfold{\ltiT{}}{\ltiBot}
     }
@@ -1291,53 +1321,76 @@ Record terms and types have unordered fields.
     \ltitjudgement{\ltiEnv{}}
                   {\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiR{}}}}}{\ltiE{}}}
                   {\ltiBot{}}
-    }
-
-
-    \infer [I-Sel]
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiF{}}
-                  {\ltiS{}}
-                     \\\\
-    \ltiunfold{\ltiS{}}
-              {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{i}}{\ltiT{i}} , ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiF{}}{\ltivar{i}}}
-                  {\ltiT{i}}
-    }
-
-    \infer [I-Sel\ltiBot]
-    {
-    \ltitjudgement{\ltiEnv{}}
-                     {\ltiF{}}
-                     {\ltiT{}}
-                     \\\\
-                     \ltiunfold{\ltiT{}}{\ltiBot}
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiF{}}{\ltivar{}}}
-                  {\ltiBot}
+                  {\ltiappinst{\ltiFp{}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiR{}}}}}{\ltiEp{}}}
     }
 
     \infer [I-Rec]
     {
     \overrightarrow{
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiF{}}
+                  {\ltiE{}}
                   {\ltiT{}}
+                  {\ltiF{}}
                   }
     }
     {
     \ltitjudgement{\ltiEnv{}}
-                  {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+                  {\ltiRec{\ova{\ltivar{} = \ltiE{}}}}
                   {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
+                  {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
     }
 
-    %\\\\
+    \infer [I-Sel]
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiS{}}
+                  {\ltiF{}}
+                     \\\\
+    \ltiunfold{\ltiS{}}
+              {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}}, ..., \hastype{\ltivar{i}}{\ltiT{i}} , ..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltisel{\ltiE{}}{\ltivar{i}}}
+                  {\ltiT{i}}
+                  {\ltisel{\ltiF{}}{\ltivar{i}}}
+    }
+
+    \infer [I-Sel\ltiBot]
+    {
+    \ltitjudgement{\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     {\ltiF{}}
+                     \\\\
+                     \ltiunfold{\ltiT{}}{\ltiBot}
+    }
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltisel{\ltiE{}}{\ltivar{}}}
+                  {\ltiBot}
+                  {\ltisel{\ltiF{}}{\ltivar{}}}
+    }
+
+  \end{mathpar}
+  \caption{Internal language type system
+  }
+  \label{symbolic:figure:internal-language-type-system}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \boxed{
+    \infer[]
+    {}
+    {
+      \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+      \\\\
+      \text{\ltiT{} is a subtype of \ltiS{} in context \ltiEnv{}, with seen queries \ltiSubtypeSeen{} 
+                 }
+                 }
+                 }
 
     \infer [S-TVar]
     {}
@@ -1418,12 +1471,12 @@ Record terms and types have unordered fields.
     \infer [S-IFn]
     { 
       \forall i \in 1...n.\ 
-        \exists j \in 1...q.\ 
+        \exists j \in 1...m.\ 
           \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{j}}{\ltiT{i}}
     }
     { \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
-                      {\ltiSplitIFn{\ltiS{1}...\ltiS{p}}{\ltiS{p+1}...\ltiS{q}}}
-                      {\ltiSplitIFn{\ltiT{1}...\ltiT{m}}{\ltiT{m+1}...\ltiT{n}}}
+                      {\ltiIFn{\ova{\ltiS{}}^m}}
+                      {\ltiIFn{\ova{\ltiT{}}^n}}
                    }
 
     \infer [SF-Fn]
@@ -1479,18 +1532,20 @@ Record terms and types have unordered fields.
 
 
   \end{mathpar}
-  \caption{Algorithmic Type system for internal language:
-   \ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}}
-                 and 
-                 \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}.
+  \caption{Internal language subtyping
   }
-  \label{symbolic:figure:internal-language-type-system}
+  \label{symbolic:figure:internal-language-subtyping}
 \end{figure}
 
 \begin{figure}
   \begin{mathpar}
-    \boxed{\ltiunfold{\ltiT{}}{\ltiS{}}
-    \text{ Unfold top-level recursion in \ltiT{} to \ltiS{}.
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltiunfold{\ltiT{}}{\ltiS{}}
+    \\\\
+    \text{ Unfold top-level recursion in \ltiT{} to \ltiS{}.}
     }
     }
 
@@ -1505,8 +1560,15 @@ Record terms and types have unordered fields.
       \ltiunfoldalign{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
     \end{array}
 
-    \boxed{\ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
-    \text{ Returns the type variables brought into scope by \ltiEnv{} in the order they were declared.
+    \boxed{
+    \infer []
+    {}
+    {
+    \ltiEnvTVars{\ltiEnv{}}{\ova{\ltitvar{}}}
+    \\\\
+    \text{Returns the type variables brought into}
+    \\\\
+    \text{scope by \ltiEnv{} in the order they were declared.}
     }
     }
 
@@ -1526,7 +1588,9 @@ Record terms and types have unordered fields.
     {
     \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnv{}}
     \\\\
-    \text{ Given definition and application contexts \ltiEnv{d} and \ltiEnv{a}, add 
+    \text{ Given definition/application contexts \ltiEnv{d}/\ltiEnv{a},}
+    \\\\
+    \text{add 
     type variables to \ltiEnv{d} only present in \ltiEnv{a}.
     }
     }
@@ -1549,7 +1613,7 @@ Record terms and types have unordered fields.
 \begin{figure}
   \begin{mathpar}
     \boxed{\ltiresolve{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-    \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{} (in language \ltiInternalOrExternalLang{}).
+    \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{}.
     }
     }
 
@@ -1590,8 +1654,7 @@ Record terms and types have unordered fields.
     {}
     {
     \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiS{}}}
-    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}
-    (in language \ltiInternalOrExternalLang{}).
+    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}.
     }
     \\\\
     \text{Helper function also takes the already-processed prefix of the current context as second argument.
@@ -1642,20 +1705,20 @@ Record terms and types have unordered fields.
     {}
     {
     \ltiLfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
-    \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}} (in language \ltiInternalOrExternalLang{}).
+    \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}}.
     }
     }
     }
 
     \infer[]
     {
-                  \ova{\ova{{\ltiR{k}^j}}^p}^m = \{ \ova{\ltiR{}} | i \in 1 ... n,
+                  ({\ltiR{1}^1} ,..., {\ltiR{p}^1}) ,...,
+                  ({\ltiR{1}^m} ,..., {\ltiR{p}^m})
+                  = \{ \ova{\ltiR{}} | i \in 1 ... n,
                         \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
                   \\\\
-                  1 \leq j \leq m 
                   \\ m > 0 
                   \\ p = |\ova{\ltitvar{}}|
-                  \\ 1 \leq k \leq p
                   \\
                   \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
     }
@@ -1671,9 +1734,9 @@ Record terms and types have unordered fields.
 \figref{symbolic:figure:internal-language-type-system}
 presents the type system for this internal language.
 The main judgment
-\ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}} 
+\ltitjudgement{\ltiEnv{}}{\ltiE{}}{\ltiT{}}{\ltiEp{}}
 says that expression \ltiE{} is of type \ltiT{}
-in environment \ltiEnv{}.
+in environment \ltiEnv{}, elaborating to \ltiEp{}.
 
 \subsection{External language}
 
@@ -1710,179 +1773,49 @@ $$
     }
     \\\\
 
-    \infer [Var]
-    {}
-    {
-       \ltitSdjudgement{\ltiEnv{}}
-                       {\ltivar{}}
-                       {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                       {\ltivar{}}
-                 }
+%    \infer [Var]
+%    {}
+%    {
+%       \ltitSdjudgement{\ltiEnv{}}
+%                       {\ltivar{}}
+%                       {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+%                       {\ltivar{}}
+%                 }
 
-    \infer [Sub]
-    {}
-    {
-       \ltitSdjudgement{\ltiEnv{}}
-                       {\ltivar{}}
-                       {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                       {\ltivar{}}
-                 }
+%    \infer [Sel]
+%    {
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltiF{}}
+%                    {\ltiS{}}
+%                    {\ltiFp{}}
+%                     \\\\
+%    \ltiSdsubtype{\ltiEnv{}}{\ltiS{}}{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{i}}{\ltiT{i}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
+%    }
+%    {
+%    \ltitSdjudgement{\ltiEnv{}}
+%                  {\ltisel{\ltiF{}}{\ltivar{i}}}
+%                  {\ltiT{i}}
+%                  {\ltisel{\ltiFp{}}{\ltivar{i}}}
+%    }
+%
+%    \infer [Rec]
+%    {
+%    \overrightarrow{
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltiF{i}}
+%                    {\ltiT{i}}
+%                    {\ltiFp{i}}
+%                    }
+%                    ^{1 \leq i \leq n}
+%    }
+%    {
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltiRec{\ova{\ltivar{} = \ltiF{}}^n}}
+%                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
+%                    {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
+%    }
 
-    \infer [Sel]
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiF{}}
-                    {\ltiS{}}
-                    {\ltiFp{}}
-                     \\\\
-    \ltiSdsubtype{\ltiEnv{}}{\ltiS{}}{\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},...,\hastype{\ltivar{i}}{\ltiT{i}},...,\hastype{\ltivar{n}}{\ltiT{n}}}}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                  {\ltisel{\ltiF{}}{\ltivar{i}}}
-                  {\ltiT{i}}
-                  {\ltisel{\ltiFp{}}{\ltivar{i}}}
-    }
-
-    \infer [Rec]
-    {
-    \overrightarrow{
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiF{i}}
-                    {\ltiT{i}}
-                    {\ltiFp{i}}
-                    }
-                    ^{1 \leq i \leq n}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiRec{\ova{\ltivar{} = \ltiF{}}^n}}
-                    {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
-                    {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
-    }
-
-    \infer [AppInf]
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiF{}}
-                    {\ltiS{}^f}
-                    {\ltiFp{}}
-                    \\
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiE{}}
-                    {\ltiS{}^a}
-                    {\ltiEp{}}
-                    \\\\
-       \ltiSdsubtype{\ltiEnv{}}
-                    {\ltiunfoldLHS{\ltiS{}^f}}
-                    {\ltiPoly{\ova{\ltitvar{}}}
-                             {\ltiSplitIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
-                  \\
-                       |\ova{\ltitvar{}}|>0
-                  \\\\
-                  \forall \ltiRp{}.
-                    (
-                  \ltiSdsubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                  \text{ implies }
-                  \ltiSdsubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
-                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
-                  )
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiapp{\ltiF{}}{\ltiE{}}}
-                    {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
-                    {\ltiappinst{\ltiFp{}}
-                                {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}
-                                %\ \ova{\ltistackmapping{\ltiEnvpp{}}{\ova{\ltiRpp{}}}}
-                                }
-                                {\ltiEp{}}}
-    }
-
-    \infer [AppInst]
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiF{}}
-                    {\ltiT{}^f}
-                    {\ltiFp{}}
-                    \\
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiE{}}
-                    {\ltiTp{}}
-                    {\ltiEp{}}
-                  \\\\
-                  \ltiSdsubtype{\ltiEnv{}}{
-         \ltiresolveLHS{\ltiexternallanglabel}
-                    {\ltiEnv{}}
-                    {\ltiT{}^f}}
-                    {
-                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
-                                                            {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
-                                                            }
-                  \\\\
-                  m > 0
-                  \\
-                  \ltiLfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
-                  \\\\
-                  \ova{\ltiSp{}}^m
-                  =
-                  \{ \ltiS{i}\ |\ i \in 1 ... n, \ltiSdsubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
-                  \}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
-                                {\ltiE{}}}
-                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
-                    {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
-                                {\ltiEp{}}}
-    }
-
-
-    \infer [Abs]
-    {
-    \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
-                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
-                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
-    \\\\
-                     m>0
-                     \\
-    \overrightarrowcaption{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
-                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiEp{0}}
-                     {\ltiSp{i}}
-                     {\ltiE{i}}
-                     }^{1 \leq i \leq n}
-                     \\\\
-    \overrightarrowcaption{
-     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
-                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}
-                                                          {\ltiT{i}}}}}
-                     {\ltiEp{0}}
-                     {\ltiSp{i}}
-                     {\ltiE{i}}
-                     }^{n < i \leq m}
-                     \\\\
-                     \overrightarrowcaption{\ltiSdsubtype{\ltiEnv{}}{\ltiSp{i}}
-                                                  {\ltiS{i}}
-                                                  ,
-                                                  \ 
-                                                  \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
-                                                  }^{1 \leq i \leq m}
-    }
-    {
-    \ltitSdjudgement{\ltiEnv{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{0}}}
-                    {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
-                 }
-
-    \infer [UAbs]
+    \infer [E-UAbs]
     {
     \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
                                     {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
@@ -1922,79 +1855,131 @@ $$
                     {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
                  }
 
+    \infer [E-AppInf]
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiF{}}
+                    {\ltiS{}^f}
+                    {\ltiFp{}}
+                    \\
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiE{}}
+                    {\ltiS{}^a}
+                    {\ltiEp{}}
+                    \\\\
+       \ltiSdsubtype{\ltiEnv{}}
+                    {\ltiunfoldLHS{\ltiS{}^f}}
+                    {\ltiPoly{\ova{\ltitvar{}}}
+                             {\ltiSplitIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                  \\
+                       |\ova{\ltitvar{}}|>0
+                  \\\\
+                  \forall \ltiRp{}.
+                    (
+                  \ltiSdsubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                  \text{ implies }
+                  \ltiSdsubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
+                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
+                  )
+    }
+    {
+    \ltitSdjudgement{\ltiEnv{}}
+                    {\ltiapp{\ltiF{}}{\ltiE{}}}
+                    {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
+                    {\ltiappinst{\ltiFp{}}
+                                {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}
+                                %\ \ova{\ltistackmapping{\ltiEnvpp{}}{\ova{\ltiRpp{}}}}
+                                }
+                                {\ltiEp{}}}
+    }
+
+%    \infer [AppInst]
+%    {
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltiF{}}
+%                    {\ltiT{}^f}
+%                    {\ltiFp{}}
+%                    \\
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltiE{}}
+%                    {\ltiTp{}}
+%                    {\ltiEp{}}
+%                  \\\\
+%                  \ltiSdsubtype{\ltiEnv{}}{
+%         \ltiresolveLHS{\ltiexternallanglabel}
+%                    {\ltiEnv{}}
+%                    {\ltiT{}^f}}
+%                    {
+%                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^n}
+%                                                            {\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
+%                                                            }
+%                  \\\\
+%                  m > 0
+%                  \\
+%                  \ltiLfindTA{\ltiexternallanglabel}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiR{}}}
+%                  \\\\
+%                  \ova{\ltiSp{}}^m
+%                  =
+%                  \{ \ltiS{i}\ |\ i \in 1 ... n, \ltiSdsubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
+%                  \}
+%    }
+%    {
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltiappinst{\ltiF{}}
+%                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+%                                {\ltiE{}}}
+%                    {\ltiMeetMany{\ova{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiSp{}}}}}
+%                    {\ltiappinst{\ltiFp{}}
+%                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+%                                {\ltiEp{}}}
+%    }
+
+
+%    \infer [Abs]
+%    {
+%    \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
+%                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
+%                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
+%    \\\\
+%                     m>0
+%                     \\
+%    \overrightarrowcaption{
+%     \ltitSdjudgement{\ltiEnvConcat{\ltiEnv{}}
+%                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
+%                                                 {\hastype{\ltivar{}}{\ltiT{i}}}}}
+%                     {\ltiEp{0}}
+%                     {\ltiSp{i}}
+%                     {\ltiE{i}}
+%                     }^{1 \leq i \leq n}
+%                     \\\\
+%    \overrightarrowcaption{
+%     \ltitSdjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{i}}}
+%                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
+%                                                 {\hastype{\ltivar{}}
+%                                                          {\ltiT{i}}}}}
+%                     {\ltiEp{0}}
+%                     {\ltiSp{i}}
+%                     {\ltiE{i}}
+%                     }^{n < i \leq m}
+%                     \\\\
+%                     \overrightarrowcaption{\ltiSdsubtype{\ltiEnv{}}{\ltiSp{i}}
+%                                                  {\ltiS{i}}
+%                                                  ,
+%                                                  \ 
+%                                                  \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
+%                                                  }^{1 \leq i \leq m}
+%    }
+%    {
+%    \ltitSdjudgement{\ltiEnv{}}
+%                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{0}}}
+%                    {\ltiTp{}}
+%                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
+%                 }
   \end{mathpar}
 
   \caption{Declarative Type system for External Language
   }
   \label{symbolic:figure:external-language-declarative-type-system}
-\end{figure}
-
-\begin{figure}
-  \begin{mathpar}
-                 \infer[S-Refl]
-                 {}
-                 {
-                 \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiT{}}
-                 }
-
-                 \infer[S-Trans]
-                 {
-                 \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}
-                 \\
-                 \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiSp{}}{\ltiT{}}
-                 }
-                 {
-                 \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{}}{\ltiT{}}
-                 }
-
-    \infer [S-Top]
-    {}
-    { \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\Top}}
-
-    \infer [S-Bot]
-    {}
-    { \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\Bot}{\ltiT{}}}
-
-    \infer [S-Rec]
-    {
-      \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{i}}{\ltiS{i}}
-    }
-    {
-    \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}
-                {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiT{i}}},
-                         \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
-                {\ltiRec{\ova{\hastype{\ltivar{i}}{\ltiS{i}}}}}
-    }
-
-    \infer [S-IFn]
-    {
-      \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{i}}{\ltiSp{i}}
-      \\
-      \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{i}}{\ltiTp{i}}
-    }
-    { \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiIFn{\ova{\ltiFn{\ltiSp{i}}{\ltiT{i}}}\ \ova{\ltiFn{\ltiSpp{}}{\ltiTpp{}}}}}
-                   {\ltiIFn{\ova{\ltiFn{\ltiS{i}}{\ltiTp{i}}}}}
-       }
-
-    \infer [S-Poly]
-    {\ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}
-                  {\ltiS{}}
-    }
-    {\ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                  {\ltiPoly{\ova{\ltitvar{}}}{\ltiS{}}}
-                  }
-
-    \infer [S-Mu]
-    {}
-    {\ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiMu{\ltitvar{}}{\ltiT{}}}
-                  {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
-                  }
-  \end{mathpar}
-
-  \caption{External Language Declarative Subtyping:
-      \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiS{}}{\ltiT{}}
-  }
-  \label{symbolic:figure:external-language-declarative-subtyping}
 \end{figure}
 
 \subsection{Symbolic Closure language}
@@ -2931,12 +2916,14 @@ $$
     \ltitjudgement{\ltiEnv{}}
                   {\ltiEp{}}
                   {\ltiS{}}
+                  {\ltiEpp{}}
 \end{lemma}
 
 \begin{lemma}[Completeness (External Language)]
   If \ltitjudgement{\ltiEnv{}}
                    {\ltiE{}}
                    {\ltiT{}}
+                   {\ltiEp{}}
                   then
   \ltitSdjudgement{\ltiEnv{}}
                      {\ltiE{}}
@@ -2945,38 +2932,56 @@ $$
 \end{lemma}
 
 \begin{lemma}[Soundness (Symbolic Closure Language)]
-  If there exists some initial fuel \ltiFuel{} such that
-  \begin{itemize}
-    \item
+  If there exists some fuel \ltiFuel{} such that
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
                       {\ltiEnv{}}
                       {\ltiE{1}}
                       {\ltiT{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
                       {\ltiE{2}},
-    \item \ltielimClosEnv{\ltiClosureCache{}}{\ltiEnv{}}{\ltiEnvp{}},
-    \item \ltielimClos{\ltiClosureCache{}}{\ltiE{2}}{\ltiE{3}}, and
-    \item \ltielimClosT{\varnothing}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}},
-  \end{itemize}
                       then
-    \ltitSdjudgement{\ltiEnvp{}}
-                    {\ltiE{3}}
-                    {\ltiTp{}}
-                    {\ltiEp{}}.
+    \ltitSdjudgement{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
+                    {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
+                    {\ltiS{}}
+                    {\ltiEp{}}
+                    such that
+                      \ltiisubtype{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}{\ltiS{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}.
 \end{lemma}
 
-\begin{lemma}[FIXME Completeness (Symbolic Closure Language)]
-  If \ltitSdjudgement{\ltiEnvp{}}
+\begin{lemma}[Completeness 1 (Symbolic Closure Language)]
+  If \ltitSdjudgement{\ltiEnv{}}
                      {\ltiE{}}
                      {\ltiT{}}
                      {\ltiEp{}}
                      then
+    either
+    and fuel \ltiFuel{}
+    such that
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
                       {\ltiEnv{}}
-                      {\ltiE{1}}
+                      {\ltiF{}}
                       {\ltiT{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-                      {\ltiE{2}}.
+                      {\ltiFp{}}.
+\end{lemma}
+
+% TODO timeout rules for type system
+% TODO 
+\begin{lemma}[Completeness 2 (Symbolic Closure Language)]
+  If \ltitSdjudgement{\ltiEnv{}}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     {\ltiEp{}}
+                     then
+    there exists a term \ltiF{} such that \ltiE{} is a partial erasure of \ltiF{}
+    and fuel \ltiFuel{}
+    such that
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiT{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+                      {\ltiFp{}}.
 \end{lemma}
 
 \subsection{External Language with type-argument synthesis}
