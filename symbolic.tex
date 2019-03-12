@@ -1266,14 +1266,15 @@ Record terms and types have unordered fields.
          \ltiunfold{\ltiT{}^f}
                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiT{}}{\ltiS{}}}^n}}}
                   \\\\
-                  ({\ltiR{1}^1} ,..., {\ltiR{|\ova{\ltitvar{}}|}^1}) ,...,
-                  ({\ltiR{1}^m} ,..., {\ltiR{|\ova{\ltitvar{}}|}^m})
+                  \overrightarrowcaption{
+                  \ltiR{1} ,..., \ltiR{|\ova{\ltitvar{}}|}
+                  }^m
                   = \{ \ova{\ltiR{}} | i \in 1 ... p, \text{ if }
                         \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
-                  \\\\
-                  \\ m > 0 
                   \\
-                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ,..., {\ltiR{k}^m}} | k \in 1...|\ova{\ltitvar{}}|]
+                  \\ m > 0 
+                  \\\\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{\overrightarrowcaption{\ltiR{k}}^m} | k \in 1...|\ova{\ltitvar{}}|]
                   \\\\
                   \ova{\ltiSp{}}
                   =
@@ -1285,7 +1286,7 @@ Record terms and types have unordered fields.
                                    {\ltistackmapping{\ltiEnvp{i}}{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
                                    {\ltiEnv{}}
                                    {\ltiFn{\ltiTp{i}}{\ltiSp{i}}},\arcr
-                  \text{ and}
+                  \text{ and }
                   \ltiisubtype{\ltiEnv{}}{\ltiT{}^a}{\ltireplace{\ova{\ltiRpp{}}}{\ova{\ltitvar{}}}{\ltiTp{i}}}
                   \end{array}
                   \right\}
@@ -1605,60 +1606,17 @@ Record terms and types have unordered fields.
       \ltiEnvMissingTVars{\ltiEnv{d}}{\ltiEnv{a}}{\ltiEnvConcat{\ltiEnv{d}}{\ova{\ltitvar{}}}}
     }
 
-
-  \end{mathpar}
-  \caption{Language-agnostic Metafunctions}
-\end{figure}
-
-\begin{figure}
-  \begin{mathpar}
-    \boxed{\ltiresolve{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-    \text{ Resolve top-level contextual types in \ltiT{} using \ltiEnv{}.
-    }
-    }
-
-    \begin{array}{lcl}
-      \ltiresolvealign{\ltiInternalOrExternalLang{}}
-                      {\ltiEnvp{}}
-                      {\ltiSplitIFn{\ova{\ltiTpp{}}}
-                                   {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}^n}}
-                      {\ltiSplitIFn{\ova{\ltiTpp{}}\ 
-                                    \ova{\ltiTp{}}}
-                                   {\ova{\ltistackmapping{\ltiEnv{}}{\ltiT{}}}}},
-                                   \text{ where }
-                                     \ova{\ltiTp{}} = 
-                                     \{ \ltiTp{i} | i \in 1...n, 
-                                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}
-                                                         {\ltistackmapping{\ltiEnv{i}}{\ltiT{i}}}
-                                                         {\ltiEnvp{}}
-                                                         {\ltiTp{i}}
-                                                                          \}
-                                   \\
-      \ltiresolvealign{\ltiInternalOrExternalLang{}}
-                      {\ltiEnv{}}
-                      {\ltiPoly{\ova{\ltitvar{}}}{\ltiT{}}}
-                      {\ltiPoly{\ova{\ltitvar{}}}
-                               {\ltiresolveLHS{\ltiInternalOrExternalLang{}}
-                                              % FIXME is extending the environment correct here?
-                                              {\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}
-                                              {\ltiT{}}}}\\
-      \ltiresolvealign{\ltiInternalOrExternalLang{}}
-                      {\ltiEnv{}}
-                      {\ltiMu{\ltitvar{}}{\ltiT{}}}
-                      {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiresolveLHS{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}}}\\
-      \ltiresolvealign{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ltiT{}}{\ltiT{}} \text{, otherwise}\\
-    \end{array}
-
     \boxed{
     \infer[]
     {}
     {
     \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}{\ltiEnv{}}{\ova{\ltiS{}}}
-    \text{ Use \ova{\ltiT{}}'s context \ltiEnvp{} to prepare \ova{\ltiT{}} for use in current context \ltiEnv{}.
-    }
     \\\\
-    \text{Helper function also takes the already-processed prefix of the current context as second argument.
-    }
+    \text{Prepare \ova{\ltiT{}} for use in current context \ltiEnv{}.}
+    \\\\
+    \text{\ltiunifyContextsHsymbol takes the already-processed prefix}
+    \\\\
+    \text{of the current context as first argument.}
     }
     }
 
@@ -1697,38 +1655,11 @@ Record terms and types have unordered fields.
                                                   {\ltiEnvConcat{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
                                                   {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
                                                   {\ltiEnv{}}},
-                                                 &\text{ if } \ltiLsubtypeEnv{\ltiInternalOrExternalLang{}}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
+                                                 &\text{ if } \ltiisubtypeseen{\varnothing}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
     \end{array}
 
-    \boxed{
-    \infer[]
-    {}
-    {
-    \ltiLfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}{\ova{\ltiRpp{}}}
-    \text{ In context \ltiEnv{}, return the type arguments to substitute for \ova{\ltitvar{}}.
-    }
-    }
-    }
-
-    \infer[]
-    {
-                  ({\ltiR{1}^1} ,..., {\ltiR{p}^1}) ,...,
-                  ({\ltiR{1}^m} ,..., {\ltiR{p}^m})
-                  = \{ \ova{\ltiR{}} | i \in 1 ... n,
-                        \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
-                  \\\\
-                  \\ m > 0 
-                  \\ p = |\ova{\ltitvar{}}|
-                  \\
-                  \ova{\ltiRpp{}} = [\ltiMeetMany{{\ltiR{k}^1} ... {\ltiR{k}^m}} | k \in 1...p]
-    }
-    {
-     \ltiLfindTA{\ltiInternalOrExternalLang{}}{\ltiEnv{}}{\ova{\ltitvar{}}}{\ova{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}^n}{\ova{\ltiRpp{}}}
-    }
-
   \end{mathpar}
-  \caption{Metafunctions for internal and external language, where \ltiInternalOrExternalLang{} ranges over \ltiinternallabel{} and 
-           \ltiexternallanglabel{}}
+  \caption{Language-agnostic Metafunctions}
 \end{figure}
 
 \figref{symbolic:figure:internal-language-type-system}

@@ -279,7 +279,8 @@
 \newcommand\ltiunifyContexts[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiunifyContextsalign[4]{\ma{\ltiunifyContextsLHS{#1}{#2}{&#3} &=& #4}}
 % Lang AccumEnv StackMapping, CurrentEnv => T
-\newcommand\ltiunifyContextsHLHS[4]{\ma{\metafunctionfont{uc}(#2,#3,#4)}}
+\newcommand\ltiunifyContextsHsymbol{\ma{\metafunctionfont{uc}}}
+\newcommand\ltiunifyContextsHLHS[4]{\ma{\ltiunifyContextsHsymbol(#2,#3,#4)}}
 \newcommand\ltiunifyContextsH[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHalign[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % CombinedEnv StackMapping, Env => T ; CombinedEnv
