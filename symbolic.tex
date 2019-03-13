@@ -1225,32 +1225,6 @@ Record terms and types have unordered fields.
                  }
 
 
-    \infer [I-Abs]
-    { 
-    \ltiunfoldLHS{\ltiTp{}} =
-      \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n}}}
-    \\
-    n>0 \\\\
-    \overrightarrowcaption{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}
-                                {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                  {\ltiE{0}}
-                  {\ltiSp{i}}
-                  {\ltiF{i}},
-                  \ \ \ \ 
-          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}{\ltiSp{i}}{\ltiS{i}},
-                  \ \ \ \
-          \ltimergeTaggedTerms{\ltiE{i-1}}{\ltiF{i}}{\ltiE{i}}
-                  }^{1 \leq i \leq n}
-    }
-    {
-    \ltitjudgement{\ltiEnvp{}}
-                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{0}}}
-                  {\ltiTp{}}
-                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{n}}}
-                 }
-
     \infer [I-AppInst]
     {
     \ltitjudgement{\ltiEnv{}}
@@ -1266,15 +1240,13 @@ Record terms and types have unordered fields.
          \ltiunfold{\ltiT{}^f}
                    {\ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnvpp{}}{\ltiT{}}{\ltiS{}}}^n}}}
                   \\\\
-                  \overrightarrowcaption{
+                  \overrightarrow{
                   \ltiR{1} ,..., \ltiR{|\ova{\ltitvar{}}|}
-                  }^m
-                  = \{ \ova{\ltiR{}} | i \in 1 ... p, \text{ if }
+                  }
+                  = \{ \ova{\ltiR{}} | i \in 1 ... m, \text{ if }
                         \ltiunifyContexts{\ltiInternalOrExternalLang{}}{\ltistackmapping{\ltiEnvp{i}}{\ova{\ltiRp{}}_i}}{\ltiEnv{}}{\ova{\ltiR{}}} \}
                   \\
-                  \\ m > 0 
-                  \\\\
-                  \ova{\ltiRpp{}} = [\ltiMeetMany{\overrightarrowcaption{\ltiR{k}}^m} | k \in 1...|\ova{\ltitvar{}}|]
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{\overrightarrowcaption{\ltiR{k}}} | k \in 1...|\ova{\ltitvar{}}|]
                   \\\\
                   \ova{\ltiSp{}}
                   =
@@ -1283,7 +1255,7 @@ Record terms and types have unordered fields.
                   \begin{array}{lll}
                   \text{ if }
                   \ltiunifyContexts{\ltiInternalOrExternalLang{}}
-                                   {\ltistackmapping{\ltiEnvp{i}}{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+                                   {\ltistackmapping{\ltiEnvpp{i}}{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
                                    {\ltiEnv{}}
                                    {\ltiFn{\ltiTp{i}}{\ltiSp{i}}},\arcr
                   \text{ and }
@@ -1296,11 +1268,11 @@ Record terms and types have unordered fields.
     {
       \ltitjudgement{\ltiEnv{}}
                     {\ltiappinst{\ltiF{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}^p}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}^m}
                                 {\ltiE{}}}
                     {\ltiMeetMany{\ova{\ltiSp{}}}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}^p}
+                                {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}^m}
                                 {\ltiEp{}}}
     }
 
@@ -1324,6 +1296,32 @@ Record terms and types have unordered fields.
                   {\ltiBot{}}
                   {\ltiappinst{\ltiFp{}}{\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiR{}}}}}{\ltiEp{}}}
     }
+
+    \infer [I-Abs]
+    { 
+    \ltiunfoldLHS{\ltiTp{}} =
+      \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}}
+    \\\\
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}
+                                {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                              {\hastype{\ltivar{}}{\ova{\ltiT{}}}}}}
+                  {\ltiE{}}
+                  {\ova{\ltiSp{}}}
+                  {\ova{\ltiF{}}}
+                  \\\\
+          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}}
+          \\\\
+          |\ova{\ltiF{}}| > 0
+          \\
+          \ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{\ltiF{2}}{...}}
+          = \ltiEp{}
+    }
+    {
+    \ltitjudgement{\ltiEnvp{}}
+                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
+                  {\ltiTp{}}
+                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                 }
 
     \infer [I-Rec]
     {
@@ -1673,17 +1671,20 @@ Record terms and types have unordered fields.
     \text{\ltiE{i} as \ltiF{}.}
     }
     }
-  \begin{array}{llll}
 
+  \begin{array}{llll}
     \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{1}}}
-                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{2}}}
-                             {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
+                             {\ltifuninterface{\ltiT{}}
+                                              {\ltivar{}}
+                                              {\ltiE{2}}}
+                             {\ltifuninterface{\ltiT{}}
+                                              {\ltivar{}}
+                                              {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
                              \\
-    \ltimergeTaggedTermsalign{\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n}{\ltiE{}}}
-                             {\ltiappinst{\ltiFp{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}{\ltiEp{}}}
+    \ltimergeTaggedTermsalign{\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}}{\ltiE{}}}
+                             {\ltiappinst{\ltiFp{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}}{\ltiEp{}}}
                              {\ltiappinst{\ltimergeTaggedTermsLHS{\ltiF{}}{\ltiFp{}}}
-                                         {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n 
-                                          \ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}
+                                         {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}}
                                          {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiEp{}}}}
                                      \\
     \ltimergeTaggedTermsalign{\ltisel{\ltiE{1}}{\ltivar{}}}
@@ -1787,56 +1788,54 @@ $$
                     {\ltiE{}}
                     {\ltiS{}^a}
                     {\ltiEp{}}
-                    \\
+                    \\\\
           \ltiunfold{\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
                              {\ltiIFn{\ltiContextualFn{\ltiEmptyEnv}{\ltiT{}}{\ltiS{}}}}}
-                  \\
+                  \\\\
                        |\ova{\ltitvar{}}|>0
                   \\\\
                   \forall \ltiRp{}.
-                    (
-                  \ltiisubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                  \text{ implies }
-                  \ltiisubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
-                               {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
-                  )
+                    \left(
+                    \begin{array}{lll}
+                      \ltiisubtype{\ltiEnv{}}{\ltiS{}^a}{\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
+                      \text{ implies}
+                      \arcr
+                      \ltiisubtype{\ltiEnv{}}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
+                                   {\ltireplace{\ova{\ltiRp{}}}{\ova{\ltitvar{}}}{\ltiS{}^a}}
+                    \end{array}
+                  \right)
     }
     {
     \ltitjudgement{\ltiEnv{}}
                     {\ltiapp{\ltiF{}}{\ltiE{}}}
                     {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
                     {\ltiappinst{\ltiFp{}}
-                                {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}
-                                %\ \ova{\ltistackmapping{\ltiEnvpp{}}{\ova{\ltiRpp{}}}}
-                                }
+                                {\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}
                                 {\ltiEp{}}}
     }
 
     \infer [E-UAbs]
     { 
-    \ltiunfoldLHS{\ltiTp{}} =
-      \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n}}}
+    \ltiunfold{\ltiTp{}}{\ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}}
+    \\\\
+    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}
+                                {\hastype{\ltivar{}}{\ova{\ltiT{}}}}}
+                  {\ltiE{}}
+                  {\ova{\ltiSp{}}}
+                  {\ova{\ltiF{}}}
+                  \\\\
+          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}},
+          \\\\
+    |\ova{\ltiF{}}|>0
     \\
-    n>0 \\\\
-    \overrightarrowcaption{
-    \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}
-                                {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                              {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                  {\ltiE{0}}
-                  {\ltiSp{i}}
-                  {\ltiF{i}},
-                  \ \ \ \ 
-          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{i}}}{\ltiSp{i}}{\ltiS{i}},
-                  \ \ \ \
-          \ltimergeTaggedTerms{\ltiE{i-1}}{\ltiF{i}}{\ltiE{i}}
-                  }^{1 \leq i \leq n}
+          \ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{\ltiF{2}}{...}} = \ltiEp{}
     }
     {
     \ltitjudgement{\ltiEnvp{}}
-                  {\ltiufun{\ltivar{}}{\ltiE{0}}}
+                  {\ltiufun{\ltivar{}}{\ltiE{}}}
                   {\ltiTp{}}
-                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{n}}}
+                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
                  }
 
 %    \infer [AppInst]
@@ -1928,6 +1927,41 @@ $$
   \label{symbolic:figure:external-language-declarative-type-system}
 \end{figure}
 
+\begin{figure}
+  \begin{mathpar}
+    \boxed{
+    \infer[]
+    {}
+    {
+    \ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiF{}}
+    \\\\
+    \text{Merge terms \ltiE{i} as \ltiF{} (extends \figref{symbolic:figure:internal-language-metafunctions}).}
+    }
+    }
+
+  \begin{array}{llll}
+    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiPoly{\ova{\ltitvar{}}}{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^n}}{\ltivar{}}{\ltiE{1}}}
+                             {\ltifuninterface{\ltiPoly{\ova{\ltitvar{}}}{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
+                                              {\ltivar{}}
+                                              {\ltiE{2}}}
+                             {\ltifuninterface{\ltiPoly{\ova{\ltitvar{}}}
+                                                       {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{m}}}
+                                              {\ltivar{}}
+                                              {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
+                             \\
+    \ltimergeTaggedTermsalign{\ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^n}{\ltiE{}}}
+                             {\ltiappinst{\ltiFp{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^{n+1...m}}{\ltiEp{}}}
+                             {\ltiappinst{\ltimergeTaggedTermsLHS{\ltiF{}}{\ltiFp{}}}
+                                         {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}^m}
+                                         {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiEp{}}}}
+    \end{array}
+  \end{mathpar}
+
+  \caption{External Language Metafunctions
+  }
+  \label{symbolic:figure:external-language-metafunctions}
+\end{figure}
+
 \subsection{Symbolic Closure language}
 
 \begin{figure}
@@ -1944,7 +1978,7 @@ $$
                       &\mbox{Closure Identifiers} \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Closure Fuel} \\
-  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiSplitIFn{}
+  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiIFn
                                                                                  {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}}
                                                                                 {\ltiE{}}}}
                       &\mbox{Closure Cache} \\
@@ -1991,46 +2025,44 @@ $$
                       {\ltiT{}^f}
                       {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
-                  \\\\
+                  \\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiT{}^a}
                       {\ltiCombinedThreadedEnv{3}}
                       {\ltiEp{}}
-                  \\\\
-    \ltiresolveSC{\ltiCombinedThreadedEnv{3}}
-               {\ltiEnv{}}
-               {\ltiT{}^f}
+                  \\
+    \ltiunfold{\ltiT{}^f}
                {\ltiPoly{\ova{\ltitvar{}}}
-                        {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{n}}
-                                     {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTpp{}}{\ltiSpp{}}}}}}
-               {\ltiCombinedThreadedEnv{4}}
+                        {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}}}}
                   \\\\
-                  \ltiSfindTA{\ltiCombinedThreadedEnv{4}}
+                  \ltiSfindTA{\ltiCombinedThreadedEnv{3}}
                              {\ltiEnv{}}
                              {\ova{\ltitvar{}}}
                              {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                              {\ova{\ltiR{}}}
                              {\ltiCombinedThreadedEnvp{0}}
     \\\\
-     c_0 = 0 \\ c_n > 1
-    \\\\
+    \ova{\ltiSp{}}_0 = \varnothing
+    \\
     \overrightarrowcaption{
-      (\ltiSp{i}, \ltiCombinedThreadedEnvp{i}, c_i)
+      (\ova{\ltiSp{}}_i, \ltiCombinedThreadedEnvp{i})
         = \left\{
                      \begin{array}{llll}
-                       (\ltiS{i}, \ltiCombinedThreadedEnvp{i}, 1+c_{i-1})
+                       (\ova{\ltiSp{}}_{i-1}\ltiS{i}, \ltiCombinedThreadedEnvp{i})
                        , &\text{if } \ltiSsubtype{\ltiCombinedThreadedEnvp{i-1}}
                                                  {\ltiEnv{}}
                                                  {\ltiT{}^a}
                                                  {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
                                                  {\ltiCombinedThreadedEnvp{i}}
                                                   \arcr
-                       (\ltiTop, \ltiCombinedThreadedEnvp{i-1}, c_{i-1}),  &\text{otherwise}
+                       (\ova{\ltiSp{}}_{i-1}, \ltiCombinedThreadedEnvp{i-1}),  &\text{otherwise}
                      \end{array}
                    \right.
                    }^{1 \leq i \leq n}
+                   \\
+                   |\ova{\ltiSp{}}_n| > 0
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
@@ -2038,7 +2070,7 @@ $$
                       {\ltiappinst{\ltiF{}}
                                   {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                   {\ltiE{}}}
-                      {\ltiMeetMany{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ova{\ltiSp{}}}}}
+                      {\ltiMeetMany{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ova{\ltiSp{}}_n}}}
                       {\ltiCombinedThreadedEnvp{n}}
                       {\ltiappinst{\ltiFp{}}
                                   {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
@@ -2064,7 +2096,7 @@ $$
                       {\ltiTpp{}}
                       {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
-                  \\\\
+                  \\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
@@ -2078,7 +2110,7 @@ $$
                                               {\ltiufun{\ltivar{}}{\ltiEpp{}}}}
                                               \\\\
     0 < \ltiFuel{}
-    \\\\
+    \\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
                       {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}{\hastype{\ltivar{}}{\ltiTp{}}}}
@@ -2139,7 +2171,7 @@ $$
                       {\ltiT{}}
                       {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
-                  \\\\
+                  \\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
@@ -2463,7 +2495,7 @@ $$
     \text{Merge terms \ltiE{1} and \ltiE{2}}
     \\\\
     \text{
-  (extends \figref{symbolic:figure:internal-language-metafunctions})}
+  (extends \figref{symbolic:figure:external-language-metafunctions})}
    }}
 
   \begin{array}{llll}

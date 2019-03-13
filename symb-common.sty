@@ -215,9 +215,9 @@
 \newcommand\ltiexternallanglabel{\ma{\ltilanguagelabelfont{E}}}
 %% symbolic closure language (no bidirectional type checking)
 \newcommand\ltisclanglabel{\ma{\ltilanguagelabelfont{S}}}
-\newcommand\ltisclangalgvdash{\ma{\vdash_{\ltisclanglabel}}}
+\newcommand\ltisclangalgvdash{\ma{\vdash}}
 \newcommand\ltisclangdeclvdash{\ma{\vdash_{\ltiexternallanglabel}}}
-\newcommand\ltisclangvdash{\ma{\vdash_{\ltisclanglabel}}}
+\newcommand\ltisclangvdash{\ma{\vdash}}
 % symbolic closure type system, with enclosed fn stack
 % CombinedThreadedEnv Env |- E : T ; CombinedThreadedEnv ; E*
 \newcommand\ltitSstkjudgement[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5 ; #6}}
@@ -233,6 +233,7 @@
 % Seen Env T <: T
 \newcommand\ltiSdsubtypeseen[4]{\ma{\ltiSdsubtype{#1;#2}{#3}{#4}}}
 \newcommand\ltimergeTaggedTermssymbol{\ma{\metafunctionfont{mrg}}}
+\newcommand\ltimergeTaggedTermsManyLHS[1]{\ma{\ltimergeTaggedTermssymbol\ #1}}
 \newcommand\ltimergeTaggedTermsLHS[2]{\ma{\ltimergeTaggedTermssymbol(#1, #2)}}
 \newcommand\ltimergeTaggedTermsLHSalign[2]{\ma{\ltimergeTaggedTermssymbol(#1, &#2)}}
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
