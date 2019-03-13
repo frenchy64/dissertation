@@ -1299,7 +1299,7 @@ Record terms and types have unordered fields.
 
     \infer [I-Abs]
     { 
-    \ltiunfoldLHS{\ltiTp{}} =
+    \ltiTp{} =
       \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}}
     \\\\
     \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}
@@ -1311,9 +1311,9 @@ Record terms and types have unordered fields.
                   \\\\
           \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}}
           \\\\
-          |\ova{\ltiF{}}| > 0
+          |\ova{\ltiF{}}| = n > 0
           \\
-          \ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{\ltiF{2}}{...}}
+          \ltimergeTaggedTermsLHS{\ltiE{}}{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{...}{\ltiF{n}}}}
           = \ltiEp{}
     }
     {
@@ -1666,9 +1666,7 @@ Record terms and types have unordered fields.
     {
     \ltimergeTaggedTerms{\ltiE{1}}{\ltiE{2}}{\ltiF{}}
     \\\\
-    \text{Merge terms}
-    \\\\
-    \text{\ltiE{i} as \ltiF{}.}
+    \text{Merge terms \ltiE{i} as \ltiF{}.}
     }
     }
 
@@ -1817,7 +1815,7 @@ $$
 
     \infer [E-UAbs]
     { 
-    \ltiunfold{\ltiTp{}}{\ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}}
+    \ltiTp{} = \ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}
     \\\\
     \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}
                                 {\hastype{\ltivar{}}{\ova{\ltiT{}}}}}
@@ -1827,9 +1825,9 @@ $$
                   \\\\
           \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}},
           \\\\
-    |\ova{\ltiF{}}|>0
-    \\
-          \ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{\ltiF{2}}{...}} = \ltiEp{}
+    |\ova{\ltiF{}}|=n>0
+    \\\\
+          \ltimergeTaggedTermsLHS{\ltiE{}}{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{...}{\ltiF{n}}}} = \ltiEp{}
     }
     {
     \ltitjudgement{\ltiEnvp{}}
@@ -1940,12 +1938,11 @@ $$
     }
 
   \begin{array}{llll}
-    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiPoly{\ova{\ltitvar{}}}{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^n}}{\ltivar{}}{\ltiE{1}}}
-                             {\ltifuninterface{\ltiPoly{\ova{\ltitvar{}}}{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
+    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^n}}{\ltivar{}}{\ltiE{1}}}
+                             {\ltifuninterface{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
                                               {\ltivar{}}
                                               {\ltiE{2}}}
-                             {\ltifuninterface{\ltiPoly{\ova{\ltitvar{}}}
-                                                       {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{m}}}
+                             {\ltifuninterface{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{m}}}
                                               {\ltivar{}}
                                               {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
                              \\
@@ -2077,17 +2074,6 @@ $$
                                   {\ltiEp{}}}
     }
 
-    \infer [Var]
-    {}
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltivar{}}
-                      {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                      {\ltiCombinedThreadedEnv{}}
-                      {\ltivar{}}
-                 }
-
     \infer [AppInf-Closure]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
@@ -2163,6 +2149,7 @@ $$
                                   {\ltiEp{}}}
     }
 
+
     \infer [AppInst\Bot]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
@@ -2194,47 +2181,6 @@ $$
                                   {\ltiEp{}}}
     }
 
-    \infer [Sel]
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltiF{}}
-                      {\ltiS{}}
-                      {\ltiCombinedThreadedEnvp{}}
-                      {\ltiFp{}}
-                      \\\\
-    \ltiunfold{\ltiS{}}
-              {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},..., \hastype{\ltivar{i}}{\ltiT{i}},..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-    }
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltisel{\ltiF{}}{\ltivar{i}}}
-                      {\ltiT{i}}
-                      {\ltiCombinedThreadedEnvp{}}
-                      {\ltisel{\ltiFp{}}{\ltivar{i}}}
-    }
-
-    \infer [Sel\Bot]
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltiF{}}
-                      {\ltiS{}}
-                      {\ltiCombinedThreadedEnvp{}}
-                      {\ltiFp{}}
-                      \\\\
-    \ltiunfold{\ltiS{}}{\ltiBot}
-    }
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltisel{\ltiF{}}{\ltivar{i}}}
-                      {\ltiBot}
-                      {\ltiCombinedThreadedEnvp{}}
-                      {\ltisel{\ltiFp{}}{\ltivar{i}}}
-    }
-
     \infer [Rec]
     {
     \overrightarrowcaption{
@@ -2255,24 +2201,64 @@ $$
                       {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
     }
 
+    \infer [Var]
+    {}
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltivar{}}
+                      {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+                      {\ltiCombinedThreadedEnv{}}
+                      {\ltivar{}}
+                 }
+    \ \ \ 
+%
+    \infer [Sel]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiS{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiFp{}}
+                      \\\\
+    \ltiunfold{\ltiS{}}
+              {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},..., \hastype{\ltivar{i}}{\ltiT{i}},..., \hastype{\ltivar{n}}{\ltiT{n}}}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltisel{\ltiF{}}{\ltivar{i}}}
+                      {\ltiT{i}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltisel{\ltiFp{}}{\ltivar{i}}}
+    }
+    \ \ \ 
+%
+    \infer [Sel\Bot]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiS{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiFp{}}
+                      \\\\
+    \ltiunfold{\ltiS{}}{\ltiBot}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltisel{\ltiF{}}{\ltivar{i}}}
+                      {\ltiBot}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltisel{\ltiFp{}}{\ltivar{i}}}
+    }
+
     \infer [Abs]
     {
-    \ltiunfold{\ltiTp{}}{\ltiPoly{\ova{\ltitvar{}}}
-                                    {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}^{1...n}}
-                                                 {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}}
-    \\\\
-                     m>0
-                     \\
-    \overrightarrowcaption{
-     \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
-                     {\ltiEnvConcat{\ltiEnv{}}
-                                   {\ltiEnvConcat{\ova{\ltitvar{}}}
-                                                 {\hastype{\ltivar{}}{\ltiT{i}}}}}
-                     {\ltiEp{0}}
-                     {\ltiSp{i}}
-                     {\ltiE{i}}
-                     {\ltiCombinedThreadedEnv{i}}
-                     }^{1 \leq i \leq n}
+    \ltiTp{}= \ltiPoly{\ova{\ltitvar{}}}
+                                    {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^n}}
                      \\\\
     \overrightarrowcaption{
      \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
@@ -2280,32 +2266,31 @@ $$
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
                                                           {\ltiT{i}}}}}
-                     {\ltiEp{0}}
+                     {\ltiE{}}
                      {\ltiSp{i}}
-                     {\ltiE{i}}
+                     {\ltiF{i}}
                      {\ltiCombinedThreadedEnv{i}}
-                     }^{n < i \leq m}
-                     \\\\
-                     \ltiCombinedThreadedEnvp{0} = \ltiCombinedThreadedEnv{m}
+                     }^{1 \leq i \leq n}
                      \\\\
                      \overrightarrowcaption{
-                        \ltiSsubtype{\ltiCombinedThreadedEnvp{i-1}}
+                        \ltiSsubtype{\ltiCombinedThreadedEnv{n+i-1}}
                                                   {\ltiEnv{}}
                                                   {\ltiSp{i}}
                                                   {\ltiS{i}}
-                                                  {\ltiCombinedThreadedEnvp{i}}
-                                                  ,
-                                                  \ 
-                                                  \ltimergeTaggedTerms{\ltiEp{i-1}}{\ltiE{i}}{\ltiEp{i}}
-                                                  }^{1 \leq i \leq m}
+                                                  {\ltiCombinedThreadedEnv{n+i}}
+                                                  }^{1 \leq i \leq n}
+                                                  \\\\
+                                                  |\ltiF{}| > 0
+                                                  \\
+        \ltimergeTaggedTermsLHS{\ltiE{}}{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{...}{\ltiF{n}}}} = \ltiEp{}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
                     {\ltiEnv{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{0}}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
                     {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{m}}}
-                    {\ltiCombinedThreadedEnvp{m}}
+                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                    {\ltiCombinedThreadedEnv{2n}}
                  }
 
     \infer [UAbs]
