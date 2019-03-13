@@ -2018,38 +2018,37 @@ $$
     \infer [AppInst]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
-                      {\ltiEnv{}}
+                      {\ltiEnvp{}}
                       {\ltiF{}}
                       {\ltiT{}^f}
                       {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
-                      {\ltiEnv{}}
+                      {\ltiEnvp{}}
                       {\ltiE{}}
                       {\ltiT{}^a}
-                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiCombinedThreadedEnvp{0}}
                       {\ltiEp{}}
                   \\
     \ltiunfold{\ltiT{}^f}
                {\ltiPoly{\ova{\ltitvar{}}}
-                        {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}}}}
+                        {\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}}}}
                   \\\\
-                  % FIXME this is just findTAS inlined
-    \ova{\ltiRp{}}_0 = \varnothing\\
+    \ova{\ova{\ltiRp{}}}_0 = \varnothing\\
     \overrightarrowcaption{
-    (\ova{\ova{\ltiRp{}}}_i, \ltiCombinedThreadedEnv{i})
+    (\ova{\ova{\ltiRp{}}}_i, \ltiCombinedThreadedEnvp{i})
     = \left\{
                      \begin{array}{llll}
-                       (\ova{\ova{\ltiRp{}}}_{i-1} \ova{\ltiR{}}_i, &\ltiCombinedThreadedEnv{i})
+                       (\ova{\ova{\ltiRp{}}}_{i-1} \ova{\ltiR{}}_i, &\ltiCombinedThreadedEnvp{i})
                        , & \text{ if }
-                        \ltiunifyContextsSC{\ltiCombinedThreadedEnv{i-1}}
+                        \ltiunifyContextsSC{\ltiCombinedThreadedEnvp{i-1}}
                                            {\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}
-                                           {\ltiEnv{}}
+                                           {\ltiEnvp{}}
                                            {\ova{\ltiR{}}_i}
-                                           {\ltiCombinedThreadedEnv{i}}
+                                           {\ltiCombinedThreadedEnvp{i}}
                                            \\
-                       (\ova{\ova{\ltiRp{}}}_{i-1}, &\ltiCombinedThreadedEnv{i-1})
+                       (\ova{\ova{\ltiRp{}}}_{i-1}, &\ltiCombinedThreadedEnvp{i-1})
                        , & \text{ otherwise}
                      \end{array}
       \right.
@@ -2057,34 +2056,31 @@ $$
     \\\\
                   \ova{\ova{\ltiRp{}}}_n
                   =
-                  (\ltiR{1}^1, ...,\ltiR{p}^1)
-                  ,...,
-                  (\ltiR{1}^m ,..., \ltiR{p}^m)
-                  \\ m > 0 
-                  \\ p = |\ova{\ltitvar{}}|
+                  \overrightarrow{\ltiRpp{1}, ...,\ltiRpp{|\ova{\ltitvar{}}|}}
                   \\
-                  \ova{\ltiRpp{}} = [\ltiMeetMany{\ltiR{k}^1, ..., \ltiR{k}^m} | k \in 1...p]
-                  %\ltiSfindTA{\ltiCombinedThreadedEnv{3}}
-                  %           {\ltiEnv{}}
-                  %           {\ova{\ltitvar{}}}
-                  %           {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
-                  %           {\ova{\ltiR{}}}
-                  %           {\ltiCombinedThreadedEnvp{0}}
-    \\\\
-    \ova{\ltiSp{}}_0 = \varnothing
+                  \ova{\ltiR{}} = [\ltiMeetMany{\overrightarrow{\ltiRpp{k}}} | k \in 1...|\ova{\ltitvar{}}|]
     \\
+    \ltiCombinedThreadedEnvpp{0} = \ltiCombinedThreadedEnvp{n}
+    \\
+    \ova{\ltiSp{}}_0 = \varnothing
+    \\\\
     \overrightarrowcaption{
-      (\ova{\ltiSp{}}_i, \ltiCombinedThreadedEnvp{i})
+      (\ova{\ltiSp{}}_i, \ltiCombinedThreadedEnvpp{i})
         = \left\{
                      \begin{array}{llll}
-                       (\ova{\ltiSp{}}_{i-1}\ltiS{i}, \ltiCombinedThreadedEnvp{i})
-                       , &\text{if } \ltiSsubtype{\ltiCombinedThreadedEnvp{i-1}}
-                                                 {\ltiEnv{}}
+                       (\ova{\ltiSp{}}_{i-1}{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{i}}}, \ltiCombinedThreadedEnvpp{i})
+                       , &\text{if } \ltiunifyContexts{\ltiInternalOrExternalLang{}}
+                                                      {\ltistackmapping{\ltiEnv{i}}{\ltiFn{\ltiT{i}}{\ltiS{i}}}}
+                                                      {\ltiEnvp{}}
+                                                      {\ltiFn{\ltiTp{i}}{\ltiSp{i}}}\arcr
+                         &\text{and }
+                       \ltiSsubtype{\ltiCombinedThreadedEnvpp{i-1}}
+                                                 {\ltiEnvp{}}
                                                  {\ltiT{}^a}
                                                  {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{i}}}
-                                                 {\ltiCombinedThreadedEnvp{i}}
+                                                 {\ltiCombinedThreadedEnvpp{i}}
                                                   \arcr
-                       (\ova{\ltiSp{}}_{i-1}, \ltiCombinedThreadedEnvp{i-1}),  &\text{otherwise}
+                       (\ova{\ltiSp{}}_{i-1}, \ltiCombinedThreadedEnvpp{i-1}),  &\text{otherwise}
                      \end{array}
                    \right.
                    }^{1 \leq i \leq n}
@@ -2093,12 +2089,12 @@ $$
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
-                      {\ltiEnv{}}
+                      {\ltiEnvp{}}
                       {\ltiappinst{\ltiF{}}
                                   {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                   {\ltiE{}}}
-                      {\ltiMeetMany{\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ova{\ltiSp{}}_n}}}
-                      {\ltiCombinedThreadedEnvp{n}}
+                      {\ltiMeetMany{\ova{\ltiSp{}}_n}}
+                      {\ltiCombinedThreadedEnvpp{n}}
                       {\ltiappinst{\ltiFp{}}
                                   {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
                                   {\ltiEp{}}}

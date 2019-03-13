@@ -8,6 +8,8 @@ all:
 fast:
 	pdflatex thesis.tex 
 
+fast2: fast fast
+
 sym:
 	pdflatex symb.tex 
 	bibtex symb
