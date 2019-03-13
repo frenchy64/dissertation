@@ -227,6 +227,8 @@
 % algorithmic subtyping for symbolic closure language types
 % ThreadedEnv Env T T => T ThreadedEnv
 \newcommand\ltiSsubtype[5]{\ma{#1 ; #2 \ltisclangalgvdash #3 \ltisubtypeseparator #4 ; #5}}
+% Seen ThreadedEnv Env T T => T ThreadedEnv
+\newcommand\ltiSsubtypeseen[6]{\ma{#1 ; #2 ; #3 \ltisclangalgvdash #4 \ltisubtypeseparator #5 ; #6}}
 % declarative subtyping for symbolic closure language
 % Env T <: T
 \newcommand\ltiSdsubtype[3]{\ma{{#1} \ltisclangdeclvdash #2 \ltisubtypeseparator #3}}
@@ -240,7 +242,7 @@
 \newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHSalign{#1}{#2} &=& #3}}
 % update closure cache
 % ClosureCache GammaApp ClosureID T_in T_out E => ClosureCache
-\newcommand\ltiupdateClosureCacheLHS[6]{\ma{\metafunctionfont{recordClosure}(#1,#2,#3,#4,#5,#6)}}
+\newcommand\ltiupdateClosureCacheLHS[6]{\ma{\metafunctionfont{recordSC}(#1,#2,#3,#4,#5,#6)}}
 \newcommand\ltiupdateClosureCache[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} = #7}}
 \newcommand\ltiupdateClosureCachealign[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} &=& #7}}
 % elabDriver
@@ -285,7 +287,7 @@
 \newcommand\ltiunifyContextsH[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHalign[5]{\ma{\ltiunifyContextsHLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % CombinedEnv StackMapping, Env => T ; CombinedEnv
-\newcommand\ltiunifyContextsSCLHS[3]{\ma{\metafunctionfont{unifyCtxSC}(#1,#2,#3)}}
+\newcommand\ltiunifyContextsSCLHS[3]{\ma{\metafunctionfont{unifyCtxS}(#1,#2,#3)}}
 \newcommand\ltiunifyContextsSC[5]{\ma{\ltiunifyContextsSCLHS{#1}{#2}{#3} = #4 ; #5}}
 \newcommand\ltiunifyContextsSCalign[5]{\ma{\ltiunifyContextsSCLHS{#1}{#2}{&#3} &=& #4 ; #5}}
 % CombinedEnv AccumEnv StackMapping, CurrentEnv => T ; CombinedEnv

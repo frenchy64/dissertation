@@ -2367,34 +2367,105 @@ $$
 
 \begin{figure}
   \begin{mathpar}
-    \infer [S-Refl]
+    \boxed{
+    \infer[]
+    {}
+    {\ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                 {\ltiCombinedThreadedEnv{}}
+                 {\ltiEnv{}}
+                 {\ltiS{}}
+                 {\ltiT{}}
+                 {\ltiCombinedThreadedEnvp{}}
+                 \\\\
+                 \text{
+                 In context \ltiEnv{}, closure cache \ltiCombinedThreadedEnv{}
+                 and seen subtypings \ltiSubtypeSeen{},
+                 \ltiS{} is a subtype of \ltiT{}
+                 with updated cache
+                 \ltiCombinedThreadedEnvp{}.
+                 }
+    }
+    }
+
+    \infer [S-TVar]
     {}
     {
-     \ltiSsubtype{\ltiCombinedThreadedEnv{}}
+     \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                 {\ltiCombinedThreadedEnv{}}
                  {\ltiEnv{}}
-                 {\ltiT{}}
-                 {\ltiT{}}
+                 {\ltitvar{}}
+                 {\ltitvar{}}
                  {\ltiCombinedThreadedEnv{}}
     }
 
     \infer [S-Top]
     {}
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiT{}}{\Top}{\ltiCombinedThreadedEnv{}}}
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiT{}}{\Top}{\ltiCombinedThreadedEnv{}}}
 
     \infer [S-Bot]
     {}
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\Bot}{\ltiT{}}{\ltiCombinedThreadedEnv{}}}
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\Bot}{\ltiT{}}{\ltiCombinedThreadedEnv{}}}
+
+    \infer [S-MuL]
+    {
+     (\ltiSeenEntry{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltiS{}} \in \ltiSubtypeSeen{}
+     \text{ and } \ltiCombinedThreadedEnv{} = \ltiCombinedThreadedEnvp{}
+     )
+     \\\\
+    \text{ or }
+     \\\\
+    \ltiSsubtypeseen{\ltiSeenConcat{\ltiSeenEntry{\ltiMu{\ltitvar{}}{\ltiT{}}}
+                                                 {\ltiS{}}}
+                                   {\ltiSubtypeSeen{}}}
+                    {\ltiCombinedThreadedEnv{}}
+                    {\ltiEnv{}}
+                    {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}{\ltiS{}}
+                    {\ltiCombinedThreadedEnvp{}}
+    }
+    {
+    \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiCombinedThreadedEnv{}}
+                    {\ltiEnv{}}
+                    {\ltiMu{\ltitvar{}}{\ltiT{}}}
+                    {\ltiS{}}
+                    {\ltiCombinedThreadedEnvp{}}
+    }
+
+    \infer [S-MuR]
+    {
+     (\ltiSeenEntry{\ltiS{}}{\ltiMu{\ltitvar{}}{\ltiT{}}} \in \ltiSubtypeSeen{}
+     \text{ and } \ltiCombinedThreadedEnv{} = \ltiCombinedThreadedEnvp{})
+     \\\\
+    \text{ or }
+     \\\\
+    \ltiSsubtypeseen{\ltiSeenConcat{\ltiSeenEntry{\ltiS{}}
+                                                 {{\ltiMu{\ltitvar{}}{\ltiT{}}}}}
+                                   {\ltiSubtypeSeen{}}}
+                    {\ltiCombinedThreadedEnv{}}
+                    {\ltiEnv{}}
+                    {\ltiS{}}
+                    {\ltireplace{\ltiMu{\ltitvar{}}{\ltiT{}}}{\ltitvar{}}{\ltiT{}}}
+                    {\ltiCombinedThreadedEnvp{}}
+    }
+    {
+    \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiCombinedThreadedEnv{}}
+                    {\ltiEnv{}}
+                    {\ltiS{}}
+                    {\ltiMu{\ltitvar{}}{\ltiT{}}}
+                    {\ltiCombinedThreadedEnvp{}}
+    }
 
     \infer [S-Rec]
     {
-    \overrightarrow{\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}{\ltiEnv{}}
+    \overrightarrow{\ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{i-1}}{\ltiEnv{}}
                                 {\ltiT{}}
                                 {\ltiS{}}
                                 {\ltiCombinedThreadedEnv{i}}
                                 }
     }
     {
-    \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
+    \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{0}}
                 {\ltiEnv{}}
                 {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n,
                          \ova{\hastype{\ltivarp{}}{\ltiTp{}}}}}
@@ -2418,50 +2489,62 @@ $$
                 {\ltiCombinedThreadedEnvp{}}
     }
 
-    % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
-    \infer [S-Fn]
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}{\ltiCombinedThreadedEnv{2}}
-      \\
-      \ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiEnv{}}{\ltiT{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{3}}
+    \infer [S-IFn]
+    { 
+      \overrightarrowcaption{
+        \exists j \in 1...m.\ 
+          \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                          {\ltiCombinedThreadedEnv{i-1}}
+                          {\ltiEnv{}}
+                          {\ltiS{j}}
+                          {\ltiT{i}}
+                          {\ltiCombinedThreadedEnv{i}}
+                          }^{1 \leq i \leq n}
     }
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiEnv{}}
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{0}}{\ltiEnv{}}
+                      {\ltiIFn{\ova{\ltiS{}}^m}}
+                      {\ltiIFn{\ova{\ltiT{}}^n}}
+                      {\ltiCombinedThreadedEnv{n}}
+                   }
+
+    \infer [S-Closure]
+    {
+    \overrightarrowcaption{
+    \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                    {\ltiCombinedThreadedEnv{i-1}}
+                    {\ltiEnv{}}
+                    {\ltiClosureWithStkID{\ltiEnvp{}}
+                                         {\ltiClosureID{}}
+                                         {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                    {\ltiContextualFn{\ltiEnvp{i}}{\ltiT{i}}{\ltiS{i}}}
+                    {\ltiCombinedThreadedEnv{i}}
+                    }^{1 \leq i \leq n}
+    }
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{0}}
+                  {\ltiEnv{}}
+                  {\ltiClosureWithStkID{\ltiEnvp{}}
+                                       {\ltiClosureID{}}
+                                       {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                  {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^n}}
+                  {\ltiCombinedThreadedEnv{n}}
+                  }
+
+    % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
+    \infer [SF-Fn]
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{1}}{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}{\ltiCombinedThreadedEnv{2}}
+      \\\\
+      \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{2}}{\ltiEnv{}}{\ltiT{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{3}}
+    }
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{1}}{\ltiEnv{}}
                   {\ltiFn{\ltiSp{}}{\ltiT{}}}
                   {\ltiFn{\ltiS{}}{\ltiTp{}}}
                   {\ltiCombinedThreadedEnv{3}}
        }
 
-    \infer [S-IFnL]
-    { \ltiCombinedThreadedEnvp{}
-    \in
-    \{ \ltiCombinedThreadedEnv{i} |
-    \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiEnv{}}
-                  {\ltiT{i}}
-                  {\ltiS{}}
-                  {\ltiCombinedThreadedEnv{i}}
-                  \}
-    }
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiEnv{}}
-                  {\ltiIFn{\ova{\ltiT{}}}}
-                  {\ltiS{}}
-                  {\ltiCombinedThreadedEnvp{}}
-    }
-
-    \infer [S-IFnR]
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}{\ltiEnv{}}
-                  {\ltiT{}}
-                  {\ltiS{i}}
-                  {\ltiCombinedThreadedEnv{i}}
-                                  }
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{0}}{\ltiEnv{}}
-                  {\ltiT{}}
-                  {\ltiIFn{\ova{\ltiS{}}^n}}
-                  {\ltiCombinedThreadedEnv{n}}
-                  }
-
-    \infer [S-Closure]
+    \infer [SF-Closure]
     {
     0 < \ltiFuel{}
-    \\\\
+    \\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
                       {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}{\hastype{\ltivar{}}{\ltiT{}}}}
@@ -2470,29 +2553,98 @@ $$
                       {\ltiCombinedThreadedEnv{}}
                       {\ltiEp{}}
                       \\\\
-    \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
+    \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
                 {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                             {\ltiClosureCachep{}}}
-                      \\\\
+                      \\
     \ltiupdateClosureCache{\ltiClosureCachep{}}{\ltiEnv{}}{\ltiClosureID{}}{\ltiT{}}{\ltiS{}}{\ltiEp{}}{\ltiClosureCachepp{}}
     }
-    { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
+    { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltimakeCombinedThreadedEnv{\ltiFuel{}}
                                               {\ltiClosureCache{}}}
                   {\ltiEnv{}}
                   {\ltiClosureWithStkID
                                        {\ltiEnvp{}}
                                        {\ltiClosureID{}}
                                        {\ltiufun{\ltivar{}}{\ltiE{}}}}
-                  {\ltiFn{\ltiT{}}{\ltiS{}}}
+                  {\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}
                   {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
                                               {\ltiClosureCachepp{}}}
                   }
 
+    \infer [SF-ContextBoth]
+    {
+     \ltiunifyContextsSC{\ltiCombinedThreadedEnv{1}}
+                        {\ltistackmapping{\ltiEnvpp{}}{\ltiS{}}}
+                        {\ltiEnvp{}}
+                        {\ltiSp{}}
+                        {\ltiCombinedThreadedEnv{2}}
+     \\\\
+     \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiCombinedThreadedEnv{2}}
+                     {\ltiEnvpp{}}
+                     {\ltiSp{}}
+                     {\ltiT{}}
+                     {\ltiCombinedThreadedEnv{3}}
+    }
+    {\ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiCombinedThreadedEnv{1}}
+                     {\ltiEnv{}}
+                     {(\ltistackmapping{\ltiEnvp{}}{\ltiS{}})}
+                     {(\ltistackmapping{\ltiEnvpp{}}{\ltiT{}})}
+                     {\ltiCombinedThreadedEnv{3}}
+    }
+    \ 
+%
+    \infer [SF-ContextL]
+    {
+    \ltiunifyContextsSC{\ltiCombinedThreadedEnv{1}}
+                       {\ltistackmapping{\ltiEnvp{}}{\ltiS{}}}
+                       {\ltiEnv{}}
+                       {\ltiSp{}}
+                       {\ltiCombinedThreadedEnv{2}}
+                       \\\\
+     \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiCombinedThreadedEnv{2}}
+                     {\ltiEnv{}}
+                     {\ltiSp{}}
+                     {\ltiT{}}
+                     {\ltiCombinedThreadedEnv{3}}
+    }
+    {\ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiCombinedThreadedEnv{1}}
+                     {\ltiEnv{}}
+                     {(\ltistackmapping{\ltiEnvp{}}{\ltiS{}})}
+                     {\ltiT{}}
+                     {\ltiCombinedThreadedEnv{3}}
+    }
+    \ 
+%
+    \infer [SF-ContextR]
+    {
+     \ltiunifyContextsSC{\ltiCombinedThreadedEnv{1}}
+                        {\ltistackmapping{\ltiEnvp{}}{\ltiT{}}}
+                        {\ltiEnv{}}
+                        {\ltiTp{}}
+                        {\ltiCombinedThreadedEnv{2}}
+     \\\\
+     \ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiCombinedThreadedEnv{2}}
+                     {\ltiEnv{}}
+                     {\ltiS{}}
+                     {\ltiTp{}}
+                     {\ltiCombinedThreadedEnv{3}}
+    }
+    {\ltiSsubtypeseen{\ltiSubtypeSeen{}}
+                     {\ltiCombinedThreadedEnv{1}}
+                     {\ltiEnv{}}
+                     {\ltiS{}}
+                     {(\ltistackmapping{\ltiEnvp{}}{\ltiT{}})}
+                     {\ltiCombinedThreadedEnv{3}}
+    }
+
   \end{mathpar}
 
-  \caption{Algorithmic Subtyping for Symbolic Closure Language:
-                 \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}{\ltiCombinedThreadedEnv{}}.
-  }
+  \caption{Symbolic Closure Language Subtyping}
   \label{symbolic:figure:SC-language-subtype}
 \end{figure}
 
