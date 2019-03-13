@@ -1202,15 +1202,21 @@ Record terms and types have unordered fields.
 
 \begin{figure}
   \begin{mathpar}
-    \infer [I-Var]
-    {}
+    \infer [I-Rec]
     {
-    \ltitjudgement
-                    {\ltiEnv{}}
-                    {\ltivar{}}
-                    {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                    {\ltivar{}}
-                 }
+    \overrightarrow{
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiT{}}
+                  {\ltiF{}}
+                  }
+    }
+    {
+    \ltitjudgement{\ltiEnv{}}
+                  {\ltiRec{\ova{\ltivar{} = \ltiE{}}}}
+                  {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
+                  {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+    }
 
     \boxed{
     \infer[]
@@ -1310,9 +1316,9 @@ Record terms and types have unordered fields.
                   {\ova{\ltiF{}}}
                   \\\\
           \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}}
-          \\\\
-          |\ova{\ltiF{}}| = n > 0
           \\
+          |\ova{\ltiF{}}| = n > 0
+          \\\\
           \ltimergeTaggedTermsLHS{\ltiE{}}{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{...}{\ltiF{n}}}}
           = \ltiEp{}
     }
@@ -1323,21 +1329,15 @@ Record terms and types have unordered fields.
                   {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
                  }
 
-    \infer [I-Rec]
+    \infer [I-Var]
+    {}
     {
-    \overrightarrow{
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiE{}}
-                  {\ltiT{}}
-                  {\ltiF{}}
-                  }
-    }
-    {
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiRec{\ova{\ltivar{} = \ltiE{}}}}
-                  {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
-                  {\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
-    }
+    \ltitjudgement
+                    {\ltiEnv{}}
+                    {\ltivar{}}
+                    {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
+                    {\ltivar{}}
+                 }
 
     \infer [I-Sel]
     {
@@ -1787,10 +1787,11 @@ $$
                     {\ltiS{}^a}
                     {\ltiEp{}}
                     \\\\
-          \ltiunfold{\ltiS{}^f}
+          \ltiisubtype{\ltiEnv{}}
+                    {\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
                              {\ltiIFn{\ltiContextualFn{\ltiEmptyEnv}{\ltiT{}}{\ltiS{}}}}}
-                  \\\\
+                  \\
                        |\ova{\ltitvar{}}|>0
                   \\\\
                   \forall \ltiRp{}.
@@ -1823,11 +1824,11 @@ $$
                   {\ova{\ltiSp{}}}
                   {\ova{\ltiF{}}}
                   \\\\
-          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}},
-          \\\\
-    |\ova{\ltiF{}}|=n>0
+          \ltiisubtype{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}{\ova{\ltiSp{}}}{\ova{\ltiS{}}}
+          \\
+    |\ova{\ltiF{}}|>0
     \\\\
-          \ltimergeTaggedTermsLHS{\ltiE{}}{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{...}{\ltiF{n}}}} = \ltiEp{}
+          \ltimergeTaggedTermsLHS{\ltiE{}}{\ltimergeTaggedTermsLHS{\ltiF{1}}{\ltimergeTaggedTermsLHS{...}{\ltiF{|\ova{\ltiF{}}|}}}} = \ltiEp{}
     }
     {
     \ltitjudgement{\ltiEnvp{}}
@@ -2034,12 +2035,40 @@ $$
                {\ltiPoly{\ova{\ltitvar{}}}
                         {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}}}}
                   \\\\
-                  \ltiSfindTA{\ltiCombinedThreadedEnv{3}}
-                             {\ltiEnv{}}
-                             {\ova{\ltitvar{}}}
-                             {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
-                             {\ova{\ltiR{}}}
-                             {\ltiCombinedThreadedEnvp{0}}
+    \ova{\ltiRp{}}_0 = \varnothing\\
+    \overrightarrowcaption{
+    (\ova{\ova{\ltiRp{}}}_i, \ltiCombinedThreadedEnv{i})
+    = \left\{
+                     \begin{array}{llll}
+                       (\ova{\ova{\ltiRp{}}}_{i-1} \ova{\ltiR{}}_i, &\ltiCombinedThreadedEnv{i})
+                       , & \text{ if }
+                        \ltiunifyContextsSC{\ltiCombinedThreadedEnv{i-1}}
+                                           {\ltistackmapping{\ltiEnv{i}}{\ova{\ltiRp{}}_i}}
+                                           {\ltiEnv{}}
+                                           {\ova{\ltiR{}}_i}
+                                           {\ltiCombinedThreadedEnv{i}}
+                                           \\
+                       (\ova{\ova{\ltiRp{}}}_{i-1}, &\ltiCombinedThreadedEnv{i-1})
+                       , & \text{ otherwise}
+                     \end{array}
+      \right.
+    }^{1 \leq i \leq n}
+    \\\\
+                  \ova{\ova{\ltiRp{}}}_n
+                  =
+                  (\ltiR{1}^1, ...,\ltiR{p}^1)
+                  ,...,
+                  (\ltiR{1}^m ,..., \ltiR{p}^m)
+                  \\ m > 0 
+                  \\ p = |\ova{\ltitvar{}}|
+                  \\
+                  \ova{\ltiRpp{}} = [\ltiMeetMany{\ltiR{k}^1, ..., \ltiR{k}^m} | k \in 1...p]
+                  %\ltiSfindTA{\ltiCombinedThreadedEnv{3}}
+                  %           {\ltiEnv{}}
+                  %           {\ova{\ltitvar{}}}
+                  %           {\ova{\ltistackmapping{\ltiEnvp{}}{\ova{\ltiRp{}}}}}
+                  %           {\ova{\ltiR{}}}
+                  %           {\ltiCombinedThreadedEnvp{0}}
     \\\\
     \ova{\ltiSp{}}_0 = \varnothing
     \\
@@ -2094,9 +2123,9 @@ $$
     \ltiunfold{\ltiTpp{}}{\ltiClosureWithStkID{\ltiEnvp{}}
                                               {\ltiClosureID{}}
                                               {\ltiufun{\ltivar{}}{\ltiEpp{}}}}
-                                              \\\\
+                                              \\
     0 < \ltiFuel{}
-    \\
+    \\\\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                   {\ltiClosureCache{}}}
                       {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}{\hastype{\ltivar{}}{\ltiTp{}}}}
@@ -2172,12 +2201,12 @@ $$
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiappinst{\ltiF{}}
-                                  {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
+                                  {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}}
                                   {\ltiE{}}}
                       {\ltiTpp{}}
                       {\ltiCombinedThreadedEnv{3}}
                       {\ltiappinst{\ltiFp{}}
-                                  {\ova{\ltistackmapping{\ltiEnv{j}}{\ova{\ltiR{}}_j}}}
+                                  {\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiR{}}}}}
                                   {\ltiEp{}}}
     }
 
