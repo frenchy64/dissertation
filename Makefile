@@ -8,7 +8,9 @@ all:
 fast:
 	pdflatex thesis.tex 
 
-fast2: fast fast
+fast2:
+	pdflatex thesis.tex 
+	pdflatex thesis.tex 
 
 sym:
 	pdflatex symb.tex 
