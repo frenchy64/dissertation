@@ -1133,7 +1133,7 @@ same piece of code at different types.
 $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& \ltivar{} \alt
-                         \ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}
+                         \ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiT{}}{\ltivar{}}{\ltiE{}}
                          \alt
                          \ltiappinst{\ltiF{}}{\ova{\ltistackmapping{\ltiEnv{}}{\ova{\ltiT{}}}}}{\ltiE{}} \alt
                          \ltisel{\ltiE{}}{\ltivar{}} \alt
@@ -1306,7 +1306,7 @@ Record terms and types have unordered fields.
     \infer [I-Abs]
     { 
     \ltiTp{} =
-      \ltiPoly{\ova{\ltitvar{}}}{\ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}}
+      \ltiIFn{\ltiContextualFn{\ova{\ltiEnv{}}}{\ova{\ltiT{}}}{\ova{\ltiS{}}}}
     \\\\
     \ltitjudgement{\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ova{\ltiEnv{}}}}
                                 {\ltiEnvConcat{\ova{\ltitvar{}}}
@@ -1324,9 +1324,9 @@ Record terms and types have unordered fields.
     }
     {
     \ltitjudgement{\ltiEnvp{}}
-                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
+                  {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
                   {\ltiTp{}}
-                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                  {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
                  }
 
     \infer [I-Var]
@@ -1671,11 +1671,11 @@ Record terms and types have unordered fields.
     }
 
   \begin{array}{llll}
-    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{1}}}
-                             {\ltifuninterface{\ltiT{}}
+    \ltimergeTaggedTermsalign{\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiT{}}{\ltivar{}}{\ltiE{1}}}
+                             {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiT{}}
                                               {\ltivar{}}
                                               {\ltiE{2}}}
-                             {\ltifuninterface{\ltiT{}}
+                             {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiT{}}
                                               {\ltivar{}}
                                               {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
                              \\
@@ -1848,7 +1848,7 @@ $$
     \ltitjudgement{\ltiEnvp{}}
                   {\ltiufun{\ltivar{}}{\ltiE{}}}
                   {\ltiTp{}}
-                  {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                  {\ltifuntparaminterface{}{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
                  }
 
 %    \infer [AppInst]
@@ -1953,11 +1953,11 @@ $$
     }
 
   \begin{array}{llll}
-    \ltimergeTaggedTermsalign{\ltifuninterface{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^n}}{\ltivar{}}{\ltiE{1}}}
-                             {\ltifuninterface{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
+    \ltimergeTaggedTermsalign{\ltifuntparaminterface{}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^n}}{\ltivar{}}{\ltiE{1}}}
+                             {\ltifuntparaminterface{}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{n+1...m}}}
                                               {\ltivar{}}
                                               {\ltiE{2}}}
-                             {\ltifuninterface{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{m}}}
+                             {\ltifuntparaminterface{}{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}^{m}}}
                                               {\ltivar{}}
                                               {\ltimergeTaggedTermsLHS{\ltiE{1}}{\ltiE{2}}}}
                              \\
@@ -2298,8 +2298,7 @@ $$
 
     \infer [Abs]
     {
-    \ltiTp{}= \ltiPoly{\ova{\ltitvar{}}}
-                                    {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^n}}
+    \ltiTp{}= \ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^n}
                      \\\\
     \overrightarrowcaption{
      \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
@@ -2328,9 +2327,9 @@ $$
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
                     {\ltiEnv{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
+                    {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiTp{}}{\ltivar{}}{\ltiE{}}}
                     {\ltiTp{}}
-                    {\ltifuninterface{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
+                    {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiTp{}}{\ltivar{}}{\ltiEp{}}}
                     {\ltiCombinedThreadedEnv{2n}}
                  }
 
@@ -2839,8 +2838,8 @@ $$
     \ltielimClosalign{\ltiClosureCache{}}{\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
                      {\ltiRec{\ova{\ltivar{} = \ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}}}
                      \\
-    \ltielimClosalign{\ltiClosureCache{}}{\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{}}}
-                     {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
+    \ltielimClosalign{\ltiClosureCache{}}{\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiT{}}{\ltivar{}}{\ltiE{}}}
+                     {\ltifuntparaminterface{\ova{\ltitvar{}}}{\ltiT{}}{\ltivar{}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
   \end{array}
   \]
 
@@ -2872,7 +2871,7 @@ $$
                   {\ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}^n}
                                {\ltivar{}}
                                {\ltiE{}}}
-                  {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEp{}}}
+                  {\ltifuntparaminterface{}{\ltiT{}}{\ltivar{}}{\ltiEp{}}}
                   }
   \end{mathpar}
 
@@ -3460,7 +3459,7 @@ $$
             \ltiSubst{\ltiC{}}{\ltiS{}}{\ltisubst{}}\\
             \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                           {\ltiClosureCache{1}}}
-                              {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}
+                              {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{}}}
                                             {\hastype{\ltivar{}}
                                                      {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}}}
                               {\ltiEpp{}}
@@ -3531,6 +3530,30 @@ $$
   \caption{Processing delayed constraints
   }
 \end{figure}
+
+%FIXME remove
+\newpage
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+type Option [a] = {match : $\ltiPoly{\text{r}}{\ltiFn{\text{(OptionVisitor a r)}}{\text{r}}}$}
+type OptionVisitor [a,r] =
+  {caseNone : $\ltiFn{}{\text{r}}$
+   caseSome : $\ltiFn{\text{a}}{\text{r}}$}
+
+None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
+         {match = $\ltiufun{\text{v}}{\text{v.caseNone()}}$}
+Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
+         {match = $\ltiufun{\text{v}}{\text{v.caseSome(y)}}$}
+
+map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
+        x.match({caseNone = $\ltiufun{}{\text{None()}}$,
+                 caseSome = $\ltiufun{\text{y}}{\text{Some(f(y))}}$})
+
+map($\ltiufun{y}{\text{1+y}}$, Some(42))
+\end{lstlisting}
+}
 
 %\input{colored}
 

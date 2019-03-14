@@ -34,13 +34,15 @@
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
 \newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
+% tvars T x
+\newcommand\ltifuntparaminterfaceLHS[3]{\ma{\l[#1]^{#2} (#3)}}
 % tvars T x e
-\newcommand\ltifuntparaminterface[4]{\ma{\l^{#2}_{#1} #3 . #4}}
+\newcommand\ltifuntparaminterface[4]{\ma{\ltifuntparaminterfaceLHS{#1}{#2}{#3} #4}}
 % EnclosingFnStack => T
 \newcommand\ltistackmappingsymbol{\ma{@}}
 \newcommand\ltistackmapping[2]{\ma{#1 \ltistackmappingsymbol #2}}
 \newcommand\ltifunmono[3]{\ma{\ltifuninterface{}{#2}{#3}}}
-\newcommand\ltiufun[2]{\ma{\uabs{#1}{#2}}}
+\newcommand\ltiufun[2]{\ma{\l (#1) #2}}
 % ID
 \newcommand\ltiufunelabentry[1]{\ma{#1}}
 %% Closure-Tagged Term
@@ -48,12 +50,13 @@
 \newcommand\ltiufunelab[3]{\ma{\l_{#1} #2 . #3}}
 % T ElabEntry x E
 \newcommand\ltifunelab[4]{\ma{\l^{#1}_{#2} #3 . #4}}
-%\newcommand\ltiappinst[3]{\ma{#1[#2](#3)}}
-\newcommand\ltiappinst[3]{\ma{\appexp{#1[#2]}{#3}}}
-\newcommand\ltiapp[2]{\ma{\appexp{#1}{#2}}}
+\newcommand\ltiappinfix[2]{\ma{#1(#2)}}
+\newcommand\ltiappinst[3]{\ma{\ltiappinfix{#1[#2]}{#3}}}
+\newcommand\ltiapp[2]{\ma{\ltiappinfix{#1}{#2}}}
 \newcommand\ltiann[2]{\ma{(\textsf{ann}\ #1\ #2)}}
 \newcommand\ltilet[3]{\ma{(\textsf{let}\ [#1\ #2]\ #3)}}
-\newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
+%\newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
+\newcommand\ltisel[2]{\ma{#1.#2}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
 \newcommand\ltimatchsuper[2]{\ma{#1 \nearrow #2}}
 \newcommand\ltimatchsub[2]{\ma{#1 \searrow #2}}
