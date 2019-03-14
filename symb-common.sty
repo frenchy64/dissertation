@@ -61,8 +61,12 @@
 \newmeta\ltitvar{\ltiALPHA}
 \newmeta\ltitvarp{\ltiALPHA'}
 \newmeta\ltitvarpp{\ltiALPHA''}
-\newmeta\ltiC{C}
-\newmeta\ltiCp{C'}
+\newcommand\ltiCletter{\ma{C}}
+%Constraints
+\newmeta\ltiC{\ma{\ltiCletter}}
+\newmeta\ltiCp{\ma{\ltiCletter'}}
+\newmeta\ltiCpp{\ma{\ltiCletter''}}
+% (unused constraint metavariable)
 \newmeta\ltiD{D}
 \newmeta\ltiT{\esoptau}
 \newmeta\ltiTp{\esoptau'}
@@ -318,8 +322,10 @@
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
 \newcommand\ltigendconstraint[6]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5, #6}}
-% CombinedEnv C => C ; CombinedEnv
-\newcommand\ltiprocessDelays[4]{\ma{\metafunctionfont{processDlys}(#1,#2) = #3;#4}}
+% CombinedEnv X DEntry C => C ; CombinedEnv
+\newcommand\ltiprocessDelay[6]{\ma{\metafunctionfont{processDly}(#1,#2,#3,#4) = #5;#6}}
+% CombinedEnv X C => C ; CombinedEnv
+\newcommand\ltiprocessDelays[5]{\ma{\metafunctionfont{processDlys}(#1,#2,#3) = #4;#5}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
 \newcommand\ltiCEmpty{\ma{\emptyset}}
 \newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}
@@ -328,7 +334,9 @@
 \newcommand\ltitv[1]{\ma{\text{tv}(#1)}}
 % TVar T
 \newcommand\ltivariance[2]{\ma{\metafunctionfont{variance}(#1,#2)}}
-\newcommand\ltiorderDelays[2]{\ma{\metafunctionfont{orderDelays}(#1) = #2}}
+% C -> DEntry*
+\newcommand\ltiorderDelaysLHS[1]{\ma{\metafunctionfont{orderDelays}(#1)}}
+\newcommand\ltiorderDelays[2]{\ma{\ltiorderDelaysLHS{#1} = #2}}
 \newcommand\ltivariancefont[1]{\ma{\texttt{#1}}}
 \newcommand\ltivcovariant{\ma{\ltivariancefont{covariant}}}
 \newcommand\ltivconstant{\ma{\ltivariancefont{constant}}}

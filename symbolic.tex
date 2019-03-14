@@ -3285,7 +3285,11 @@ completed in 45 seconds (with around 20,000 lines of principal types).
            \\
            \ltigenconstraint{\varnothing}{\ova{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiCp{}}
            \\
-           \ltiprocessDelays{\ltiCombinedThreadedEnv{3}}{\ltiCp{}}{\ltiC{}}{\ltiCombinedThreadedEnv{4}}
+           \ltiprocessDelays{\ltiCombinedThreadedEnv{3}}
+                            {\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}
+                            {\ltiCp{}}
+                            {\ltiC{}}
+                            {\ltiCombinedThreadedEnv{4}}
            \\
            \ltiSubst{\ltiC{}}{\ltiS{}}{\ltisubst{}}
     }
@@ -3427,13 +3431,11 @@ $$
       \forall i \in 1...n, j \in 1...m.
           \{\ltivariance{\ltitvar{j}}{\ltiS{i}}, \ltivariance{\ltitvar{j}}{\ltiT{i}}\} \subseteq \{\ltivconstant, \ltivcovariant\}
       \\
-      \forall i,j \in 1...n.
-         \text{ if } \ltitv{\ltiT{i}} \cap \ltitv{\ltiS{j}} \cap \ova{\ltitvarp{}} \not= \varnothing
-         \text{ then } depends(i,j) 
-      \\
-      \text{let \ova{k} be a permutation of 1...n such that }
+      \text{let \ova{k} be a permutation of 1...n st. }
         \forall i,j \in 1...n.
-        depends(k_i,k_j) \text{ implies }
+        \text{ if }
+        \ltitv{\ltiT{{k_i}}} \cap \ltitv{\ltiS{{k_j}}} \cap \ova{\ltitvarp{}} \not= \varnothing
+        \text{ then }
         % not \leq, eg. [a -> a] depends on itself
         i < j 
     }
@@ -3454,50 +3456,76 @@ $$
 
     \infer[]
     {
-      \ltiorderDelays{\ltiC{0}}
-                     {\ova
-                       {\ltiDEntryVX{\ltiV{}}
-                                    {\ova{\ltitvarp{}}}
-                                    {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                    {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}}^n
-                                    \\
-    \\\\
-      \overrightarrowcaption{
-      (\ltiC{i}, \ltimakeCombinedThreadedEnv{\ltiFuel{i}}{\ltiClosureCache{i}})
-      =
-      \left\{
-      \begin{array}{lll}
-      (\ltiC{i}, \ltimakeCombinedThreadedEnv{\ltiFuel{i}}{\ltiClosureCache{i}})
-        \text{ where }
-        \begin{array}{lll}
-            0 < \ltiFuel{i-1}\arcr
-            % TODO substitute/demote etc.
-            \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{i-1}-1}
-                                                          {\ltiClosureCache{i-1}}}
-                              {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}{\hastype{\ltivar{}}{\ltiTp{}}}}
+            0 < \ltiFuel{} \\
+            \ltiSubst{\ltiC{}}{\ltiS{}}{\ltisubst{}}\\
+            \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
+                                                          {\ltiClosureCache{1}}}
+                              {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnvp{}}{\ltiEnv{}}}
+                                            {\hastype{\ltivar{}}
+                                                     {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}}}
                               {\ltiEpp{}}
-                              {\ltiS{}}
-                              {\ltimakeCombinedThreadedEnv{\ltiFuel{i}}
-                                                          {\ltiClosureCachep{i}}}
+                              {\ltiTp{}}
+                              {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
+                                                          {\ltiClosureCache{2}}}
                               {\ltiFpp{}}
-                              \arcr
-          \ltiupdateClosureCache{\ltiClosureCachep{i}}
+                              \\
+          \ltiupdateClosureCache{\ltiClosureCache{2}}
                                 {\ltiEnv{}}
                                 {\ltiClosureID{}}
                                 {\ltiTp{}}
                                 {\ltiS{}}
                                 {\ltiFpp{}}
-                                {\ltiClosureCache{i}}
-        \end{array}
-      \end{array}
-      \right.
-      }^{1 \leq i \leq n}
+                                {\ltiClosureCache{3}}
+                                \\
+          \ltigenconstraint{\ltiV{}}
+                           {\ova{\ltitvar{}}}
+                           {\ltiTp{}}
+                           {\ltiT{}}
+                           {\ltiCpp{}}
+                           \\
+                           \ltiCpp{} \text{ does not contain delayed constraints}
+                           \\
+                           \ltiCp{} = \ltiCIntersect{\ltiC{}}{\ltiCpp{}}
     }
     {
-      \ltiprocessDelays{\ltimakeCombinedThreadedEnv{\ltiFuel{0}}{\ltiClosureCache{0}}}
+      \ltiprocessDelay{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{1}}}
+                      {\ltiEnvp{}}
+                      {\ltiDEntryVX{\ltiV{}}
+                                   {\ova{\ltitvarp{}}}
+                                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                                   {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}
+                      {\ltiC{}}
+                      {\ltiCp{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{3}}}
+    }
+
+    \infer[]
+    {
+      \ltiorderDelays{\ltiC{0}}
+                     {\ova
+                       {\ltiDEntryVX{\ltiV{}}
+                                    {\ova{\ltitvarp{}}}
+                                    {\ltiT{}}
+                                    {\ltiS{}}}^n}
+                                    \\
+      \overrightarrowcaption{
+      \ltiprocessDelay{\ltiCombinedThreadedEnv{i-1}}
+                      {\ltiEnvp{}}
+                      {\ltiDEntryVX{\ltiV{i}}
+                                   {\ova{\ltitvarp{}}_i}
+                                   {\ltiT{i}}
+                                   {\ltiS{i}}}
+                      {\ltiC{i-1}}
+                      {\ltiC{i}}
+                      {\ltiCombinedThreadedEnv{i}}
+                      }^{1 \leq i \leq n}
+    }
+    {
+      \ltiprocessDelays{\ltiCombinedThreadedEnv{0}}
+                       {\ltiEnvp{}}
                        {\ltiC{0}}
-                       {\ltiC{}}
-                       {\ltiCombinedThreadedEnvp{n}}
+                       {\ltiC{n}}
+                       {\ltiCombinedThreadedEnv{n}}
     }
   \end{mathpar}
   \caption{Processing delayed constraints
