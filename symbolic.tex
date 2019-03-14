@@ -1718,10 +1718,24 @@ $$
 \begin{array}{lrll}
   \ltiE{}, \ltiF{} &::=& ... \alt \ltiufun{\ltivar{}}{\ltiE{}}
                          \alt \ltiapp{\ltiF{}}{\ltiE{}}
-                      &\mbox{Terms} 
-      %\\
-%  \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
-%                      &\mbox{Term abbreviations} \\
+                      &\mbox{Terms} \\
+  \ltiIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}} &\Leftrightarrow& \ltiIFn{\ova{\ltiContextualFn{\ltiEmptyEnv}{\ltiT{}}{\ltiS{}}}}
+  \\
+  \ltiFn{\ova{\ltiT{}}^n}{\ltiS{}} &\Leftrightarrow&
+  \ltiFn{\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}{\ltiS{}}
+                      &\mbox{Type abbreviations} \\
+  \ltiufun{\ova{\ltivar{}}^n}{\ltiE{}} &\Leftrightarrow&
+  \ltiufun{\ltivarp{}}{\ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
+  \\
+  && \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
+  \\
+  \ltiapp{\ltiF{}}{\ova{\ltiE{}}^n} &\Leftrightarrow&
+  \ltiapp{\ltiF{}}{\ltiRec{\overrightarrowcaption{\texttt{arg}i = \ltiE{i}}^{1 \leq i \leq n}}}
+  \\
+  && \text{where } n \not= 1
+  \\
+  \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiapp{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiE{}}
+                      &\mbox{Term abbreviations}
 \end{array}
 $$
 \caption{External Language Syntax
@@ -1790,7 +1804,7 @@ $$
           \ltiisubtype{\ltiEnv{}}
                     {\ltiS{}^f}
                     {\ltiPoly{\ova{\ltitvar{}}}
-                             {\ltiIFn{\ltiContextualFn{\ltiEmptyEnv}{\ltiT{}}{\ltiS{}}}}}
+                             {\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
                   \\
                        |\ova{\ltitvar{}}|>0
                   \\\\
@@ -2507,13 +2521,16 @@ $$
                       {\ltiCombinedThreadedEnv{n}}
                    }
 
+    %TODO does this still work with contextual function types?
+    % what happens if a contextual function cannot be unified with
+    % the current scope? should it still be used to apply the closure?
     \infer [S-Closure]
     {
     \overrightarrowcaption{
     \ltiSsubtypeseen{\ltiSubtypeSeen{}}
                     {\ltiCombinedThreadedEnv{i-1}}
                     {\ltiEnv{}}
-                    {\ltiClosureWithStkID{\ltiEnvp{}}
+                    {\ltiClosureWithStkID{\ltiEnvpp{}}
                                          {\ltiClosureID{}}
                                          {\ltiufun{\ltivar{}}{\ltiE{}}}}
                     {\ltiContextualFn{\ltiEnvp{i}}{\ltiT{i}}{\ltiS{i}}}
@@ -2522,7 +2539,7 @@ $$
     }
     { \ltiSsubtypeseen{\ltiSubtypeSeen{}}{\ltiCombinedThreadedEnv{0}}
                   {\ltiEnv{}}
-                  {\ltiClosureWithStkID{\ltiEnvp{}}
+                  {\ltiClosureWithStkID{\ltiEnvpp{}}
                                        {\ltiClosureID{}}
                                        {\ltiufun{\ltivar{}}{\ltiE{}}}}
                   {\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiT{}}{\ltiS{}}}^n}}
@@ -2692,12 +2709,12 @@ $$
 
     \infer[]
     {
-    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = \ltiClosureCacheVal{\ltiSplitIFn{}{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
+    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = \ltiClosureCacheVal{\ltiIFn{\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
                                                                          {\ltiF{}}
     \\\\
     \ltiClosureCachep{} = \ltimapsto{\ltiClosureCache{}}
                                     {\ltiClosureID{}}
-                                    {\ltiClosureCacheVal{\ltiSplitIFn{}
+                                    {\ltiClosureCacheVal{\ltiIFn
                                                          {\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}\ 
                                                           \ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
                                                         {\ltimergeTaggedTermsLHS{\ltiE{}}{\ltiF{}}}}
@@ -2832,36 +2849,30 @@ $$
     {
     n>0
     \\
-    \\
     \overrightarrowcaption{
-    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{i}} = 
-      \ltiClosureCacheVal{\ltiSplitIFn{}
-                          {\ltiContextualFn{\ltiEnv{1}^i}{\ltiT{1}^i}{\ltiS{1}^i},...,
-                           \ltiContextualFn{\ltiEnv{m_i}^i}{\ltiT{m_i}^i}{\ltiS{m_i}^i}}
-                          }
-                         {\ltiF{i}}
-                         ,\ 
-    \ltimergeTaggedTerms{\ltiE{i-1}}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{i}}}{\ltiE{i}}
-    }^{1 \leq i \leq n}
+    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = 
+      \ltiClosureCacheVal{\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}}}
+                         {\ltiF{}}
+                         }
+                         \\
+    \ltimergeTaggedTerms{\ltiE{}}
+                           {\ltimergeTaggedTermsLHS{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{1}}}
+                                                   {\ltimergeTaggedTermsLHS{...}{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{n}}}}}
+                           {\ltiEp{}}
     \\\\
     % this unrolls recursive symbolic closure types once, at the benefit of not duplicating
     % the freshening conditions in elimClosT
-    \ltiT{} =  \ltiSplitIFn{}{\overrightarrowcaption
-                                {\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{1}^i}}
-                                                 {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{1}^i}}
-                                                 {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiS{1}^i}}
-                                                 ,...,
-                                \ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{m_i}^i}}
-                                                 {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{m_i}^i}}
-                                                 {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiS{m_i}^i}}
-                                                 }^{1 \leq i \leq n}
-                                                 }
+    \ltiT{} =  \ltiIFn{\ova{\ova
+                                {\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
+                                                 {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}
+                                                 {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiS{}}}
+                                                 }}}
     }
     { \ltielimClos{\ltiClosureCache{}}
                   {\ltiufunelab{\ova{\ltiufunelabentry{\ltiClosureID{}}}^n}
                                {\ltivar{}}
-                               {\ltiE{0}}}
-                  {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiE{n}}}
+                               {\ltiE{}}}
+                  {\ltifuninterface{\ltiT{}}{\ltivar{}}{\ltiEp{}}}
                   }
   \end{mathpar}
 
@@ -2901,13 +2912,10 @@ $$
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTop}{\ltiTop}\\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiBot}{\ltiBot}\\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
-                      {\ltiSplitIFn{\ova{\ltiFn{\ltiT{}}{\ltiS{}}}}
-                                   {\ova{\ltiContextualFn{\ltiEnvp{}}{\ltiTp{}}{\ltiSp{}}}}}
-                      {\ltiSplitIFn{\ova{\ltiFn{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
-                                               {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}}}
-                                   {\ova{\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnvp{}}}
-                                                         {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTp{}}}
-                                                         {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiSp{}}}}}}
+                      {\ltiIFn{\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiS{}}}}}
+                      {\ltiIFn{\ova{\ltiContextualFn{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
+                                                    {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}
+                                                    {\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiS{}}}}}}
                                           \\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}}
@@ -3315,8 +3323,8 @@ completed in 45 seconds (with around 20,000 lines of principal types).
 %     - CLTI's colors inspired their "boxy" types
 %       - they outline differences in related work
 
-\chapter{Custom Typing rules}
-\label{chapter:symbolic:custom-rules}
+%\chapter{Custom Typing rules}
+%\label{chapter:symbolic:custom-rules}
 
 % - Solution
 %   - allow users to provide custom typing rules
