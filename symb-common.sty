@@ -155,7 +155,12 @@
 \newcommand\ltiClosure[2]{\ma{#1 @ #2}}
 % Stack Env Id E
 \newcommand\ltiClosureWithStkID[3]{\ma{#1 @^{#2} #3}}
-\newcommand\ltiSubst[3]{\ma{\sigma_{{#1 , #2}}  #3}}
+% \sigma in Pierce & Turner
+\newmeta\ltisubst{\ma{S}}
+% Subst Type
+\newcommand\ltiApplySubst[2]{\ma{#1 #2}}
+% Constraint Result -> Subst
+\newcommand\ltiSubst[3]{\ma{\metafunctionfont{genSubst}(#1 , #2) = #3}}
 \newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
 \newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
 \newcommand\ltireplaceoverrightarrowcaption[4]{\ma{[\overrightarrowcaption{#1 / #2}^{#3}] #4}}
@@ -313,16 +318,26 @@
 \newcommand\lticoincideinherited[2]{\ma{#1 \sim #2}}
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
 \newcommand\ltigendconstraint[6]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5, #6}}
+% CombinedEnv C => C ; CombinedEnv
+\newcommand\ltiprocessDelays[4]{\ma{\metafunctionfont{processDlys}(#1,#2) = #3;#4}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
-\newcommand\ltiCEmpty[0]{\ma{\varnothing}}
+\newcommand\ltiCEmpty{\ma{\emptyset}}
 \newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}
 \newcommand\ltipromote[3]{\ma{#1 \Uparrow^{#2} #3}}
 \newcommand\ltidemote[3]{\ma{#1 \Downarrow^{#2} #3}}
 \newcommand\ltitv[1]{\ma{\text{tv}(#1)}}
+% TVar T
+\newcommand\ltivariance[2]{\ma{\metafunctionfont{variance}(#1,#2)}}
+\newcommand\ltiorderDelays[2]{\ma{\metafunctionfont{orderDelays}(#1) = #2}}
+\newcommand\ltivariancefont[1]{\ma{\texttt{#1}}}
+\newcommand\ltivcovariant{\ma{\ltivariancefont{covariant}}}
+\newcommand\ltivconstant{\ma{\ltivariancefont{constant}}}
 \newcommand\ltiCSet[1]{\ma{\{#1\}}}
 \newcommand\ltiCDep[3]{\ma{\metafunctionfont{dep}_{#1}^{#2}(#3)}}
 \newcommand\ltiCEntry[3]{\ma{#1 \mathbin{<:} #2 \mathbin{<:} #3}}
 \newcommand\ltiDEntry[2]{\ma{#1 \mathbin{<:}_d #2}}
+% V X Closure <: IFn
+\newcommand\ltiDEntryVX[4]{\ma{#3 \mathbin{<:}^{#1}_{#2} #4}}
 \newcommand\ltiCIntersect[2]{\ma{#1 \land #2}}
 \newcommand\ltiaccessibletv[2]{\ma{\metafunctionfont{accessibletv}_{#1}(#2)}}
 \newcommand\lticheckorder[6]{\ma{\metafunctionfont{checkorder}(#1, #2, #3, #4, #5, #6)}}

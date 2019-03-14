@@ -3053,9 +3053,6 @@ $$
                       {\ltiFp{}}.
 \end{lemma}
 
-\subsection{External Language with type-argument synthesis}
-
-
 \section{Comparison to Hindley-Milner type inference}
 
 % TODO let-polymorphism comparison
@@ -3257,8 +3254,214 @@ completed in 45 seconds (with around 20,000 lines of principal types).
 %     - how to handle, do we need backtracking?
 %     - do we need to recheck arguments? 
 
-\chapter{Type Argument Reconstruction with Delayed Function Checking}
+\chapter{Type Argument Synthesis with Symbolic Closures}
 \label{chapter:symbolic:directed-lti}
+
+\subsection{Type-argument synthesis for the Symbolic Closure Language}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer[AppInf]
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiT{}^f}
+                      {\ltiCombinedThreadedEnv{2}}
+                      {\ltiFp{}}
+                  \\
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiS{}^a}
+                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiEp{}}
+                  \\
+    \ltiunfold{\ltiT{}^f}
+              {\ltiPoly{\ova{\ltitvar{}}}
+                       {\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
+                  \\
+                       |\ova{\ltitvar{}}|>0
+           \\
+           \ltigenconstraint{\varnothing}{\ova{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiCp{}}
+           \\
+           \ltiprocessDelays{\ltiCombinedThreadedEnv{3}}{\ltiCp{}}{\ltiC{}}{\ltiCombinedThreadedEnv{4}}
+           \\
+           \ltiSubst{\ltiC{}}{\ltiS{}}{\ltisubst{}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnv{}}
+                      {\ltiapp{\ltiF{}}{\ltiE{}}}
+                      {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
+                      {\ltiCombinedThreadedEnv{4}}
+                      {\ltiappinst{\ltiFp{}}
+                                  {\ltistackmapping{\ltiEnv{}}
+                                                   {\ova{\ltiApplySubst{\ltisubst{}}
+                                                                       {\ltitvar{}}}}}
+                                  {\ltiEp{}}}
+    }
+  \end{mathpar}
+  \caption{Type argument synthesis for the Symbolic Closure Language}
+\end{figure}
+
+\begin{figure}
+$$
+\begin{array}{lrll}
+  \ltiC{} &::=& \ltiCSet{\ova{\ltiCEntry{\ltiT{}}{\ltitvar{}}{\ltiT{}}}\ 
+                         \ova{\ltiDEntryVX{\ltiV{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiT{}}}
+                          }
+                      &\mbox{Constraint sets}\\
+                      % TODO talk about X/V constraint sets
+   \ltiCEmpty &\Leftrightarrow& \ltiCSet{\ova{\ltiCEntry{\ltiBot}{\ltitvar{}}{\ltiTop}}}
+                      &\mbox{Constraint abbreviations}
+\end{array}
+$$
+  \caption{Syntax for Constraint generation}
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer [CG-Top]
+    {}
+    {
+    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiT{}}{\ltiTop}{\ltiCEmpty}
+    }
+
+    \infer [CG-Upper]
+    {
+    \ltitvar{1} \in \overline{\ltitvar{}}
+    \\
+    \ltidemote{\ltiS{}}{\ltiV{}}{\ltiT{}}
+    \\\\
+    \ltitv{\ltiS{}} \cap \overline{\ltitvar{}} = \varnothing
+    }
+    {
+    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltitvar{1}}{\ltiS{}}
+                     {\ltiCSet{\ltiCEntry{\ltiBot}{\ltitvar{1}}{\ltiT{}}}}
+    }
+
+    \infer [CG-Lower]
+    {
+    \ltitvar{1} \in \overline{\ltitvar{}}
+    \\
+    \ltipromote{\ltiS{}}{\ltiV{}}{\ltiT{}}
+    \\\\
+    \ltitv{\ltiS{}} \cap \overline{\ltitvar{}} = \varnothing
+    }
+    {
+    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiS{}}{\ltitvar{1}}
+                     {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiTop}}}
+    }
+
+    \infer [CG-Bot]
+    {}
+    {
+    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiBot}{\ltiT{}}{\ltiCEmpty}
+    }
+    \ \ \ 
+    %
+    \infer [CG-Refl]
+    {
+      \ltitvarp{}
+      \not\in
+      \overline{\ltitvar{}}
+    }
+    {
+    \ltigenconstraint{\ltiV{}}
+                     {\overline{\ltitvar{}}}
+                     {\ltitvarp{}}
+                     {\ltitvarp{}}
+                     {\ltiCEmpty}
+    }
+
+    \infer [CG-Fun]
+    {
+    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiT{1}}
+                     {\ltiTp{1}}
+                     {\ltiC{1}}
+    \\
+    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiT{2}}
+                     {\ltiTp{2}}
+                     {\ltiC{2}}
+    \\\\
+    \overline{\ltitvar{}} \cap (\ltiV{} \cup \overline{\ltitvarp{}}) = \varnothing
+    }
+    {
+    \ltigenconstraint{\ltiV{}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiPoly{\overline{\ltitvar{}}}{\ltiIFn{\ltiFn{\ltiTp{1}}{\ltiT{2}}}}}
+                     {\ltiPoly{\overline{\ltitvar{}}}{\ltiIFn{\ltiFn{\ltiT{1}}{\ltiTp{2}}}}}
+                     {\ltiCIntersect{\ltiC{1}}{\ltiC{2}}}
+    }
+
+    \infer [CG-Closure]
+    {}
+    {
+    \ltigenconstraint{\ltiV{}}
+                     {\overline{\ltitvarp{}}}
+                     {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                     {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}
+                     {\ltiCSet{\ltiDEntryVX{\ltiV{}}
+                                         {\overline{\ltitvarp{}}}
+                                         {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                                         {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}}
+    }
+  \end{mathpar}
+  \caption{Constraint generation system
+                 \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiC{}}
+                 where $\ltiV{} \cap {\overline{\ltitvar{}}} = \varnothing$.
+  }
+\end{figure}
+
+\begin{figure}
+  \begin{mathpar}
+    \infer[]
+    {
+      \ova{\ltitvar{}}^m = \ova{\ltitvarp{}}_1 = \ova{\ltitvarp{}}_2 = ... = \ova{\ltitvarp{}}_{i-1} = \ova{\ltitvarp{}}_i
+      \\
+      \forall i \in 1...n, j \in 1...m.
+          \{\ltivariance{\ltitvar{j}}{\ltiS{i}}, \ltivariance{\ltitvar{j}}{\ltiT{i}}\} \subseteq \{\ltivconstant, \ltivcovariant\}
+      \\
+      \forall i,j \in 1...n.
+         \text{ if } \ltitv{\ltiT{i}} \cap \ltitv{\ltiS{j}} \cap \ova{\ltitvarp{}} \not= \varnothing
+         \text{ then } depends(i,j) 
+      \\
+      \text{let \ova{k} be a permutation of 1...n such that }
+        \forall i,j \in 1...n.
+        depends(k_i,k_j) \text{ implies }
+        % not \leq, eg. [a -> a] depends on itself
+        i < j 
+    }
+    {
+      \ltiorderDelays{\ltiCSet{\ova{\ltiDEntryVX{\ltiV{}}
+                                             {\ova{\ltitvarp{}}^m}
+                                             {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                                             {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}^n}}
+                                             {
+      [\ltiDEntryVX{\ltiV{}}
+                   {\ova{\ltitvarp{}}}
+                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                   {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}_i
+                   |
+                   i \in \ova{k}]
+                   }
+    }
+
+    \infer[]
+    {
+    }
+    {
+      \ltiprocessDelays{\ltiCombinedThreadedEnv{}}{\ltiCp{}}{\ltiC{}}{\ltiCombinedThreadedEnvp{}}
+    }
+  \end{mathpar}
+  \caption{Processing delayed constraints
+  }
+\end{figure}
 
 %\input{colored}
 
