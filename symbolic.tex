@@ -1642,19 +1642,19 @@ Record terms and types have unordered fields.
                              {\ova{\ltiT{}}} \\
       \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
                              {\ltiEnvpp{}}
-                             {\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
-                             {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                             {\ltistackmapping{\ltiEnvConcatParen{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                             {\ltiEnvConcatParen{\ltitvar{}}{\ltiEnv{}}}
                              {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
-                                                   {\ltiEnvConcat{\ltiEnvpp{}}{\ltitvar{}}}
+                                                   {\ltiEnvConcatParen{\ltiEnvpp{}}{\ltitvar{}}}
                                                    {\ltireplace{\ltitvar{}}{\ltitvarp{}}
                                                                {(\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}})}}
                                                    {\ltiEnv{}}}\\
       \ltiunifyContextsHalign{\ltiInternalOrExternalLang{}}
                              {\ltiEnvpp{}}
-                             {\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
-                            {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
+                             {\ltistackmapping{\ltiEnvConcatParen{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                            {\ltiEnvConcatParen{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
                             {\ltiunifyContextsHLHS{\ltiInternalOrExternalLang{}}
-                                                  {\ltiEnvConcat{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
+                                                  {\ltiEnvConcatParen{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
                                                   {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
                                                   {\ltiEnv{}}},
                                                  &\text{ if } \ltiisubtypeseen{\varnothing}{\ltiEnvpp{}}{\ltiS{}}{\ltiSp{}}
@@ -2757,19 +2757,19 @@ $$
                                                      \\
       \ltiunifyContextsHSCalign{\ltiCombinedThreadedEnv{}}
                              {\ltiEnvpp{}}
-                             {\ltistackmapping{\ltiEnvConcat{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
-                             {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                             {\ltistackmapping{\ltiEnvConcatParen{\ltitvarp{}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                             {\ltiEnvConcatParen{\ltitvar{}}{\ltiEnv{}}}
                              {\ltiunifyContextsHSCLHS{\ltiCombinedThreadedEnv{}}
-                                                   {\ltiEnvConcat{\ltiEnvpp{}}{\ltitvar{}}}
+                                                   {\ltiEnvConcatParen{\ltiEnvpp{}}{\ltitvar{}}}
                                                    {\ltireplace{\ltitvar{}}{\ltitvarp{}}
                                                                {(\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}})}}
                                                    {\ltiEnv{}}}\\
       \ltiunifyContextsHSCalign{\ltiCombinedThreadedEnv{}}
                              {\ltiEnvpp{}}
-                             {\ltistackmapping{\ltiEnvConcat{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
-                            {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
+                             {\ltistackmapping{\ltiEnvConcatParen{\hastype{\ltivarp{}}{\ltiSp{}}}{\ltiEnvp{}}}{\ova{\ltiT{}}}}
+                            {\ltiEnvConcatParen{\hastype{\ltivar{}}{\ltiS{}}}{\ltiEnv{}}}
                             {\ltiunifyContextsHSCLHS{\ltiCombinedThreadedEnvp{}}
-                                                  {\ltiEnvConcat{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
+                                                  {\ltiEnvConcatParen{\ltiEnvpp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
                                                   {\ltistackmapping{\ltiEnvp{}}{\ova{\ltiT{}}}}
                                                   {\ltiEnv{}}},
                                                  \text{ if } \ltiSsubtype{\ltiCombinedThreadedEnv{}}
@@ -2888,12 +2888,12 @@ $$
     \ltielimClosEnvalign{\ltiClosureCache{}}{\ltiEmptyEnv}{\ltiEmptyEnv}
     \\
     \ltielimClosEnvalign{\ltiClosureCache{}}
-                        {\ltiEnvConcat{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
+                        {\ltiEnvConcatParen{\hastype{\ltivar{}}{\ltiT{}}}{\ltiEnv{}}}
                         {\ltiEnvConcat{\hastype{\ltivar{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}}
                                       {\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}}
     \\
     \ltielimClosEnvalign{\ltiClosureCache{}}
-                        {\ltiEnvConcat{\ltitvar{}}{\ltiEnv{}}}
+                        {\ltiEnvConcatParen{\ltitvar{}}{\ltiEnv{}}}
                         {\ltiEnvConcat{\ltitvar{}}
                                       {\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}}
   \end{array}
@@ -3285,7 +3285,7 @@ completed in 45 seconds (with around 20,000 lines of principal types).
            \ltigenconstraint{\varnothing}{\ova{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiCp{}}
            \\
            \ltiprocessDelays{\ltiCombinedThreadedEnv{3}}
-                            {\ltiEnvConcat{\ltiEnv{}}{\ova{\ltitvar{}}}}
+                            {\ltiEnvConcatParen{\ltiEnv{}}{\ova{\ltitvar{}}}}
                             {\ltiCp{}}
                             {\ltiC{}}
                             {\ltiCombinedThreadedEnv{4}}
@@ -3564,9 +3564,13 @@ None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
 \begin{lstlisting}[language=ml,mathescape=true]
 Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
          {match = $\ltiufun{\text{v}}{\text{v.caseSome(y)}}$}
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiPoly{\text{r}}{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\ltiufun{\text{v}}{\text{v.caseNone()}}}}}$ *)
+Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
+         {match = $\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\text{c1}}{\ltiufun{\text{v}}{\text{v.caseSome(f(y))}}}}}{\text{v}}{\text{v.caseSome(y)}}$}
 (* fully annotated *)
 Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
-         {match = $\ltifuntparaminterface{\text{r}}{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}{\text{v}}{\text{v.caseSome(y)}}$}
+         {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\text{v}}{\text{v.caseSome(y)}}$}
 \end{lstlisting}
 }
 
@@ -3576,12 +3580,30 @@ Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{
 map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
         x.match({caseNone = $\ltiufun{}{\text{None()}}$,
                  caseSome = $\ltiufun{\text{y}}{\text{Some(f(y))}}$})
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{}} =$
+     $\ltiInferred{\ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiFn{}{\ltilstOption{\ltiBot}}}{\ltiufun{}{\text{None()}}}}},$
+     $\ltiInferred{\ltiClosureCacheEntry{\text{c2}}{\ltiClosureCacheVal{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}{\ltiufun{\text{y}}{\text{Some[\ltiInferred{\text{d}}](f(y))}}}}}$
+*)
+map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
+        x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\text{c1}}{\ltiufun{}{\text{None()}}}}}{}{\text{None()}}$,
+                    caseSome = $\ltiufunelabinterface{\ltiInferred{\text{c2}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\text{c2}}{\ltiufun{y}{\text{Some(f(y))}}}}}{\text{y}}{\text{Some(f(y))}}$})
 (* fully annotated *)
 map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
-        x.match[d]({caseNone = $\ltifuninterface{\ltiFn{}{\ltilstOption{\ltiBot}}}{}{\text{None()}}$,
-                    caseSome = $\ltifuninterface{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}{\text{y}}{\text{Some(f(y))}}$})
+        x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltifuninterface{\ltiInferred{\ltiFn{}{\ltilstOption{\ltiBot}}}}{}{\text{None()}}$,
+                    caseSome = $\ltifuninterface{\ltiInferred{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}}{\text{y}}{\text{Some[\ltiInferred{\text{d}}](f(y))}}$})
+\end{lstlisting}
+}
 
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
 map($\ltiufun{\text{y}}{\text{1+y}}$, Some(42))
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiFn{\text{Int}}{\text{Int}}}{\ltiufun{\text{y}}{\text{1+y}}}}}$ *)
+map[$\ltiInferred{\text{Int, Int}}$]($\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEmptyEnv}{\text{c1}}{\ltiufun{\text{y}}{\text{1+y}}}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
+(* fully annotated *)
+map[$\ltiInferred{\text{Int, Int}}$]($\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
 \end{lstlisting}
 }
 

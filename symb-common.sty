@@ -142,7 +142,8 @@
 \newcommand\ltiMeetalign[3]{\ma{\ltiMeetLHS{#1}{&#2} &=& #3}}
 \newbfop\ltiSeqableOp{S}
 \newbfop\ltiInt{I}
-\newcommand\ltiEnvConcat[2]{\ma{#1 :: #2}}
+\newcommand\ltiEnvConcat[2]{\ma{#1 , #2}}
+\newcommand\ltiEnvConcatParen[2]{\ma{(\ltiEnvConcat{#1}{#2})}}
 \newcommand\ltiStackConcat[2]{\ma{#1 , #2}}
 % Stack T
 \newcommand\ltiStackEmpty{\ma{[]}}
