@@ -3660,7 +3660,7 @@ $\ltiappParens{\ltifuninterface{\ltiFn{\text{Int}}{\text{Int}}}{\text{x}}{\text{
 \singlespacing
 \begin{lstlisting}[language=ml,mathescape=true]
 let f = $\ltiufun{\text{x}}{\text{x}}$ in
-  {left $\ltiapp{\text{f}}{\text{1}}$, right $\ltiapp{\text{f}}{\text{"a"}}$}
+  {left = $\ltiapp{\text{f}}{\text{1}}$, right = $\ltiapp{\text{f}}{\text{"a"}}$}
 (* SC annotated *)
 (* $\ltiInferred{\ltiClosureCache{} =%
       \ltiClosureCacheEntry{\text{c1}}%
@@ -3670,10 +3670,10 @@ let f = $\ltiufun{\text{x}}{\text{x}}$ in
                                                          {\text{x}}%
                                                          {\text{x}}}}}}$ *)
 let f = $\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}$ in
-  {left $\ltiapp{\text{f}}{\text{1}}$, right $\ltiapp{\text{f}}{\text{"a"}}$}
+  {left = $\ltiapp{\text{f}}{\text{1}}$, right = $\ltiapp{\text{f}}{\text{"a"}}$}
 (* fully annotated *)
 let f = $\ltifuninterface{\ltiInferred{\ltiIFn{\ltiFn{\text{Int}}{\text{Int}} \ltiFn{\text{Str}}{\text{Str}}}}}{\text{x}}{\text{x}}$ in
-  {left $\ltiapp{\text{f}}{\text{1}}$, right $\ltiapp{\text{f}}{\text{"a"}}$}
+  {left = $\ltiapp{\text{f}}{\text{1}}$, right = $\ltiapp{\text{f}}{\text{"a"}}$}
 \end{lstlisting}
 }
 
@@ -3710,7 +3710,7 @@ let app = $\ltiufun{\text{f},\text{x}}{\ltiapp{\text{f}}{\text{x}}}$ in
 (* SC annotated *)
 (* $\ltiInferred{\ltiClosureCache{} =%
       \ltiClosureCacheEntry{\text{c1}}%
-                           {\ltiClosure{\ltiEmptyEnv{}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
                                        {\ltiNotInferred%
                                         {\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{a}}{\text{a}}},\text{Int}}%
                                                                              {\text{Int}}}}%
@@ -3726,6 +3726,95 @@ let app = $\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{
                            {\ltiappinst{\text{f}}{\ltiInferred{\text{Int}}}{\text{x}}}$ in
   $\ltiapp{\text{app}}%
           {\text{id}, \text{1}}$
+\end{lstlisting}
+}
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+let f = $\ltiufun{\text{x}}{\text{x}}$ in
+  {left  = $\ltiapp{\text{map}}{\text{f},\ltiapp{\text{Some}}{\text{1}}}$,
+   right = $\ltiapp{\text{map}}{\text{f},\ltiapp{\text{Some}}{\text{"a"}}}$}
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiIFn{\ltiFn{\text{Int}}{\text{Int}}%
+                                                                               \ltiFn{\text{Str}}{\text{Str}}}}}%
+                                                         {\text{f,x}}%
+                                                         {\ltiappinst{\text{f}}{\ltiInferred{\text{Int}}}{\text{x}}}}}}}$ *)
+let f = $\ltiufunelab{\text{c1}}{\text{x}}{\text{x}}$ in
+  {left  = $\ltiappinst{\text{map}}{\ltiInferred{\text{Int,Int}}}{\text{f},\ltiappinst{\text{Some}}{\ltiInferred{\text{Int}}}{\text{1}}}$,
+   right = $\ltiappinst{\text{map}}{\ltiInferred{\text{Str,Str}}}{\text{f},\ltiappinst{\text{Some}}{\ltiInferred{\text{Str}}}{\text{"a"}}}$}
+(* Fully annotated *)
+let f = $\ltifuninterface{\ltiInferred{\ltiIFn{\ltiFn{\text{Int}}{\text{Int}}%
+                                               \ltiFn{\text{Str}}{\text{Str}}}}}%
+                         {\text{x}}%
+                         {\text{x}}$ in
+  {left  = $\ltiappinst{\text{map}}{\ltiInferred{\text{Int,Int}}}{\text{f},\ltiappinst{\text{Some}}{\ltiInferred{\text{Int}}}{\text{1}}}$,
+   right = $\ltiappinst{\text{map}}{\ltiInferred{\text{Str,Str}}}{\text{f},\ltiappinst{\text{Some}}{\ltiInferred{\text{Str}}}{\text{"a"}}}$}
+\end{lstlisting}
+}
+
+%FIXME remove
+\newpage
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+let f = $\ltiufun{\text{x}}{\ltiapp{\text{map}}{\ltiufun{\text{y}}{\text{y}},\text{x}}}$ in
+  {left  = $\ltiapp{\text{f}}{\ltiapp{\text{Some}}{\text{1}}}$,
+   right = $\ltiapp{\text{f}}{\ltiapp{\text{Some}}{\text{"a"}}}$}
+(* SC annotated *)
+(* $\ltiInferred{\ltiEnv{1} = {\hastype{\text{x}}{\text{Option[Int]}}}}$ *)
+(* $\ltiInferred{\ltiEnv{2} = {\hastype{\text{x}}{\text{Option[Str]}}}}$ *)
+(* $\ltiInferred{\ltiClosureCache{}} =$
+     $\ltiInferred{%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterfaceLHS{\ltiInferred{\ltiIFn{\ltiFn{\text{Option[Int]}}{\text{Option[Int]}}%
+                                                                                  \ltiFn{\text{Option[Str]}}{\text{Option[Str]}}}}}%
+                                                         {\text{x}}}}}}$
+              $\ltiappinst{\text{map}}% <- do not change indentation!
+                           {\ltiInferred%
+                            {\ltistackmapping{\ltiEnv{1}}{\text{[Int,Int]}},%
+                             \ltistackmapping{\ltiEnv{2}}{\text{[Str,Str]}}}}%
+                           {\ltiufunelab{\text{c1-1,c1-2}}{\text{y}}{\text{y}},\text{x}}$
+     $\ltiInferred{%
+      \ltiClosureCacheEntry{\text{c1-1}}%
+                           {\ltiClosure{\ltiEnv{1}}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}%
+                                                         {\text{y}}%
+                                                         {\text{y}}}}}}$
+     $\ltiInferred{%
+      \ltiClosureCacheEntry{\text{c1-2}}%
+                           {\ltiClosure{\ltiEnv{2}}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiFn{\text{Str}}{\text{Str}}}}%
+                                                         {\text{y}}%
+                                                         {\text{y}}}}}}$ *)
+let f = $\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\ltiapp{\text{map}}{\ltiufunelab{\ltiInferred{\text{c1-1,c1-2}}}{\text{y}}{\text{y}},\text{x}}}$ in
+  {left  = $\ltiapp{\text{f}}{\ltiappinst{\text{Some}}{\ltiInferred{\text{Int}}}{\text{1}}}$,
+   right = $\ltiapp{\text{f}}{\ltiappinst{\text{Some}}{\ltiInferred{\text{Str}}}{\text{"a"}}}$}
+(* Fully elaborated *)
+let f = $\ltifuninterfaceLHS{\ltiInferred{\ltiIFn{\ltiFn{\text{Option[Int]}}{\text{Option[Int]}}%
+                                               \ltiFn{\text{Option[Str]}}{\text{Option[Str]}}}}}%
+                         {\text{x}}$
+          ${\ltiappinst{\text{map}}%<- do not change indentation!
+                       {\ltiInferred%
+                        {\ltistackmapping{\ltiEnv{1}}{\text{[Int,Int]}},%
+                         \ltistackmapping{\ltiEnv{2}}{\text{[Str,Str]}}}}%
+                       {\ltifuninterface{\ltiInferred%
+                                         {\ltistackmapping{\ltiEnv{1}}{\ltiFn{\text{Int}}{\text{Int}}},%
+                                          \ltistackmapping{\ltiEnv{2}}{\ltiFn{\text{Str}}{\text{Str}}}}}%
+                                        {\text{y}}%
+                                        {\text{y}},%
+                        \text{x}}}$ in
+  {left  = $\ltiapp{\text{f}}{\ltiappinst{\text{Some}}{\ltiInferred{\text{Int}}}{\text{1}}}$,
+   right = $\ltiapp{\text{f}}{\ltiappinst{\text{Some}}{\ltiInferred{\text{Str}}}{\text{"a"}}}$}
 \end{lstlisting}
 }
 
