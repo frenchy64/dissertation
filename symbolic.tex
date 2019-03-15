@@ -1990,7 +1990,7 @@ $$
                       &\mbox{Closure Identifiers} \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Closure Fuel} \\
-  \ltiClosureCache{} &::=& \ova{\ltiClosureID{} \Rightarrow {\ltiClosureCacheVal{\ltiIFn
+  \ltiClosureCache{} &::=& \ova{\ltiClosureCacheEntry{\ltiClosureID{}}{\ltiClosureCacheVal{\ltiIFn
                                                                                  {\ova{\ltiContextualFn{\ltiEnv{}}{\ltiT{}}{\ltiT{}}}}}
                                                                                 {\ltiE{}}}}
                       &\mbox{Closure Cache} \\
@@ -3537,21 +3537,51 @@ $$
 {
 \singlespacing
 \begin{lstlisting}[language=ml,mathescape=true]
-type Option [a] = {match : $\ltiPoly{\text{r}}{\ltiFn{\text{(OptionVisitor a r)}}{\text{r}}}$}
-type OptionVisitor [a,r] =
-  {caseNone : $\ltiFn{}{\text{r}}$
+type Option[a] = {match : $\ltiPoly{\text{r}}{\ltiFn{\text{OptionVisitor[a,r]}}{\text{r}}}$}
+type OptionVisitor[a,r] =
+  {caseNone : $\ltiFn{}{\text{r}}$,
    caseSome : $\ltiFn{\text{a}}{\text{r}}$}
+\end{lstlisting}
+}
 
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
 None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
          {match = $\ltiufun{\text{v}}{\text{v.caseNone()}}$}
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiPoly{\text{r}}{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}{\ltiufun{\text{v}}{\text{v.caseNone()}}}}}$ *)
+None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
+         {match = $\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\text{s}}{\text{c1}}{\ltiufun{\text{v}}{\text{v.caseNone()}}}}}{\text{v}}{\text{v.caseNone()}}$}
+(* fully annotated *)
+None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
+         {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}{\text{v}}{\text{v.caseNone()}}$}
+\end{lstlisting}
+}
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
 Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
          {match = $\ltiufun{\text{v}}{\text{v.caseSome(y)}}$}
+(* fully annotated *)
+Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
+         {match = $\ltifuntparaminterface{\text{r}}{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}{\text{v}}{\text{v.caseSome(y)}}$}
+\end{lstlisting}
+}
 
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
 map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
         x.match({caseNone = $\ltiufun{}{\text{None()}}$,
                  caseSome = $\ltiufun{\text{y}}{\text{Some(f(y))}}$})
+(* fully annotated *)
+map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
+        x.match[d]({caseNone = $\ltifuninterface{\ltiFn{}{\ltilstOption{\ltiBot}}}{}{\text{None()}}$,
+                    caseSome = $\ltifuninterface{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}{\text{y}}{\text{Some(f(y))}}$})
 
-map($\ltiufun{y}{\text{1+y}}$, Some(42))
+map($\ltiufun{\text{y}}{\text{1+y}}$, Some(42))
 \end{lstlisting}
 }
 

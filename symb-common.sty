@@ -33,7 +33,7 @@
 \newmeta\ltiClosureIDp{\ma{\ltiClosureIDsymbol'}}
 %\newcommand\ltifun[4]{\ma{\textbf{fun}[#1](\hastype{#2}{#3})#4}}
 \newcommand\ltifun[4]{\ma{\abs{[#1]#2}{#3}{#4}}}
-\newcommand\ltifuninterface[3]{\ma{\l^{#1} #2 . #3}}
+\newcommand\ltifuninterface[3]{\ma{\l^{#1}(#2) #3}}
 % tvars T x
 \newcommand\ltifuntparaminterfaceLHS[3]{\ma{\l[#1]^{#2} (#3)}}
 % tvars T x e
@@ -47,7 +47,9 @@
 \newcommand\ltiufunelabentry[1]{\ma{#1}}
 %% Closure-Tagged Term
 % ElabEntry x E
-\newcommand\ltiufunelab[3]{\ma{\l_{#1} #2 . #3}}
+\newcommand\ltiufunelab[3]{\ma{\l_{#1} (#2) #3}}
+% ElabEntry T x E
+\newcommand\ltiufunelabinterface[4]{\ma{\l^{#2}_{#1} (#3) #4}}
 % T ElabEntry x E
 \newcommand\ltifunelab[4]{\ma{\l^{#1}_{#2} #3 . #4}}
 \newcommand\ltiappinfix[2]{\ma{#1(#2)}}
@@ -95,6 +97,8 @@
 \newmeta\ltiClosureCache{\ltiClosureCachesymbol}
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
 \newmeta\ltiClosureCachepp{\ltiClosureCachesymbol''}
+% I -> ClosureCacheVal
+\newcommand\ltiClosureCacheEntry[2]{\ma{#1 \Rightarrow #2}}
 \newcommand\ltiClosureCacheVal[2]{\ma{\langle #1, #2 \rangle}}
 \newcommand\ltiCombinedThreadedEnvsymbol{\ma{\Delta}}
 \newmeta\ltiCombinedThreadedEnv{\ltiCombinedThreadedEnvsymbol}
@@ -359,3 +363,7 @@
 \newcommand\ltiSynChk[1]{\ma{{\color{black} \ltiSynChksymbol #1}}}
 
 \newcommand\ltiFsub{\ma{F_{<:}}}
+
+% SML listings
+\newcommand\ltilstOption[1]{\ma{\text{Option[}#1{\text{]}}}}
+\newcommand\ltiInferred[1]{{\color{blue} #1}}
