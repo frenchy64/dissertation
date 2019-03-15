@@ -3537,7 +3537,9 @@ $$
 {
 \singlespacing
 \begin{lstlisting}[language=ml,mathescape=true]
-type Option[a] = {match : $\ltiPoly{\text{r}}{\ltiFn{\text{OptionVisitor[a,r]}}{\text{r}}}$}
+type Option[a] = {match : $\ltiPoly{\text{r}}%
+                                   {\ltiFn{\text{OptionVisitor[a,r]}}%
+                                          {\text{r}}}$}
 type OptionVisitor[a,r] =
   {caseNone : $\ltiFn{}{\text{r}}$,
    caseSome : $\ltiFn{\text{a}}{\text{r}}$}
@@ -3547,15 +3549,35 @@ type OptionVisitor[a,r] =
 {
 \singlespacing
 \begin{lstlisting}[language=ml,mathescape=true]
-None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
-         {match = $\ltiufun{\text{v}}{\text{v.caseNone()}}$}
+None = $\ltifuntparaminterfaceLHS{\text{s}}%
+                                 {\ltiFn{}%
+                                        {\text{Option[s]}}}%
+                                 {}$
+         {match = $\ltiufun{\text{v}}%
+                           {\text{v.caseNone()}}$}
 (* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiPoly{\text{r}}{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}{\ltiufun{\text{v}}{\text{v.caseNone()}}}}}$ *)
-None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
-         {match = $\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\text{s}}{\text{c1}}{\ltiufun{\text{v}}{\text{v.caseNone()}}}}}{\text{v}}{\text{v.caseNone()}}$}
+(* $\ltiInferred{\ltiClosureCache{} =%
+     \ltiClosureCacheEntry{\text{c1}}%
+                          {\ltiClosure{\text{s}}%
+                                      {\ltiNotInferred{\ltifuntparaminterface{\ltiInferred{\text{r}}}%
+                                                                             {\ltiInferred{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}%
+                                                                             {\text{v}}%
+                                                                             {\text{v.caseNone()}}}}}}$ *)
+None = $\ltifuntparaminterfaceLHS{\text{s}}%
+                                 {\ltiFn{}{\text{Option[s]}}}%
+                                 {}$
+         {match = $\ltiufunelab{\ltiInferred{\text{c1}}}%
+                               {\text{v}}%
+                               {\text{v.caseNone()}}$}
 (* fully annotated *)
-None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
-         {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}{\text{v}}{\text{v.caseNone()}}$}
+None = $\ltifuntparaminterfaceLHS{\text{s}}%
+                                 {\ltiFn{}%
+                                        {\text{Option[s]}}}%
+                                 {}$
+         {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}%
+                                         {\ltiInferred{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}%
+                                         {\text{v}}%
+                                         {\text{v.caseNone()}}$}
 \end{lstlisting}
 }
 
@@ -3565,9 +3587,9 @@ None = $\ltifuntparaminterfaceLHS{\text{s}}{\ltiFn{}{\text{Option[s]}}}{}$
 Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
          {match = $\ltiufun{\text{v}}{\text{v.caseSome(y)}}$}
 (* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiPoly{\text{r}}{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\ltiufun{\text{v}}{\text{v.caseNone()}}}}}$ *)
+(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosure{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\ltiNotInferred{\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\text{v}}{\text{v.caseSome(y)}}}}}}$ *)
 Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
-         {match = $\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\text{c1}}{\ltiufun{\text{v}}{\text{v.caseSome(f(y))}}}}}{\text{v}}{\text{v.caseSome(y)}}$}
+         {match = $\ltiufunelab{\ltiInferred{\text{c1}}}{\text{v}}{\text{v.caseSome(y)}}$}
 (* fully annotated *)
 Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
          {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\text{v}}{\text{v.caseSome(y)}}$}
@@ -3581,13 +3603,14 @@ map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\
         x.match({caseNone = $\ltiufun{}{\text{None()}}$,
                  caseSome = $\ltiufun{\text{y}}{\text{Some(f(y))}}$})
 (* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{}} =$
-     $\ltiInferred{\ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiFn{}{\ltilstOption{\ltiBot}}}{\ltiufun{}{\text{None()}}}}},$
-     $\ltiInferred{\ltiClosureCacheEntry{\text{c2}}{\ltiClosureCacheVal{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}{\ltiufun{\text{y}}{\text{Some[\ltiInferred{\text{d}}](f(y))}}}}}$
+(* $\ltiInferred{\ltiEnv{} = {\ltiEnvConcat{\text{c}}{\ltiEnvConcat{\text{d}}{\ltiEnvConcat{\hastype{\text{f}}{\ltiFn{\text{c}}{\text{d}}}}{\hastype{\text{x}}{\text{Option[c]}}}}}}}$ *)
+(* $\ltiInferred{\ltiClosureCache{} =}$
+     $\ltiInferred{\ltiClosureCacheEntry{\text{c1}}{\ltiClosure{\ltiEnv{}}{\ltiNotInferred{\ltifuninterface{\ltiInferred{\ltiFn{}{\ltilstOption{\ltiBot}}}}{}{\text{None()}}}}}}$,
+     $\ltiInferred{\ltiClosureCacheEntry{\text{c2}}{\ltiClosure{\ltiEnv{}}{\ltiNotInferred{\ltifuninterface{\ltiInferred{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}}{\text{y}}{\text{Some[\ltiInferred{\text{d}}](f(y))}}}}}}$
 *)
 map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
-        x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\text{c1}}{\ltiufun{}{\text{None()}}}}}{}{\text{None()}}$,
-                    caseSome = $\ltiufunelabinterface{\ltiInferred{\text{c2}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\text{c2}}{\ltiufun{y}{\text{Some(f(y))}}}}}{\text{y}}{\text{Some(f(y))}}$})
+        x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltiufunelab{\ltiInferred{\text{c1}}}{}{\text{None()}}$,
+                    caseSome = $\ltiufunelab{\ltiInferred{\text{c2}}}{\text{y}}{\text{Some(f(y))}}$})
 (* fully annotated *)
 map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
         x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltifuninterface{\ltiInferred{\ltiFn{}{\ltilstOption{\ltiBot}}}}{}{\text{None()}}$,
@@ -3600,8 +3623,14 @@ map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\
 \begin{lstlisting}[language=ml,mathescape=true]
 map($\ltiufun{\text{y}}{\text{1+y}}$, Some(42))
 (* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosureCacheVal{\ltiFn{\text{Int}}{\text{Int}}}{\ltiufun{\text{y}}{\text{1+y}}}}}$ *)
-map[$\ltiInferred{\text{Int, Int}}$]($\ltiufunelabinterface{\ltiInferred{\text{c1}}}{\ltiInferred{\ltiClosureWithStkID{\ltiEmptyEnv}{\text{c1}}{\ltiufun{\text{y}}{\text{1+y}}}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}%
+                                                         {\text{y}}%
+                                                         {\text{1+y}}}}}}$ *)
+map[$\ltiInferred{\text{Int, Int}}$]($\ltiufunelab{\ltiInferred{\text{c1}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
 (* fully annotated *)
 map[$\ltiInferred{\text{Int, Int}}$]($\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
 \end{lstlisting}
