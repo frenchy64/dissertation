@@ -3636,6 +3636,99 @@ map[$\ltiInferred{\text{Int, Int}}$]($\ltifuninterface{\ltiInferred{\ltiFn{\text
 \end{lstlisting}
 }
 
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+let x = 1 in x+1
+(* Desugared *)
+$\ltiapp{(\ltiufun{\text{x}}{\text{x+1}})}{\text{1}}$
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}%
+                                                         {\text{x}}%
+                                                         {\text{x+1}}}}}}$ *)
+$\ltiappParens{\ltiufunelab{\text{c1}}{\text{x}}{\text{x+1}}}{\text{1}}$
+(* fully annotated *)
+$\ltiappParens{\ltifuninterface{\ltiFn{\text{Int}}{\text{Int}}}{\text{x}}{\text{x+1}}}{\text{1}}$
+\end{lstlisting}
+}
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+let f = $\ltiufun{\text{x}}{\text{x}}$ in
+  {left $\ltiapp{\text{f}}{\text{1}}$, right $\ltiapp{\text{f}}{\text{"a"}}$}
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiIFn{\ltiFn{\text{Int}}{\text{Int}} \ltiFn{\text{Str}}{\text{Str}}}}}%
+                                                         {\text{x}}%
+                                                         {\text{x}}}}}}$ *)
+let f = $\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}$ in
+  {left $\ltiapp{\text{f}}{\text{1}}$, right $\ltiapp{\text{f}}{\text{"a"}}$}
+(* fully annotated *)
+let f = $\ltifuninterface{\ltiInferred{\ltiIFn{\ltiFn{\text{Int}}{\text{Int}} \ltiFn{\text{Str}}{\text{Str}}}}}{\text{x}}{\text{x}}$ in
+  {left $\ltiapp{\text{f}}{\text{1}}$, right $\ltiapp{\text{f}}{\text{"a"}}$}
+\end{lstlisting}
+}
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+let f = ${\ltiufun{\text{x}}{\text{x}}}$ in
+  $\ltiapp{\text{f}}{\text{f}}$
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiFn{\ltiClosureWithStkIDParens{\ltiEmptyEnv}{\text{c1}}{\ltiufun{\text{x}}{\text{x}}}}%
+                                                                             {\ltiClosureWithStkIDParens{\ltiEmptyEnv}{\text{c1}}{\ltiufun{\text{x}}{\text{x}}}}}}%
+                                                         {\text{x}}%
+                                                         {\text{x}}}}}}$ *)
+let f = $\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}$ in
+  $\ltiapp{\text{f}}{\text{f}}$
+(* Fully annotated *)
+let f = $\ltifuninterface{\ltiInferred{\ltiFn{\ltiMu{\text{a}}{\ltiFn{\text{a}}{\text{a}}}}{\ltiMu{\text{a}}{\ltiFn{\text{a}}{\text{a}}}}}}{\text{x}}{\text{x}}$ in
+  $\ltiapp{\text{f}}{\text{f}}$
+\end{lstlisting}
+}
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+id = $\ltifuntparaminterface{\text{a}}{\ltiFn{\text{a}}{\text{a}}}{\text{x}}{\text{x}}$
+
+let app = $\ltiufun{\text{f},\text{x}}{\ltiapp{\text{f}}{\text{x}}}$ in
+  $\ltiapp{\text{app}}%
+          {\text{id}, \text{1}}$
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv{}}%
+                                       {\ltiNotInferred%
+                                        {\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{a}}{\text{a}}},\text{Int}}%
+                                                                             {\text{Int}}}}%
+                                                         {\text{f,x}}%
+                                                         {\ltiappinst{\text{f}}{\ltiInferred{\text{Int}}}{\text{x}}}}}}}$ *)
+let app = $\ltiufunelab{\text{c1}}{\text{f},\text{x}}{\ltiapp{\text{f}}{\text{x}}}$ in
+  $\ltiapp{\text{app}}%
+          {\text{id}, \text{1}}$
+(* Fully annotated *)
+let app = $\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{a}}{\text{a}}},\text{Int}}%
+                                               {\text{Int}}}}%
+                           {\text{f},\text{x}}%
+                           {\ltiappinst{\text{f}}{\ltiInferred{\text{Int}}}{\text{x}}}$ in
+  $\ltiapp{\text{app}}%
+          {\text{id}, \text{1}}$
+\end{lstlisting}
+}
+
 %\input{colored}
 
 % - Solution
