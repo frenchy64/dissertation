@@ -95,6 +95,8 @@
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
 \newcommand\ltiClosureCachesymbol{\mathbb{C}}
+\newcommand\ltiClosureElabsymbol{\mathbb{E}}
+\newmeta\ltiClosureElab{\ma{\ltiClosureElabsymbol}}
 \newcommand\ltiEmptyClosureCache{\varnothing}
 \newmeta\ltiClosureCache{\ltiClosureCachesymbol}
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
@@ -217,8 +219,10 @@
 \newcommand\ltiinternalvdash{\ma{\vdash}}
 \newcommand\ltiinternalalgvdash{\ma{\vdash}}
 % internal type system
+% Env E : T
+\newcommand\ltitjudgementNoElab[3]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}}}}
 % Env E : T => E'
-\newcommand\ltitjudgement[4]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}} \Rightarrow #4}}
+\newcommand\ltitjudgement[4]{\ma{\ltitjudgementNoElab{#1}{#2}{#3} \Rightarrow #4}}
 % subtype for internal types with `seen` set
 % Seen Env T <: T
 \newcommand\ltiisubtypeseenSingleEnv[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
@@ -239,8 +243,8 @@
 \newcommand\ltisclangalgvdash{\ma{\vdash}}
 \newcommand\ltisclangdeclvdash{\ma{\vdash_{\ltiexternallanglabel}}}
 \newcommand\ltisclangvdash{\ma{\vdash}}
-% symbolic closure type system, with enclosed fn stack
-% CombinedThreadedEnv Env |- E : T ; CombinedThreadedEnv ; E*
+% symbolic closure type system
+% ClosureCache Env |- E : T ; CombinedThreadedEnv ; E*
 \newcommand\ltitSstkjudgement[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5 ; #6}}
 % declarative symbolic closure type system
 % Env E T => T ; E
