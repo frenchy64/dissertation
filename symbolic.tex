@@ -1533,7 +1533,7 @@ $$
                       &\mbox{Symbolic Closure Fuel} \\
   \ltiClosureCache{} &::=& \ova{\ltiClosureCacheEntry
                                 {\ltiClosureID{}}
-                                {\ltiClosureCacheVal{\ltiFuel{}}{\ltiClosureElab{}}}}
+                                {\ltiClosureElab{}}}
                       &\mbox{Symbolic Closure Cache}
 \end{array}
 $$
@@ -1549,20 +1549,22 @@ $$
     \infer[]
     {}
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiT{}}
-                      {\ltiClosureCachep{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
                       {\ltiEp{}}
                      \\\\
-                     \text{Given symbolic closure cache \ltiClosureCache{}
-                     and context \ltiEnv{}, external term \ltiE{} 
+                     \text{Given fuel \ltiFuel{}, symbolic closure cache \ltiClosureCache{}
+                     and context \ltiEnv{}, external term \ltiE{} }
+                     \\\\
+                     \text{
                      is of symbolic-closure-language type \ltiT{}
                      }
                      \\\\
                      \text{
-                     with updated symbolic closure cache \ltiClosureCachep{},
+                     with updated fuel \ltiFuel{}, symbolic closure cache \ltiClosureCachep{},
                      and elaborated symbolic-closure-language term \ltiEp{}.
                      }
                      }
@@ -1570,35 +1572,35 @@ $$
 
     \infer [AppInst]
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
                       {\ltiPoly{\ova{\ltitvar{}}}
                                {\ltiFn{\ltiT{}}{\ltiS{}}}}
-                      {\ltiClosureCache{2}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\
-    \ltitSstkjudgement{\ltiClosureCache{2}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiTp{}}
-                      {\ltiClosureCache{3}}
+                      {\ltiCombinedThreadedEnv{3}}
                       {\ltiEp{}}
     \\
-                       \ltiSsubtype{\ltiClosureCache{3}}
+                       \ltiSsubtype{\ltiCombinedThreadedEnv{3}}
                                    {\ltiEnv{}}
                                    {\ltiTp{}}
                                    {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                                   {\ltiClosureCache{4}}
+                                   {\ltiCombinedThreadedEnv{4}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiappinst{\ltiF{}}
                                   {\ova{\ltiR{}}}
                                   {\ltiE{}}}
                       {\ltireplace{\ova{\ltiR{}}}{\ova{\ltitvar{}}}{\ltiS{}}}
-                      {\ltiClosureCache{4}}
+                      {\ltiCombinedThreadedEnv{4}}
                       {\ltiappinst{\ltiFp{}}
                                   {\ova{\ltiR{}}}
                                   {\ltiEp{}}}
@@ -1606,42 +1608,41 @@ $$
 
     \infer [AppInf-Closure]
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
                       {\ltiClosureWithStkID{\ltiEnvp{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiEpp{}}}}
-                      {\ltiClosureCache{2}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\
-    \ltitSstkjudgement{\ltiClosureCache{2}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiTp{}}
-                      {\ltiClosureCache{3}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{3}}{\ltiClosureCache{3}}}
                       {\ltiEp{}}
                   \\\\
-                  \ltilookup{\ltiClosureCache{3}}{\ltiClosureID{}} =
-                  \ltiClosureCacheVal{\ltiFuel{}}{\ltiClosureElab{}}
-                  \\
-    0 < \ltiFuel{}
-    \\\\
-    \ltitSstkjudgement{\ltimapsto{\ltiClosureCache{3}}{\ltiClosureID{}}{\ltiClosureCacheVal{\ltiFuel{}-1}{\ltiClosureElab{}}}}
+    0 < \ltiFuel{3}
+    \\
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv
+                       {\ltiFuel{3}-1}
+                       {\ltiClosureCache{3}}}
                       {\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiTp{}}}}
                       {\ltiEpp{}}
                       {\ltiS{}}
-                      {\ltiClosureCache{4}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{4}}{\ltiClosureCache{4}}}
                       {\ltiFpp{}}
                       \\\\
     \ltiupdateClosureCache{\ltiClosureCache{4}}{\ltiEnv{}}{\ltiClosureID{}}{\varnothing}{\ltiTp{}}{\ltiS{}}{\ltiFpp{}}{\ltiClosureCache{5}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
                       {\ltiS{}}
-                      {\ltiClosureCache{5}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{4}}{\ltiClosureCache{5}}}
                       {\ltiappinst{\ltiFp{}}
                                   {}
                                   {\ltiEp{}}}
@@ -1649,26 +1650,26 @@ $$
 
     \infer [AppInf\Bot]
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
                       {\ltiBot}
-                      {\ltiClosureCache{2}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\\\
-    \ltitSstkjudgement{\ltiClosureCache{2}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiS{}}
-                      {\ltiClosureCache{3}}
+                      {\ltiCombinedThreadedEnv{3}}
                       {\ltiEp{}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
                       {\ltiTpp{}}
-                      {\ltiClosureCache{3}}
+                      {\ltiCombinedThreadedEnv{3}}
                       {\ltiappinst{\ltiFp{}}
                                   {}
                                   {\ltiEp{}}}
@@ -1677,28 +1678,28 @@ $$
 
     \infer [AppInst\Bot]
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
                       {\ltiBot}
-                      {\ltiClosureCache{2}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\
-    \ltitSstkjudgement{\ltiClosureCache{2}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{2}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiS{}}
-                      {\ltiClosureCache{3}}
+                      {\ltiCombinedThreadedEnv{3}}
                       {\ltiEp{}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiappinst{\ltiF{}}
                                   {\ova{\ltiR{}}}
                                   {\ltiE{}}}
                       {\ltiTpp{}}
-                      {\ltiClosureCache{3}}
+                      {\ltiCombinedThreadedEnv{3}}
                       {\ltiappinst{\ltiFp{}}
                                   {\ova{\ltiR{}}}
                                   {\ltiEp{}}}
@@ -1707,68 +1708,69 @@ $$
     \infer [Rec]
     {
     \overrightarrowcaption{
-    \ltitSstkjudgement{\ltiClosureCache{i-1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{i-1}}
                       {\ltiEnv{}}
                       {\ltiF{i}}
                       {\ltiT{i}}
-                      {\ltiClosureCache{i}}
+                      {\ltiCombinedThreadedEnv{i}}
                       {\ltiFp{i}}
                       }^{ 1 \leq i \leq n}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{0}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{0}}
                       {\ltiEnv{}}
                       {\ltiRec{\ova{\ltivar{} = \ltiF{}}^n}}
                       {\ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}^n}}
-                      {\ltiClosureCache{n}}
+                      {\ltiCombinedThreadedEnv{n}}
                       {\ltiRec{\ova{\ltivar{} = \ltiFp{}}^n}}
     }
 
     \infer [Var]
     {}
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
                       {\ltivar{}}
                       {\ltiEnvLookup{\ltiEnv{}}{\ltivar{}}}
-                      {\ltiClosureCache{}}
+                      {\ltiCombinedThreadedEnv{}}
                       {\ltivar{}}
                  }
-
+    \ \ \ 
+%
     \infer [Sel]
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
                       {\ltiRec{\hastype{\ltivar{1}}{\ltiT{1}},..., \hastype{\ltivar{i}}{\ltiT{i}},..., \hastype{\ltivar{n}}{\ltiT{n}}}}
-                      {\ltiClosureCachep{}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltisel{\ltiF{}}{\ltivar{i}}}
                       {\ltiT{i}}
-                      {\ltiClosureCachep{}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltisel{\ltiFp{}}{\ltivar{i}}}
     }
     \ \ \ 
 %
     \infer [Sel\Bot]
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
                       {\ltiBot}
-                      {\ltiClosureCachep{}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltisel{\ltiF{}}{\ltivar{i}}}
                       {\ltiBot}
-                      {\ltiClosureCachep{}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltisel{\ltiFp{}}{\ltivar{i}}}
     }
 
@@ -1776,7 +1778,7 @@ $$
     {
                      \text{$|\ova{\ltitvar{}}|>0$ implies \ltiEnv{} does not contain a symbolic closure}
                      \\\\
-     \ltitSstkjudgement{\ltiClosureCache{1}}
+     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                     {\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
@@ -1784,16 +1786,16 @@ $$
                      {\ltiE{}}
                      {\ltiSp{}}
                      {\ltiEp{}}
-                     {\ltiClosureCache{2}}
+                     {\ltiCombinedThreadedEnv{2}}
                      \\\\
-                        \ltiSsubtype{\ltiClosureCache{2}}
+                        \ltiSsubtype{\ltiCombinedThreadedEnv{2}}
                                     {\ltiEnv{}}
                                     {\ltiSp{}}
                                     {\ltiS{}}
-                                    {\ltiClosureCache{3}}
+                                    {\ltiCombinedThreadedEnv{3}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{1}}
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                     {\ltiEnv{}}
                     {\ltifuntparaminterface{\ova{\ltitvar{}}}
                                            {\ltiFn{\ltiT{}}{\ltiS{}}}
@@ -1804,7 +1806,7 @@ $$
                                            {\ltiFn{\ltiT{}}{\ltiS{}}}
                                            {\ltivar{}}
                                            {\ltiEp{}}}
-                    {\ltiClosureCache{3}}
+                    {\ltiCombinedThreadedEnv{3}}
                  }
 
     \infer [UAbs]
@@ -1815,19 +1817,17 @@ $$
     =
     \ltimapsto{\ltiClosureCache{}}
               {\ltiClosureID{}}
-              {\ltiClosureCacheVal
-               {1}
-               {\ltiufun{\ltivar{}}{\ltiE{}}}}
+              {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
     }
     {
-    \ltitSstkjudgement{\ltiClosureCache{}}
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
                       {\ltiEnv{}}
                       {\ltiufun{\ltivar{}}{\ltiE{}}}
                       {\ltiClosureWithStkID
                                            {\ltiEnv{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      {\ltiClosureCachep{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCachep{}}}
                       {\ltiufunelab{\ltiClosureID{}}
                                    {\ltivar{}}
                                    {\ltiE{}}}
@@ -1844,16 +1844,18 @@ $$
     \boxed{
     \infer[]
     {}
-    {\ltiSsubtype{\ltiCombinedThreadedEnv{}}
+    {\ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
                  {\ltiEnv{}}
                  {\ltiS{}}
                  {\ltiT{}}
-                 {\ltiCombinedThreadedEnvp{}}
+                 {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
                  \\\\
                  \text{
-                 With symbolic closure cache \ltiCombinedThreadedEnv{},
-                 \ltiS{} is a subtype of \ltiT{}
-                 with updated symbolic closure cache
+                 With fuel \ltiFuel{} and symbolic closure cache \ltiCombinedThreadedEnv{},
+                 \ltiS{} is a subtype of \ltiT{}}
+                 \\\\
+                 \text{
+                 with updated fuel \ltiFuel{} and symbolic closure cache
                  \ltiCombinedThreadedEnvp{}.
                  }
     }
@@ -1914,47 +1916,39 @@ $$
 
     % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
     \infer [SF-Fn]
-    { \ltiSsubtype{\ltiClosureCache{1}}{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}{\ltiClosureCache{2}}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiEnv{}}{\ltiS{}}{\ltiSp{}}{\ltiCombinedThreadedEnv{2}}
       \\\\
-      \ltiSsubtype{\ltiClosureCache{2}}{\ltiEnv{}}{\ltiT{}}{\ltiTp{}}{\ltiClosureCache{3}}
+      \ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiEnv{}}{\ltiT{}}{\ltiTp{}}{\ltiCombinedThreadedEnv{3}}
     }
-    { \ltiSsubtype{\ltiClosureCache{1}}{\ltiEnv{}}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}{\ltiEnv{}}
                   {\ltiFn{\ltiSp{}}{\ltiT{}}}
                   {\ltiFn{\ltiS{}}{\ltiTp{}}}
-                  {\ltiClosureCache{3}}
+                  {\ltiCombinedThreadedEnv{3}}
        }
 
     \infer [SF-Closure]
     {
-    \ltilookup{\ltiClosureCache{1}}{\ltiClosureID{}}
-    =
-    \ltiClosureCacheVal{\ltiFuel{}}{\ltiClosureElab{}}
+    0 < \ltiFuel{1}
     \\
-    0 < \ltiFuel{}
-    \\
-    \ltitSstkjudgement{\ltimapsto{\ltiClosureCache{1}}
-                                 {\ltiClosureID{}}
-                                 {\ltiClosureCacheVal
-                                  {\ltiFuel{}-1}
-                                  {\ltiClosureElab{}}}}
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{1}-1}{\ltiClosureCache{1}}}
                       {\ltiEnvConcat{\ltiEnv{}}{\hastype{\ltivar{}}{\ltiT{}}}}
                       {\ltiE{}}
                       {\ltiSp{}}
-                      {\ltiClosureCache{2}}
+                      {\ltiCombinedThreadedEnv{2}}
                       {\ltiEp{}}
                       \\\\
-    \ltiSsubtype{\ltiClosureCache{2}}{\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
-                {\ltiClosureCache{3}}
+    \ltiSsubtype{\ltiCombinedThreadedEnv{2}}{\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
+                {\ltimakeCombinedThreadedEnv{\ltiFuel{3}}{\ltiClosureCache{3}}}
                       \\
     \ltiupdateClosureCache{\ltiClosureCache{3}}{\ltiEnv{}}{\ltiClosureID{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiEp{}}{\ltiClosureCache{4}}
     }
-    { \ltiSsubtype{\ltiClosureCache{1}}
+    { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{1}}{\ltiClosureCache{1}}}
                   {\ltiEnvp{}}
                   {\ltiClosureWithStkID{\ltiEnv{}}
                                        {\ltiClosureID{}}
                                        {\ltiufun{\ltivar{}}{\ltiE{}}}}
                   {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiT{}}{\ltiS{}}}}
-                  {\ltiClosureCache{4}}
+                  {\ltimakeCombinedThreadedEnv{\ltiFuel{3}}{\ltiClosureCache{4}}}
                   }
   \end{mathpar}
 
@@ -1973,26 +1967,31 @@ $$
     \\\\
     \text{application context \ltiEnv{}, with elaboration \ltiE{}.}
     }}
+    \\
 
-    \infer[]
-    {
+    \begin{array}{llll}
+    \ltiupdateClosureCachealign{\ltiClosureCache{}}{\ltiEnvp{}}{\ltiClosureID{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiE{}}
+                           {\ltimapsto{\ltiClosureCache{}}
+                                      {\ltiClosureID{}}
+                                      {\ltiClosure{\ltiEnv{}}
+                                                   {\ltifuntparaminterface{\ova{\ltitvar{}}}
+                                                                          {\ltiFn{\ltiT{}}{\ltiS{}}}
+                                                                          {\ltivar{}}
+                                                                          {\ltiE{}}}}},
+                                                                          &\text{ where }
     \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = 
-    \ltiClosureCacheVal{\ltiFuel{}}
                        {\ltiClosure{\ltiEnv{}}
                                    {\ltiufun{\ltivar{}}{\ltiF{}}}}
-    \\\\
-    \ltiClosureCachep{} = 
-    \ltimapsto{\ltiClosureCache{}}
-              {\ltiClosureID{}}
-              {\ltiClosureCacheVal{\ltiFuel{}}
-               {\ltiClosure{\ltiEnv{}}
-                           {\ltifuntparaminterface{\ova{\ltitvar{}}}
+                                   \\
+    \ltiupdateClosureCachealign{\ltiClosureCache{}}{\ltiEnvp{}}{\ltiClosureID{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCache{}},
+                                                                          &\text{ where }
+    \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = 
+                       {\ltiClosure{\ltiEnv{}}
+                                   {\ltifuntparaminterface{\ova{\ltitvar{}}}
                                                   {\ltiFn{\ltiT{}}{\ltiS{}}}
                                                   {\ltivar{}}
-                                                  {\ltiE{}}}}}
-    }
-    {\ltiupdateClosureCache{\ltiClosureCache{}}{\ltiEnvp{}}{\ltiClosureID{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiE{}}{\ltiClosureCachep{}}
-    }
+                                                  {\ltiE{}}}}
+    \end{array}
 
   \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
@@ -2010,11 +2009,12 @@ $$
   \begin{mathpar}
     \infer[ElabDriver]
     {
-     \ltitSstkjudgement{\ltiEmptyClosureCache}
+    \exists \ltiFuel{}.
+     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
                        {\ltiEmptyEnv}
                        {\ltiE{1}}
                        {\ltiT{}}
-                       {\ltiClosureCache{}}
+                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
                        {\ltiE{2}}
                        \\
      \ltielimClos{\ltiClosureCache{}}{\ltiE{2}}{\ltiE{3}}
@@ -2061,16 +2061,20 @@ $$
                                             {\ltivar{}}
                                             {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
                      \\
-                     % if SC is never exercised, the metafunction will become stuck because \ltiF is an untyped lambda
     \ltielimClosalign{\ltiClosureCache{}}
                      {\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
                                   {\ltivar{}}
                                   {\ltiE{}}}
                      {\ltielimClosLHS{\ltiClosureCache{}}
-                                     {\ltiF{}}},
+                                     {\ltifuntparaminterface{\ova{\ltitvar{}}}
+                                                                {\ltiT{}}
+                                                                {\ltivar{}}
+                                                                {\ltiE{}}}},
                      &\text{where } \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}}
-                                      = \ltiClosureCacheVal{\ltiFuel{}}
-                                                           {\ltiClosure{\ltiEnv{}}{\ltiF{}}}
+                                      = \ltiClosure{\ltiEnv{}}{\ltifuntparaminterface{\ova{\ltitvar{}}}
+                                                                {\ltiT{}}
+                                                                {\ltivar{}}
+                                                                {\ltiE{}}}
   \end{array}
   \]
 
@@ -2108,7 +2112,7 @@ $$
                                                 {\ltiClosureCache{}}
                                                 {\ltiT{}}}}
                       , & \ltiClosureIDp{} \not\in \ova{\ltiClosureID{}},
-                          \ltiClosureID{} \not\in \ltifvLHS{\ltiT{}}
+                          \ltiClosureID{} \not\in \ltitv{\ltiT{}}
                       \\
                       &&\text{where } 
                       \ltilookup{\ltiClosureCache{}}{\ltiClosureIDp{}}
@@ -2423,7 +2427,8 @@ completed in 45 seconds (with around 20,000 lines of principal types).
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
                       {\ltiF{}}
-                      {\ltiT{}^f}
+                      {\ltiPoly{\ova{\ltitvar{}}}
+                               {\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
                       {\ltiCombinedThreadedEnv{2}}
                       {\ltiFp{}}
                   \\
@@ -2434,16 +2439,12 @@ completed in 45 seconds (with around 20,000 lines of principal types).
                       {\ltiCombinedThreadedEnv{3}}
                       {\ltiEp{}}
                   \\
-    \ltiunfold{\ltiT{}^f}
-              {\ltiPoly{\ova{\ltitvar{}}}
-                       {\ltiIFn{\ltiFn{\ltiT{}}{\ltiS{}}}}}
-                  \\
                        |\ova{\ltitvar{}}|>0
            \\
            \ltigenconstraint{\varnothing}{\ova{\ltitvar{}}}{\ltiS{}}{\ltiT{}}{\ltiCp{}}
            \\
            \ltiprocessDelays{\ltiCombinedThreadedEnv{3}}
-                            {\ltiEnvConcatParen{\ltiEnv{}}{\ova{\ltitvar{}}}}
+                            %{\ltiEnvConcatParen{\ltiEnv{}}{\ova{\ltitvar{}}}}
                             {\ltiCp{}}
                             {\ltiC{}}
                             {\ltiCombinedThreadedEnv{4}}
@@ -2457,9 +2458,8 @@ completed in 45 seconds (with around 20,000 lines of principal types).
                       {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
                       {\ltiCombinedThreadedEnv{4}}
                       {\ltiappinst{\ltiFp{}}
-                                  {\ltistackmapping{\ltiEnv{}}
-                                                   {\ova{\ltiApplySubst{\ltisubst{}}
-                                                                       {\ltitvar{}}}}}
+                                  {\ova{\ltiApplySubst{\ltisubst{}}
+                                                      {\ltitvar{}}}}
                                   {\ltiEp{}}}
     }
   \end{mathpar}
@@ -2538,16 +2538,16 @@ $$
 
     \infer [CG-Fun]
     {
-    \text{TODO erase SC's in recursive calls}
+    |\ova{\ltitvar{}}|>0 \text{ implies \ova{\ltiTp{}}, \ova{\ltiT{}} do not contain symbolic closures}
     \\
     \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
-                     {\overline{\ltitvarp{}}}
+                     {\ova{\ltitvarp{}}}
                      {\ltiT{1}}
                      {\ltiTp{1}}
                      {\ltiC{1}}
     \\
     \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
-                     {\overline{\ltitvarp{}}}
+                     {\ova{\ltitvarp{}}}
                      {\ltiT{2}}
                      {\ltiTp{2}}
                      {\ltiC{2}}
@@ -2557,8 +2557,8 @@ $$
     {
     \ltigenconstraint{\ltiV{}}
                      {\overline{\ltitvarp{}}}
-                     {\ltiPoly{\overline{\ltitvar{}}}{\ltiIFn{\ltiFn{\ltiTp{1}}{\ltiT{2}}}}}
-                     {\ltiPoly{\overline{\ltitvar{}}}{\ltiIFn{\ltiFn{\ltiT{1}}{\ltiTp{2}}}}}
+                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiTp{1}}{\ltiT{2}}}}
+                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiT{1}}{\ltiTp{2}}}}
                      {\ltiCIntersect{\ltiC{1}}{\ltiC{2}}}
     }
 
@@ -2568,11 +2568,11 @@ $$
     \ltigenconstraint{\ltiV{}}
                      {\overline{\ltitvarp{}}}
                      {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                     {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}
+                     {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiS{}}{\ltiT{}}}}
                      {\ltiCSet{\ltiDEntryVX{\ltiV{}}
                                          {\overline{\ltitvarp{}}}
                                          {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                         {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}}
+                                         {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiS{}}{\ltiT{}}}}}}
     }
   \end{mathpar}
   \caption{Constraint generation system
@@ -2583,6 +2583,66 @@ $$
 
 \begin{figure}
   \begin{mathpar}
+
+    \boxed{
+    \infer[]
+    {
+      \ltiprocessDelays{\ltiCombinedThreadedEnv{}}
+                       {\ltiC{}}
+                       {\ltiCp{}}
+                       {\ltiCombinedThreadedEnvp{}}
+      \\\\
+      \text{Process all delayed constraints in
+                       \ltiC{}, yielding a new constraint set \ltiCp{}.
+      }
+    }
+    {}
+    }
+
+    \infer[]
+    {
+      \ltiorderDelays{\ltiC{0}}
+                     {\ova
+                       {\ltiDEntryVX{\ltiV{}}
+                                    {\ova{\ltitvarp{}}}
+                                    {\ltiT{}}
+                                    {\ltiS{}}}^n}
+                                    \\
+      \overrightarrowcaption{
+      \ltiprocessDelay{\ltiCombinedThreadedEnv{i-1}}
+                      {\ltiDEntryVX{\ltiV{i}}
+                                   {\ova{\ltitvarp{}}_i}
+                                   {\ltiT{i}}
+                                   {\ltiS{i}}}
+                      {\ltiC{i-1}}
+                      {\ltiC{i}}
+                      {\ltiCombinedThreadedEnv{i}}
+                      }^{1 \leq i \leq n}
+    }
+    {
+      \ltiprocessDelays{\ltiCombinedThreadedEnv{0}}
+                       {\ltiC{0}}
+                       {\ltiC{n}}
+                       {\ltiCombinedThreadedEnv{n}}
+    }
+
+    \boxed{
+    \infer[]
+    {
+      \ltiorderDelays{\ltiC{}}{\ova{\ltiDEntryVX{\ltiV{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}}}
+      \\\\
+      \text{Returns the delayed constraints in constraint set \ltiC{} topologically
+      sorted by type variable dependency.
+      }
+      \\\\
+      \text{eg. \ltiDEntryVX{}{}{...}{\ltiFn{\ltitvar{1}}{\ltitvar{2}}}
+      goes before 
+            \ltiDEntryVX{}{}{...}{\ltiFn{\ltitvar{2}}{\ltitvar{3}}}
+      }
+    }
+    {}
+    }
+
     \infer[]
     {
       \ova{\ltitvar{}}^m = \ova{\ltitvarp{}}_1 = \ova{\ltitvarp{}}_2 = ... = \ova{\ltitvarp{}}_{i-1} = \ova{\ltitvarp{}}_i
@@ -2602,24 +2662,49 @@ $$
       \ltiorderDelays{\ltiCSet{...,\ova{\ltiDEntryVX{\ltiV{}}
                                              {\ova{\ltitvarp{}}^m}
                                              {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                             {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}^n}}
+                                             {\ltiFn{\ltiS{}}{\ltiT{}}}}^n}}
                                              {
       [\ltiDEntryVX{\ltiV{}}
                    {\ova{\ltitvarp{}}}
                    {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                   {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}_i
+                   {\ltiFn{\ltiS{}}{\ltiT{}}}_i
                    |
                    i \in \ova{k}]
                    }
     }
 
+    \boxed{
+    \infer[]
+    {
+      \ltiprocessDelay{\ltiCombinedThreadedEnv{}}
+                      {\ltiDEntryVX{\ltiV{}}
+                                   {\ova{\ltitvarp{}}}
+                                   {\ltiS{}}
+                                   {\ltiT{}}}
+                      {\ltiC{}}
+                      {\ltiCp{}}
+                      {\ltiCombinedThreadedEnvp{}}
+      \\\\
+      \text{Process delayed constraint 
+                      {\ltiDEntryVX{\ltiV{}}
+                                   {\ova{\ltitvarp{}}}
+                                   {\ltiS{}}
+                                   {\ltiT{}}},
+                                   with current constraint set \ltiC{},
+      }
+      \\\\
+      \text{yielding a new constraint set \ltiCp{}.}
+    }
+    {}
+    }
+
     \infer[]
     {
             0 < \ltiFuel{} \\
-            \ltiSubst{\ltiC{}}{\ltiS{}}{\ltisubst{}}\\
+            \ltiSubst{\ltiC{}}{\ltiFn{\ltiS{}}{\ltiT{}}}{\ltisubst{}}\\
             \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                           {\ltiClosureCache{1}}}
-                              {\ltiEnvConcat{\ltiEnvMissingTVarsLHS{\ltiEnv{}}{\ltiEnvp{}}}
+                              {\ltiEnvConcat{\ltiEnv{}}
                                             {\hastype{\ltivar{}}
                                                      {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}}}
                               {\ltiEpp{}}
@@ -2628,65 +2713,34 @@ $$
                                                           {\ltiClosureCache{2}}}
                               {\ltiFpp{}}
                               \\
-          \ltiupdateClosureCache{\ltiClosureCache{2}}
-                                {\ltiEnv{}}
-                                {\ltiClosureID{}}
-                                {TODO}
-                                {\ltiTp{}}
-                                {\ltiS{}}
-                                {\ltiFpp{}}
-                                {\ltiClosureCache{3}}
-                                \\
-          \ltigenconstraint{\ltiV{}}
+          \ltigenconstraint{\ltiV{} \cup \overline{\ltitvarpp{}}}
                            {\ova{\ltitvar{}}}
                            {\ltiTp{}}
-                           {\ltiT{}}
+                           {\ltiApplySubst{\ltisubst{}}{\ltiT{}}}
                            {\ltiCpp{}}
                            \\
                            \ltiCpp{} \text{ does not contain delayed constraints}
-                           \\
-                           \ltiCp{} = \ltiCIntersect{\ltiC{}}{\ltiCpp{}}
+                                \\
+          \ltiupdateClosureCache{\ltiClosureCache{2}}
+                                {\ltiEnv{}}
+                                {\ltiClosureID{}}
+                                {\ova{\ltitvarpp{}}}
+                                {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
+                                {\ltiApplySubst{\ltisubst{}}{\ltiT{}}}
+                                {\ltiFpp{}}
+                                {\ltiClosureCache{3}}
     }
     {
       \ltiprocessDelay{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{1}}}
-                      {\ltiEnvp{}}
                       {\ltiDEntryVX{\ltiV{}}
                                    {\ova{\ltitvarp{}}}
                                    {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                   {\ltiIFn{\ltiFn{\ltiS{}}{\ltiT{}}}}}
+                                   {\ltiPoly{\ova{\ltitvarpp{}}}{\ltiFn{\ltiS{}}{\ltiT{}}}}}
                       {\ltiC{}}
-                      {\ltiCp{}}
+                      {\ltiCIntersect{\ltiC{}}{\ltiCpp{}}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{3}}}
     }
 
-    \infer[]
-    {
-      \ltiorderDelays{\ltiC{0}}
-                     {\ova
-                       {\ltiDEntryVX{\ltiV{}}
-                                    {\ova{\ltitvarp{}}}
-                                    {\ltiT{}}
-                                    {\ltiS{}}}^n}
-                                    \\
-      \overrightarrowcaption{
-      \ltiprocessDelay{\ltiCombinedThreadedEnv{i-1}}
-                      {\ltiEnvp{}}
-                      {\ltiDEntryVX{\ltiV{i}}
-                                   {\ova{\ltitvarp{}}_i}
-                                   {\ltiT{i}}
-                                   {\ltiS{i}}}
-                      {\ltiC{i-1}}
-                      {\ltiC{i}}
-                      {\ltiCombinedThreadedEnv{i}}
-                      }^{1 \leq i \leq n}
-    }
-    {
-      \ltiprocessDelays{\ltiCombinedThreadedEnv{0}}
-                       {\ltiEnvp{}}
-                       {\ltiC{0}}
-                       {\ltiC{n}}
-                       {\ltiCombinedThreadedEnv{n}}
-    }
   \end{mathpar}
   \caption{Processing delayed constraints
   }

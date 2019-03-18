@@ -339,9 +339,9 @@
 \newcommand\ltigenconstraint[5]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5}}
 \newcommand\ltigendconstraint[6]{\ma{#1 \vdash_{#2} #3 \mathbin{<:} #4 \Rightarrow #5, #6}}
 % CombinedEnv X DEntry C => C ; CombinedEnv
-\newcommand\ltiprocessDelay[6]{\ma{\metafunctionfont{processDly}(#1,#2,#3,#4) = #5;#6}}
+\newcommand\ltiprocessDelay[5]{\ma{\metafunctionfont{processDly}(#1,#2,#3) = #4;#5}}
 % CombinedEnv X C => C ; CombinedEnv
-\newcommand\ltiprocessDelays[5]{\ma{\metafunctionfont{processDlys}(#1,#2,#3) = #4;#5}}
+\newcommand\ltiprocessDelays[4]{\ma{\metafunctionfont{processDlys}(#1,#2) = #3;#4}}
 \newcommand\ltiCUnion[2]{\ma{#1 \cup #2}}
 \newcommand\ltiCEmpty{\ma{\emptyset}}
 \newcommand\ltiEnvLookup[2]{\ma{#1(#2)}}
