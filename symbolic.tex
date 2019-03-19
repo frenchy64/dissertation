@@ -3,7 +3,7 @@
 As is inevitable for an optional type system, there are many
 Clojure programs that Typed Clojure was not designed to type check.
 These programs contain Clojure idioms that are often either intentionally
-not supported with Typed Clojure's initial design, or 
+not supported by Typed Clojure's initial design, or 
 were introduced to Clojure at a later date.
 Regardless, programmers will inevitably want to use these features 
 in their Typed Clojure programs---but crucially without breaking
@@ -27,7 +27,16 @@ However, there are important tradeoffs to consider in this design---in the follo
 sections we introduce them and propose extensions to attempt to nullify
 their downsides.
 
-\section{Enhancing local type inference}
+\section{Enhancing Local Type Inference}
+
+``Local Type Inference''~\cite{PierceLTI} refers to the combination of
+bidirectional type propagation 
+specific approach
+to partial type inference for languages with subtyping and impredicative
+polymorphism.
+``Partial type inference'' here is
+problem of inferring 
+(Pfenning~\cite{Pfenning1988partial} describes the distinction more thoroughly).
 
 Concerning the limitations of local type inference,
 Hosoya and Pierce~\cite{hosoya1999good}
@@ -171,23 +180,23 @@ by noting the positions of type variable occurrences, and attempts to
 use this information to check its arguments in an optimal order for remaining
 in bidirectional checking mode.
 
-\section{Custom typing rules}
-
-Besides local type inference,
-another significant feature inherited from Typed Racket is that
-code is fully expanded before checking.
-This unfortunately means that macros with complex expansions
-are often uncheckable, and display cryptic error messages when attempting
-to do so.
-We investigate providing the user with \emph{custom typing rules} (\chapref{chapter:symbolic:custom-rules})
-as an extension point to customize how to type check a macro before
-it is expanded.
-As discussed in 
-\partref{part:implementations}, Typed Clojure's initial design does
-not support custom typing rules, so we exploit the infrastructure
-discussed there,
-and present our investigation into the user interface for the rules in
-\chapref{chapter:symbolic:custom-rules}.
+%\section{Custom typing rules}
+%
+%Besides local type inference,
+%another significant feature inherited from Typed Racket is that
+%code is fully expanded before checking.
+%This unfortunately means that macros with complex expansions
+%are often uncheckable, and display cryptic error messages when attempting
+%to do so.
+%We investigate providing the user with \emph{custom typing rules} (\chapref{chapter:symbolic:custom-rules})
+%as an extension point to customize how to type check a macro before
+%it is expanded.
+%As discussed in 
+%\partref{part:implementations}, Typed Clojure's initial design does
+%not support custom typing rules, so we exploit the infrastructure
+%discussed there,
+%and present our investigation into the user interface for the rules in
+%\chapref{chapter:symbolic:custom-rules}.
 
 % - "Avoiding hard-to-synthesize arguments"
 %   1. need mechanism to decide which arguments to avoid
@@ -218,16 +227,18 @@ and present our investigation into the user interface for the rules in
 \chapter{Delayed checking for Unannotated Local Functions}
 \label{chapter:symbolic:symbolic-closures}
 
-In local type inference, functions are hard-to-synthesize types for.
-Put another way, to check a function body successfully, types for
-its parameters are needed upfront.
+Using bidirectional type checking, functions are hard-to-synthesize types for.
+Put another way, to check a function body successfully using only locally available information,
+types for its parameters are needed upfront.
 For top-level function definitions, this is not a problem in many
 optional type systems since top-level annotations would be provided
 for each function.
 However, for anonymous functions it's a different story.
 The original local type inference algorithm~\cite{PierceLTI}
-lacks a synthesis rule for unannotated functions, but due to the prevalence
-of anonymous functions in languages like JavaScript, Racket, and Clojure,
+lacks a synthesis rule for unannotated functions, instead relying on bidirectional
+propagation of types,
+but due to the prevalence
+of hard-to-synthesize anonymous functions in languages like JavaScript, Racket, and Clojure,
 optional type systems for the languages add their own rules.
 
 Typed Racket and Typed Clojure implement a simple but sound strategy
@@ -401,13 +412,13 @@ We can use symbolic closures to inline higher-order-function definitions.
 In the following example, \clj{app} would normally need a higher-order
 or polymorphic
 annotation to handle the application on the final line.
-Instead, with symbolic closures, the entire program simplifies in a few steps to
-\clj{(inc 1)}.
+Instead, with symbolic closures, type checking reduces in a few steps to simply checking
+\clj{(inc x)} where \clj{x : Int}.
 
 % more beta reduction
 \begin{cljlisting}
 (let [f (fn [x] (inc x))
-      app (fn [g x] (g x))]
+      app (fn [g y] (g y))]
   (app f 1))
 \end{cljlisting}
 
@@ -415,9 +426,7 @@ As alluded to in the previous section, we must identify
 all type system components who are responsible for checking symbolic closures,
 and ensure they perform their obligations correctly.
 The following example uses a higher-order function
-\clj{app-int}---similar to the previous \clj{app}
-function, except it is an annotated global
-variable---to (elaborately) compute \clj{(inc 1)}.
+\clj{app-int} to increment the value \clj{1}.
 Since \clj{app-int} is annotated, it will be checked
 by the standard application rule.
 However, its first argument will be delayed as a symbolic
@@ -426,16 +435,15 @@ closure---now we must identify who is responsible for checking it.
 % using subtyping to check symbolic closures.
 \begin{cljlisting}
 (ann app-int [[Int -> Int] Int -> Int])
+(defn app-int [f x] (f x))
 ...
 (app-int (fn [x] (inc x)) 1)
 \end{cljlisting}
 
-Based on the type signature of \clj{app-int},
-it is clearly allowed to invoke its first argument
-(if the first parameter of \clj{app-int} was annotated as, say,
-\clj{[Bot -> Int]}, this would not be the case).
-Therefore, to maintain soundness, its potential invocations must
-agree with the provided argument.
+The type signature of \clj{app-int},
+clearly says that its first argument may be called with an \clj{Int}.
+Therefore, to maintain soundness, applications of \clj{app-int}
+must ensure its first argument accepts \clj{Int}.
 The standard application type rule uses subtyping to ensure
 provided arguments are compatible with the formal parameter types of
 the operator.
@@ -443,7 +451,7 @@ To handle symbolic closures, we preserve the standard application rule
 and instead add a subtyping case for symbolic closures.
 
 In this case, the subtyping relation would be asked to verify if
-``the symbolic closure \clj{(fn [x] (inc x))}
+``the symbolic closure type representing \clj{(fn [x] (inc x))}
 is a subtype of \clj{[Int -> Int]}''.
 This can be answered by checking the symbolic closure
 returns \clj{Int} when 
@@ -467,9 +475,8 @@ when it comes time to broaden its domain.
 
 This scheme extends to subtyping with arbitrarily-nested function types.
 To demonstrate nesting to the right of an arrow,
-the following code (again, elaborately) computes \clj{(+ 1 1)},
-but this time
-via \clj{curried-app-int}, which accepts a curried
+the following code sums 1 with itself via
+\clj{curried-app-int}, which accepts a curried
 function of two arguments \clj{f} and a number \clj{x}, and 
 provides \clj{x} as both arguments to \clj{f}.
 
@@ -482,7 +489,7 @@ provides \clj{x} as both arguments to \clj{f}.
 \end{cljlisting}
 
 The standard application rule will ensure 
-``the symbolic closure \clj{(fn [y] (fn [x] (+ x y)))}
+``the symbolic closure of \clj{(fn [y] (fn [x] (+ x y)))}
 is a subtype of
 \clj{[Int -> [Int -> Int]]}'', which involves assuming
 \clj{y : Int} and then checking the \emph{code} \clj{(fn [x] (+ x y))}
@@ -587,15 +594,15 @@ in a previous version.
 We hope to learn reasonable defaults for the reduction limit
 by experience.
 
-Note that using the type checker to decide subtyping
-has unfortunate implications for 
-the aforementioned annotation suggestions
-for reduction-limit error messages.
-An ``obviously-failing'' subtyping check might trigger a
-check for irrelevant arguments, and then provide them to the user.
-A curious aside: if symbolic closures are identified just by their code and definition
-type environments, suggestions may also be merged for functions with
-identical code and scope.
+%Note that using the type checker to decide subtyping
+%has unfortunate implications for 
+%the aforementioned annotation suggestions
+%for reduction-limit error messages.
+%An ``obviously-failing'' subtyping check might trigger a
+%check for irrelevant arguments, and then provide them to the user.
+%A curious aside: if symbolic closures are identified just by their code and definition
+%type environments, suggestions may also be merged for functions with
+%identical code and scope.
 
 % TODO performance
 % - undecidable 
@@ -633,11 +640,61 @@ identical code and scope.
 
 \section{Formal model}
 
-We formalize symbolic closure types in the style of local type inference~\cite{PierceLTI}
-enhanced with colored types~\cite{coloredlti01}.
-Like those papers, we define separate internal and an external languages,
-such that the external compiles to the internal by inferring 
-and inserting local type arguments.
+We formalize symbolic closure types by defining separate internal and an external languages,
+and providing a type inference algorithm to recover missing type annotations in the
+external language.
+This approach is similar to Local Type Inference~\cite{PierceLTI}
+and Colored Local Type Inference~\cite{coloredlti01},
+except we do not utilize bidirectional checking, and instead 
+
+Our internal language, System \ltiFsub extended with records, is functionally identical
+to that used to model Colored Local Type Inference~\cite{coloredlti01}, except
+our explicitly-typed lambda terms require return type annotations.
+
+In order to reliably elaborate to \ltiFsub, symbolic closure types must be restricted.
+
+First, the elaborated type of a symbolic closure is chosen greedily,
+when it is first symbolically executed.
+A polymorphic type may also be chosen, but the type arguments bound by
+the function must also be chosen at this time.
+This is for several reasons.
+Most obviously, we lack
+intersection types, and so have no natural way of enumerating more than one interface
+type for a function.
+If we did, each symbolic execution would then correspond to a new interface.
+Adding intersection types implies further considerations, namely
+the machinery needed to annotate a function that is ascribed many interfaces is quite involved
+(e.g., branching types~\cite{wells2002branching},
+contextual subtyping~\cite{Dunfield2004Tridirectional},
+and ``lazy'' type substitutions~\cite{polyduce1})
+and obscures the (orthogonal) idea of symbolic closures, which we hope to communicate
+its essense.
+We might also attempt to infer a single polymorphic function type that combines all interfaces,
+however that is a separate problem we have not attempted.
+
+Second, we disallow a symbolic closure from entering a new type-variable scope.
+This raises questions about scoping also solved by
+contextual subtyping~\cite{Dunfield2004Tridirectional}.
+Alternatively, we could quantify over out-of-scope variables
+with a polymorphic type, but this would most likely require also
+inferring type arguments for arguments~\cite{polyduce1},
+which we do not cover here.
+
+Third, we disallow a symbolic closure type to be passed to themselves.
+We must fully erase symbolic closure types to elaborate to our \ltiFsub,
+however we do not model equirecursive type binders, and so there is no
+obvious encoding for such a type. On the other hand, since it does not require
+recursive types to elaborate, symbolic closures
+be passed to \emph{other} symbolic closures, even if the former is polymorphic
+(since \ltiFsub is impredicative, i.e., does not restrict the places a polymorphic type
+may occur).
+
+Fourth, we add a global symbolic reduction limit, called ``fuel'', to make
+type inference decidable.
+
+As we will see, even in this restriction, they are very helpful.
+
+
 
 %Using fuel, we can ensure that type-checking in the external language always terminates.
 %Then, if type-checking is successful, we know that a finite
@@ -1408,6 +1465,8 @@ $$
                       &\mbox{Terms} \\
   \ltiFn{\ova{\ltiT{}}^n}{\ltiS{}} &\Leftrightarrow&
   \ltiFn{\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}{\ltiS{}}
+  \\
+  && \text{where } n \not= 1
                       &\mbox{Type abbreviations} \\
   \ltiufun{\ova{\ltivar{}}^n}{\ltiE{}} &\Leftrightarrow&
   \ltiufun{\ltivarp{}}{\ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
@@ -1419,7 +1478,7 @@ $$
   \\
   && \text{where } n \not= 1
   \\
-  \ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}} &\Leftrightarrow& \ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\ltiE{}}
+  \ltilet{\ova{\ltivar{}}}{\ova{\ltiE{}}}{\ltiF{}} &\Leftrightarrow& \ltiappParens{\ltiufun{\ova{\ltivar{}}}{\ltiF{}}}{\ova{\ltiE{}}}
                       &\mbox{Term abbreviations}
 \end{array}
 $$
@@ -1785,7 +1844,7 @@ $$
                     {\ltiEnvConcat{\ltiEnv{}}
                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
                                                  {\hastype{\ltivar{}}
-                                                          {\ltiT{i}}}}}
+                                                          {\ltiT{}}}}}
                      {\ltiE{}}
                      {\ltiSp{}}
                      {\ltiEp{}}

@@ -223,20 +223,20 @@
 \newcommand\ltitjudgementNoElab[3]{\ma{#1 \ltiinternalalgvdash {\hastype{#2}{#3}}}}
 % Env E : T => E'
 \newcommand\ltitjudgement[4]{\ma{\ltitjudgementNoElab{#1}{#2}{#3} \Rightarrow #4}}
-% subtype for internal types with `seen` set
-% Seen Env T <: T
-\newcommand\ltiisubtypeseenSingleEnv[3]{\ma{#1 \ltiinternalvdash #2 \ltisubtypeseparator #3}}
-\newcommand\ltiisubtypeseen[4]{\ma{\ltiisubtypeseenSingleEnv{#1}{#3}{#4}}}
 % subtype for internal types
 % Env T <: T
-\newcommand\ltiisubtype[3]{\ma{\ltiisubtypeseenSingleEnv{}{#2}{#3}}}
+\newcommand\ltiisubtype[3]{\ma{#2 \ltisubtypeseparator #3}}
+% subtype for internal types with `seen` set
+% Seen Env T <: T
+\newcommand\ltiisubtypeseenSingleEnv[3]{\ma{#1 \ltiinternalvdash \ltiisubtype{#2}{#3}}}
+\newcommand\ltiisubtypeseen[4]{\ma{\ltiisubtypeseenSingleEnv{#1}{#3}{#4}}}
 % subtype (language agnostic
 % Lang Seen+Env T T
 \newcommand\ltiLsubtypeseenSingleEnv[4]{\ma{#2 \ltiLvdash{#1} #3 \ltisubtypeseparator #4}}
 \newcommand\ltiLsubtypeEnv[4]{\ma{\ltiLsubtypeseenSingleEnv{#1}{#2}{#3}{#4}}}
 
 \newcommand\ltilanguagelabelfont[1]{\ma{\textnormal{#1}}}
-\newmeta\ltiInternalOrExternalLang{\ma{L}}
+
 \newcommand\ltiexternallanglabel{\ma{\ltilanguagelabelfont{E}}}
 %% symbolic closure language (no bidirectional type checking)
 \newcommand\ltisclanglabel{\ma{\ltilanguagelabelfont{S}}}
