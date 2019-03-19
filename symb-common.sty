@@ -58,7 +58,7 @@
 \newcommand\ltiapp[2]{\ma{\ltiappinfix{#1}{#2}}}
 \newcommand\ltiappParens[2]{\ma{\ltiapp{(#1)}{#2}}}
 \newcommand\ltiann[2]{\ma{(\textsf{ann}\ #1\ #2)}}
-\newcommand\ltilet[3]{\ma{(\textsf{let}\ [#1\ #2]\ #3)}}
+\newcommand\ltilet[3]{\ma{\textsf{let}\ {#1} = {#2}\ \textsf{in}\ {#3}}}
 %\newcommand\ltisel[2]{\ma{\ltiapp{. #2}{#1}}}
 \newcommand\ltisel[2]{\ma{#1.#2}}
 \newcommand\ltirec[1]{\ma{\{#1\}}}
@@ -377,3 +377,21 @@
 \newcommand\ltilstOption[1]{\ma{\text{Option[}#1{\text{]}}}}
 \newcommand\ltiInferred[1]{{\color{blue} #1}}
 \newcommand\ltiNotInferred[1]{{\color{black} #1}}
+
+% internal language type/subtype rules
+\newcommand\ltityperulefont[1]{\textsc{#1}}
+\newcommand\ltiIVar{\ma{\ltityperulefont{I-Var}}}
+\newcommand\ltiISel{\ma{\ltityperulefont{I-Sel}}}
+\newcommand\ltiISelBot{\ma{\ltityperulefont{I-Sel\ltiBot}}}
+\newcommand\ltiIAbs{\ma{\ltityperulefont{I-Abs}}}
+\newcommand\ltiIAppInst{\ma{\ltityperulefont{I-AppInst}}}
+\newcommand\ltiIAppInstBot{\ma{\ltityperulefont{I-AppInst\Bot}}}
+\newcommand\ltiIRec{\ma{\ltityperulefont{I-Rec}}}
+\newcommand\ltiSTVar{\ma{\ltityperulefont{S-TVar}}}
+\newcommand\ltiSTop{\ma{\ltityperulefont{S-Top}}}
+\newcommand\ltiSBot{\ma{\ltityperulefont{S-Bot}}}
+\newcommand\ltiSRec{\ma{\ltityperulefont{S-Rec}}}
+\newcommand\ltiSPoly{\ma{\ltityperulefont{S-Poly}}}
+\newcommand\ltiSFn{\ma{\ltityperulefont{S-Fn}}}
+\newcommand\ltiEAppInf{\ma{\ltityperulefont{E-AppInf}}}
+\newcommand\ltiEUAbs{\ma{\ltityperulefont{E-UAbs}}}
