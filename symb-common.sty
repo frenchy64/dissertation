@@ -39,6 +39,8 @@
 \newcommand\ltifuntparaminterfaceLHS[3]{\ma{\l[#1]^{#2} (#3)}}
 % tvars T x e
 \newcommand\ltifuntparaminterface[4]{\ma{{\ltifuntparaminterfaceLHS{#1}{#2}{#3}} {#4}}}
+% tvars x Tin e
+\newcommand\ltifuntparamargtype[4]{\ma{\l[#1](\hastype{#2}{#3}) #4}}
 % EnclosingFnStack => T
 \newcommand\ltistackmappingsymbol{\ma{\vdash}}
 \newcommand\ltistackmapping[2]{\ma{{#1} \ltistackmappingsymbol {#2}}}
@@ -165,7 +167,7 @@
 \newcommand\ltiFn[2]{\ma{[#1 \rightarrow #2]}}
 % Env T T
 \newcommand\ltiContextualFn[3]{\ma{\ltistackmapping{#1}{\ltiFn{#2}{#3}}}}
-\newcommand\ltiPolyFn[3]{\ma{[#1 \xrightarrow[]{#2} #3]}}
+\newcommand\ltiPolyFn[3]{\ma{#1 \xrightarrow[]{#2} #3}}
 \newcommand\ltiArrow[3]{\ma{(#1 \xrightarrow[]{#2} #3)}}
 \newcommand\ltiArrowMono[2]{\ma{(#1 \xrightarrow[]{} #2)}}
 % Stack Env Id E
@@ -245,7 +247,8 @@
 \newcommand\ltisclangvdash{\ma{\vdash}}
 % symbolic closure type system
 % ClosureCache Env |- E : T ; CombinedThreadedEnv ; E*
-\newcommand\ltitSstkjudgement[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5 ; #6}}
+\newcommand\ltitSstkjudgementNoElab[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5}}
+\newcommand\ltitSstkjudgement[6]{\ma{\ltitSstkjudgementNoElab{#1}{#2}{#3}{#4}{#5} ; #6}}
 % declarative symbolic closure type system
 % Env E T => T ; E
 \newcommand\ltitSdjudgement[4]{\ma{#1 \ltisclangdeclvdash {\hastype{#2}{#3}} \Rightarrow #4}}
@@ -266,6 +269,11 @@
 \newcommand\ltimergeTaggedTerms[3]{\ma{\ltimergeTaggedTermsLHS{#1}{#2} = #3}}
 \newcommand\ltimergeTaggedTermsalign[3]{\ma{\ltimergeTaggedTermsLHSalign{#1}{#2} &=& #3}}
 % update closure cache
+% ClosureCache ClosureID TVar* T_in T_out => ClosureCache
+\newcommand\ltiupdateClosureCacheNoElabLHS[5]{\ma{\metafunctionfont{record}(#1,#2,#3,#4,#5)}}
+\newcommand\ltiupdateClosureCacheNoElab[6]{\ma{\ltiupdateClosureCacheNoElabLHS{#1}{#2}{#3}{#4}{#5} = #6}}
+\newcommand\ltiupdateClosureCacheNoElabalign[6]{\ma{\ltiupdateClosureCacheNoElabLHS{#1}{#2}{#3}{#4}{#5} &=& #6}}
+%% Note: unused GammaApp argument
 % ClosureCache GammaApp ClosureID TVar* T_in T_out E => ClosureCache
 \newcommand\ltiupdateClosureCacheLHS[7]{\ma{\metafunctionfont{recordSC}(#1,#3,#4,#5,#6,#7)}}
 \newcommand\ltiupdateClosureCache[8]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6}{#7} = #8}}
@@ -326,7 +334,7 @@
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
 % ClosureID* ClosureCache t -> t
-\newcommand\ltielimClosTLHS[3]{\ma{\metafunctionfont{elabT}(#1, #2, #3)}}
+\newcommand\ltielimClosTLHS[3]{\ma{\metafunctionfont{elim}(#1, #2, #3)}}
 \newcommand\ltielimClosT[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltielimClosTalign[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} &=& #4}}
 % ClosureCache Env -> Env
