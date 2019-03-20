@@ -247,8 +247,8 @@
 \newcommand\ltisclangvdash{\ma{\vdash}}
 % symbolic closure type system
 % ClosureCache Env |- E : T ; CombinedThreadedEnv ; E*
-\newcommand\ltitSstkjudgementNoElab[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5}}
-\newcommand\ltitSstkjudgement[6]{\ma{\ltitSstkjudgementNoElab{#1}{#2}{#3}{#4}{#5} ; #6}}
+\newcommand\ltitSstkjudgementNoElab[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5}} %omits elab
+\newcommand\ltitSstkjudgement[6]{\ma{\ltitSstkjudgementNoElab{#1}{#2}{#3}{#4}{#5}{} ; #6}}
 % declarative symbolic closure type system
 % Env E T => T ; E
 \newcommand\ltitSdjudgement[4]{\ma{#1 \ltisclangdeclvdash {\hastype{#2}{#3}} \Rightarrow #4}}
@@ -275,7 +275,7 @@
 \newcommand\ltiupdateClosureCacheNoElabalign[6]{\ma{\ltiupdateClosureCacheNoElabLHS{#1}{#2}{#3}{#4}{#5} &=& #6}}
 %% Note: unused GammaApp argument
 % ClosureCache GammaApp ClosureID TVar* T_in T_out E => ClosureCache
-\newcommand\ltiupdateClosureCacheLHS[7]{\ma{\metafunctionfont{recordSC}(#1,#3,#4,#5,#6,#7)}}
+\newcommand\ltiupdateClosureCacheLHS[7]{\ma{\metafunctionfont{record}(#1,#3,#4,#5,#6,#7)}}
 \newcommand\ltiupdateClosureCache[8]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6}{#7} = #8}}
 \newcommand\ltiupdateClosureCachealign[8]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6}{#7} &=& #8}}
 % elabDriver
