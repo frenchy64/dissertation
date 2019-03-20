@@ -40,7 +40,9 @@
 % tvars T x e
 \newcommand\ltifuntparaminterface[4]{\ma{{\ltifuntparaminterfaceLHS{#1}{#2}{#3}} {#4}}}
 % tvars x Tin e
-\newcommand\ltifuntparamargtype[4]{\ma{\l[#1](\hastype{#2}{#3}) #4}}
+\newcommand\ltifuntparamargtype[4]{\ma{\l[#1](\hastypesmall{#2}{#3}) #4}}
+% tvars x Tin Tout e
+\newcommand\ltifuntparamargrettype[5]{\ma{\l[#1]\hastypesmall{(\hastypesmall{#2}{#3})}#4 #5}}
 % EnclosingFnStack => T
 \newcommand\ltistackmappingsymbol{\ma{\vdash}}
 \newcommand\ltistackmapping[2]{\ma{{#1} \ltistackmappingsymbol {#2}}}
@@ -273,15 +275,19 @@
 \newcommand\ltiupdateClosureCacheNoElabLHS[5]{\ma{\metafunctionfont{record}(#1,#2,#3,#4,#5)}}
 \newcommand\ltiupdateClosureCacheNoElab[6]{\ma{\ltiupdateClosureCacheNoElabLHS{#1}{#2}{#3}{#4}{#5} = #6}}
 \newcommand\ltiupdateClosureCacheNoElabalign[6]{\ma{\ltiupdateClosureCacheNoElabLHS{#1}{#2}{#3}{#4}{#5} &=& #6}}
-%% Note: unused GammaApp argument
-% ClosureCache GammaApp ClosureID TVar* T_in T_out E => ClosureCache
-\newcommand\ltiupdateClosureCacheLHS[7]{\ma{\metafunctionfont{record}(#1,#3,#4,#5,#6,#7)}}
-\newcommand\ltiupdateClosureCache[8]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6}{#7} = #8}}
-\newcommand\ltiupdateClosureCachealign[8]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6}{#7} &=& #8}}
+% ClosureCache ClosureID TVar* T_in T_out E => ClosureCache
+\newcommand\ltiupdateClosureCacheLHS[6]{\ma{\metafunctionfont{record}(#1,#2,#3,#4,#5,#6)}}
+\newcommand\ltiupdateClosureCache[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} = #7}}
+\newcommand\ltiupdateClosureCachealign[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} &=& #7}}
+% Single
+% ClosureCache ClosureID E => ClosureCache
+\newcommand\ltiupdateClosureCacheSingleLHS[3]{\ma{\metafunctionfont{save}(#1,#2,#3)}}
+\newcommand\ltiupdateClosureCacheSingle[4]{\ma{\ltiupdateClosureCacheSingleLHS{#1}{#2}{#3} = #4}}
+\newcommand\ltiupdateClosureCacheSinglealign[4]{\ma{\ltiupdateClosureCacheSingleLHS{#1}{#2}{#3} &=& #4}}
 % elabDriver
 % E -> E ; T
-\newcommand\ltielabDriverLHS[1]{\ma{\metafunctionfont{elabDriver}(#1)}}
-\newcommand\ltielabDriver[3]{\ma{\ltielabDriverLHS{#1} = #2 ; #3}}
+\newcommand\ltielabDriverLHS[1]{\ma{\metafunctionfont{infer}(#1)}}
+\newcommand\ltielabDriver[3]{\ma{\ltielabDriverLHS{#1} = \hastypesmall{#2}{#3}}}
 
 \newcommand\lticsubtypesymbol{\ma{\leq}}
 % subtype for external types 
@@ -330,7 +336,7 @@
 \newcommand\ltiunifyContextsHSC[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHSCalign[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % ClosureCache e -> e
-\newcommand\ltielimClosLHS[2]{\ma{\metafunctionfont{elabE}(#1, #2)}}
+\newcommand\ltielimClosLHS[2]{\ma{\metafunctionfont{elab}(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
 % ClosureID* ClosureCache t -> t

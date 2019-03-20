@@ -786,8 +786,8 @@ Record terms and types have unordered fields.
     {
     \ltitjudgementNoElab{\ltiEnv{}}
                   {\ltifuntparamargtype{\ova{\ltitvar{}}}
-                                   {\ltiT{}}
                                    {\ltivar{}}
+                                   {\ltiT{}}
                                    {\ltiE{}}}
                   {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiT{}}{\ltiS{}}}}
                  }
@@ -923,11 +923,9 @@ presents the subtyping for the internal language
 \ltiisubtype{\ltiEnv{}}{\ltiT{}}{\ltiS{}}, pronounced
 ``\ltiT{} is a subtype of \ltiS{}.''
 \ltiSTVar says type variables are subtypes of themselves.
-\ltiSTop and \ltiSBot establish \ltiTop and \ltiBot as the top and
-bottom of the subtyping lattice.
+\ltiSTop and \ltiSBot establish \ltiTop and \ltiBot as maximal and
+minimal types.
 \ltiSRec says record types may forget or upcast their fields.
-\ltiSPoly says two polymorphic types are subtypes if their
-bound type variables agree and their bodies are subtypes.
 \ltiSFn relates types contravariantly to the left of an arrow
 and covariantly to the right.
 
@@ -1030,94 +1028,105 @@ is not restricted to local reasoning.
 
 \subsection{Type Inference Algorithm}
 
-To recover types from terms written in the external language,
-we define a type inference algorithm.
-The algorithm proceeds in two stages.
-First, the external language term is type checked with symbolic closures,
-giving an intermediate elaborated term that contains symbolic
-closure terms and types.
-Then, we use information gathered during type checking
-to finish elaborating the term to the internal language
-by replacing symbolic closures with the types they were symbolically
-executed with.
+We now define a type inference algorithm based on symbolic closures
+that recovers types from terms written in the external language.
+First, we give the syntax for symbolic closures, then we describe
+the organization of type inference, and finally fill in the missing details.
 
-In order to reliably elaborate to \ltiFsub, we model a restriction of symbolic closure types.
-
-First, the elaborated type of a symbolic closure is chosen greedily,
-when it is first symbolically executed, and each symbolic closure
-must be exercised at least once to elaborate its body.
-A polymorphic type may also be chosen, but the type arguments bound by
-the function must also be chosen at this time.
-This is for several reasons.
-Most obviously, we lack
-intersection types, and so have no natural way of enumerating more than one interface
-type for a function, with each interface
-corresponding to a symbolic execution.
-Adding intersection types would require further considerations, namely
-the machinery needed to annotate a function that is ascribed many interfaces is quite involved
-(e.g., branching types~\cite{wells2002branching},
-contextual subtyping~\cite{Dunfield2004Tridirectional},
-and ``lazy'' type substitutions~\cite{polyduce1})
-and obscures the (orthogonal) idea of symbolic closures, which we hope to present
-in its essense.
-We might also attempt to infer a single polymorphic function type that combines all interfaces,
-however that is a separate problem we have not attempted.
-
-Second, we restrict a symbolic closure to the type-variable scope in which it was defined.
-Relaxing this restriction raises questions about scoping also solved by
-contextual subtyping~\cite{Dunfield2004Tridirectional}.
-Alternatively, we could quantify over out-of-scope variables
-with a polymorphic type, but this would most likely require also
-inferring type arguments for arguments~\cite{polyduce1},
-which we do not cover here.
-
-Third, we disallow a symbolic closure type to be passed to themselves.
-We must fully erase symbolic closure types to elaborate to \ltiFsub,
-however we do not model the equi-recursive type binders that are the 
-natural encoding for such types. On the other hand, since it does not require
-recursive types to elaborate, symbolic closures
-be passed to \emph{other} symbolic closures, even if the former elaborates to a polymorphic
-type (since \ltiFsub is impredicative, i.e., does not restrict the places a polymorphic type
-may occur).
-
-Fourth, we add a global symbolic reduction limit, called ``fuel'', to make
-type inference decidable.
-Since a symbolic closure may be symbolically executed an unbounded
-number of times, this restriction is also useful for practical implementations
-using symbolic closures.
-
-As we will see, symbolic closures are useful even with these restrictions.
+%In order to reliably elaborate to \ltiFsub, we model a restriction of symbolic closure types.
+%
+%First, the elaborated type of a symbolic closure is chosen greedily,
+%when it is first symbolically executed, and each symbolic closure
+%must be exercised at least once to elaborate its body.
+%A polymorphic type may also be chosen, but the type arguments bound by
+%the function must also be chosen at this time.
+%This is for several reasons.
+%Most obviously, we lack
+%intersection types, and so have no natural way of enumerating more than one interface
+%type for a function, with each interface
+%corresponding to a symbolic execution.
+%Adding intersection types would require further considerations, namely
+%the machinery needed to annotate a function that is ascribed many interfaces is quite involved
+%(e.g., branching types~\cite{wells2002branching},
+%contextual subtyping~\cite{Dunfield2004Tridirectional},
+%and ``lazy'' type substitutions~\cite{polyduce1})
+%and obscures the (orthogonal) idea of symbolic closures, which we hope to present
+%in its essense.
+%We might also attempt to infer a single polymorphic function type that combines all interfaces,
+%however that is a separate problem we have not attempted.
+%
+%Second, we restrict a symbolic closure to the type-variable scope in which it was defined.
+%Relaxing this restriction raises questions about scoping also solved by
+%contextual subtyping~\cite{Dunfield2004Tridirectional}.
+%Alternatively, we could quantify over out-of-scope variables
+%with a polymorphic type, but this would most likely require also
+%inferring type arguments for arguments~\cite{polyduce1},
+%which we do not cover here.
+%
+%Third, we disallow a symbolic closure type to be passed to themselves.
+%We must fully erase symbolic closure types to elaborate to \ltiFsub,
+%however we do not model the equi-recursive type binders that are the 
+%natural encoding for such types. On the other hand, since it does not require
+%recursive types to elaborate, symbolic closures
+%be passed to \emph{other} symbolic closures, even if the former elaborates to a polymorphic
+%type (since \ltiFsub is impredicative, i.e., does not restrict the places a polymorphic type
+%may occur).
+%
+%Fourth, we add a global symbolic reduction limit, called ``fuel'', to make
+%type inference decidable.
+%Since a symbolic closure may be symbolically executed an unbounded
+%number of times, this restriction is also useful for practical implementations
+%using symbolic closures.
+%
+%As we will see, symbolic closures are useful even with these restrictions.
 
 \begin{figure}
 $$
 \begin{array}{lrll}
-%  \ltiE{}, \ltiF{} &::=& ... \alt
-%                         \ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
-%                                     {\ltivar{}}
-%                                     {\ltiE{}}
-%                      &\mbox{Terms} \\
+  \ltiE{}, \ltiF{} &::=& ... \alt
+                         \ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
+                                     {\ltivar{}}
+                                     {\ltiE{}}
+                      &\mbox{Terms} \\
   \ltiT{}, \ltiS{}, \ltiR{} &::=& ... \alt \ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
                       &\mbox{Types} \\
   \ltiClosureID{} &::=& \ltitvar{}
                       &\mbox{Symbolic Closure Identifiers} \\
-%  \ltiClosureElab{} &::=& \ltiClosure{\ltiEnv{}}{\ltiTop}
-%                          \alt
-%                          \ltiClosure{\ltiEnv{}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiT{}}}
-%                      &\mbox{Symbolic Closure Elaborations}
-%                      \\
   \ltiFuel{} &::=& \ltinat{}
                       &\mbox{Symbolic Closure Fuel} \\
   \ltiClosureCache{} &::=& \ova{\ltiClosureCacheEntry
                                 {\ltiClosureID{}}
-                                {\ltiClosureWithStkID{\ltiEnv{}}{\ltiE{}}{\ltiT{}}}}
+                                {\ltiClosure{\ltiEnv{}}{\ltiE{}}}}
                       &\mbox{Symbolic Closure Cache}
                       \\
   \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
                       &\mbox{Symbolic Closure Environments}
 \end{array}
 $$
-\caption{Symbolic Closure Language Syntax (extends \figref{symbolic:figure:external-language-syntax})}
+\caption{Symbolic Closure Language (SCL) Syntax (extends \figref{symbolic:figure:external-language-syntax})}
 \label{symbolic:figure:SC-language-syntax}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{mathpar}
+  \infer[Infer]
+  {
+    \exists \ltiFuel{}.
+     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+                       {\ltiEnv{}}
+                       {\ltiE{}}
+                       {\ltiS{}}
+                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+                       {\ltiEp{}}
+                       \\
+                  \ltielimClos{\ltiClosureCache{}}{\ltiEp{}}{\ltiF{}}
+                  \\
+                  \ltielimClosT{\varnothing}{\ltiClosureCache{}}{\ltiS{}}{\ltiT{}}
+  }
+  {
+  \ltiEnv{} \vdash \hastype{\ltiE{}}{\ltiT{}} \hookrightarrow {\ltiF{}}
+  }
+  \end{mathpar}
 \end{figure}
 
 \begin{figure}
@@ -1135,12 +1144,12 @@ $$
                       {\ltiEp{}}
                      \\\\
                      \text{Given symbolic closure environment \ltiCombinedThreadedEnv{}
-                     and context \ltiEnv{}, term \ltiE{}
-                     has type \ltiT{}
-                     in environment \ltiCombinedThreadedEnvp{},
+                     and SCL context \ltiEnv{}, external term \ltiE{}
+                     has SCL type \ltiT{}
                      }
                      \\\\
-                     \text{ with elaboration \ltiEp{} (omitted when clearly derivable from subderivations).
+                     \text{in environment \ltiCombinedThreadedEnvp{},
+                     with SCL elaboration \ltiEp{} (omitted when obvious from subderivations).
                      }
                      }
                      }
@@ -1382,13 +1391,14 @@ $$
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
                       {\ltiS{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuel{4}}
-                          {\ltiupdateClosureCacheLHS{\ltiClosureCache{4}}
-                                {\ltiEnv{}}%TODO delete this parameter
+                          {\ltiupdateClosureCacheSingleLHS{\ltiClosureCache{4}}
                                 {\ltiClosureID{}}
-                                {\varnothing}
-                                {\ltiT{}}
-                                {\ltiS{}}
-                                {\ltiFpp{}}}}
+                                {\ltifuntparamargrettype
+                                 {}
+                                 {\ltivar{}}
+                                 {\ltiT{}}
+                                 {\ltiS{}}
+                                 {\ltiFpp{}}}}}
                       {\ltiappinst{\ltiFp{}}
                                   {}
                                   {\ltiEpp{}}}
@@ -1406,7 +1416,7 @@ $$
     \ltimakeCombinedThreadedEnv{\ltiFuel{}}
     {\ltimapsto{\ltiClosureCache{}}
                {\ltiClosureID{}}
-               {\ltiClosureWithStkID{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}{\ltiTop}}}
+               {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
     }
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
@@ -1509,22 +1519,25 @@ $$
     \\\\
     0 < \ltiFuel{1}
     \\
-    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{1}-1}{\ltiClosureCache{1}}}
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{1}-1}{\ltiClosureCache{1}}}
                       {\ltiEnvConcat{\ltiEnv{}}{\hastype{\ltivar{}}{\ltiT{}}}}
                       {\ltiE{}}
                       {\ltiSp{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuel{2}}{\ltiClosureCache{2}}}
                       {\ltiEp{}}
                       \\\\
-    \ltiupdateClosureCacheNoElab{\ltiClosureCache{2}}
+    \ltiupdateClosureCacheSingle{\ltiClosureCache{2}}
                           {\ltiClosureID{}}
-                          {\ova{\ltitvar{}}}
-                          {\ltiT{}}
-                          {\ltiSp{}}
+                          {\ltifuntparamargrettype
+                           {\ova{\ltitvar{}}}
+                           {\ltivar{}}
+                           {\ltiT{}}
+                           {\ltiSp{}}
+                           {\ltiEp{}}}
                           {\ltiClosureCache{3}}
                       \\
     \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{2}}{\ltiClosureCache{3}}}{\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
-                {\ltiClosureCache{4}}
+                {\ltiCombinedThreadedEnv{4}}
     }
     { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{1}}{\ltiClosureCache{1}}}
                   {\ltiEnvp{}}
@@ -1532,7 +1545,7 @@ $$
                                        {\ltiClosureID{}}
                                        {\ltiufun{\ltivar{}}{\ltiE{}}}}
                   {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
-                  {\ltiClosureCache{4}}
+                  {\ltiCombinedThreadedEnv{4}}
                   }
   \end{mathpar}
 
@@ -1545,27 +1558,27 @@ $$
     \boxed{
     \infer[]
     {}
-    {\ltiupdateClosureCacheNoElab{\ltiClosureCache{}}{\ltiClosureID{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiClosureCachep{}}
+    {\ltiupdateClosureCacheSingle{\ltiClosureCache{}}{\ltiClosureID{}}{\ltiE{}}{\ltiClosureCachep{}}
     \\\\
-    \text{Record symbolic closure \ltiClosureID{} as \ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}.
-    Assumes \ova{\ltitvar{}} do not occur free in \ltiClosureID{}'s body.}
-    }}
-    \\
+    \text{Associate function tagged with closure identifier \ltiClosureID{} with SCL elaboration \ltiE{}.
+    }
+    }
+    }
 
     \begin{array}{llll}
-    \ltiupdateClosureCacheNoElabalign{\ltiClosureCache{}}{\ltiClosureID{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}
+      \ltiupdateClosureCacheSinglealign{\ltiClosureCache{}}{\ltiClosureID{}}{\ltiE{}}
                            {\ltimapsto{\ltiClosureCache{}}
                                       {\ltiClosureID{}}
                                       {\ltiClosure{\ltiEnv{}}
-                                                  {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}}
+                                                  {\ltiE{}}}}
                                                  , &
                                                  \text{where }
     (\ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = 
                        {\ltiClosure{\ltiEnv{}}
-                                   {\ltiTop}})
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}})
                                    \text{ or }
     (\ltilookup{\ltiClosureCache{}}{\ltiClosureID{}} = 
-              {\ltiClosure{\ltiEnv{}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}})
+              {\ltiClosure{\ltiEnv{}}{\ltiE{}}})
     \end{array}
   \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
@@ -1573,84 +1586,74 @@ $$
 
 \begin{figure}
 
-  \[
-    \boxed{\ltielabDriver{\ltiE{}}{\ltiEp{}}{\ltiT{}}
-    \text{ Elaborates external language term \ltiE{} to internal language term \ltiEp{} and type \ltiT{}.
-    }
-    }
-  \]
-
-  \begin{mathpar}
-    \infer[ElabDriver]
-    {
-    \exists \ltiFuel{}.
-     \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-                       {\ltiEmptyEnv}
-                       {\ltiE{1}}
-                       {\ltiT{}}
-                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-                       {\ltiE{2}}
-                       \\
-     \ltielimClos{\ltiClosureCache{}}{\ltiE{2}}{\ltiE{3}}
-     \\
-     \ltielimClosT{\varnothing}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
-    }
-    {
-    \ltielabDriver{\ltiE{1}}{\ltiE{3}}{\ltiTp{}}
-    }
-  \end{mathpar}
-
 %  \[
-%    \boxed{\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
-%    \text{ Converts symbolic closures in \ltiE{} to explicit types in \ltiEp{}}
+%    \boxed{\ltielabDriver{\ltiE{}}{\ltiEp{}}{\ltiT{}}
+%    \text{ Elaborates external language term \ltiE{} to internal language term \ltiEp{} and type \ltiT{}.
+%    }
 %    }
 %  \]
 %
 %  \[
-%  \begin{array}{llll}
-%    \ltielimClosalign{\ltiClosureCache{}}{\ltivar{}}
-%                     {\ltivar{}}
-%                     \\
-%    \ltielimClosalign{\ltiClosureCache{}}
-%                     {\ltiappinst{\ltiF{}}
-%                                 {\ova{\ltiR{}}}
-%                                 {\ltiE{}}}
-%                     {\ltiappinst{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}
-%                                 {\ova{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiR{}}}}
-%                                 {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
-%                             \\
-%    \ltielimClosalign{\ltiClosureCache{}}{\ltisel{\ltiF{}}{\ltivar{}}}
-%                     {\ltisel{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}{\ltivar{}}}
-%                     \\
-%    \ltielimClosalign{\ltiClosureCache{}}{\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
-%                     {\ltiRec{\ova{\ltivar{} = \ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}}}
-%                     \\
-%    \ltielimClosalign{\ltiClosureCache{}}
-%                     {\ltifuntparaminterface{\ova{\ltitvar{}}}
-%                                            {\ltiT{}}
-%                                            {\ltivar{}}
-%                                            {\ltiE{}}}
-%                     {\ltifuntparaminterface{\ova{\ltitvar{}}}
-%                                            {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}
-%                                            {\ltivar{}}
-%                                            {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
-%                     \\
-%    \ltielimClosalign{\ltiClosureCache{}}
-%                     {\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
-%                                  {\ltivar{}}
-%                                  {\ltiE{}}}
-%                     {\ltielimClosLHS{\ltiClosureCache{}}
-%                                     {\ltifuntparaminterface{\ova{\ltitvar{}}}
-%                                                                {\ltiT{}}
-%                                                                {\ltivar{}}
-%                                                                {\ltiE{}}}},
-%                     &\text{where } \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}}
-%                                      = \ltiClosure{\ltiEnv{}}{\ltifuntparaminterface{\ova{\ltitvar{}}}
-%                                                                {\ltiT{}}
-%                                                                {\ltivar{}}
-%                                                                {\ltiE{}}}
+%  \begin{array}{lll}
+%    \ltielabDriver{\ltiE{1}}
+%                  {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
+%                  {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}
+%                  , &\text{where }
+%    \exists \ltiFuel{}.
+%     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+%                       {\ltiEmptyEnv}
+%                       {\ltiE{1}}
+%                       {\ltiT{}}
+%                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+%                       {\ltiE{2}}
 %  \end{array}
 %  \]
+
+  \[
+    \boxed{\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
+    \text{ Converts symbolic closures in \ltiE{} to explicit types in \ltiEp{}}
+    }
+  \]
+
+  \[
+  \begin{array}{llll}
+    \ltielimClosalign{\ltiClosureCache{}}{\ltivar{}}
+                     {\ltivar{}}
+                     \\
+    \ltielimClosalign{\ltiClosureCache{}}
+                     {\ltiappinst{\ltiF{}}
+                                 {\ova{\ltiR{}}}
+                                 {\ltiE{}}}
+                     {\ltiappinst{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}
+                                 {\ova{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiR{}}}}
+                                 {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
+                             \\
+    \ltielimClosalign{\ltiClosureCache{}}{\ltisel{\ltiF{}}{\ltivar{}}}
+                     {\ltisel{\ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}{\ltivar{}}}
+                     \\
+    \ltielimClosalign{\ltiClosureCache{}}{\ltiRec{\ova{\ltivar{} = \ltiF{}}}}
+                     {\ltiRec{\ova{\ltivar{} = \ltielimClosLHS{\ltiClosureCache{}}{\ltiF{}}}}}
+                     \\
+    \ltielimClosalign{\ltiClosureCache{}}
+                     {\ltifuntparamargtype{\ova{\ltitvar{}}}
+                                          {\ltivar{}}
+                                          {\ltiT{}}
+                                          {\ltiE{}}}
+                     {\ltifuntparamargtype{\ova{\ltitvar{}}}
+                                          {\ltivar{}}
+                                          {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}
+                                          {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{}}}}
+                     \\
+    \ltielimClosalign{\ltiClosureCache{}}
+                     {\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
+                                  {\ltivar{}}
+                                  {\ltiE{}}}
+                     {\ltielimClosLHS{\ltiClosureCache{}}
+                                     {\ltiF{}}},
+                     &\text{where } \ltilookup{\ltiClosureCache{}}{\ltiClosureID{}}
+                                      = \ltiClosure{\ltiEnv{}}{\ltiF{}}
+  \end{array}
+  \]
 
 
   \[
@@ -1685,7 +1688,7 @@ $$
                       \ltiClosureIDp{} \not\in \ova{\ltiClosureID{}},
                       \ltilookup{\ltiClosureCache{}}{\ltiClosureIDp{}}
                       = \ltiClosure{\ltiEnv{}}
-                                   {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
+                                   {\ltifuntparamargrettype{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}}
                                    % this condition is checked in S-Closure and constraint system
                                    %, \ova{\ltitvar{}} \cap \ltitv{\ltiE{}} = \varnothing
                       \\
@@ -2184,7 +2187,7 @@ $$
     \\
             0 < \ltiFuel{} \\
             \ltiSubst{\ltiC{}}{\ltiPolyFn{\ltiS{}}{}{\ltiT{}}}{\ltisubst{}}\\
-            \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
+            \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
                                                           {\ltiClosureCache{1}}}
                               {\ltiEnvConcat{\ltiEnv{}}
                                             {\hastype{\ltivar{}}
@@ -2195,11 +2198,14 @@ $$
                                                           {\ltiClosureCache{2}}}
                               {\ltiFpp{}}
                               \\
-          \ltiupdateClosureCacheNoElab{\ltiClosureCache{2}}
+          \ltiupdateClosureCacheSingle{\ltiClosureCache{2}}
                                 {\ltiClosureID{}}
-                                {\ova{\ltitvarpp{}}}
-                                {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
-                                {\ltiTp{}}
+                                {\ltifuntparamargrettype
+                                 {\ova{\ltitvarpp{}}}
+                                 {\ltivar{}}
+                                 {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
+                                 {\ltiTp{}}
+                                 {\ltiFpp{}}}
                                 {\ltiClosureCache{3}}
                                 \\
           \ltigenconstraint{\ltiV{} \cup \overline{\ltitvarpp{}}}
