@@ -98,9 +98,7 @@
 \newmeta\ltiFuel{\ltiFuelsymbol}
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
-\newcommand\ltiClosureCachesymbol{\mathbb{C}}
-\newcommand\ltiClosureElabsymbol{\mathbb{E}}
-\newmeta\ltiClosureElab{\ma{\ltiClosureElabsymbol}}
+\newcommand\ltiClosureCachesymbol{\mathbb{E}}
 \newcommand\ltiEmptyClosureCache{\varnothing}
 \newmeta\ltiClosureCache{\ltiClosureCachesymbol}
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
@@ -336,11 +334,13 @@
 \newcommand\ltiunifyContextsHSC[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{#4} = #5}}
 \newcommand\ltiunifyContextsHSCalign[5]{\ma{\ltiunifyContextsHSCLHS{#1}{#2}{#3}{&#4} &=& #5}}
 % ClosureCache e -> e
-\newcommand\ltielimClosLHS[2]{\ma{\metafunctionfont{elab}(#1, #2)}}
+\newcommand\ltielimClossymbol{\ma{\metafunctionfont{elab}}}
+\newcommand\ltielimClosLHS[2]{\ma{\ltielimClossymbol(#1, #2)}}
 \newcommand\ltielimClos[3]{\ma{\ltielimClosLHS{#1}{#2} = #3}}
 \newcommand\ltielimClosalign[3]{\ma{\ltielimClosLHS{#1}{#2} &=& #3}}
 % ClosureID* ClosureCache t -> t
-\newcommand\ltielimClosTLHS[3]{\ma{\metafunctionfont{elim}(#1, #2, #3)}}
+\newcommand\ltielimClosTsymbol{\ma{\metafunctionfont{elim}}}
+\newcommand\ltielimClosTLHS[3]{\ma{\ltielimClosTsymbol(#1, #2, #3)}}
 \newcommand\ltielimClosT[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltielimClosTalign[4]{\ma{\ltielimClosTLHS{#1}{#2}{#3} &=& #4}}
 % ClosureCache Env -> Env
@@ -398,8 +398,8 @@
 \newcommand\ltiISel{\ma{\ltityperulefont{I-Sel}}}
 \newcommand\ltiISelBot{\ma{\ltityperulefont{I-Sel\ltiBot}}}
 \newcommand\ltiIAbs{\ma{\ltityperulefont{I-Abs}}}
-\newcommand\ltiIAppInst{\ma{\ltityperulefont{I-AppInst}}}
-\newcommand\ltiIAppInstBot{\ma{\ltityperulefont{I-AppInst\Bot}}}
+\newcommand\ltiIAppInst{\ma{\ltityperulefont{I-App}}}
+\newcommand\ltiIAppInstBot{\ma{\ltityperulefont{I-App\ltiBot}}}
 \newcommand\ltiIRec{\ma{\ltityperulefont{I-Rec}}}
 \newcommand\ltiSTVar{\ma{\ltityperulefont{S-TVar}}}
 \newcommand\ltiSTop{\ma{\ltityperulefont{S-Top}}}
@@ -407,5 +407,16 @@
 \newcommand\ltiSRec{\ma{\ltityperulefont{S-Rec}}}
 \newcommand\ltiSPoly{\ma{\ltityperulefont{S-Poly}}}
 \newcommand\ltiSFn{\ma{\ltityperulefont{S-Fn}}}
-\newcommand\ltiEAppInf{\ma{\ltityperulefont{E-AppInf}}}
+\newcommand\ltiEAppInf{\ma{\ltityperulefont{E-UApp}}}
+\newcommand\ltiEAppInfBot{\ma{\ltityperulefont{E-UApp\ltiBot}}}
 \newcommand\ltiEUAbs{\ma{\ltityperulefont{E-UAbs}}}
+\newcommand\ltiSCVar{\ma{\ltityperulefont{SC-Var}}}
+\newcommand\ltiSCRec{\ma{\ltityperulefont{SC-Rec}}}
+\newcommand\ltiSCSel{\ma{\ltityperulefont{SC-Sel}}}
+\newcommand\ltiSCAbs{\ma{\ltityperulefont{SC-Abs}}}
+\newcommand\ltiSCAppInst{\ma{\ltityperulefont{SC-App}}}
+\newcommand\ltiSCAppInstBot{\ma{\ltityperulefont{SC-App\ltiBot}}}
+\newcommand\ltiSCSelBot{\ma{\ltityperulefont{SC-Sel\ltiBot}}}
+\newcommand\ltiSCAppInfBot{\ma{\ltityperulefont{SC-UApp\ltiBot}}}
+\newcommand\ltiSCAppInfClosure{\ma{\ltityperulefont{SC-UAppClosure}}}
+\newcommand\ltiSCUAbs{\ma{\ltityperulefont{SC-UAbs}}}

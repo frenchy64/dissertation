@@ -884,11 +884,11 @@ pronounced ``\ltiE{} is of type \ltiT{} in context \ltiEnv{}.''
 
     \infer [\ltiSTop]
     {}
-    { \ltiisubtype{\ltiEnv{}}{\ltiT{}}{\Top}}
+    { \ltiisubtype{\ltiEnv{}}{\ltiT{}}{\ltiTop}}
 
     \infer [\ltiSBot]
     {}
-    { \ltiisubtype{\ltiEnv{}}{\Bot}{\ltiT{}}}
+    { \ltiisubtype{\ltiEnv{}}{\ltiBot}{\ltiT{}}}
 
     \infer [\ltiSRec]
     {
@@ -949,7 +949,7 @@ The syntax for the external language
 \figref{symbolic:figure:external-language-syntax}
 is a superset of the internal language, with unannotated functions 
 \ltiufun{\ltivar{}}{\ltiE{}},
-and applications with implicit type arguments
+and ``lightweight'' applications with implicit type arguments
 \ltiapp{\ltiF{}}{\ltiE{}}.
 
 \begin{figure}
@@ -988,6 +988,22 @@ and applications with implicit type arguments
                     %            {\ltiEp{}}}
     }
 
+    \infer [\ltiEAppInfBot]
+    {
+    \ltitjudgementNoElab{\ltiEnv{}}
+                  {\ltiF{}}
+                  {\ltiBot}
+                  \\\\
+    \ltitjudgementNoElab{\ltiEnv{}}
+                  {\ltiE{}}
+                  {\ltiS{}}
+    }
+    {
+    \ltitjudgementNoElab{\ltiEnv{}}
+                  {\ltiapp{\ltiF{}}{\ltiE{}}}
+                  {\ltiT{}}
+    }
+
     \infer [\ltiEUAbs]
     { 
     \ltitjudgementNoElab{\ltiEnvConcat{\ltiEnv{}}
@@ -1019,6 +1035,8 @@ an application without explicit type arguments.
 This is identical to the corresponding rule in Local Type Inference.
 \ltiEUAbs says that an untyped function must type check at the interface
 chosen for its elaboration.
+Since we also infer type parameters, the rule also requires the type variables chosen must
+not capture type variables that occur free in the body of the function.
 A similar rule is included in Colored Local Type Inference, except
 colored types enforce that parameter types and type parameters only be inherited
 from its surrounding context.
@@ -1093,19 +1111,84 @@ $$
   \ltiClosureID{} &::=& \ltitvar{}
                       &\mbox{Symbolic Closure Identifiers} \\
   \ltiFuel{} &::=& \ltinat{}
-                      &\mbox{Symbolic Closure Fuel} \\
+                      &\mbox{Symbolic Reduction Fuel} \\
   \ltiClosureCache{} &::=& \ova{\ltiClosureCacheEntry
                                 {\ltiClosureID{}}
                                 {\ltiClosure{\ltiEnv{}}{\ltiE{}}}}
-                      &\mbox{Symbolic Closure Cache}
+                      &\mbox{Elaboration Caches}
                       \\
   \ltiCombinedThreadedEnv{} &::=& \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
-                      &\mbox{Symbolic Closure Environments}
+                      &\mbox{Threaded Environments}
 \end{array}
 $$
 \caption{Symbolic Closure Language (SCL) Syntax (extends \figref{symbolic:figure:external-language-syntax})}
 \label{symbolic:figure:SC-language-syntax}
 \end{figure}
+
+The syntax for the Symbolic Closure Language (SCL)
+is given in 
+\figref{symbolic:figure:SC-language-syntax}, which
+is a superset of the external language syntax.
+We introduce a new term and type, both which act as
+a sort of placeholder for an explicitly typed function term or type (respectively)
+which will be filled in after type checking.
+The term
+\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
+            {\ltivar{}}
+            {\ltiE{}}
+is a tagged function,
+which says the unannotated function 
+\ltiufun{\ltivar{}}{\ltiE{}}
+was assigned the symbolic closure type identified by
+\ltiClosureID{}.
+A symbolic closure type
+\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}},
+then,
+says the unannotated function term \ltiufun{\ltivar{}}{\ltiE{}}
+is closed under definition type context \ltiEnv{}, with identifier \ltiClosureID{}.
+We say \ltiufun{\ltivar{}}{\ltiE{}} is \emph{closed} because all free type and term variables in \ltiufun{\ltivar{}}{\ltiE{}}
+are bound by \ltiEnv{}.
+In terms of the internal language,
+a loose first-intuition of a symbolic closure type's meaning
+is a function type
+\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}
+where
+\ltitjudgementNoElab{\ltiEnvConcat{\ltiEnv{}}
+                    {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                  {\hastype{\ltivar{}}{\ltiT{}}}}}
+                    {\ltiE{}}
+                    {\ltiS{}}.
+This analogy is inadequate because (in small part) \ltiEnv{}, \ltiT{}, \ltiE{}, and \ltiS{}
+can contain SCL types and terms.
+
+An important part of using SCL for type inference is making the meaning of
+symbolic closure types explicit by replacing them with concrete internal types and terms.
+To this end, the remaining syntax is in service to the bookkeeping necessary to decide
+how to achieve this.
+To prevent infinite loops when checking symbolic closures, we introduce
+symbolic reduction fuel \ltiFuel{}, a natural number that represents
+the remaining number of symbolic reductions allowed.
+The elaboration of an unannotated function checked with symbolic closures could
+be determined at any time, so an elaboration cache \ltiClosureCache{} is maintained 
+that associates a symbolic closure \ltiClosureID{}
+with its scoped elaboration \ltiClosure{\ltiEnv{}}{\ltiE{}}, which says
+SCL term \ltiE{} is closed under SCL type environment \ltiEnv{}.
+For convienience, we use threaded environments \ltiCombinedThreadedEnv{} to stand for
+the pair \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}.
+
+We now describe the organization of type inference.
+The SCL typing judgment
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
+                      {\ltiEp{}}
+says with initial fuel \ltiFuel{} and elaboration cache \ltiClosureCache{},
+external term \ltiE{} is of SCL type \ltiT{}
+in SCL context \ltiEnv{}, elaborating to SCL term \ltiEp{} with 
+updated fuel \ltiFuelp{} and elaboration cache \ltiClosureCachep{}.
+It performs a depth-first traversal of the syntax tree.
 
 \begin{figure}[h]
   \begin{mathpar}
@@ -1119,15 +1202,27 @@ $$
                        {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
                        {\ltiEp{}}
                        \\
-                  \ltielimClos{\ltiClosureCache{}}{\ltiEp{}}{\ltiF{}}
-                  \\
                   \ltielimClosT{\varnothing}{\ltiClosureCache{}}{\ltiS{}}{\ltiT{}}
+                  \\
+                  \ltielimClos{\ltiClosureCache{}}{\ltiEp{}}{\ltiF{}}
   }
   {
   \ltiEnv{} \vdash \hastype{\ltiE{}}{\ltiT{}} \hookrightarrow {\ltiF{}}
   }
   \end{mathpar}
 \end{figure}
+
+The top-level driver for type inference
+$\ltiEnv{} \vdash \hastype{\ltiE{}}{\ltiT{}} \hookrightarrow {\ltiF{}}$, presented above,
+says external term \ltiE{} has internal type \ltiT{}
+in external environment \ltiEnv{}, with internal elaboration \ltiF{}.
+It requires an initial fuel \ltiFuel{} to be provided to SCL, 
+and then uses the output elaboration cache \ltiClosureCache{}
+to erase SCL terms and types using the metafunctions \ltielimClossymbol
+and \ltielimClosTsymbol.
+Next, we present the SCL type system and subtyping
+(except for the SCL implementation of \ltiEAppInf, described in \chapref{chapter:symbolic:directed-lti}),
+then provide definitions for the elaboration metafunctions.
 
 \begin{figure}
   \begin{mathpar}
@@ -1155,7 +1250,7 @@ $$
                      }
 
     \begin{array}{c}
-    \infer [Var]
+    \infer [\ltiSCVar]
     {}
     {
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
@@ -1166,7 +1261,7 @@ $$
                       {\ltivar{}}
                  }
 \ \ \ 
-    \infer [Rec]
+    \infer [\ltiSCRec]
     {
     \overrightarrowcaption{
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{i-1}}
@@ -1187,7 +1282,7 @@ $$
     }
 
                  \\\\
-    \infer [Sel]
+    \infer [\ltiSCSel]
     {
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
@@ -1207,7 +1302,7 @@ $$
     \end{array}
 
     \begin{array}{ll}
-    \infer [Abs]
+    \infer [\ltiSCAbs]
     {
     \left(
     \begin{array}{llll}
@@ -1243,7 +1338,7 @@ $$
                  }
     \end{array}
 
-    \infer [AppInst]
+    \infer [\ltiSCAppInst]
     {
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
@@ -1279,7 +1374,7 @@ $$
     }
                  \ \ \ \ \ 
                  %
-    \infer [AppInst\Bot]
+    \infer [\ltiSCAppInstBot]
     {
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
@@ -1309,7 +1404,7 @@ $$
     }
                  \ \ \ \ \ 
                  %
-    \infer [Sel\Bot]
+    \infer [\ltiSCSelBot]
     {
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
@@ -1328,7 +1423,7 @@ $$
     }
                  \ \ \ \ \ 
                  %
-    \infer [AppInf\Bot]
+    \infer [\ltiSCAppInfBot]
     {
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
@@ -1348,7 +1443,7 @@ $$
     \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
                       {\ltiapp{\ltiF{}}{\ltiE{}}}
-                      {\ltiT{}}
+                      {\ltiBot}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiappinst{\ltiFp{}}
                                   {}
@@ -1356,7 +1451,35 @@ $$
     }
 
 
-    \infer [AppInf-Closure]
+    \infer [\ltiSCUAbs]
+    {
+    \ltiCombinedThreadedEnv{} = \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
+    \\
+    \ltiClosureID{} \not\in dom(\ltiClosureCache{})
+    \\\\
+    \ltiCombinedThreadedEnvp{}
+    =
+    \ltimakeCombinedThreadedEnv{\ltiFuel{}}
+    {\ltimapsto{\ltiClosureCache{}}
+               {\ltiClosureID{}}
+               {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
+    }
+    {
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltiufun{\ltivar{}}{\ltiE{}}}
+                      {\ltiClosureWithStkID
+                                           {\ltiEnv{}}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiufunelab{\ltiClosureID{}}
+                                   {\ltivar{}}
+                                   {\ltiE{}}}
+                 }
+    \ \ \ \ 
+%
+    \infer [\ltiSCAppInfClosure]
     {
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{1}}
                       {\ltiEnv{}}
@@ -1403,40 +1526,51 @@ $$
                                   {}
                                   {\ltiEpp{}}}
     }
-    \ \ \ \ 
-%
-    \infer [UAbs]
-    {
-    \ltiCombinedThreadedEnv{} = \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}
-    \\
-    \ltiClosureID{} \not\in dom(\ltiClosureCache{})
-    \\\\
-    \ltiCombinedThreadedEnvp{}
-    =
-    \ltimakeCombinedThreadedEnv{\ltiFuel{}}
-    {\ltimapsto{\ltiClosureCache{}}
-               {\ltiClosureID{}}
-               {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}}
-    }
-    {
-    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltiufun{\ltivar{}}{\ltiE{}}}
-                      {\ltiClosureWithStkID
-                                           {\ltiEnv{}}
-                                           {\ltiClosureID{}}
-                                           {\ltiufun{\ltivar{}}{\ltiE{}}}}
-                      {\ltiCombinedThreadedEnvp{}}
-                      {\ltiufunelab{\ltiClosureID{}}
-                                   {\ltivar{}}
-                                   {\ltiE{}}}
-                 }
   \end{mathpar}
 
   \caption{Type inference algorithm (\textsc{AppInf} omitted)
   }
   \label{symbolic:figure:SC-language-algorithmic-type-system}
 \end{figure}
+
+The SCL type system is given in \figref{symbolic:figure:SC-language-algorithmic-type-system}.
+We abbreviate
+    \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
+                      {\ltiEp{}}
+                      as
+    \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiEp{}}
+                      where
+${\ltiCombinedThreadedEnv{}} = {\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}$
+and 
+                      ${\ltiCombinedThreadedEnvp{}} = {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}$.
+Further, we sometimes omit the elaborated term as
+    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiEp{}},
+                      but only when
+                      {\ltiEp{}}
+                      can be obviously derived from subderivations.
+The first seven rules correspond to the internal language type system,
+straightfowardly extended with threaded environments.
+The extra condition in \ltiSCAbs
+helps ensure a symbolic closure type only reasons about type variables
+in its definition scope.
+The first rule for lightweight applications \ltiSCAppInfBot corresponds to \ltiEAppInfBot.
+
+The remaining rules are more interesting.
+\ltiSCUAbs
 
 \begin{figure}
   \begin{mathpar}
@@ -1469,11 +1603,11 @@ $$
 
     \infer [S-Top]
     {}
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiT{}}{\Top}{\ltiCombinedThreadedEnv{}}}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiT{}}{\ltiTop}{\ltiCombinedThreadedEnv{}}}
 
     \infer [S-Bot]
     {}
-    { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\Bot}{\ltiT{}}{\ltiCombinedThreadedEnv{}}}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiBot}{\ltiT{}}{\ltiCombinedThreadedEnv{}}}
 
     \infer [S-Rec]
     {
