@@ -2032,11 +2032,17 @@ $$
   \\
   \ltilet{\ova{\ltivar{}}}{\ova{\ltiE{}}}{\ltiF{}} &\Leftrightarrow& \ltiappParens{\ltiufun{\ova{\ltivar{}}}{\ltiF{}}}{\ova{\ltiE{}}}
   \\
+  \ltifunargtype{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargtype{}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiE{}}
+  \\
+  \ltifunargrettype{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargrettype{}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}}
+  \\
   \ltifuntparamargrettype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
   \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltianncolon{\ltiE{}}{\ltiS{}}}
   \\
   \ltianncolon{\ltiE{}}{\ltiS{}} &\Leftrightarrow&
-  \ltiappParens{\ltifuntparamargtype{}{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}}
+  \ltiappParens{\ltifunargtype{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}}
                       &&\mbox{Term abbreviations}
 \end{array}
 $$

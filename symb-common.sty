@@ -42,7 +42,11 @@
 % tvars x Tin e
 \newcommand\ltifuntparamargtype[4]{\ma{\l[#1](\hastypesmall{#2}{#3}) #4}}
 % tvars x Tin Tout e
-\newcommand\ltifuntparamargrettype[5]{\ma{\l[#1]\hastypesmall{(\hastypesmall{#2}{#3})}#4 #5}}
+\newcommand\ltifuntparamargrettype[5]{\ma{\l[#1]\hastypesmall{(\hastypesmall{#2}{#3})}{#4} #5}}
+% x Tin e
+\newcommand\ltifunargtype[3]{\ma{\l(\hastypesmall{#1}{#2}) #3}}
+% x Tin Tout e
+\newcommand\ltifunargrettype[4]{\ma{\l\hastypesmall{(\hastypesmall{#1}{#2})}{#3} #4}}
 % EnclosingFnStack => T
 \newcommand\ltistackmappingsymbol{\ma{\vdash}}
 \newcommand\ltistackmapping[2]{\ma{{#1} \ltistackmappingsymbol {#2}}}
