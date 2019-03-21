@@ -1306,9 +1306,9 @@ then provide definitions for the elaboration metafunctions.
     {
     \left(
     \begin{array}{llll}
-                     \text{$|\ova{\ltitvar{}}|>0$ implies \ltiEnv{} contains}
+      \text{$|\ova{\ltitvar{}}|>0$ implies \ltiEnv{} and \ltiS{}}
                      \arcr
-                     \text{no symbolic closures}
+                     \text{contain no symbolic closures}
     \end{array}
     \right)
                      \\\\
@@ -1571,15 +1571,15 @@ The first rule for lightweight applications \ltiSCAppInfBot implements \ltiEAppI
 The remaining rules are more interesting.
 The symbolic closure introduction rule
 \ltiSCUAbs creates a symbolic closure type with a fresh identifier \ltiClosureID{}
-for the unannotated term \ltiufun{\ltivar{}}{\ltiE{}}.
-The return type is a symbolic closure type
+for the unannotated function term \ltiufun{\ltivar{}}{\ltiE{}}.
+The return type is symbolic closure type
                        \ltiClosureWithStkID{\ltiEnv{}}
                                            {\ltiClosureID{}}
-                                           {\ltiufun{\ltivar{}}{\ltiE{}}}
-that holds enough information to check its body at some later time
-and link it back to its originating term.
+                                           {\ltiufun{\ltivar{}}{\ltiE{}}},
+which holds enough information to both check its body at some later time
+and link its elaboration to the originating term.
 The elaboration cache entry for \ltiClosureID{} is initialized 
-with an unannotated term, signifying that the body has yet to be type checked
+with an unannotated function term, signifying that the body has yet to be type checked
 and is passed on as part of \ltiCombinedThreadedEnvp{}.
 Finally, the elaboration
                       {\ltiufunelab{\ltiClosureID{}}
@@ -1594,8 +1594,8 @@ The next rule handles one kind of witness to its invocation: application.
 
 The application rule for symbolic closures
 \ltiSCAppInfClosure
-checks \ltiapp{\ltiF{}}{\ltiE{}}
-where \ltiF{} has type
+checks term \ltiapp{\ltiF{}}{\ltiE{}}
+where \ltiF{} has symbolic closure type
                       {\ltiClosureWithStkID{\ltiEnvp{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiEp{}}}}
@@ -1603,19 +1603,39 @@ where \ltiF{} has type
 \ltiE{} has type \ltiT{}.
 As with the normal application rule,
 we must ensure \ltiF{}'s domain is permissive enough to be
-applied to terms of type \ltiT{}, which we
+applied to terms of type \ltiT{}, which
 we verify with a symbolic reduction.
-After consuming fuel, the final premise checks \ltiF{}'s
+After consuming fuel, the final premise checks \ltiClosureID{}'s
 function body \ltiEp{} in its definition context \ltiEnvp{},
 extended with \hastype{\ltivar{}}{\ltiT{}} (to account for
-\ltiE{} being passed as an argument), giving type \ltiS{}
+\ltiE{} of type \ltiT{} being passed as an argument), giving result type \ltiS{}
 and elaboration \ltiFpp{}.
 The type of the entire application is simply \ltiS{}, since
 the condition in \ltiSCAbs (and in other rules, given later) ensure that
 \ltiEnv{} and \ltiEnvp{} share the same type variable scope---there
 is no opportunity for \ltiS{} to introduce an out-of-scope type variable.
-
-
+We now pick the elaboration for \ltiClosureID{}
+to be
+{\ltifuntparamargrettype
+                                 {}
+                                 {\ltivar{}}
+                                 {\ltiT{}}
+                                 {\ltiS{}}
+                                 {\ltiFpp{}}}
+using the \ltiupdateClosureCacheSinglesymbol metafunction.
+Since we choose \ltiClosureID{} to be monomorphic, it does
+not require type arguments
+and so
+the entire application elaborates to
+                      {\ltiappinst{\ltiFp{}}
+                                  {}
+                                  {\ltiEpp{}}}.
+A symbolic closure's elaboration may be picked exactly once,
+so it is an error for any past or future elaborations decide
+on different numbers of type arguments.
+We elide the almost-identical rule \ltiSCAppClosure for applying a symbolic closure
+with explicit type arguments,
+since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
 
 \begin{figure}
   \begin{mathpar}
@@ -1731,6 +1751,27 @@ is no opportunity for \ltiS{} to introduce an out-of-scope type variable.
   \caption{Symbolic Closure Language Subtyping}
   \label{symbolic:figure:SC-language-subtype}
 \end{figure}
+
+Subtyping for SCL is given in
+  \figref{symbolic:figure:SC-language-subtype}.
+The judgment
+\ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
+            {\ltiEnv{}}
+            {\ltiS{}}
+            {\ltiT{}}
+            {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
+            says with fuel \ltiFuel{} and elaboration cache \ltiClosureCache{},
+            \ltiS{} is a subtype of 
+            {\ltiT{}}
+            with updated fuel \ltiFuelp{} and elaboration cache \ltiClosureCachep{}.
+Similar to the typing judgment, we abbreviate subtyping
+with threaded environments as
+\ltiSsubtype{\ltiCombinedThreadedEnv{}}
+            {\ltiEnv{}}
+            {\ltiS{}}
+            {\ltiT{}}
+            {\ltiCombinedThreadedEnvp{}}.
+
 
 \begin{figure}
   \begin{mathpar}
@@ -1969,24 +2010,34 @@ is no opportunity for \ltiS{} to introduce an out-of-scope type variable.
 
 \begin{figure}
 $$
-\begin{array}{lrll}
+\begin{array}{lrlll}
   \ltiFn{\ova{\ltiT{}}^n}{\ltiS{}} &\Leftrightarrow&
   \ltiFn{\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}{\ltiS{}}
-  \\
-  && \text{where } n \not= 1
+  & \text{where } n \not= 1
                       &\mbox{Type abbreviations} \\
   \ltiufun{\ova{\ltivar{}}^n}{\ltiE{}} &\Leftrightarrow&
   \ltiufun{\ltivarp{}}{\ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
+  & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
   \\
-  && \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
+  \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}^n}{\ova{\ltiT{}}^n}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargtype{\ova{\ltitvar{}}}
+                      {\ltivarp{}}
+                      {\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}
+                      {\\ && \ \ \ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
+  & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
   \\
   \ltiapp{\ltiF{}}{\ova{\ltiE{}}^n} &\Leftrightarrow&
   \ltiapp{\ltiF{}}{\ltiRec{\overrightarrowcaption{\texttt{arg}i = \ltiE{i}}^{1 \leq i \leq n}}}
-  \\
-  && \text{where } n \not= 1
+  & \text{where } n \not= 1
   \\
   \ltilet{\ova{\ltivar{}}}{\ova{\ltiE{}}}{\ltiF{}} &\Leftrightarrow& \ltiappParens{\ltiufun{\ova{\ltivar{}}}{\ltiF{}}}{\ova{\ltiE{}}}
-                      &\mbox{Term abbreviations}
+  \\
+  \ltifuntparamargrettype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltianncolon{\ltiE{}}{\ltiS{}}}
+  \\
+  \ltianncolon{\ltiE{}}{\ltiS{}} &\Leftrightarrow&
+  \ltiappParens{\ltifuntparamargtype{}{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}}
+                      &&\mbox{Term abbreviations}
 \end{array}
 $$
 \caption{External Language Syntax abbreviations
