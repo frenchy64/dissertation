@@ -722,9 +722,10 @@ type variables
 and concatenation
 \ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}.
 
-We assume term and type variables bound in separate places in the same term are distinct,
+We assume different term and type variables are distinct,
 and treat terms and types that are equal up to alpha-renaming as equivalent.
 Record terms and types have unordered fields.
+We treat primitive types (like \sml{String}) as free type variables.
 
 \begin{figure}
   \begin{mathpar}
@@ -1579,14 +1580,14 @@ The return type is symbolic closure type
 which holds enough information to both check its body at some later time
 and link its elaboration to the originating term.
 The elaboration cache entry for \ltiClosureID{} is initialized 
-with an unannotated function term, signifying that the body has yet to be type checked
+with an unannotated function term, signifying that the body has yet to be type checked,
 and is passed on as part of \ltiCombinedThreadedEnvp{}.
 Finally, the elaboration
                       {\ltiufunelab{\ltiClosureID{}}
                                    {\ltivar{}}
                                    {\ltiE{}}}
 tags the original term with its symbolic closure identifier \ltiClosureID{}.
-The intuition behind this rule being sound is because, from the type checker's perspective,
+Intuitively, this rule is sound because, from the type checker's perspective,
 there is no witness (yet) to \ltiufun{\ltivar{}}{\ltiE{}}
 being called, and so there is no opportunity to ``get stuck'' or
 ``go wrong''. 
@@ -1622,6 +1623,8 @@ to be
                                  {\ltiT{}}
                                  {\ltiS{}}
                                  {\ltiFpp{}}}
+(an abbreviation for a function with return type \ltiS{}, defined in
+\figref{symbolic:figure:external-language-syntax-abbreviations})
 using the \ltiupdateClosureCacheSinglesymbol metafunction.
 Since we choose \ltiClosureID{} to be monomorphic, it does
 not require type arguments
@@ -1656,7 +1659,7 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
     }
     }
 
-    \infer [S-TVar]
+    \infer [\ltiSCSTVar]
     {}
     {
      \ltiSsubtype{\ltiCombinedThreadedEnv{}}
@@ -1666,21 +1669,21 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
                  {\ltiCombinedThreadedEnv{}}
     }
 
-    \infer [S-Top]
+    \infer [\ltiSCSTop]
     {}
     { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiT{}}{\ltiTop}{\ltiCombinedThreadedEnv{}}}
 
-    \infer [S-Bot]
+    \infer [\ltiSCSBot]
     {}
     { \ltiSsubtype{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}{\ltiBot}{\ltiT{}}{\ltiCombinedThreadedEnv{}}}
 
-    \infer [S-Rec]
+    \infer [\ltiSCSRec]
     {
-    \overrightarrow{\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}{\ltiEnv{}}
+    \overrightarrowcaption{\ltiSsubtype{\ltiCombinedThreadedEnv{i-1}}{\ltiEnv{}}
                                 {\ltiT{}}
                                 {\ltiS{}}
                                 {\ltiCombinedThreadedEnv{i}}
-                                }
+                                }^{1 \leq i \leq n}
     }
     {
     \ltiSsubtype{\ltiCombinedThreadedEnv{0}}
@@ -1692,7 +1695,7 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
     }
 
     % eg (IFn [Int -> Int] [Number -> Number]) <: [Nothing -> Any]
-    \infer [S-Fn]
+    \infer [\ltiSCSFn]
     {
     \left(
     \begin{array}{lll}
@@ -1712,39 +1715,43 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
                   {\ltiCombinedThreadedEnvp{}}
        }
 
-    \infer [S-Closure]
+    \infer [\ltiSCSClosure]
     {
+    \ltiCombinedThreadedEnv{1} = {\ltimakeCombinedThreadedEnv{\ltiFuel{1}}{\ltiClosureCache{1}}}
+    \\
     \ltitv{\ltiE{}} \cap \ova{\ltitvar{}} = \varnothing
     \\\\
     0 < \ltiFuel{1}
     \\
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{1}-1}{\ltiClosureCache{1}}}
-                      {\ltiEnvConcat{\ltiEnv{}}{\hastype{\ltivar{}}{\ltiT{}}}}
+                      {\ltiEnvConcat{\ltiEnv{}}
+                                    {\ltiEnvConcat{\ova{\ltitvar{}}}
+                                                  {\hastype{\ltivar{}}{\ltiT{}}}}}
                       {\ltiE{}}
                       {\ltiSp{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuel{2}}{\ltiClosureCache{2}}}
                       {\ltiEp{}}
                       \\\\
-    \ltiupdateClosureCacheSingle{\ltiClosureCache{2}}
-                          {\ltiClosureID{}}
-                          {\ltifuntparamargrettype
-                           {\ova{\ltitvar{}}}
-                           {\ltivar{}}
-                           {\ltiT{}}
-                           {\ltiSp{}}
-                           {\ltiEp{}}}
-                          {\ltiClosureCache{3}}
-                      \\
-    \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{2}}{\ltiClosureCache{3}}}{\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
-                {\ltiCombinedThreadedEnv{4}}
+    \ltiSsubtype{\ltimakeCombinedThreadedEnv
+                 {\ltiFuel{2}}
+                 {\ltiupdateClosureCacheSingleLHS{\ltiClosureCache{2}}
+                                                  {\ltiClosureID{}}
+                                                  {\ltifuntparamargrettype
+                                                   {\ova{\ltitvar{}}}
+                                                   {\ltivar{}}
+                                                   {\ltiT{}}
+                                                   {\ltiSp{}}
+                                                   {\ltiEp{}}}}}
+                {\ltiEnv{}}{\ltiSp{}}{\ltiS{}}
+                {\ltiCombinedThreadedEnv{3}}
     }
-    { \ltiSsubtype{\ltimakeCombinedThreadedEnv{\ltiFuel{1}}{\ltiClosureCache{1}}}
+    { \ltiSsubtype{\ltiCombinedThreadedEnv{1}}
                   {\ltiEnvp{}}
                   {\ltiClosureWithStkID{\ltiEnv{}}
                                        {\ltiClosureID{}}
                                        {\ltiufun{\ltivar{}}{\ltiE{}}}}
                   {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
-                  {\ltiCombinedThreadedEnv{4}}
+                  {\ltiCombinedThreadedEnv{3}}
                   }
   \end{mathpar}
 
@@ -1771,7 +1778,30 @@ with threaded environments as
             {\ltiS{}}
             {\ltiT{}}
             {\ltiCombinedThreadedEnvp{}}.
-
+The first five rules correspond to the internal language subtyping rules,
+extended with threaded environments.
+The extra condition in \ltiSCSFn helps contain symbolic closures
+to the type-variable scope they were defined in.
+The rule \ltiSCSClosure relates symbolic closures with polymorphic function types.
+It follows the idea that \ltiClosureWithStkID{\ltiEnv{}}
+                             {\ltiClosureID{}}
+                             {\ltiufun{\ltivar{}}{\ltiE{}}}
+                             is a subtype of
+\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}
+if \ltifuntparamargrettype{\ova{\ltitvar{}}}
+                          {\ltivar{}}
+                          {\ltiT{}}
+                          {\ltiSp{}}
+                          {\ltiE{}}
+is well typed under \ltiEnv{} and 
+\ltiSp{}
+is a subtype of
+\ltiS{}.
+The rule proceeds similarly to \ltiSCAppInfClosure, except we may choose a polymorphic
+type for \ltiClosureID{}, and we must check the return type is under \ltiS{}.
+Adding a type binder to a term invites the possibility of unintentional 
+variable capture, and so 
+the condition on \ova{\ltitvar{}} avoids capturing free type variables in \ltiE{}.
 
 \begin{figure}
   \begin{mathpar}
@@ -1780,7 +1810,7 @@ with threaded environments as
     {}
     {\ltiupdateClosureCacheSingle{\ltiClosureCache{}}{\ltiClosureID{}}{\ltiE{}}{\ltiClosureCachep{}}
     \\\\
-    \text{Associate function tagged with closure identifier \ltiClosureID{} with SCL elaboration \ltiE{}.
+    \text{Pick SCL elaboration \ltiE{} for symbolic closure identifier \ltiClosureID{}.
     }
     }
     }
@@ -1802,7 +1832,12 @@ with threaded environments as
     \end{array}
   \end{mathpar}
   \caption{Metafunctions for Symbolic Closure language}
+  \label{symbolic:figure:SC-language-metafunctions}
 \end{figure}
+
+The metafunction \ltiupdateClosureCacheSinglesymbol is defined in \figref{symbolic:figure:SC-language-metafunctions}.
+It manages the elaboration cache so that a symbolic closure's SCL elaboration term is
+only picked once.
 
 \begin{figure}
 
@@ -1885,6 +1920,12 @@ with threaded environments as
 
   \[
   \begin{array}{llll}
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTop}{\ltiTop}
+                      \\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiBot}{\ltiBot}
+                      \\
+    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltitvar{}}{\ltitvar{}}
+                      \\
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}
                       {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
                       {\ltiPolyFn{\ltielimClosTLHS{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}}{\ova{\ltitvar{}}}
@@ -1911,102 +1952,151 @@ with threaded environments as
                                    {\ltifuntparamargrettype{\ova{\ltitvar{}}}{\ltivar{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}}
                                    % this condition is checked in S-Closure and constraint system
                                    %, \ova{\ltitvar{}} \cap \ltitv{\ltiE{}} = \varnothing
-                      \\
-    \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiT{}}
-                      , & \text{otherwise}
   \end{array}
   \]
-  \caption{Elaboration Metafunctions for Symbolic Closure language}
+  \caption{Elaboration Metafunctions for SCL Terms and Types}
+  \label{symbolic:figure:SC-language-elaboration}
 \end{figure}
 
-\subsection{Symbolic closure Metatheory}
+Elaboration metafunctions are given in \figref{symbolic:figure:SC-language-elaboration}.
+For terms, \ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
+elaborates \ltiE{} to \ltiEp{} using elaboration cache \ltiClosureCache{}.
+The case for tagged unannotated functions 
+{\ltiufunelab{\ltiufunelabentry{\ltiClosureID{}}}
+                                  {\ltivar{}}
+                                  {\ltiE{}}}
+simply uses the elaboration entry for \ltiClosureID{} to continue elaboration.
+The metafunction is undefined for the external language's unannotated terms.
+For unannotated functions, this means each symbolic closure must be symbolically executed at least once,
+otherwise they would contain unannotated functions and applications.
+Unannotated applications are already elaborated away with local type argument synthesis
+(\chapref{chapter:symbolic:directed-lti}).
+Otherwise, the other interesting feature of \ltielimClossymbol is that it
+calls \ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}} on types, which
+elaborates symbolic closures in \ltiT{} using \ltiClosureCache{}.
+Some extra bookkeeping is needed to prevent infinitely generating
+types. Since symbolic closures may be passed to other symbolic closures,
+a seen-set \ova{\ltiClosureID{}} handles the case where it is passed to itself.
+Since we do not model equi-recursive types, we simply disallow that situation here.
 
-\begin{lemma}[Subtyping (External Language)]
-   \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-    iff
-   \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-\end{lemma}
-
-\begin{lemma}[Soundness (External Language)]
-  If \ltitSdjudgement{\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiEp{}}
-                     and
-                     \ltiSdsubtypeseen{\varnothing}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-                     then
-    \ltitjudgement{\ltiEnv{}}
-                  {\ltiEp{}}
-                  {\ltiS{}}
-                  {\ltiEpp{}}
-\end{lemma}
-
-\begin{lemma}[Completeness (External Language)]
-  If \ltitjudgement{\ltiEnv{}}
-                   {\ltiE{}}
-                   {\ltiT{}}
-                   {\ltiEp{}}
-                  then
-  \ltitSdjudgement{\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiEp{}}
-\end{lemma}
-
-\begin{lemma}[Soundness (Symbolic Closure Language)]
-  If there exists some fuel \ltiFuel{} such that
-    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-                      {\ltiEnv{}}
-                      {\ltiE{1}}
-                      {\ltiT{}}
-                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-                      {\ltiE{2}},
-                      then
-    \ltitSdjudgement{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
-                    {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
-                    {\ltiS{}}
-                    {\ltiEp{}}
-                    such that
-                      \ltiisubtype{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}{\ltiS{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}.
-\end{lemma}
-
-\begin{lemma}[Completeness 1 (Symbolic Closure Language)]
-  If \ltitSdjudgement{\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiEp{}}
-                     then
-    either
-    and fuel \ltiFuel{}
-    such that
-    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-                      {\ltiEnv{}}
-                      {\ltiF{}}
-                      {\ltiT{}}
-                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-                      {\ltiFp{}}.
-\end{lemma}
-
-% TODO timeout rules for type system
-% TODO 
-\begin{lemma}[Completeness 2 (Symbolic Closure Language)]
-  If \ltitSdjudgement{\ltiEnv{}}
-                     {\ltiE{}}
-                     {\ltiT{}}
-                     {\ltiEp{}}
-                     then
-    there exists a term \ltiF{} such that \ltiE{} is a partial erasure of \ltiF{}
-    and fuel \ltiFuel{}
-    such that
-    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-                      {\ltiEnv{}}
-                      {\ltiF{}}
-                      {\ltiT{}}
-                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-                      {\ltiFp{}}.
-\end{lemma}
 
 \section{Examples without Type Argument Synthesis}
+
+\begin{mathpar}
+  \inferrule*[left=\ltiSCAppInfClosure
+  ]
+  {\inferrule*[lab=\ltiSCUAbs]
+   {
+   \ltiClosureCache{} =
+                       {\ltiClosureCacheEntry{\ltiInferred{\text{c1}}}
+                                           {\ltiClosure{\ltiEmptyEnv}
+                                                        {\ltiufun{\text{x}}{\text{x}}}}}
+   }
+   { \ltitSstkjudgement{\varnothing}
+                      {\ltiEmptyEnv}
+                      {\tikz[overlay,remember picture] \node [] (b) {};\ltiufun{\text{x}}{\text{x}}}
+                      {\ltiClosureWithStkID{\ltiEmptyEnv}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\text{x}^{\tikz[overlay,remember picture] \node [] (e) {};}}
+                                                    {\text{x}^{\tikz[overlay,remember picture] \node [] (g) {};}}}}
+                      {\ltiClosureCache{}}
+                      {\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}
+   }
+   \\
+   \inferrule*
+   {...}
+   { \ltitSstkjudgementNoElab{\ltiClosureCache{}}
+                      {\ltiEmptyEnv}
+                      {\tikz[overlay,remember picture] \node [] (d) {};\text{1}}
+                      {\ltiInferred{\text{Int}\tikz[overlay,remember picture] \node [] (i) {};}}
+                      {\ltiClosureCache{}}
+                      {\text{1}}
+   }
+   \\
+   \inferrule*[lab=\ltiSCVar]
+   { }
+   {
+    \ltitSstkjudgementNoElab{\ltiClosureCache{}}
+                      {\hastype{\text{}^{\tikz[overlay,remember picture] \node [] (f) {};}
+                                \text{x}}
+                               {\ltiInferred{\tikz[overlay,remember picture] \node [] (j) {};\text{Int}}}}
+                      {\text{}^{\tikz[overlay,remember picture] \node [] (h) {};}
+                       \text{x}}
+                      {\ltiInferred{\tikz[overlay,remember picture] \node [] (k) {};
+                                    \text{Int}}}
+                      {\ltiClosureCache{}}
+                      {\text{x}}
+                      }
+  }
+  {
+    \ltitSstkjudgement{\varnothing}
+                      {\ltiEmptyEnv}
+                      {\ltiappParens{\text{}^{\tikz[overlay,remember picture] \node [] (a) {};}
+                                     \ltiufun{\text{x}}{\text{x}}}
+                                    {\text{1}^{\tikz[overlay,remember picture] \node [] (c) {};}}}
+                      {\ltiInferred{\text{Int}}}
+                      {\ltiClosureCacheEntry{\ltiInferred{\text{c1}}}
+                                            {\ltiClosure{\ltiEmptyEnv}
+                                                              {\ltifunargrettype{\text{x}}
+                                                                                {\ltiInferred{ \text{Int}^{
+                                                                                          \tikz[overlay,remember picture] \node [] (j2) {};}}}
+                                                                                {\ltiInferred{ \text{Int}^{
+                                                                                 \tikz[overlay,remember picture] \node [] (l) {};}
+                                                                                },}
+                                                                                {\text{x}}}}}
+                      {\ltiappParens{\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}{\text{1}}}
+  }
+\end{mathpar}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start3) at (e);
+  \coordinate (End3) at (f);
+  \coordinate (Start4) at (g);
+  \coordinate (End4) at (h);
+  \coordinate (Start5) at (i);
+  \coordinate (End5) at (j);
+  \coordinate (Start6) at (i);
+  \coordinate (End6) at (j2);
+  \coordinate (Start7) at (k);
+  \coordinate (End7) at (l);
+  \draw[red,dashed,->](Start1.north) to (End1.south);
+  \draw[red,dashed,->](Start2.north) to (End2.south);
+  \draw[red,dashed,->](Start3.north) to [bend left] (End3.south);
+  \draw[red,dashed,->](Start4.north) to [bend left] (End4.south);
+  \draw[red,dashed,->](Start5.north) to [bend right] (End5.south);
+  \draw[red,dashed,->](Start6.north) to (End6.south);
+  \draw[red,dashed,->](Start7.north) to (End7.south);
+\end{tikzpicture} 
+
+{
+\singlespacing
+\begin{lstlisting}[language=ml,mathescape=true]
+let x = 1 in x
+(* Desugared *)
+$\ltiappParens{\ltiufun{\text{x}}{\text{x}}}{\text{1}}$
+(* SC annotated *)
+(* $\ltiInferred{\ltiClosureCache{} =%
+      \ltiClosureCacheEntry{\text{c1}}%
+                           {\ltiClosure{\ltiEmptyEnv}%
+                                       {\ltiNotInferred%
+                                        {\ltifunargrettype{\text{x}}%
+                                                          {\ltiInferred{\text{Int}}}%
+                                                          {\ltiInferred{\text{Int}},}%
+                                                          {\text{x}}}}}}$ *)
+$\ltiappParens{\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}{\text{1}}$
+(* fully annotated *)
+$\ltiappParens{\ltifunargrettype{\text{x}}%
+                                {\ltiInferred{\text{Int}}}%
+                                {\ltiInferred{\text{Int}},}%
+                                {\text{x}}}%
+              {\text{1}}$
+\end{lstlisting}
+}
+
 
 \begin{figure}
 $$
@@ -2018,6 +2108,7 @@ $$
   \ltiufun{\ova{\ltivar{}}^n}{\ltiE{}} &\Leftrightarrow&
   \ltiufun{\ltivarp{}}{\ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
   & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
+                      &\mbox{Term abbreviations}
   \\
   \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}^n}{\ova{\ltiT{}}^n}{\ltiE{}} &\Leftrightarrow&
   \ltifuntparamargtype{\ova{\ltitvar{}}}
@@ -2043,7 +2134,6 @@ $$
   \\
   \ltianncolon{\ltiE{}}{\ltiS{}} &\Leftrightarrow&
   \ltiappParens{\ltifunargtype{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}}
-                      &&\mbox{Term abbreviations}
 \end{array}
 $$
 \caption{External Language Syntax abbreviations
@@ -2573,26 +2663,6 @@ map[$\ltiInferred{\text{Int, Int}}$]($\ltifuninterface{\ltiInferred{\ltiFn{\text
 \end{lstlisting}
 }
 
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-let x = 1 in x+1
-(* Desugared *)
-$\ltiapp{(\ltiufun{\text{x}}{\text{x+1}})}{\text{1}}$
-(* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} =%
-      \ltiClosureCacheEntry{\text{c1}}%
-                           {\ltiClosure{\ltiEmptyEnv}%
-                                       {\ltiNotInferred%
-                                        {\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}%
-                                                         {\text{x}}%
-                                                         {\text{x+1}}}}}}$ *)
-$\ltiappParens{\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x+1}}}{\text{1}}$
-(* fully annotated *)
-$\ltiappParens{\ltifuninterface{\ltiFn{\text{Int}}{\text{Int}}}{\text{x}}{\text{x+1}}}{\text{1}}$
-\end{lstlisting}
-}
-
 
 
 {
@@ -2625,6 +2695,92 @@ let app = $\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{
 \end{lstlisting}
 }
 
+%\subsection{Symbolic closure Metatheory}
+%
+%\begin{lemma}[Subtyping (External Language)]
+%   \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+%    iff
+%   \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+%\end{lemma}
+%
+%\begin{lemma}[Soundness (External Language)]
+%  If \ltitSdjudgement{\ltiEnv{}}
+%                     {\ltiE{}}
+%                     {\ltiT{}}
+%                     {\ltiEp{}}
+%                     and
+%                     \ltiSdsubtypeseen{\varnothing}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+%                     then
+%    \ltitjudgement{\ltiEnv{}}
+%                  {\ltiEp{}}
+%                  {\ltiS{}}
+%                  {\ltiEpp{}}
+%\end{lemma}
+%
+%\begin{lemma}[Completeness (External Language)]
+%  If \ltitjudgement{\ltiEnv{}}
+%                   {\ltiE{}}
+%                   {\ltiT{}}
+%                   {\ltiEp{}}
+%                  then
+%  \ltitSdjudgement{\ltiEnv{}}
+%                     {\ltiE{}}
+%                     {\ltiT{}}
+%                     {\ltiEp{}}
+%\end{lemma}
+%
+%\begin{lemma}[Soundness (Symbolic Closure Language)]
+%  If there exists some fuel \ltiFuel{} such that
+%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+%                      {\ltiEnv{}}
+%                      {\ltiE{1}}
+%                      {\ltiT{}}
+%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+%                      {\ltiE{2}},
+%                      then
+%    \ltitSdjudgement{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
+%                    {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
+%                    {\ltiS{}}
+%                    {\ltiEp{}}
+%                    such that
+%                      \ltiisubtype{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}{\ltiS{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}.
+%\end{lemma}
+%
+%\begin{lemma}[Completeness 1 (Symbolic Closure Language)]
+%  If \ltitSdjudgement{\ltiEnv{}}
+%                     {\ltiE{}}
+%                     {\ltiT{}}
+%                     {\ltiEp{}}
+%                     then
+%    either
+%    and fuel \ltiFuel{}
+%    such that
+%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+%                      {\ltiEnv{}}
+%                      {\ltiF{}}
+%                      {\ltiT{}}
+%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+%                      {\ltiFp{}}.
+%\end{lemma}
+%
+%% TODO timeout rules for type system
+%% TODO 
+%\begin{lemma}[Completeness 2 (Symbolic Closure Language)]
+%  If \ltitSdjudgement{\ltiEnv{}}
+%                     {\ltiE{}}
+%                     {\ltiT{}}
+%                     {\ltiEp{}}
+%                     then
+%    there exists a term \ltiF{} such that \ltiE{} is a partial erasure of \ltiF{}
+%    and fuel \ltiFuel{}
+%    such that
+%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+%                      {\ltiEnv{}}
+%                      {\ltiF{}}
+%                      {\ltiT{}}
+%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+%                      {\ltiFp{}}.
+%\end{lemma}
 
 %\input{symbolic-extended}
 %\input{colored}

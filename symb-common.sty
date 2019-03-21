@@ -252,6 +252,7 @@
 \newcommand\ltisclangvdash{\ma{\vdash}}
 % symbolic closure type system
 % ClosureCache Env |- E : T ; CombinedThreadedEnv ; E*
+\newcommand\ltitSstkjudgementNoElabCombined[6]{\ma{#2 \ltisclangalgvdash {\hastype{#3}{#4}}}} %omits elab, combined envs
 \newcommand\ltitSstkjudgementNoElab[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5}} %omits elab
 \newcommand\ltitSstkjudgement[6]{\ma{\ltitSstkjudgementNoElab{#1}{#2}{#3}{#4}{#5}{} ; #6}}
 % declarative symbolic closure type system
@@ -424,6 +425,12 @@
 \newcommand\ltiSCAppInstBot{\ma{\ltityperulefont{SC-App\ltiBot}}}
 \newcommand\ltiSCSelBot{\ma{\ltityperulefont{SC-Sel\ltiBot}}}
 \newcommand\ltiSCAppInfBot{\ma{\ltityperulefont{SC-UApp\ltiBot}}}
-\newcommand\ltiSCAppInfClosure{\ma{\ltityperulefont{SC-UAppClosure}}}
-\newcommand\ltiSCAppClosure{\ma{\ltityperulefont{SC-AppClosure}}}
+\newcommand\ltiSCAppInfClosure{\ma{\ltityperulefont{SC-UAppClo}}}
+\newcommand\ltiSCAppClosure{\ma{\ltityperulefont{SC-AppClo}}}
 \newcommand\ltiSCUAbs{\ma{\ltityperulefont{SC-UAbs}}}
+\newcommand\ltiSCSTVar{\ma{\ltityperulefont{SCS-TVar}}}
+\newcommand\ltiSCSTop{\ma{\ltityperulefont{SCS-Top}}}
+\newcommand\ltiSCSBot{\ma{\ltityperulefont{SCS-Bot}}}
+\newcommand\ltiSCSRec{\ma{\ltityperulefont{SCS-Rec}}}
+\newcommand\ltiSCSFn{\ma{\ltityperulefont{SCS-Fn}}}
+\newcommand\ltiSCSClosure{\ma{\ltityperulefont{SCS-Clo}}}
