@@ -1468,8 +1468,7 @@ then provide definitions for the elaboration metafunctions.
     \ltitSstkjudgement{\ltiCombinedThreadedEnv{}}
                       {\ltiEnv{}}
                       {\ltiufun{\ltivar{}}{\ltiE{}}}
-                      {\ltiClosureWithStkID
-                                           {\ltiEnv{}}
+                      {\ltiClosureWithStkID{\ltiEnv{}}
                                            {\ltiClosureID{}}
                                            {\ltiufun{\ltivar{}}{\ltiE{}}}}
                       {\ltiCombinedThreadedEnvp{}}
@@ -1567,10 +1566,56 @@ straightfowardly extended with threaded environments.
 The extra condition in \ltiSCAbs
 helps ensure a symbolic closure type only reasons about type variables
 in its definition scope.
-The first rule for lightweight applications \ltiSCAppInfBot corresponds to \ltiEAppInfBot.
+The first rule for lightweight applications \ltiSCAppInfBot implements \ltiEAppInfBot.
 
 The remaining rules are more interesting.
-\ltiSCUAbs
+The symbolic closure introduction rule
+\ltiSCUAbs creates a symbolic closure type with a fresh identifier \ltiClosureID{}
+for the unannotated term \ltiufun{\ltivar{}}{\ltiE{}}.
+The return type is a symbolic closure type
+                       \ltiClosureWithStkID{\ltiEnv{}}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\ltivar{}}{\ltiE{}}}
+that holds enough information to check its body at some later time
+and link it back to its originating term.
+The elaboration cache entry for \ltiClosureID{} is initialized 
+with an unannotated term, signifying that the body has yet to be type checked
+and is passed on as part of \ltiCombinedThreadedEnvp{}.
+Finally, the elaboration
+                      {\ltiufunelab{\ltiClosureID{}}
+                                   {\ltivar{}}
+                                   {\ltiE{}}}
+tags the original term with its symbolic closure identifier \ltiClosureID{}.
+The intuition behind this rule being sound is because, from the type checker's perspective,
+there is no witness (yet) to \ltiufun{\ltivar{}}{\ltiE{}}
+being called, and so there is no opportunity to ``get stuck'' or
+``go wrong''. 
+The next rule handles one kind of witness to its invocation: application.
+
+The application rule for symbolic closures
+\ltiSCAppInfClosure
+checks \ltiapp{\ltiF{}}{\ltiE{}}
+where \ltiF{} has type
+                      {\ltiClosureWithStkID{\ltiEnvp{}}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\ltivar{}}{\ltiEp{}}}}
+                                           and 
+\ltiE{} has type \ltiT{}.
+As with the normal application rule,
+we must ensure \ltiF{}'s domain is permissive enough to be
+applied to terms of type \ltiT{}, which we
+we verify with a symbolic reduction.
+After consuming fuel, the final premise checks \ltiF{}'s
+function body \ltiEp{} in its definition context \ltiEnvp{},
+extended with \hastype{\ltivar{}}{\ltiT{}} (to account for
+\ltiE{} being passed as an argument), giving type \ltiS{}
+and elaboration \ltiFpp{}.
+The type of the entire application is simply \ltiS{}, since
+the condition in \ltiSCAbs (and in other rules, given later) ensure that
+\ltiEnv{} and \ltiEnvp{} share the same type variable scope---there
+is no opportunity for \ltiS{} to introduce an out-of-scope type variable.
+
+
 
 \begin{figure}
   \begin{mathpar}

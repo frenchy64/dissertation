@@ -279,7 +279,8 @@
 \newcommand\ltiupdateClosureCachealign[7]{\ma{\ltiupdateClosureCacheLHS{#1}{#2}{#3}{#4}{#5}{#6} &=& #7}}
 % Single
 % ClosureCache ClosureID E => ClosureCache
-\newcommand\ltiupdateClosureCacheSingleLHS[3]{\ma{\metafunctionfont{save}(#1,#2,#3)}}
+\newcommand\ltiupdateClosureCacheSinglesymbol{\ma{\metafunctionfont{pick}}}
+\newcommand\ltiupdateClosureCacheSingleLHS[3]{\ma{{\ltiupdateClosureCacheSinglesymbol}_{#1}(#2,#3)}}
 \newcommand\ltiupdateClosureCacheSingle[4]{\ma{\ltiupdateClosureCacheSingleLHS{#1}{#2}{#3} = #4}}
 \newcommand\ltiupdateClosureCacheSinglealign[4]{\ma{\ltiupdateClosureCacheSingleLHS{#1}{#2}{#3} &=& #4}}
 % elabDriver
