@@ -2210,7 +2210,9 @@ it is a subtype of the provided type.
                       \colorbox{pink}{\ltiClosure{{\tikz[overlay,remember picture] \node [] (j) {};}{\ltiEnv{}}}
                                            {\ltiufun{{\ltivar{}}^{\tikz[overlay,remember picture] \node [] (p) {};}}
                                                     {{\tikz[overlay,remember picture] \node [] (l) {};}\ltiF{}}}}}
-                  {\ltiPolyFn{\colorbox{pink}{\ltiT{}}^{\tikz[overlay,remember picture] \node [] (n) {};}}{{\tikz[overlay,remember picture] \node [] (t) {};}\colorbox{pink}{\ova{\ltitvar{}}}}{\ltiS{}}}
+                  {\ltiPolyFn{\colorbox{pink}{\ltiT{}}^{\tikz[overlay,remember picture] \node [] (n) {};}}
+                             {{\tikz[overlay,remember picture] \node [] (t) {};}\colorbox{pink}{\ova{\ltitvar{}}}}
+                             {\colorbox{pink}{\ltiS{}}}}
                   {\ltiCombinedThreadedEnv{3}}
                   }
    }
@@ -2223,7 +2225,10 @@ it is a subtype of the provided type.
                                                                                 _{\tikz[overlay,remember picture] \node [] (f) {};}
                                                                         \colorbox{pink}{\ltiClosure{\ltiEnv{}}
                                                                                              {\ltiufun{\ltivar{}}{\ltiF{}}}}}}}}}
-                      {\ltianncolon{\ltisel{\text{g}}{\text{d}}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}
+                      {\ltianncolon{\ltisel{\text{g}}{\text{d}}}
+                                   {\ltiPolyFn{\colorbox{pink}{\ltiT{}}}
+                                                      {\colorbox{pink}{\ova{\ltitvar{}}}}
+                                                      {\colorbox{pink}{\ltiS{}}}}}
                       {{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiapp{\ltiFp{}}{\ltiEp{}}}
@@ -2234,7 +2239,10 @@ it is a subtype of the provided type.
                       {...}
                       {\ltilet{\text{g}}{\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (a) {};}
                                                            \colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
-                              {\ltianncolon{\ltisel{\text{g}}{\text{d}}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}}
+                              {\ltianncolon{\ltisel{\text{g}}{\text{d}}}
+                                           {\ltiPolyFn{\colorbox{pink}{\ltiT{}}}
+                                                      {\colorbox{pink}{\ova{\ltitvar{}}}}
+                                                      {\colorbox{pink}{\ltiS{}}}}}}
                       {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiapp{\ltiFp{}}{\ltiEp{}}}
