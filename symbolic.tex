@@ -1645,38 +1645,63 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
   {
   \inferrule*
   {
-  \inferrule*[lab=\ltiSCUAbs]
-   {
-   ...
-   %\ltiClosureCache{} =
-   %                    {\ltiClosureCacheEntry{\ltiClosureID{}}
-   %                                        {\ltiClosure{\ltiEnv{}}
-   %                                                     {\ltiufun{\ltivar{}}{\ltiF{}}}}}
-   }
+  \inferrule*
+  {
+  \inferrule*[lab=\boxed{\ltiSCUAbs}]
+   {}
    {
    \ltitSstkjudgementNoElabCombined{\varnothing}
-                                   {\ltiEnv{}}
-                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
-                                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+                                   {\ltiEnv{}^{\tikz[overlay,remember picture] \node [] (c1) {};}}
+                                   {{\tikz[overlay,remember picture] \node [] (c) {};}\boxed{\ltiufun{\ltivar{}}{\ltiF{}}}}
+                                   {\boxed{
+                                           {\ltiClosureWithStkID{{\tikz[overlay,remember picture] \node [] (d1) {};}\ltiEnv{}}{\ltiClosureID{}}
+                                                                {{\tikz[overlay,remember picture] \node [] (d2) {};}\ltiufun{\ltivar{}}{\ltiF{}}}}}
+                                                                {\tikz[overlay,remember picture] \node [] (d) {};}}
                                    {\ltiCombinedThreadedEnv{}}
                                    {\ltiufun{\ltivar{}}{\ltiF{}}}
    }
    }
    {...}
+   }
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                                   {...}
+                                   {\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (b) {};}\boxed{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
+                                   {\ltiRec{\hastype{\text{d}}
+                                           {\boxed
+                                            {\ltiClosureWithStkID{\ltiEnv{}}
+                                                                {\ltiClosureID{}}
+                                                                {\ltiufun{\ltivar{}}
+                                                                         {\ltiF{}}}}
+                                                                         ^
+                                                                         {\tikz[overlay,remember picture] \node [] (e) {};}
+                                                                         _
+                                                                         {\tikz[overlay,remember picture] \node [] (e1) {};}}}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+                                   }
    \\
-  \inferrule*[right=\ltiSCAppInfClosure
+  \inferrule*[lab=\boxed{
+  \ \ \ \ \ \ \ \ \ \ 
+  \ \ \ \ \ \ \ \ \ \ 
+                        \ltiSCAppInfClosure 
+                        \ \ \ \ \ \ \ \ \ 
+                        \ \ \ \ \ \ \ \ \ 
+                        }
   ]
   {
   \inferrule*[]
    {...}
    {
    \ltitSstkjudgementNoElabCombined{\varnothing}
-                      {...}
-                      {\tikz[overlay,remember picture] \node [] (b) {};{\ltisel{\text{g}}{\text{fn}}}}
-                      {\ltiClosureWithStkID{\ltiEnv{}}
+                      {{}_{\tikz[overlay,remember picture] \node [] (h) {};}
+                       .}
+                      {{\ltisel{\text{g}}{\text{d}}}}
+                      {\text{}_{\tikz[overlay,remember picture] \node [] (i) {};}
+                      \boxed{\ltiClosureWithStkID{{\ltiEnv{}}^{\tikz[overlay,remember picture] \node [] (j) {};}}
                                            {\ltiClosureID{}}
-                                           {\ltiufun{\ltivar{}^{\tikz[overlay,remember picture] \node [] (e) {};}}
-                                                    {\ltiF{}^{\tikz[overlay,remember picture] \node [] (g) {};}}}}
+                                           {\ltiufun{\ltivar{}}
+                                                    {\ltiF{}^{\tikz[overlay,remember picture] \node [] (l) {};}}}}}
                       {\ltiClosureCache{}}
                       {\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}
    }
@@ -1684,9 +1709,9 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
    \inferrule*
    {...}
    { \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
-                      {...}
-                      {\tikz[overlay,remember picture] \node [] (d) {};\ltiE{}}
-                      {\ltiS{}\tikz[overlay,remember picture] \node [] (i) {};}
+                      {.}
+                      {\ltiE{}}
+                      {{\ltiS{}}_{\tikz[overlay,remember picture] \node [] (n) {};}}
                       {\ltiClosureCache{}}
                       {\ltiEp{}}
    }
@@ -1695,28 +1720,27 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
    { }
    {
     \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
-                      {\ltiEnvConcat{\ltiEnv{}}
-                                    {\hastype{\text{}^{\tikz[overlay,remember picture] \node [] (f) {};}
-                                              \ltivar{}}
-                                             {\tikz[overlay,remember picture] \node [] (j) {};\ltiS{}}}}
-                      {\text{}^{\tikz[overlay,remember picture] \node [] (h) {};}
-                       \ltiF{}}
-                      {\tikz[overlay,remember picture] \node [] (k) {};
-                                    \ltiT{}}
+                      {\ltiEnvConcat{\ltiEnv{}^{\tikz[overlay,remember picture] \node [] (k) {};}
+                                     }
+                                    {\hastypesmall{\ltivar{}}{\text{}_{\tikz[overlay,remember picture] \node [] (o) {};}{\ltiS{}}}}}
+                      {\text{}^{\tikz[overlay,remember picture] \node [] (m) {};}\ltiF{}}
+                      {\ltiT{}}
                       {\ltiClosureCache{}}
-                      {\ltisel{\text{g}}{\text{fn}}}
+                      {\ltisel{\text{g}}{\text{d}}}
                       }
   }
   {
     \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnvConcat{\ltiEnv{}}
-                                    {\hastype{\text{g}}{\ltiRec{\hastype{\text{fn}}
-                                                                        {\ltiClosureWithStkID{\ltiEnv{}}
+                      {\ltiEnvConcat{...}
+                                    {\hastype{\text{g}}{\ltiRec{\hastype{\text{d}}
+                                                                        {{}^{\tikz[overlay,remember picture] \node [] (g) {};}
+                                                                                _{\tikz[overlay,remember picture] \node [] (f) {};}
+                                                                        \boxed{\ltiClosureWithStkID{\ltiEnv{}}
                                                                                              {\ltiClosureID{}}
-                                                                                             {\ltiufun{\ltivar{}}{\ltiF{}}}}}}}}
-                      {\ltiapp{\text{}^{\tikz[overlay,remember picture] \node [] (a) {};}
-                               {\ltisel{\text{g}}{\text{fn}}}}
-                              {\ltiE{}^{\tikz[overlay,remember picture] \node [] (c) {};}}}
+                                                                                             {\ltiufun{\ltivar{}}{\ltiF{}}}}}}}}}
+                      {\ltiapp{
+                               {\ltisel{\text{g}}{\text{d}}}}
+                              {\ltiE{}}}
                       {\ltiT{}}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiapp{\ltiFp{}}{\ltiEp{}}}
@@ -1724,9 +1748,9 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
   }
   {
     \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}
-                      {\ltiEnv{}}
-                      {\ltilet{\text{g}}{\ltiRec{\text{fn}={\ltiufun{\ltivar{}}{\ltiF{}}}}}
-                              {\ltiapp{\ltisel{\text{g}}{\text{fn}}}{\ltiE{}}}}
+                      {...}
+                      {\ltilet{\text{g}}{\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (a) {};}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
+                              {\ltiapp{\ltisel{\text{g}}{\text{d}}}{\ltiE{}}}}
                       {\ltiT{}}
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiapp{\ltiFp{}}{\ltiEp{}}}
@@ -1736,13 +1760,37 @@ since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
                   text width = 2.5cm ]
   \coordinate (Start1) at (a);
   \coordinate (End1) at (b);
-  \coordinate (Start2) at (c);
-  \coordinate (End2) at (d);
-  \coordinate (Start5) at (i);
-  \coordinate (End5) at (j);
-  \draw[red,dashed,->](Start1.north) to (End1.south);
+  \coordinate (Start2) at (b);
+  \coordinate (End2) at (c);
+  \coordinate (Start3) at (c);
+  \coordinate (End3) at (d2);
+  \coordinate (Start3p1) at (c1);
+  \coordinate (End3p1) at (d1);
+  \coordinate (Start4) at (d);
+  \coordinate (End4) at (e);
+  \coordinate (Start6) at (e1);
+  \coordinate (End6) at (f);
+  \coordinate (Start7) at (g);
+  \coordinate (End7) at (h);
+  \coordinate (Start5) at (h);
+  \coordinate (End5) at (i);
+  \coordinate (Start8) at (j);
+  \coordinate (End8) at (k);
+  \coordinate (Start9) at (l);
+  \coordinate (End9) at (m);
+  \coordinate (Start10) at (n);
+  \coordinate (End10) at (o);
+  \draw[red,dashed,->](Start1.north) to [bend left] (End1.south);
   \draw[red,dashed,->](Start2.north) to (End2.south);
-  \draw[red,dashed,->](Start5.north) to [bend right] (End5.south);
+  \draw[red,dashed,->](Start3.north) to [bend right] (End3.south);
+  \draw[red,dashed,->](Start3p1.north) to [bend left] (End3p1.south);
+  \draw[red,dashed,->](Start4.north) to (End4.south);
+  \draw[red,dashed,->](Start5.north) to (End5.south);
+  \draw[red,dashed,->](Start6.north) to (End6.south);
+  \draw[red,dashed,->](Start7.north) to (End7.south);
+  \draw[red,dashed,->](Start8.north) to [bend left] (End8.south);
+  \draw[red,dashed,->](Start9.north) to [bend left] (End9.south);
+  \draw[red,dashed,->](Start10.north) to [bend right] (End10.south);
 \end{tikzpicture} 
 
 \begin{figure}
