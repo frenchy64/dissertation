@@ -1640,6 +1640,111 @@ We elide the almost-identical rule \ltiSCAppClosure for applying a symbolic clos
 with explicit type arguments,
 since it can only be of the form \ltiappinst{\ltiF{}}{}{\ltiE{}}.
 
+\begin{mathpar}
+  \inferrule*[]
+  {
+  \inferrule*
+  {
+  \inferrule*[lab=\ltiSCUAbs]
+   {
+   ...
+   %\ltiClosureCache{} =
+   %                    {\ltiClosureCacheEntry{\ltiClosureID{}}
+   %                                        {\ltiClosure{\ltiEnv{}}
+   %                                                     {\ltiufun{\ltivar{}}{\ltiF{}}}}}
+   }
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                                   {\ltiEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+                                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+   }
+   }
+   {...}
+   \\
+  \inferrule*[right=\ltiSCAppInfClosure
+  ]
+  {
+  \inferrule*[]
+   {...}
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                      {...}
+                      {\tikz[overlay,remember picture] \node [] (b) {};{\ltisel{\text{g}}{\text{fn}}}}
+                      {\ltiClosureWithStkID{\ltiEnv{}}
+                                           {\ltiClosureID{}}
+                                           {\ltiufun{\ltivar{}^{\tikz[overlay,remember picture] \node [] (e) {};}}
+                                                    {\ltiF{}^{\tikz[overlay,remember picture] \node [] (g) {};}}}}
+                      {\ltiClosureCache{}}
+                      {\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}
+   }
+   \\
+   \inferrule*
+   {...}
+   { \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
+                      {...}
+                      {\tikz[overlay,remember picture] \node [] (d) {};\ltiE{}}
+                      {\ltiS{}\tikz[overlay,remember picture] \node [] (i) {};}
+                      {\ltiClosureCache{}}
+                      {\ltiEp{}}
+   }
+   \\
+   \inferrule*[]
+   { }
+   {
+    \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
+                      {\ltiEnvConcat{\ltiEnv{}}
+                                    {\hastype{\text{}^{\tikz[overlay,remember picture] \node [] (f) {};}
+                                              \ltivar{}}
+                                             {\tikz[overlay,remember picture] \node [] (j) {};\ltiS{}}}}
+                      {\text{}^{\tikz[overlay,remember picture] \node [] (h) {};}
+                       \ltiF{}}
+                      {\tikz[overlay,remember picture] \node [] (k) {};
+                                    \ltiT{}}
+                      {\ltiClosureCache{}}
+                      {\ltisel{\text{g}}{\text{fn}}}
+                      }
+  }
+  {
+    \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnvConcat{\ltiEnv{}}
+                                    {\hastype{\text{g}}{\ltiRec{\hastype{\text{fn}}
+                                                                        {\ltiClosureWithStkID{\ltiEnv{}}
+                                                                                             {\ltiClosureID{}}
+                                                                                             {\ltiufun{\ltivar{}}{\ltiF{}}}}}}}}
+                      {\ltiapp{\text{}^{\tikz[overlay,remember picture] \node [] (a) {};}
+                               {\ltisel{\text{g}}{\text{fn}}}}
+                              {\ltiE{}^{\tikz[overlay,remember picture] \node [] (c) {};}}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+  }
+  }
+  {
+    \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnv{}}
+                      {\ltilet{\text{g}}{\ltiRec{\text{fn}={\ltiufun{\ltivar{}}{\ltiF{}}}}}
+                              {\ltiapp{\ltisel{\text{g}}{\text{fn}}}{\ltiE{}}}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+  }
+\end{mathpar}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \coordinate (Start5) at (i);
+  \coordinate (End5) at (j);
+  \draw[red,dashed,->](Start1.north) to (End1.south);
+  \draw[red,dashed,->](Start2.north) to (End2.south);
+  \draw[red,dashed,->](Start5.north) to [bend right] (End5.south);
+\end{tikzpicture} 
+
 \begin{figure}
   \begin{mathpar}
     \boxed{
