@@ -1701,11 +1701,11 @@ Highlighting is used to convey how a symbolic closure is assembled, disassembled
   }
 \end{mathpar}
 
-Using these rules, we now illustrate how to check
+Using these rules, we illustrate inferring the \emph{obfuscated} term
                       ``{\ltilet{\text{g}}{\ltiRec{\text{d}={{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
                               {\ltiapp{\ltisel{\text{g}}{\text{d}}}{\ltiE{}}}}'',
-an obfuscation of ``{\ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\ltiE{}}}''
-where the function is the $\text{d}$ entry in a let-bound record and then immediately extracted.
+which is like the \emph{unobfuscated} term ``{\ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\ltiE{}}}'',
+except the function is briefly stored in a let-bound record.
 Bidirectional propagation of types is insufficient to recover the type of {\ltivar{}},
 however symbolic closures provide the necessary indirection to successfully infer the term.
 To simplify its presentation, the following derivation uses the standard explicit typing rule for let,
@@ -1870,25 +1870,26 @@ and the subderivation trees of \ltiSimpAppInfClosure.
 The derivation proceeds as follows.
 First, the record term 
 ``{\ltiRec{\text{d}={\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}''
-is checked using the left subderivation ending in \ltiSimpUAbs.
-To delay its checking, {\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+is checked using the left subderivation, which ends with \ltiSimpUAbs.
+There, to delay its checking, {\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}
 is packaged with its definition context {\colorbox{pink}{\ltiEnv{}}}
 in the symbolic closure {\colorbox{pink}{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiF{}}}}},
 which finds itself in the resulting record type of the left subderivation
 ``{\ltiRec{\hastype{\text{d}}{\colorbox{pink}{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}}''.
-The right subderivation binds this record type as $\text{g}$ in the type environment,
-and checks the body ``{\ltiapp{\ltisel{\text{g}}{\text{d}}}{\ltiE{}}}''.
+The right subderivation then binds this record type as $\text{g}$ in the type environment
+to check the body ``{\ltiapp{\ltisel{\text{g}}{\text{d}}}{\ltiE{}}}''.
 The first rule in the right subderivation is \ltiSimpAppInfClosure,
 since the operator {\ltisel{\text{g}}{\text{d}}}
 has our symbolic closure type
 {\colorbox{pink}{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiF{}}}}}
-(because that is the type of ${\text{g}}$'s ${\text{d}}$ field).
-The argument \ltiE{} is checked as type {\colorbox{pink}{\ltiS{}}}.
+via a rule like \ltiISel.
+Next, the argument \ltiE{} is checked as type {\colorbox{pink}{\ltiS{}}}.
 Now, {\colorbox{pink}{\ltiEnv{}}}, {\colorbox{pink}{\ltivar{}}},
 and {\colorbox{pink}{\ltiF{}}}
 are extracted from the symbolic closure
-and, along with {\colorbox{pink}{\ltiS{}}}, used to check (essentially)
-our unobfuscated term ``{\ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\ltiE{}}}''
+and, along with {\colorbox{pink}{\ltiS{}}}, used to check (effectively)
+our type-decorated unobfuscated term
+``{\ltiappParens{\ltifunargtype{\ltivar{}}{\colorbox{pink}{\ltiS{}}}{\ltiF{}}}{\ltiE{}}}''
 with the derivation
     ``\ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
                       {\ltiEnvConcat{\colorbox{pink}{\ltiEnv{}}
@@ -1903,7 +1904,7 @@ The result type {\colorbox{pink}{\ltiT{}}}
 is then propagated to be the type of the entire derivation.
 
 Local Type Inference and Colored Local Type Inference
-would have failed to infer this term exactly
+would have failed to infer the obfuscated term exactly
 at \ltiSimpUAbs, because it requires the type of \ltivar{}
 to be known from its context at the point \ltiufun{\ltivar{}}{\ltiF{}}
 is checked.
