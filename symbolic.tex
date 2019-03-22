@@ -1719,8 +1719,6 @@ and the subderivation trees of \ltiSimpAppInfClosure.
   {
   \inferrule*
   {
-  \inferrule*
-  {
   \inferrule*[lab=\boxed{\ltiSimpUAbs}]
    {}
    {
@@ -1734,8 +1732,6 @@ and the subderivation trees of \ltiSimpAppInfClosure.
                                    {\ltiCombinedThreadedEnv{}}
                                    {\ltiufun{\ltivar{}}{\ltiF{}}}
    }
-   }
-   {...}
    }
    {
    \ltitSstkjudgementJustType{\varnothing}
@@ -2078,6 +2074,314 @@ type for \ltiClosureID{}, and we must check the return type is under \ltiS{}.
 Adding a type binder to a term invites the possibility of unintentional 
 variable capture, and so 
 the condition on \ova{\ltitvar{}} avoids capturing free type variables in \ltiE{}.
+
+To illustrate \ltiSCSClosure's role, we again aggressively simplify our presentation.
+The simplified rule \ltiSimpSClosure extracts symbolic closure's terms and definition environment
+to check it with the provided input type and type arguments.
+
+\begin{mathpar}
+    \infer [\ltiSimpSClosure]
+    {
+    \ltitSstkjudgementNoElabCombined{\ltimakeCombinedThreadedEnv{\ltiFuel{1}-1}{\ltiClosureCache{1}}}
+                      {\ltiEnvConcat{\colorbox{pink}{\ltiEnv{}}}
+                                    {\ltiEnvConcat{\colorbox{pink}{\ova{\ltitvar{}}}}
+                                                  {\hastype{\colorbox{pink}{\ltivar{}}}
+                                                           {\colorbox{pink}{\ltiT{}}}}}}
+                      {\colorbox{pink}{\ltiE{}}}
+                      {\colorbox{pink}{\ltiSp{}}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{2}}{\ltiClosureCache{2}}}
+                      {\ltiEp{}}
+                      \\
+    \ltiSsubtypeJustTypes{\ltimakeCombinedThreadedEnv
+                 {\ltiFuel{2}}
+                 {\ltiupdateClosureCacheSingleLHS{\ltiClosureCache{2}}
+                                                  {\ltiClosureID{}}
+                                                  {\ltifuntparamargrettype
+                                                   {\ova{\ltitvar{}}}
+                                                   {\ltivar{}}
+                                                   {\ltiT{}}
+                                                   {\ltiSp{}}
+                                                   {\ltiEp{}}}}}
+                {\ltiEnv{}}{\colorbox{pink}{\ltiSp{}}}{\ltiS{}}
+                {\ltiCombinedThreadedEnv{3}}
+    }
+    { \ltiSsubtypeJustTypes{\ltiCombinedThreadedEnv{1}}
+                  {\ltiEnvp{}}
+                  {\colorbox{pink}{\ltiClosure{\ltiEnv{}}
+                                       {\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                  {\ltiPolyFn{\colorbox{pink}{\ltiT{}}}{\colorbox{pink}{\ova{\ltitvar{}}}}{\ltiS{}}}
+                  {\ltiCombinedThreadedEnv{3}}
+                  }
+\end{mathpar}
+
+We now illustrate how to check
+\ltianncolon{\ltiRec{\text{d}=\ltiufun{\ltivar{}}{\ltiF{}}}}
+            {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
+a slightly more complicated version of
+\ltianncolon{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}.
+To streamline presentation, we temporarily ignore the fact that type ascription
+is syntactic sugar (defined \figref{symbolic:figure:external-language-syntax-abbreviations})
+and use its standard typing rule, which first synthesizes a type for the term, then checks
+it is a subtype of the provided type.
+
+\begin{mathpar}
+  \inferrule*[]
+  {
+  \inferrule*
+  {
+  \inferrule*[lab=\boxed{\ltiSimpUAbs}]
+   {}
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                                   {\colorbox{pink}{\ltiEnv{}}^{\tikz[overlay,remember picture] \node [] (c1) {};}}
+                                   {{\tikz[overlay,remember picture] \node [] (c) {};}\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+                                   {\colorbox{pink}{
+                                           {\ltiClosure{\text{}^{\tikz[overlay,remember picture] \node [] (d1) {};}\ltiEnv{}}
+                                                                {{\tikz[overlay,remember picture] \node [] (d2) {};}\ltiufun{\ltivar{}}{\ltiF{}}}}}
+                                           {\tikz[overlay,remember picture] \node [] (d) {};}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+   }
+   }
+   {
+   \ltitSstkjudgementJustType{\varnothing}
+                                   {...}
+                                   {\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (b) {};}\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
+                                   {\ltiRec{\hastype{\text{d}}
+                                           {\colorbox{pink}
+                                            {\ltiClosure{\ltiEnv{}}
+                                                                {\ltiufun{\ltivar{}}
+                                                                         {\ltiF{}}}}
+                                                                         ^
+                                                                         {\tikz[overlay,remember picture] \node [] (e) {};}
+                                                                         _
+                                                                         {\tikz[overlay,remember picture] \node [] (e1) {};}}}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+                                   }
+   \\
+  \inferrule*[%T-Ann
+  ]
+  {
+  \inferrule*[]
+   {}
+   {
+   \ltitSstkjudgementJustType{\varnothing}
+                      {...}
+                      {{\ltisel{\text{g}}{\text{d}}}}
+                      {\colorbox{pink}{\ltiClosure{{\ltiEnv{}}}
+                                           {\ltiufun{{\ltivar{}}}
+                                                    {\ltiF{}}}}
+                                                    {\tikz[overlay,remember picture] \node [] (h) {};}}
+                      {\ltiClosureCache{}}
+                      {\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}
+                      \\
+    \inferrule* [lab=\boxed{\ltiSimpSClosure}]
+    {
+    \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
+                      {\ltiEnvConcat{\colorbox{pink}{\ltiEnv{}}_{\tikz[overlay,remember picture] \node [] (k) {};}}
+                                    {\ltiEnvConcat
+                                      {\colorbox{pink}{\ova{\ltitvar{}}}_{\tikz[overlay,remember picture] \node [] (u) {};}}
+                                      {\hastypesmall{\colorbox{pink}{\ltivar{}}_{\tikz[overlay,remember picture] \node [] (q) {};}}
+                                                    {{\colorbox{pink}{\ltiT{}}}_{\tikz[overlay,remember picture] \node [] (o) {};}}}}}
+                      {\text{}_{\tikz[overlay,remember picture] \node [] (m) {};}
+                       \colorbox{pink}{\ltiF{}}}
+                      {\colorbox{pink}{\ltiSp{}}{\tikz[overlay,remember picture] \node [] (r) {};}}
+                      {\ltiClosureCache{}}
+                      {\ltisel{\text{g}}{\text{d}}}
+                      \\
+    \ltiSsubtypeJustTypes{\ltimakeCombinedThreadedEnv
+                 {\ltiFuel{2}}
+                 {\ltiupdateClosureCacheSingleLHS{\ltiClosureCache{2}}
+                                                  {\ltiClosureID{}}
+                                                  {\ltifuntparamargrettype
+                                                   {\ova{\ltitvar{}}}
+                                                   {\ltivar{}}
+                                                   {\ltiT{}}
+                                                   {\ltiSp{}}
+                                                   {\ltiEp{}}}}}
+                {\ltiEnv{}}{{\tikz[overlay,remember picture] \node [] (s) {};}\colorbox{pink}{\ltiSp{}}}{\ltiS{}}
+                {\ltiCombinedThreadedEnv{3}}
+    }
+    { 
+      \ltiSsubtypeJustTypes{\ltiCombinedThreadedEnv{1}}
+                  {\ltiEnvp{}}
+                  {\text{}_{\tikz[overlay,remember picture] \node [] (i) {};}
+                      \colorbox{pink}{\ltiClosure{{\tikz[overlay,remember picture] \node [] (j) {};}{\ltiEnv{}}}
+                                           {\ltiufun{{\ltivar{}}^{\tikz[overlay,remember picture] \node [] (p) {};}}
+                                                    {{\tikz[overlay,remember picture] \node [] (l) {};}\ltiF{}}}}}
+                  {\ltiPolyFn{\colorbox{pink}{\ltiT{}}^{\tikz[overlay,remember picture] \node [] (n) {};}}{{\tikz[overlay,remember picture] \node [] (t) {};}\colorbox{pink}{\ova{\ltitvar{}}}}{\ltiS{}}}
+                  {\ltiCombinedThreadedEnv{3}}
+                  }
+   }
+  }
+  {
+    \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}
+                      {%\ltiEnvConcat{...}
+                                    {\hastype{\text{g}}{\ltiRec{\hastype{\text{d}}
+                                                                        {{}^{\tikz[overlay,remember picture] \node [] (g) {};}
+                                                                                _{\tikz[overlay,remember picture] \node [] (f) {};}
+                                                                        \colorbox{pink}{\ltiClosure{\ltiEnv{}}
+                                                                                             {\ltiufun{\ltivar{}}{\ltiF{}}}}}}}}}
+                      {\ltianncolon{\ltisel{\text{g}}{\text{d}}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}
+                      {{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+  }
+  }
+  {
+    \ltitSstkjudgementJustType{\ltiCombinedThreadedEnv{}}
+                      {...}
+                      {\ltilet{\text{g}}{\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (a) {};}
+                                                           \colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
+                              {\ltianncolon{\ltisel{\text{g}}{\text{d}}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}}
+                      {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+  }
+\end{mathpar}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (b);
+  \coordinate (End2) at (c);
+  \coordinate (Start3) at (c);
+  \coordinate (End3) at (d2);
+  \coordinate (Start3p1) at (c1);
+  \coordinate (End3p1) at (d1);
+  \coordinate (Start4) at (d);
+  \coordinate (End4) at (e);
+  \coordinate (Start6) at (e1);
+  \coordinate (End6) at (f);
+  \coordinate (Start7) at (g);
+  \coordinate (End7) at (h);
+  \coordinate (Start7p1) at (h);
+  \coordinate (End7p1) at (i);
+  \coordinate (Start8) at (j);
+  \coordinate (End8) at (k);
+  \coordinate (Start9) at (l);
+  \coordinate (End9) at (m);
+  \coordinate (Start10) at (n);
+  \coordinate (End10) at (o);
+  \coordinate (Start11) at (p);
+  \coordinate (End11) at (q);
+  \coordinate (Start12) at (r);
+  \coordinate (End12) at (s);
+  \coordinate (Start13) at (t);
+  \coordinate (End13) at (u);
+  \draw[pink,-](Start1.north) to [bend left] (End1.south);
+  \draw[pink,-](Start2.north) to (End2.south);
+  \draw[pink,-](Start3.north) to [bend right] (End3.south);
+  \draw[pink,-](Start3p1.north) to [bend left] (End3p1.south);
+  \draw[pink,-](Start4.north) to (End4.south);
+  \draw[pink,-](Start6.north) to (End6.south);
+  \draw[pink,-](Start7.north) to (End7.south);
+  \draw[pink,-](Start7p1.north) to (End7p1.south);
+  \draw[pink,-](Start8.north) to (End8.south);
+  \draw[pink,-](Start9.north) to [bend left] (End9.south);
+  \draw[pink,-](Start10.north) to (End10.south);
+  \draw[pink,-](Start11.north) to (End11.south);
+  \draw[pink,-](Start12.north) to (End12.south);
+  \draw[pink,-](Start13.north) to (End13.south);
+\end{tikzpicture} 
+
+\begin{mathpar}
+  \inferrule*
+  {
+  \inferrule*
+  {
+  \inferrule*
+  {
+  \inferrule*[lab=\boxed{\ltiSimpUAbs}]
+   {}
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                                   {\colorbox{pink}{\ltiEnv{}}^{\tikz[overlay,remember picture] \node [] (c1) {};}}
+                                   {{\tikz[overlay,remember picture] \node [] (c) {};}\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+                                   {\colorbox{pink}{
+                                           {\ltiClosure{\text{}^{\tikz[overlay,remember picture] \node [] (d1) {};}\ltiEnv{}}
+                                                                {{\tikz[overlay,remember picture] \node [] (d2) {};}\ltiufun{\ltivar{}}{\ltiF{}}}}}
+                                           {\tikz[overlay,remember picture] \node [] (d) {};}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+   }
+   }
+   {...}
+   }
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                                   {\ltiEnv{}}
+                                   {\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (b) {};}\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
+                                   {\ltiRec{\hastype{\text{d}}
+                                           {\colorbox{pink}
+                                            {\ltiClosure{\ltiEnv{}}
+                                                                {\ltiufun{\ltivar{}}
+                                                                         {\ltiF{}}}}
+                                                                         ^
+                                                                         {\tikz[overlay,remember picture] \node [] (e) {};}
+                                                                         _
+                                                                         {\tikz[overlay,remember picture] \node [] (e1) {};}}}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+   }
+   \\
+   \inferrule*[]
+   {
+    \inferrule* [lab=\boxed{\ltiSimpSClosure}]
+    {
+    \ltitSstkjudgementNoElabCombined{\ltimakeCombinedThreadedEnv{\ltiFuel{1}-1}{\ltiClosureCache{1}}}
+                      {\ltiEnvConcat{\colorbox{pink}{\ltiEnv{}}}
+                                    {\ltiEnvConcat{\colorbox{pink}{\ova{\ltitvar{}}}}
+                                                  {\hastype{\colorbox{pink}{\ltivar{}}}
+                                                           {\colorbox{pink}{\ltiT{}}}}}}
+                      {\colorbox{pink}{\ltiE{}}}
+                      {\colorbox{pink}{\ltiSp{}}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuel{2}}{\ltiClosureCache{2}}}
+                      {\ltiEp{}}
+                      \\
+    \ltiSsubtypeJustTypes{\ltimakeCombinedThreadedEnv
+                 {\ltiFuel{2}}
+                 {\ltiupdateClosureCacheSingleLHS{\ltiClosureCache{2}}
+                                                  {\ltiClosureID{}}
+                                                  {\ltifuntparamargrettype
+                                                   {\ova{\ltitvar{}}}
+                                                   {\ltivar{}}
+                                                   {\ltiT{}}
+                                                   {\ltiSp{}}
+                                                   {\ltiEp{}}}}}
+                {\ltiEnv{}}{\colorbox{pink}{\ltiSp{}}}{\ltiS{}}
+                {\ltiCombinedThreadedEnv{3}}
+    }
+    { 
+      \ltiSsubtypeJustTypes{\ltiCombinedThreadedEnv{1}}
+                  {\ltiEnvp{}}
+                  {\colorbox{pink}{\ltiClosure{\ltiEnv{}}
+                                       {\ltiufun{\ltivar{}}{\ltiE{}}}}}
+                  {\ltiPolyFn{\colorbox{pink}{\ltiT{}}}{\colorbox{pink}{\ova{\ltitvar{}}}}{\ltiS{}}}
+                  {\ltiCombinedThreadedEnv{3}}
+                  }
+                  }
+    {
+      \ltiSsubtypeJustTypes{\ltiCombinedThreadedEnv{1}}
+                  {\ltiEnvp{}}
+                  {\ltiRec{\hastype{\text{d}}
+                                   {\colorbox{pink}{\ltiClosure{\ltiEnv{}}
+                                                   {\ltiufun{\ltivar{}}{\ltiE{}}}}}}}
+                  {\ltiRec{\hastype{\text{d}}
+                                   {\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}}
+                  {\ltiCombinedThreadedEnv{3}}
+                  }
+  }
+  {
+  \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}{\ltiEnv{}}
+                      {\ltianncolon{\ltiRec{\text{d}=\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}
+                                   {\ltiRec{\hastype{\text{d}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}}}
+                      {\ltiRec{\hastype{\text{d}}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}}
+                      {\ltiCombinedThreadedEnv{}}
+                      {\ltianncolon{(\ltiufun{\ltivar{}}{\ltiF{}})}{\ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}}}
+  }
+\end{mathpar}
 
 \begin{figure}
   \begin{mathpar}

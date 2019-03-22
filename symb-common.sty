@@ -261,6 +261,7 @@
 \newcommand\ltitSdjudgement[4]{\ma{#1 \ltisclangdeclvdash {\hastype{#2}{#3}} \Rightarrow #4}}
 % algorithmic subtyping for symbolic closure language types
 % ThreadedEnv Env T T => T ThreadedEnv
+\newcommand\ltiSsubtypeJustTypes[5]{\ma{#3 \ltisubtypeseparator #4}} % keeps just t <: t
 \newcommand\ltiSsubtype[5]{\ma{#1 \ltisclangalgvdash #3 \ltisubtypeseparator #4 ; #5}}
 % Seen ThreadedEnv Env T T => T ThreadedEnv
 \newcommand\ltiSsubtypeseen[6]{\ma{#1 ; #2 \ltisclangalgvdash #4 \ltisubtypeseparator #5 ; #6}}
@@ -437,3 +438,4 @@
 \newcommand\ltiSCSRec{\ma{\ltityperulefont{SCS-Rec}}}
 \newcommand\ltiSCSFn{\ma{\ltityperulefont{SCS-Fn}}}
 \newcommand\ltiSCSClosure{\ma{\ltityperulefont{SCS-Clo}}}
+\newcommand\ltiSimpSClosure{\ma{\ltityperulefont{SimpS-Clo}}}
