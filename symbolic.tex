@@ -2533,7 +2533,7 @@ we demonstrate the lambda-encoding of let in our system by
 checking term ``\ltilet{\ltivar{}}{42}{\ltiF{}}''---which desugars to
 ``{\ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\text{42}}}''---at some
 some overall type \ltiS{}
-with \sml{42} having type \sml{Int}.
+with $\text{42}$ having type $\text{Int}$.
 To streamline presentation, we assume that checking \ltiF{}
 does not introduce any symbolic closures
 (to keep the elaboration cache compact), liberally
@@ -2639,11 +2639,10 @@ and omit symbolic reduction fuel from the derivation.
   \draw[pink,thick,solid,->,transform canvas={yshift=4pt}](Start9.north) to [bend left=10] (End9.north);
   \draw[pink,thick,solid,->](Start11.north) to (End11.north);
 \end{tikzpicture} 
-
+%
 The derivation starts with the \ltiSCAppInfClosure rule (chosen because the operator
 \ltiufun{\ltivar{}}{\ltiF{}}
-has a symbolic closure type
-                                                    )
+has a symbolic closure type)
 with empty elaboration cache \ltiEmptyClosureCache
 and empty type environment \ltiEmptyEnv.
 The distinct identifer {{\colorbox{pink}{\ltiClosureID{}}}}
@@ -2662,6 +2661,58 @@ Second, it identifies the rule's overall symbolic closure type
 for later elaboration.
 Third, it tags the rule's elaboration {\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiF{}}}}
 which, again, links the term to its elaboration cache entry.
+Like a traditional application rule, the middle subderivation checks the argument.
+The right subderivation performs a symbolic reduction
+    \ltitSstkjudgementNoCombined{\ltiClosureCache{}}
+                      {\hastype{\ltivar{}}
+                               {{\text{Int}}}}
+                      {\ltiF{}}
+                      {{\colorbox{pink}{\ltiS{}}}}
+                      {\ltiClosureCache{}}
+                      {{\colorbox{pink}{\ltiFp{}}}},
+where \ltivar{} and \ltiF{} come from the symbolic closure type
+and $\text{Int}$ from the argument's type,
+with the result type \colorbox{pink}{\ltiS{}} being the type of the entire derivation.
+The elaboration \colorbox{pink}{\ltiFp{}}
+will (eventually) be inserted in \ltiF{}'s place.
+
+Now the goal is to stash enough information in the elaborated term and elaboration cache
+to eliminate unannotated terms using \ltielimClossymbol after type checking.
+For the entire derivation's elaborated term,
+tagged functions are preserved
+by combining the operator and operand elaborations in
+{\ltiappParens{{\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiF{}}}}}{\text{42}}}.
+For the elaboration cache,
+the (omitted) call
+                 \ltiupdateClosureCacheSingleLHS{\ltiClosureCache{}}
+                                                {\ltiClosureID{}}
+                       {\ltiClosure{\ltiEmptyEnv}
+                                         {\ltifunargrettype{\ltivar{}}
+                                                           {{\text{Int}}}
+                                                           {{\colorbox{pink}{\ltiS{}}}
+                                                            \ }
+                                                           {{\colorbox{pink}{\ltiFp{}}}}}}
+updates the elaboration cache's ``placeholder'' entry
+for {{\colorbox{pink}{\ltiClosureID{}}}}
+to be 
+                      {\ltiClosureCacheEntry
+                       {{\colorbox{pink}{\ltiClosureID{}}}}
+                       {\ltiClosure{\ltiEmptyEnv}
+                                         {\ltifunargrettype{\ltivar{}}
+                                                           {{\colorbox{pink}
+                                                            {\text{Int}}}}
+                                                           {
+                                                            {\colorbox{pink}{\ltiS{}}}
+                                                            \ }
+                                                           {{\colorbox{pink}{\ltiFp{}}}}}}},
+where {{\colorbox{pink}{\ltiClosureID{}}}},
+{\ltiEmptyEnv}, and {\ltivar{}} come from the symbolic closure type,
+{{\colorbox{pink}{\text{Int}}}} from the argument's type, 
+and {\colorbox{pink}{\ltiS{}}},
+{{\colorbox{pink}{\ltiFp{}}}}
+from the symbolic reduction.
+
+% Now explain how to SC elaborate a term
 
 \section{Examples without Type Argument Synthesis}
 
