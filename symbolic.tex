@@ -1938,7 +1938,6 @@ and the subderivation trees of \ltiSimpAppInfClosure.
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiapp{\ltiFp{}}{\ltiEp{}}}
   }
-\end{mathpar}
 \begin{tikzpicture}[remember picture, overlay,
                   text width = 2.5cm ]
   \coordinate (Start1) at (a);
@@ -1980,6 +1979,7 @@ and the subderivation trees of \ltiSimpAppInfClosure.
   \draw[pink,-](Start12.north) to (End12.south);
   \draw[pink,-](End12.north) to (End13.south);
 \end{tikzpicture} 
+\end{mathpar}
 % instructions for in/out https://cremeronline.com/LaTeX/minimaltikz.pdf
 
 The derivation proceeds as follows.
@@ -2371,7 +2371,6 @@ it is a subtype of the provided type.
                       {\ltiCombinedThreadedEnvp{}}
                       {\ltiapp{\ltiFp{}}{\ltiEp{}}}
   }
-\end{mathpar}
 \begin{tikzpicture}[remember picture, overlay,
                   text width = 2.5cm ]
   \coordinate (Start1) at (a);
@@ -2423,6 +2422,7 @@ it is a subtype of the provided type.
   \draw[pink,-](Start14.north) to (End14.south);
   \draw[pink,-](Start15.north) to (End15.south);
 \end{tikzpicture} 
+\end{mathpar}
 
 The derivation begins in a similar fashion to the previous one, 
 with the left subderivation using \ltiSimpUAbs
@@ -2720,7 +2720,6 @@ and omit symbolic reduction fuel from the derivation.
                                                            {{\colorbox{pink}{\ltiFp{}}}^{\tikz[overlay,remember picture] \node [] (t) {};}}}}}
                       {\ltiappParens{{\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiF{}}}}^{\tikz[overlay,remember picture] \node [] (p) {};}}{\text{42}}}
   }
-\end{mathpar}
 \begin{tikzpicture}[remember picture, overlay,
                   text width = 2.5cm ]
   \coordinate (Start1) at (a);
@@ -2758,6 +2757,7 @@ and omit symbolic reduction fuel from the derivation.
   \draw[pink,thick,solid,->,transform canvas={yshift=4pt}](Start9.north) to [bend left=10] (End9.north);
   \draw[pink,thick,solid,->](Start11.north) to (End11.north);
 \end{tikzpicture} 
+\end{mathpar}
 %
 The derivation starts with the \ltiSCAppInfClosure rule (chosen because the operator
 \ltiufun{\ltivar{}}{\ltiF{}}
@@ -2860,8 +2860,6 @@ however in general a recursive \ltielimClossymbol call on
                                                 {\ltiS{} \ }
                                                 {\ltiFp{}}}}
               {\text{42}}}
-\end{array}
-\]
 \begin{tikzpicture}[remember picture, overlay,
                   text width = 2.5cm ]
   \coordinate (Start1) at (a);
@@ -2871,6 +2869,8 @@ however in general a recursive \ltielimClossymbol call on
   \draw[pink,thick,solid,->](Start1.north) to [bend left] (End1.south);
   \draw[pink,thick,solid,->](Start2.north) to [bend left] (End2.south);
 \end{tikzpicture} 
+\end{array}
+\]
 
 
 %\section{Examples without Type Argument Synthesis}

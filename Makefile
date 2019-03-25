@@ -44,4 +44,4 @@ fast-pldi:
 	pdflatex pldi19.tex 
 
 clean:
-	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod *.loe
+	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod *.loe *-blx.bib *.run.xml
