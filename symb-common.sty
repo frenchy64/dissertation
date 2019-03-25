@@ -223,6 +223,10 @@
 % wrap in an extra pair of parens so superscripts work
 \newcommand\overrightarrowcaption[1]{\ma{{\overrightarrow{#1}}}}
 
+% top-level type inference
+% Env E T => F
+\newcommand\ltiinferTL[4]{\ma{#1 \vdash \hastype{#2}{#3} \hookrightarrow {#4}}}
+
 %% Internal language (no symbolic closures, bidirectional type checking, or type arg synthesis)
 \newcommand\ltiinternallabel{\ma{\ltilanguagelabelfont{I}}}
 \newcommand\ltiLvdash[1]{\ma{\vdash_{#1}}}

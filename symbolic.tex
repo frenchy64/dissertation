@@ -1287,13 +1287,13 @@ It performs a depth-first traversal of the syntax tree.
                   \ltielimClos{\ltiClosureCache{}}{\ltiEp{}}{\ltiF{}}
   }
   {
-  \ltiEnv{} \vdash \hastype{\ltiE{}}{\ltiT{}} \hookrightarrow {\ltiF{}}
+    \ltiinferTL{\ltiEnv{}}{\ltiE{}}{\ltiT{}}{\ltiF{}}
   }
   \end{mathpar}
 \end{figure}
 
 The top-level driver for type inference
-$\ltiEnv{} \vdash \hastype{\ltiE{}}{\ltiT{}} \hookrightarrow {\ltiF{}}$, presented above,
+\ltiinferTL{\ltiEnv{}}{\hastype{\ltiE{}}{\ltiT{}}}{\ltiF{}}, presented above,
 says external term \ltiE{} has internal type \ltiT{}
 in external environment \ltiEnv{}, with internal elaboration \ltiF{}.
 It requires an initial fuel \ltiFuel{} to be provided to SCL, 
@@ -2872,7 +2872,6 @@ however in general a recursive \ltielimClossymbol call on
 \end{array}
 \]
 
-
 %\section{Examples without Type Argument Synthesis}
 
 %% let x = 1 in x
@@ -2902,6 +2901,141 @@ however in general a recursive \ltielimClossymbol call on
 %}
 
 
+\subsection{Symbolic Closure Metatheory Conjectures}
+
+We now outline the relationships between the internal, external, and symbolic closure
+languages that would be desirable as a series of conjectures.
+We leave the proofs as future work.
+
+%\begin{lemma}[Subtyping (External Language)]
+%   \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+%    iff
+%   \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+%\end{lemma}
+
+%\begin{lemma}[Soundness (External Language)]
+%  If \ltitSdjudgement{\ltiEnv{}}
+%                     {\ltiE{}}
+%                     {\ltiT{}}
+%                     {\ltiEp{}}
+%                     and
+%                     \ltiSdsubtypeseen{\varnothing}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
+%                     then
+%    \ltitjudgement{\ltiEnv{}}
+%                  {\ltiEp{}}
+%                  {\ltiS{}}
+%                  {\ltiEpp{}}
+%\end{lemma}
+
+%\begin{lemma}[Completeness (External Language)]
+%  If \ltitjudgement{\ltiEnv{}}
+%                   {\ltiE{}}
+%                   {\ltiT{}}
+%                   {\ltiEp{}}
+%                  then
+%  \ltitSdjudgement{\ltiEnv{}}
+%                     {\ltiE{}}
+%                     {\ltiT{}}
+%                     {\ltiEp{}}
+%\end{lemma}
+
+Ideally, SCL always infers sound annotations and types for external terms.
+
+\begin{conjecture}[SCL Soundness]
+  If there exists fuel {\ltiFuel{}} such that
+     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+                       {\ltiEmptyEnv}
+                       {\ltiE{}}
+                       {\ltiT{}}
+                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+                       {\ltiEp{}}
+  for external term \ltiE{},
+                       SCL type \ltiT{},
+                       and SCL term \ltiEp{},
+                      then
+    \ltitjudgementNoElab{}
+                  {\ltielimClosLHS{\ltiClosureCache{}}{\ltiEp{}}}
+                  {\ltiTp{}}
+                   in the internal language,
+                  where 
+                  \ltiisubtype{}{\ltiTp{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiTp{}}}.
+\end{conjecture}
+
+Several key 
+
+%\begin{conjecture}[SCL Completeness 1]
+%  If \ltitjudgementNoElab{\ltiEnv{}}
+%                   {\ltiE{}}
+%                   {\ltiT{}}
+%    then
+%    either
+%    \forall
+%    and fuel \ltiFuel{}
+%    such that
+%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+%                      {\ltiEnv{}}
+%                      {\ltiF{}}
+%                      {\ltiT{}}
+%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+%                      {\ltiFp{}}.
+%\end{conjecture}
+
+%% TODO timeout rules for type system
+%% TODO 
+
+Completeness for SCL says that there always exists some amount of annotations
+we can add to a term that type checks in the external language so it can type
+check in SCL.
+
+\begin{conjecture}[SCL Weak Completeness]
+  If \ltitjudgementNoElab{}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     for external term {\ltiE{}},
+                     then
+    there exists a term \ltiF{} such that \ltiE{} is a partial erasure of \ltiF{}
+    and fuel \ltiFuel{}
+    such that
+    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+                      {\ltiEmptyEnv}
+                      {\ltiF{}}
+                      {\ltiT{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+                      {\ltiFp{}}.
+\end{conjecture}
+
+Since SCL essentially contains the rules of the internal language, we can always
+use the annotations chosen by the external language's oracle. This way, we can
+erase all symbolic closure introduction rules and reuse previous results for systems
+based on \ltiFsub, so this theorem does not say much about symbolic closures.
+It would be nice to prove a stronger theorem
+based on fuel, such as the following.
+
+\begin{conjecture}[SCL Strong Completeness]
+  If \ltitjudgementNoElab{}
+                     {\ltiE{}}
+                     {\ltiT{}}
+                     for external term {\ltiE{}},
+                     then
+    either, for all initial fuel \ltiFuel{}, SCL gets stuck at a symbolic reduction with zero fuel when checking {\ltiE{}},
+    or there exists fuel \ltiFuel{}
+    such that
+    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+                      {\ltiEmptyEnv}
+                      {\ltiF{}}
+                      {\ltiT{}}
+                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+                      {\ltiFp{}}.
+\end{conjecture}
+
+Unfortunately, this requires that SCL distinguishes between a type error
+and running out of fuel, which would significantly complicate the model.
+One way this might be able to be achieved is this based on a technique for
+proving type soundness for big-step reduction relations.
+For each type and subtype rule, we add extra rules to explicitly
+handle all cases where the derivation can ``get stuck.''
+Then, running out of fuel can be recognized by a derivation ending
+in a symbolic reduction rule with zero fuel.
 
 % - Solution
 %   - "obvious" function annotations
