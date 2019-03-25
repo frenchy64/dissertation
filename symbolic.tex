@@ -2242,7 +2242,7 @@ it is a subtype of the provided type.
     \ltitSstkjudgementJustType{\ltiCombinedThreadedEnv{}}
                       {...}
                       {\ltilet{\text{g}}{\ltiRec{\text{d}={{\tikz[overlay,remember picture] \node [] (a) {};}
-                                                           \colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}
+                                                           {\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}}}}
                               {\ltianncolon{\ltisel{\text{g}}{\text{d}}}
                                            {{\colorbox{pink}{\ltiPolyFn{\ltiT{}}
                                                                       {\ova{\ltitvar{}}}
@@ -2305,7 +2305,77 @@ it is a subtype of the provided type.
   \draw[pink,-](Start15.north) to (End15.south);
 \end{tikzpicture} 
 
+The derivation begins in a similar fashion to the previous one, 
+with the left subderivation using \ltiSimpUAbs
+to delay the type checking of {\colorbox{pink}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+via the symbolic closure
+\colorbox{pink}
+{\ltiClosure{{\ltiEnv{}}}
+           {\ltiufun{{\ltivar{}}}
+                    {\ltiF{}}}}.
+The right subderivation
+begins with a rule checking type ascription, specifically that  term
+``{\ltisel{\text{g}}{\text{d}}}''
+has function type
+{\colorbox{pink}{\ltiPolyFn{\ltiT{}}
+                           {\ova{\ltitvar{}}}
+                           {\ltiS{}}}}.
+First, a type is synthesized for ``{\ltisel{\text{g}}{\text{d}}}'',
+which reveals our symbolic closure type from the left subderivation.
+Then, we check that the symbolic closure is a subtype of 
+our desired function type via the symbolic reduction
+    ``\ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
+                      {\ltiEnvConcat{\colorbox{pink}{\ltiEnv{}}}
+                                    {\ltiEnvConcat
+                                      {{\colorbox{pink}{\ova{\ltitvar{}}}}}
+                                      {\hastypesmall{\colorbox{pink}{\ltivar{}}}
+                                                    {{\colorbox{pink}{\ltiT{}}}}}}}
+                      {\colorbox{pink}{\ltiF{}}}
+                      {{\ltiSp{}}}
+                      {\ltiClosureCache{}}
+                      {\ltisel{\text{g}}{\text{d}}}.''
+Finally, the return type of the symbolic reduction is checked to be compatible
+with our desired function type with
+    \ltiSsubtypeJustTypes{\ltimakeCombinedThreadedEnv
+                 {\ltiFuel{2}}
+                 {\ltiupdateClosureCacheSingleLHS{\ltiClosureCache{2}}
+                                                  {\ltiClosureID{}}
+                                                  {\ltifuntparamargrettype
+                                                   {\ova{\ltitvar{}}}
+                                                   {\ltivar{}}
+                                                   {\ltiT{}}
+                                                   {\ltiSp{}}
+                                                   {\ltiEp{}}}}}
+                {\ltiEnv{}}{{\ltiSp{}}}
+                           {\colorbox{pink}{\ltiS{}}}
+                {\ltiCombinedThreadedEnv{3}}.
+
+
 \begin{figure}
+
+%  \[
+%    \boxed{\ltielabDriver{\ltiE{}}{\ltiEp{}}{\ltiT{}}
+%    \text{ Elaborates external language term \ltiE{} to internal language term \ltiEp{} and type \ltiT{}.
+%    }
+%    }
+%  \]
+%
+%  \[
+%  \begin{array}{lll}
+%    \ltielabDriver{\ltiE{1}}
+%                  {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
+%                  {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}
+%                  , &\text{where }
+%    \exists \ltiFuel{}.
+%     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
+%                       {\ltiEmptyEnv}
+%                       {\ltiE{1}}
+%                       {\ltiT{}}
+%                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
+%                       {\ltiE{2}}
+%  \end{array}
+%  \]
+
   \begin{mathpar}
     \boxed{
     \infer[]
@@ -2333,38 +2403,6 @@ it is a subtype of the provided type.
               {\ltiClosure{\ltiEnv{}}{\ltiE{}}})
     \end{array}
   \end{mathpar}
-  \caption{Metafunctions for Symbolic Closure language}
-  \label{symbolic:figure:SC-language-metafunctions}
-\end{figure}
-
-The metafunction \ltiupdateClosureCacheSinglesymbol is defined in \figref{symbolic:figure:SC-language-metafunctions}.
-It manages the elaboration cache so that a symbolic closure's SCL elaboration term is
-only picked once.
-
-\begin{figure}
-
-%  \[
-%    \boxed{\ltielabDriver{\ltiE{}}{\ltiEp{}}{\ltiT{}}
-%    \text{ Elaborates external language term \ltiE{} to internal language term \ltiEp{} and type \ltiT{}.
-%    }
-%    }
-%  \]
-%
-%  \[
-%  \begin{array}{lll}
-%    \ltielabDriver{\ltiE{1}}
-%                  {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
-%                  {\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}
-%                  , &\text{where }
-%    \exists \ltiFuel{}.
-%     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-%                       {\ltiEmptyEnv}
-%                       {\ltiE{1}}
-%                       {\ltiT{}}
-%                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-%                       {\ltiE{2}}
-%  \end{array}
-%  \]
 
   \[
     \boxed{\ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
@@ -2460,7 +2498,13 @@ only picked once.
   \label{symbolic:figure:SC-language-elaboration}
 \end{figure}
 
-Elaboration metafunctions are given in \figref{symbolic:figure:SC-language-elaboration}.
+Now that we have covered the type system and subtyping, we turn to the elaboration rules,
+which are given in \figref{symbolic:figure:SC-language-elaboration}.
+They are split into two metafunctions \ltielimClossymbol and \ltielimClosTsymbol,
+elaborating terms and types respectively, along with
+\ltiupdateClosureCacheSinglesymbol, which manages when a symbolic closure's elaboration may
+be chosen.
+
 For terms, \ltielimClos{\ltiClosureCache{}}{\ltiE{}}{\ltiEp{}}
 elaborates \ltiE{} to \ltiEp{} using elaboration cache \ltiClosureCache{}.
 The case for tagged unannotated functions 
@@ -2468,85 +2512,94 @@ The case for tagged unannotated functions
                                   {\ltivar{}}
                                   {\ltiE{}}}
 simply uses the elaboration entry for \ltiClosureID{} to continue elaboration.
-The metafunction is undefined for the external language's unannotated terms.
-For unannotated functions, this means each symbolic closure must be symbolically executed at least once,
-otherwise they would contain unannotated functions and applications.
-Unannotated applications are already elaborated away with local type argument synthesis
-(\chapref{chapter:symbolic:directed-lti}).
-Otherwise, the other interesting feature of \ltielimClossymbol is that it
-calls \ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}} on types, which
+The metafunction is undefined for the external language's unannotated terms
+\ltiufun{\ltivar{}}{\ltiE{}} and \ltiapp{\ltiF{}}{\ltiE{}}.
+This enforces that each symbolic closure must be symbolically executed at least once
+to elaborate away these terms.
+Unannotated applications \ltiapp{\ltiF{}}{\ltiE{}}
+are elaborated away with local type argument synthesis, covered in
+\chapref{chapter:symbolic:directed-lti}.
+
+For elaborating types, \ltielimClossymbol
+uses \ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}, which
 elaborates symbolic closures in \ltiT{} using \ltiClosureCache{}.
 Some extra bookkeeping is needed to prevent infinitely generating
 types. Since symbolic closures may be passed to other symbolic closures,
 a seen-set \ova{\ltiClosureID{}} handles the case where it is passed to itself.
 Since we do not model equi-recursive types, we simply disallow that situation here.
 
-
-\section{Examples without Type Argument Synthesis}
+To highlight the elaboration rules,
+we demonstrate the lambda-encoding of let in our system by
+checking term ``\ltilet{\ltivar{}}{42}{\ltiF{}}''---which desugars to
+``{\ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\text{42}}}''---at some
+some overall type \ltiS{}
+with \sml{42} having type \sml{Int}.
+To streamline presentation, we assume that checking \ltiF{}
+does not introduce any symbolic closures
+(to keep the elaboration cache compact), liberally
+remove uninteresting type environments and elaboration caches,
+and omit symbolic reduction fuel from the derivation.
 
 \begin{mathpar}
   \inferrule*[left=\ltiSCAppInfClosure
   ]
-  {\inferrule*[lab=\ltiSCUAbs]
+  {\infer[\ltiSCUAbs]
    {
+   %\colorbox{pink}{\ltiClosureID{}} \not\in dom(\varnothing)\\
+   %\\\\
    \ltiClosureCache{} =
-                       {\ltiClosureCacheEntry{\ltiInferred{\text{c1}}}
+                       {\ltiClosureCacheEntry{\colorbox{pink}{\ltiClosureID{}}}
                                            {\ltiClosure{\ltiEmptyEnv}
-                                                        {\ltiufun{\text{x}}{\text{x}}}}}
+                                                        {\ltiufun{\ltivar{}}{\ltiF{}}}}}
    }
    { \ltitSstkjudgement{\varnothing}
                       {\ltiEmptyEnv}
-                      {\tikz[overlay,remember picture] \node [] (b) {};\ltiufun{\text{x}}{\text{x}}}
+                      {\tikz[overlay,remember picture] \node [] (b) {};\ltiufun{\ltivar{}}{\ltiF{}}}
                       {\ltiClosureWithStkID{\ltiEmptyEnv}
-                                           {\ltiClosureID{}}
-                                           {\ltiufun{\text{x}^{\tikz[overlay,remember picture] \node [] (e) {};}}
-                                                    {\text{x}^{\tikz[overlay,remember picture] \node [] (g) {};}}}}
+                                           {{}_{\tikz[overlay,remember picture] \node [] (m) {};}{\colorbox{pink}{\ltiClosureID{}}}}
+                                           {\ltiufun{\ltivar{}^{\tikz[overlay,remember picture] \node [] (e) {};}}
+                                                    {\ltiF{}^{\tikz[overlay,remember picture] \node [] (g) {};}}}}
                       {\ltiClosureCache{}}
-                      {\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}
+                      {\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{{\ltiF{}}_{\tikz[overlay,remember picture] \node [] (o) {};}}}}
    }
    \\
-   \inferrule*
-   {...}
-   { \ltitSstkjudgementNoElab{\ltiClosureCache{}}
+    \begin{array}{ccc}
+   \ltitSstkjudgementJustType{\ltiClosureCache{}}
                       {\ltiEmptyEnv}
-                      {\tikz[overlay,remember picture] \node [] (d) {};\text{1}}
-                      {\ltiInferred{\text{Int}\tikz[overlay,remember picture] \node [] (i) {};}}
+                      {\tikz[overlay,remember picture] \node [] (d) {};\text{42}}
+                      {\colorbox{pink}{\text{Int}\tikz[overlay,remember picture] \node [] (i) {};}}
                       {\ltiClosureCache{}}
-                      {\text{1}}
-   }
-   \\
-   \inferrule*[lab=\ltiSCVar]
-   { }
-   {
-    \ltitSstkjudgementNoElab{\ltiClosureCache{}}
+                      {\ltiEp{}}
+                      \ \ \ \ \ 
+    \ltitSstkjudgementNoCombined{\ltiClosureCache{}}
                       {\hastype{\text{}^{\tikz[overlay,remember picture] \node [] (f) {};}
-                                \text{x}}
-                               {\ltiInferred{\tikz[overlay,remember picture] \node [] (j) {};\text{Int}}}}
+                                \ltivar{}}
+                               {{\tikz[overlay,remember picture] \node [] (j) {};}{\text{Int}}}}
                       {\text{}^{\tikz[overlay,remember picture] \node [] (h) {};}
-                       \text{x}}
-                      {\ltiInferred{\tikz[overlay,remember picture] \node [] (k) {};
-                                    \text{Int}}}
+                       \ltiF{}}
+                      {{\colorbox{pink}{\ltiS{}}}_{\tikz[overlay,remember picture] \node [] (k) {};}}
                       {\ltiClosureCache{}}
-                      {\text{x}}
-                      }
+                      {{\colorbox{pink}{\ltiFp{}}}_{\tikz[overlay,remember picture] \node [] (s) {};}}
+    \end{array}
   }
   {
     \ltitSstkjudgement{\varnothing}
                       {\ltiEmptyEnv}
                       {\ltiappParens{\text{}^{\tikz[overlay,remember picture] \node [] (a) {};}
-                                     \ltiufun{\text{x}}{\text{x}}}
-                                    {\text{1}^{\tikz[overlay,remember picture] \node [] (c) {};}}}
-                      {\ltiInferred{\text{Int}}}
-                      {\ltiClosureCacheEntry{\ltiInferred{\text{c1}}}
-                                            {\ltiClosure{\ltiEmptyEnv}
-                                                              {\ltifunargrettype{\text{x}}
-                                                                                {\ltiInferred{ \text{Int}^{
-                                                                                          \tikz[overlay,remember picture] \node [] (j2) {};}}}
-                                                                                {\ltiInferred{ \text{Int}^{
-                                                                                 \tikz[overlay,remember picture] \node [] (l) {};}
-                                                                                },}
-                                                                                {\text{x}}}}}
-                      {\ltiappParens{\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}{\text{1}}}
+                                     \ltiufun{\ltivar{}}{\ltiF{}}}
+                                    {\text{42}^{\tikz[overlay,remember picture] \node [] (c) {};}}}
+                      {\ltiS{}}
+                      {\ltiClosureCacheEntry
+                       {{}^{{}^{\tikz[overlay,remember picture] \node [] (n) {};}}{\colorbox{pink}{\ltiClosureID{}}}}
+                       {\ltiClosure{\ltiEmptyEnv}
+                                         {\ltifunargrettype{\ltivar{}}
+                                                           {{\colorbox{pink}
+                                                            {\text{Int}}}^{\tikz[overlay,remember picture] \node [] (j2) {};}}
+                                                           {
+                                                            {\colorbox{pink}{\ltiS{}}}^{\tikz[overlay,remember picture] \node [] (l) {};}
+                                                            \ }
+                                                           {{\colorbox{pink}{\ltiFp{}}}^{\tikz[overlay,remember picture] \node [] (t) {};}}}}}
+                      {\ltiappParens{{\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiF{}}}}^{\tikz[overlay,remember picture] \node [] (p) {};}}{\text{42}}}
   }
 \end{mathpar}
 \begin{tikzpicture}[remember picture, overlay,
@@ -2565,14 +2618,52 @@ Since we do not model equi-recursive types, we simply disallow that situation he
   \coordinate (End6) at (j2);
   \coordinate (Start7) at (k);
   \coordinate (End7) at (l);
-  \draw[red,dashed,->](Start1.north) to (End1.south);
-  \draw[red,dashed,->](Start2.north) to (End2.south);
-  \draw[red,dashed,->](Start3.north) to [bend left] (End3.south);
-  \draw[red,dashed,->](Start4.north) to [bend left] (End4.south);
-  \draw[red,dashed,->](Start5.north) to [bend right] (End5.south);
-  \draw[red,dashed,->](Start6.north) to (End6.south);
-  \draw[red,dashed,->](Start7.north) to (End7.south);
+  \coordinate (Start8) at (m);
+  \coordinate (End8) at (n);
+  \coordinate (Start9) at (o);
+  \coordinate (End9) at (p);
+  \coordinate (Start11) at (s);
+  \coordinate (End11) at (t);
+  % (lambda (x) f) -> (lambda (x) f)
+  %\draw[pink,thick,dotted,->](Start1.north) to (End1.south);
+  % 42 -> 42
+  %\draw[pink,thick,dotted,->](Start2.north) to (End2.south);
+  \draw[pink,thick,dotted,->](Start3.north) to [bend left] (End3.south);
+  \draw[pink,thick,dotted,->](Start4.north) to [bend left] (End4.south);
+  \draw[pink,thick,dotted,->](Start5.north) to [bend right] (End5.south);
+  % a little to the right (Int -> Int)
+  \draw[pink,thick,solid,->,transform canvas={xshift=1pt}](Start6.north) to (End6.south);
+  \draw[pink,thick,solid,->](Start7.north) to [bend right=30] (End7.south);
+  \draw[pink,thick,solid,->](Start8.north) to (End8.north);
+  % a little higher
+  \draw[pink,thick,solid,->,transform canvas={yshift=4pt}](Start9.north) to [bend left=10] (End9.north);
+  \draw[pink,thick,solid,->](Start11.north) to (End11.north);
 \end{tikzpicture} 
+
+The derivation starts with the \ltiSCAppInfClosure rule (chosen because the operator
+\ltiufun{\ltivar{}}{\ltiF{}}
+has a symbolic closure type
+                                                    )
+with empty elaboration cache \ltiEmptyClosureCache
+and empty type environment \ltiEmptyEnv.
+The distinct identifer {{\colorbox{pink}{\ltiClosureID{}}}}
+is chosen by \ltiSCUAbs in the left subderivation, and is utilized there in three ways.
+First, the elaboration cache \ltiClosureCache{}'s entry for
+{{\colorbox{pink}{\ltiClosureID{}}}} is initialized
+to
+{\ltiClosure{\ltiEmptyEnv}{\ltiufun{\ltivar{}}{\ltiF{}}}},
+an untyped ``placeholder'' that signals that the final elaboration of {{\colorbox{pink}{\ltiClosureID{}}}}
+has yet to be picked.
+Second, it identifies the rule's overall symbolic closure type
+                      {\ltiClosureWithStkID{\ltiEmptyEnv}
+                                           {{\colorbox{pink}{\ltiClosureID{}}}}
+                                           {\ltiufun{\ltivar{}}
+                                                    {\ltiF{}}}}
+for later elaboration.
+Third, it tags the rule's elaboration {\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiF{}}}}
+which, again, links the term to its elaboration cache entry.
+
+\section{Examples without Type Argument Synthesis}
 
 {
 \singlespacing

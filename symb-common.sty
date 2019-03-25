@@ -104,7 +104,7 @@
 \newmeta\ltiFuelp{\ltiFuelsymbol'}
 \newmeta\ltiFuelpp{\ltiFuelsymbol''}
 \newcommand\ltiClosureCachesymbol{\mathbb{E}}
-\newcommand\ltiEmptyClosureCache{\varnothing}
+\newcommand\ltiEmptyClosureCache{\ma{\varnothing}}
 \newmeta\ltiClosureCache{\ltiClosureCachesymbol}
 \newmeta\ltiClosureCachep{\ltiClosureCachesymbol'}
 \newmeta\ltiClosureCachepp{\ltiClosureCachesymbol''}
@@ -255,6 +255,7 @@
 \newcommand\ltitSstkjudgementJustType[6]{\ma{{\hastype{#3}{#4}}}} %just e:t
 \newcommand\ltitSstkjudgementNoElabCombined[6]{\ma{#2 \ltisclangalgvdash {\hastype{#3}{#4}}}} %omits elab, combined envs
 \newcommand\ltitSstkjudgementNoElab[6]{\ma{#1 ; #2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #5}} %omits elab
+\newcommand\ltitSstkjudgementNoCombined[6]{\ma{#2 \ltisclangalgvdash {\hastype{#3}{#4}} ; #6}} %omits combined envs
 \newcommand\ltitSstkjudgement[6]{\ma{\ltitSstkjudgementNoElab{#1}{#2}{#3}{#4}{#5}{} ; #6}}
 % declarative symbolic closure type system
 % Env E T => T ; E
