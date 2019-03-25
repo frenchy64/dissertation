@@ -185,9 +185,12 @@
 \newcommand\ltiApplySubst[2]{\ma{#1 #2}}
 % Constraint Result -> Subst
 \newcommand\ltiSubst[3]{\ma{\metafunctionfont{genSubst}(#1 , #2) = #3}}
-\newcommand\ltireplace[3]{\ma{[#1 / #2]#3}}
-\newcommand\ltireplaceova[3]{\ma{[\ova{#1 / #2}]#3}}
-\newcommand\ltireplaceoverrightarrowcaption[4]{\ma{[\overrightarrowcaption{#1 / #2}^{#3}] #4}}
+% v for x
+\newcommand\ltireplaceentry[2]{\ma{#1 / #2}}
+\newcommand\ltireplaceSingle[2]{\ma{[#1]#2}}
+\newcommand\ltireplace[3]{\ma{\ltireplaceSingle{\ltireplaceentry{#1}{#2}}{#3}}}
+\newcommand\ltireplaceova[3]{\ma{\ltireplaceSingle{\ova{\ltireplaceentry{#1}{#2}}}{#3}}}
+\newcommand\ltireplaceoverrightarrowcaption[4]{\ma{\ltireplaceSingle{\overrightarrowcaption{\ltireplaceentry{#1}{#2}}^{#3}}{#4}}}
 \newcommand\ltimapsto[3]{\ma{#1 [#2 \mapsto #3]}}
 \newcommand\ltilookup[2]{\ma{#1[#2]}}
 \newcommand\ltifvLHS[1]{\ma{\metafunctionfont{fv}(#1)}}

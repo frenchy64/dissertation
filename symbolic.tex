@@ -1045,6 +1045,82 @@ In constrast, our rule uses an oracle to synthesize both.
 This is because our type inference algorithm based on symbolic closures
 is not restricted to local reasoning.
 
+\begin{figure}[h]
+$$
+\begin{array}{lrlll}
+  \ltiFn{\ova{\ltiT{}}^n}{\ltiS{}} &\Leftrightarrow&
+  \ltiFn{\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}{\ltiS{}}
+  & \text{where } n \not= 1
+                      &\mbox{Type abbreviations} \\
+  \ltiufun{\ova{\ltivar{}}^n}{\ltiE{}} &\Leftrightarrow&
+  \ltiufun{\ltivarp{}}{\ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
+  & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
+                      &\mbox{Term abbreviations}
+  \\
+  \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}^n}{\ova{\ltiT{}}^n}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargtype{\ova{\ltitvar{}}}
+                      {\ltivarp{}}
+                      {\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}
+                      {\\ && \ \ \ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
+  & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
+  \\
+  \ltiapp{\ltiF{}}{\ova{\ltiE{}}^n} &\Leftrightarrow&
+  \ltiapp{\ltiF{}}{\ltiRec{\overrightarrowcaption{\texttt{arg}i = \ltiE{i}}^{1 \leq i \leq n}}}
+  & \text{where } n \not= 1
+  \\
+  \ltilet{\ova{\ltivar{}}}{\ova{\ltiE{}}}{\ltiF{}} &\Leftrightarrow& \ltiappParens{\ltiufun{\ova{\ltivar{}}}{\ltiF{}}}{\ova{\ltiE{}}}
+  \\
+  \ltifunargtype{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargtype{}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiE{}}
+  \\
+  \ltifuntparamargrettype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltianncolon{\ltiE{}}{\ltiS{}}}
+  \\
+  \ltianncolon{\ltiE{}}{\ltiS{}} &\Leftrightarrow&
+  \ltiappParens{\ltifunargtype{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}}
+  \\
+  \ltifunargrettype{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
+  \ltifuntparamargrettype{}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}}
+\end{array}
+$$
+\caption{External Language Syntax abbreviations
+  }
+\label{symbolic:figure:external-language-syntax-abbreviations}
+\end{figure}
+
+We use several syntax abbreviations, enumerated in
+\figref{symbolic:figure:external-language-syntax-abbreviations}.
+The first four abbreviations use record terms and types to represent multi-parameter functions
+and applications.
+For example, the function type
+\ltiFn{\ltiT{1},\ltiT{2}}{\ltiS{}}
+stands for
+\ltiFn{\ltiRec{\hastype{\texttt{arg1}}{\ltiT{1}}, {\hastype{\texttt{arg2}}{\ltiT{2}}}}}{\ltiS{}},
+the function term
+\ltiufun{\text{x}, \text{y}}{\ltiE{}}
+stands for 
+\ltiufun{\ltivarp{}}{\ltireplaceSingle{\ltireplaceentry{\ltisel{\ltivarp{}}{\texttt{arg1}}}{\text{x}},
+                                       \ltireplaceentry{\ltisel{\ltivarp{}}{\texttt{arg2}}}{\text{y}}}
+                                      {\ltiE{}}}
+(where {\ltivarp{}} does not occur free in {\ltiE{}})
+and the application term
+\ltiapp{\ltiF{}}{\ltiE{1},\ltiE{2}}
+stands for
+  \ltiapp{\ltiF{}}{\ltiRec{\texttt{arg1} = \ltiE{1},{\texttt{arg2} = \ltiE{2}}}}.
+Symbolic closures permit the lambda-encoding of let, so 
+\ltilet{\ltivar{}}{\ltiE{}}{\ltiF{}}
+stands for 
+\ltiappParens{\ltiufun{\ltivar{}}{\ltiF{}}}{\ltiE{}}.
+We allow the type parameters to be omitted from function terms if they are empty.
+Type ascription
+\ltianncolon{\ltiE{}}{\ltiS{}}
+stands for
+\ltiappParens{\ltifunargtype{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}},
+which we use to represent return types for functions
+\ltifuntparamargrettype{\ltitvar{}}{\ltivar{}}{\ltiT{}}{\ltiS{}}{\ltiE{}}
+as
+\ltifuntparamargtype{\ltitvar{}}{\ltivar{}}{\ltiT{}}{\ltianncolon{\ltiE{}}{\ltiS{}}}.
+
 \subsection{Type Inference Algorithm}
 
 We now define a type inference algorithm based on symbolic closures
@@ -2714,76 +2790,74 @@ from the symbolic reduction.
 
 % Now explain how to SC elaborate a term
 
+The following call to \ltielimClossymbol then eliminates all SCL terms
+and types, performing a full elaboration into the internal language.
+Once a tagged function term is encountered, its elaboration is simply read
+off the cache and inserted.
+In this case, there is no need
+to also traverse \ltiFp{} since we assumed it does not contain symbolic closures,
+however in general a recursive \ltielimClossymbol call on
+\ltiFp{} would be needed to eliminate its symbolic closures.
+
+\[
+\begin{array}{llll}
+\ltielimClosalign{\ltiClosureCacheEntry
+                       {{\colorbox{pink}{\ltiClosureID{}}}{\tikz[overlay,remember picture] \node [] (b) {};}}
+                       {{\ltiClosure{\ltiEmptyEnv}
+                                   {\colorbox{pink}
+                                         {\ltifunargrettype{\ltivar{}}
+                                                           {\text{Int}}
+                                                           {\ltiS{} \ }
+                                                           {\ltiFp{}}}}}^
+                        {\tikz[overlay,remember picture] \node [] (c) {};}}}
+{\ \ \ltiappParens{{\tikz[overlay,remember picture] \node [] (a) {};}{\colorbox{pink}{\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiF{}}}}}{\text{42}}}
+{\ltiappParens{{}^{\tikz[overlay,remember picture] \node [] (d) {};}
+               \colorbox{pink}{\ltifunargrettype{\ltivar{}}
+                                                {\text{Int}}
+                                                {\ltiS{} \ }
+                                                {\ltiFp{}}}}
+              {\text{42}}}
+\end{array}
+\]
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[pink,thick,solid,->](Start1.north) to [bend left] (End1.south);
+  \draw[pink,thick,solid,->](Start2.north) to [bend left] (End2.south);
+\end{tikzpicture} 
+
+
 \section{Examples without Type Argument Synthesis}
 
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-let x = 1 in x
-(* Desugared *)
-$\ltiappParens{\ltiufun{\text{x}}{\text{x}}}{\text{1}}$
-(* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} =%
-      \ltiClosureCacheEntry{\text{c1}}%
-                           {\ltiClosure{\ltiEmptyEnv}%
-                                       {\ltiNotInferred%
-                                        {\ltifunargrettype{\text{x}}%
-                                                          {\ltiInferred{\text{Int}}}%
-                                                          {\ltiInferred{\text{Int}},}%
-                                                          {\text{x}}}}}}$ *)
-$\ltiappParens{\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}{\text{1}}$
-(* fully annotated *)
-$\ltiappParens{\ltifunargrettype{\text{x}}%
-                                {\ltiInferred{\text{Int}}}%
-                                {\ltiInferred{\text{Int}},}%
-                                {\text{x}}}%
-              {\text{1}}$
-\end{lstlisting}
-}
+%% let x = 1 in x
+%{
+%\singlespacing
+%\begin{lstlisting}[language=ml,mathescape=true]
+%let x = 1 in x
+%(* Desugared *)
+%$\ltiappParens{\ltiufun{\text{x}}{\text{x}}}{\text{1}}$
+%(* SC annotated *)
+%(* $\ltiInferred{\ltiClosureCache{} =%
+%      \ltiClosureCacheEntry{\text{c1}}%
+%                           {\ltiClosure{\ltiEmptyEnv}%
+%                                       {\ltiNotInferred%
+%                                        {\ltifunargrettype{\text{x}}%
+%                                                          {\ltiInferred{\text{Int}}}%
+%                                                          {\ltiInferred{\text{Int}},}%
+%                                                          {\text{x}}}}}}$ *)
+%$\ltiappParens{\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}{\text{1}}$
+%(* fully annotated *)
+%$\ltiappParens{\ltifunargrettype{\text{x}}%
+%                                {\ltiInferred{\text{Int}}}%
+%                                {\ltiInferred{\text{Int}},}%
+%                                {\text{x}}}%
+%              {\text{1}}$
+%\end{lstlisting}
+%}
 
-
-\begin{figure}
-$$
-\begin{array}{lrlll}
-  \ltiFn{\ova{\ltiT{}}^n}{\ltiS{}} &\Leftrightarrow&
-  \ltiFn{\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}{\ltiS{}}
-  & \text{where } n \not= 1
-                      &\mbox{Type abbreviations} \\
-  \ltiufun{\ova{\ltivar{}}^n}{\ltiE{}} &\Leftrightarrow&
-  \ltiufun{\ltivarp{}}{\ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
-  & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
-                      &\mbox{Term abbreviations}
-  \\
-  \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}^n}{\ova{\ltiT{}}^n}{\ltiE{}} &\Leftrightarrow&
-  \ltifuntparamargtype{\ova{\ltitvar{}}}
-                      {\ltivarp{}}
-                      {\ltiRec{\overrightarrowcaption{\hastype{\texttt{arg}i}{\ltiT{i}}}^{1 \leq i \leq n}}}
-                      {\\ && \ \ \ltireplaceoverrightarrowcaption{\ltisel{\ltivarp{}}{\texttt{arg}i}}{\ltivar{i}}{1 \leq i \leq n}{\ltiE{}}}
-  & \text{where } n \not= 1, \ltivarp{} \not\in \ltifvLHS{\ltiE{}}
-  \\
-  \ltiapp{\ltiF{}}{\ova{\ltiE{}}^n} &\Leftrightarrow&
-  \ltiapp{\ltiF{}}{\ltiRec{\overrightarrowcaption{\texttt{arg}i = \ltiE{i}}^{1 \leq i \leq n}}}
-  & \text{where } n \not= 1
-  \\
-  \ltilet{\ova{\ltivar{}}}{\ova{\ltiE{}}}{\ltiF{}} &\Leftrightarrow& \ltiappParens{\ltiufun{\ova{\ltivar{}}}{\ltiF{}}}{\ova{\ltiE{}}}
-  \\
-  \ltifunargtype{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiE{}} &\Leftrightarrow&
-  \ltifuntparamargtype{}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiE{}}
-  \\
-  \ltifunargrettype{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
-  \ltifuntparamargrettype{}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}}
-  \\
-  \ltifuntparamargrettype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltiS{}}{\ltiE{}} &\Leftrightarrow&
-  \ltifuntparamargtype{\ova{\ltitvar{}}}{\ova{\ltivar{}}}{\ova{\ltiT{}}}{\ltianncolon{\ltiE{}}{\ltiS{}}}
-  \\
-  \ltianncolon{\ltiE{}}{\ltiS{}} &\Leftrightarrow&
-  \ltiappParens{\ltifunargtype{\ltivar{}}{\ltiS{}}{\ltivar{}}}{\ltiE{}}
-\end{array}
-$$
-\caption{External Language Syntax abbreviations
-  }
-\label{symbolic:figure:external-language-syntax-abbreviations}
-\end{figure}
 
 
 % - Solution
