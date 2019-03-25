@@ -173,12 +173,15 @@ Now that we have delayed the checking of hard-to-check arguments,
 Hosoya and Pierce's second challenge calls for an enhanced
 type argument reconstruction algorithm to soundly handle
 them.
-Our investigation led us to create \emph{directed local type inference}
-(\chapref{chapter:symbolic:directed-lti}),
-which determines the possible data flows through a polymorphic function
-by noting the positions of type variable occurrences, and attempts to
-use this information to check its arguments in an optimal order for remaining
-in bidirectional checking mode.
+We delegate this challenge to future work, and study symbolic closures
+with an off-the-shelf
+type argument reconstruction algorithm.
+%Our investigation led us to create \emph{directed local type inference}
+%(\chapref{chapter:symbolic:directed-lti}),
+%which determines the possible data flows through a polymorphic function
+%by noting the positions of type variable occurrences, and attempts to
+%use this information to check its arguments in an optimal order for remaining
+%in bidirectional checking mode.
 
 %\section{Custom typing rules}
 %
@@ -285,16 +288,16 @@ Fifth, we must determine how delayed functions interact with polymorphic types
 during type argument reconstruction.
 
 We address all these considerations in the following sections, except
-for the final one, which we delegate to \chapref{chapter:symbolic:directed-lti}.
+for the final one, which we delegate to future work. %\chapref{chapter:symbolic:directed-lti}.
 
 \section{Overview}
 \label{symbolic:section:overview}
 
 In this section, we explore some of the implications that come with delayed checks for local functions,
 by example.
-We avoid any use of polymorphic functions
-(we isolate those issues in \chapref{chapter:symbolic:directed-lti})
-and demonstrate the tradeoffs with just non-recursive monomorphic functions.
+To explain the essense of the challenges we actually address, we avoid polymorphic functions in this section
+%(we isolate those issues in \chapref{chapter:symbolic:directed-lti})
+and restrict ourselves to non-recursive monomorphic functions.
 
 First, let \clj{inc} be of type \clj{[Int -> Int]}.
 The following, then, is well typed because \clj{1} is an \clj{Int}.
@@ -1298,7 +1301,7 @@ and then uses the output elaboration cache \ltiClosureCache{}
 to erase SCL terms and types using the metafunctions \ltielimClossymbol
 and \ltielimClosTsymbol.
 Next, we present the SCL type system and subtyping
-(except for the SCL implementation of \ltiEAppInf, described in \chapref{chapter:symbolic:directed-lti}),
+%(except for the SCL implementation of \ltiEAppInf, described in \chapref{chapter:symbolic:directed-lti}),
 then provide definitions for the elaboration metafunctions.
 
 \begin{figure}
@@ -1527,6 +1530,44 @@ then provide definitions for the elaboration metafunctions.
                                   {\ltiEp{}}}
     }
 
+    \infer[\ltiSCAppInfPT]
+    {
+    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnv{}}
+                      {\ltiF{}}
+                      {\ltiPoly{\ova{\ltitvar{}}}
+                               {\ltiFn{\ltiT{}}{\ltiS{}}}}
+                      {\ltiCombinedThreadedEnv{2}}
+                      {\ltiFp{}}
+                  \\
+    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{2}}
+                      {\ltiEnv{}}
+                      {\ltiE{}}
+                      {\ltiTp{}}
+                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiEp{}}
+                      \\
+      \ltiT{}, \ltiS{}, \ltiTp{}
+                     \text{ contain no symbolic closures}
+                  \\
+                       |\ova{\ltitvar{}}|>0
+           \\
+           \ltigenconstraint{\varnothing}{\ova{\ltitvar{}}}{\ltiTp{}}{\ltiT{}}{\ltiC{}}
+           \\
+           \ltiSubst{\ltiC{}}{\ltiFn{\ltiT{}}{\ltiS{}}}{\ltisubst{}}
+    }
+    {
+    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{1}}
+                      {\ltiEnv{}}
+                      {\ltiapp{\ltiF{}}{\ltiE{}}}
+                      {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
+                      {\ltiCombinedThreadedEnv{3}}
+                      {\ltiappinst{\ltiFp{}}
+                                  {\ova{\ltiApplySubst{\ltisubst{}}
+                                                      {\ltitvar{}}}}
+                                  {\ltiEp{}}}
+    }
+
 
     \infer [\ltiSCUAbs]
     {
@@ -1603,8 +1644,7 @@ then provide definitions for the elaboration metafunctions.
                                   {\ltiEpp{}}}
     }
   \end{mathpar}
-
-  \caption{Type inference algorithm (\textsc{AppInf} omitted)
+  \caption{Type inference algorithm% (\textsc{AppInf} omitted)
   }
   \label{symbolic:figure:SC-language-algorithmic-type-system}
 \end{figure}
@@ -1644,6 +1684,9 @@ The extra condition in \ltiSCAbs
 helps ensure a symbolic closure type only reasons about type variables
 in its definition scope.
 The first rule for lightweight applications \ltiSCAppInfBot implements \ltiEAppInfBot.
+The \ltiSCAppInfPT rule uses Pierce and Turner's type argument synthesis
+algorithm~\cite{PierceLTI} off-the-shelf. Since it does not handle them,
+we ensure that it cannot be fed a symbolic closure.
 
 The remaining rules are more interesting.
 The symbolic closure introduction rule
@@ -2593,8 +2636,8 @@ The metafunction is undefined for the external language's unannotated terms
 This enforces that each symbolic closure must be symbolically executed at least once
 to elaborate away these terms.
 Unannotated applications \ltiapp{\ltiF{}}{\ltiE{}}
-are elaborated away with local type argument synthesis, covered in
-\chapref{chapter:symbolic:directed-lti}.
+are elaborated away with local type argument synthesis.
+%, covered in \chapref{chapter:symbolic:directed-lti}.
 
 For elaborating types, \ltielimClossymbol
 uses \ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}, which
@@ -2830,7 +2873,7 @@ however in general a recursive \ltielimClossymbol call on
 \end{tikzpicture} 
 
 
-\section{Examples without Type Argument Synthesis}
+%\section{Examples without Type Argument Synthesis}
 
 %% let x = 1 in x
 %{
@@ -2942,564 +2985,7 @@ however in general a recursive \ltielimClossymbol call on
 %     - how to handle, do we need backtracking?
 %     - do we need to recheck arguments? 
 
-\chapter{Type Argument Synthesis with Symbolic Closures}
-\label{chapter:symbolic:directed-lti}
-
-\subsection{Type-argument synthesis for the Symbolic Closure Language}
-
-\begin{figure}
-  \begin{mathpar}
-    \infer[AppInf]
-    {
-    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{1}}
-                      {\ltiEnv{}}
-                      {\ltiF{}}
-                      {\ltiPoly{\ova{\ltitvar{}}}
-                               {\ltiFn{\ltiT{}}{\ltiS{}}}}
-                      {\ltiCombinedThreadedEnv{2}}
-                      {\ltiFp{}}
-                  \\
-    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{2}}
-                      {\ltiEnv{}}
-                      {\ltiE{}}
-                      {\ltiTp{}}
-                      {\ltiCombinedThreadedEnv{3}}
-                      {\ltiEp{}}
-                  \\
-                       |\ova{\ltitvar{}}|>0
-           \\
-           \ltigenconstraint{\varnothing}{\ova{\ltitvar{}}}{\ltiTp{}}{\ltiT{}}{\ltiCp{}}
-           \\
-           \ltiprocessDelays{\ltiCombinedThreadedEnv{3}}
-                            %{\ltiEnvConcatParen{\ltiEnv{}}{\ova{\ltitvar{}}}}
-                            {\ltiCp{}}
-                            {\ltiC{}}
-                            {\ltiCombinedThreadedEnv{4}}
-           \\
-           \ltiSubst{\ltiC{}}{\ltiFn{\ltiT{}}{\ltiS{}}}{\ltisubst{}}
-    }
-    {
-    \ltitSstkjudgementNoElab{\ltiCombinedThreadedEnv{1}}
-                      {\ltiEnv{}}
-                      {\ltiapp{\ltiF{}}{\ltiE{}}}
-                      {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
-                      {\ltiCombinedThreadedEnv{4}}
-                      {\ltiappinst{\ltiFp{}}
-                                  {\ova{\ltiApplySubst{\ltisubst{}}
-                                                      {\ltitvar{}}}}
-                                  {\ltiEp{}}}
-    }
-  \end{mathpar}
-  \caption{Type argument synthesis for the Symbolic Closure Language}
-\end{figure}
-
-\begin{figure}
-$$
-\begin{array}{lrll}
-  \ltiC{} &::=& \ltiCSet{\ova{\ltiCEntry{\ltiT{}}{\ltitvar{}}{\ltiT{}}}\ 
-                         \ova{\ltiDEntryVX{\ltiV{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiT{}}}
-                          }
-                      &\mbox{Constraint sets}\\
-                      % TODO talk about X/V constraint sets
-   \ltiCEmpty &\Leftrightarrow& \ltiCSet{\ova{\ltiCEntry{\ltiBot}{\ltitvar{}}{\ltiTop}}}
-                      &\mbox{Constraint abbreviations}
-\end{array}
-$$
-  \caption{Syntax for Constraint generation}
-\end{figure}
-
-\begin{figure}
-  \begin{mathpar}
-    \infer [CG-Top]
-    {}
-    {
-    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiT{}}{\ltiTop}{\ltiCEmpty}
-    }
-
-    \infer [CG-Upper]
-    {
-    \ltitvar{1} \in \overline{\ltitvar{}}
-    \\
-    \ltidemote{\ltiS{}}{\ltiV{}}{\ltiT{}}
-    \\\\
-    \ltitv{\ltiS{}} \cap \overline{\ltitvar{}} = \varnothing
-    }
-    {
-    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltitvar{1}}{\ltiS{}}
-                     {\ltiCSet{\ltiCEntry{\ltiBot}{\ltitvar{1}}{\ltiT{}}}}
-    }
-
-    \infer [CG-Lower]
-    {
-    \ltitvar{1} \in \overline{\ltitvar{}}
-    \\
-    \ltipromote{\ltiS{}}{\ltiV{}}{\ltiT{}}
-    \\\\
-    \ltitv{\ltiS{}} \cap \overline{\ltitvar{}} = \varnothing
-    }
-    {
-    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiS{}}{\ltitvar{1}}
-                     {\ltiCSet{\ltiCEntry{\ltiT{}}{\ltitvar{1}}{\ltiTop}}}
-    }
-
-    \infer [CG-Bot]
-    {}
-    {
-    \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiBot}{\ltiT{}}{\ltiCEmpty}
-    }
-    \ \ \ 
-    %
-    \infer [CG-Refl]
-    {
-      \ltitvarp{}
-      \not\in
-      \overline{\ltitvar{}}
-    }
-    {
-    \ltigenconstraint{\ltiV{}}
-                     {\overline{\ltitvar{}}}
-                     {\ltitvarp{}}
-                     {\ltitvarp{}}
-                     {\ltiCEmpty}
-    }
-
-    \infer [CG-Fun]
-    {
-    |\ova{\ltitvar{}}|>0 \text{ implies \ova{\ltiTp{}}, \ova{\ltiT{}} contain no symbolic closures}
-    \\
-    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
-                     {\ova{\ltitvarp{}}}
-                     {\ltiT{1}}
-                     {\ltiTp{1}}
-                     {\ltiC{1}}
-    \\
-    \ltigenconstraint{\ltiV{} \cup \overline{\ltitvar{}}}
-                     {\ova{\ltitvarp{}}}
-                     {\ltiT{2}}
-                     {\ltiTp{2}}
-                     {\ltiC{2}}
-    \\\\
-    \overline{\ltitvar{}} \cap (\ltiV{} \cup \overline{\ltitvarp{}}) = \varnothing
-    }
-    {
-    \ltigenconstraint{\ltiV{}}
-                     {\overline{\ltitvarp{}}}
-                     {\ltiPolyFn{\ltiTp{1}}{\ova{\ltitvar{}}}{\ltiT{2}}}
-                     {\ltiPolyFn{\ltiT{1}}{\ova{\ltitvar{}}}{\ltiTp{2}}}
-                     {\ltiCIntersect{\ltiC{1}}{\ltiC{2}}}
-    }
-
-    \infer [CG-Closure]
-    {}
-    {
-    \ltigenconstraint{\ltiV{}}
-                     {\overline{\ltitvarp{}}}
-                     {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                     {\ltiPolyFn{\ltiS{}}{\ova{\ltitvar{}}}{\ltiT{}}}
-                     {\ltiCSet{\ltiDEntryVX{\ltiV{}}
-                                         {\overline{\ltitvarp{}}}
-                                         {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                         {\ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiS{}}{\ltiT{}}}}}}
-    }
-  \end{mathpar}
-  \caption{Constraint generation system
-                 \ltigenconstraint{\ltiV{}}{\overline{\ltitvar{}}}{\ltiT{}}{\ltiS{}}{\ltiC{}}
-                 where $\ltiV{} \cap {\overline{\ltitvar{}}} = \varnothing$.
-  }
-\end{figure}
-
-\begin{figure}
-  \begin{mathpar}
-
-    \boxed{
-    \infer[]
-    {
-      \ltiprocessDelays{\ltiCombinedThreadedEnv{}}
-                       {\ltiC{}}
-                       {\ltiCp{}}
-                       {\ltiCombinedThreadedEnvp{}}
-      \\\\
-      \text{Process all delayed constraints in
-                       \ltiC{}, yielding a new constraint set \ltiCp{}.
-      }
-    }
-    {}
-    }
-
-    \infer[]
-    {
-      \ltiorderDelays{\ltiC{0}}
-                     {\ova
-                       {\ltiDEntryVX{\ltiV{}}
-                                    {\ova{\ltitvarp{}}}
-                                    {\ltiT{}}
-                                    {\ltiS{}}}^n}
-                                    \\
-      \overrightarrowcaption{
-      \ltiprocessDelay{\ltiCombinedThreadedEnv{i-1}}
-                      {\ltiDEntryVX{\ltiV{i}}
-                                   {\ova{\ltitvarp{}}_i}
-                                   {\ltiT{i}}
-                                   {\ltiS{i}}}
-                      {\ltiC{i-1}}
-                      {\ltiC{i}}
-                      {\ltiCombinedThreadedEnv{i}}
-                      }^{1 \leq i \leq n}
-    }
-    {
-      \ltiprocessDelays{\ltiCombinedThreadedEnv{0}}
-                       {\ltiC{0}}
-                       {\ltiC{n}}
-                       {\ltiCombinedThreadedEnv{n}}
-    }
-
-    \boxed{
-    \infer[]
-    {
-      \ltiorderDelays{\ltiC{}}{\ova{\ltiDEntryVX{\ltiV{}}{\ova{\ltitvar{}}}{\ltiT{}}{\ltiS{}}}}
-      \\\\
-      \text{Returns the delayed constraints in constraint set \ltiC{} topologically
-      sorted by type variable dependency.
-      }
-      \\\\
-      \text{eg. \ltiDEntryVX{}{}{...}{\ltiFn{\ltitvar{1}}{\ltitvar{2}}}
-      goes before 
-            \ltiDEntryVX{}{}{...}{\ltiFn{\ltitvar{2}}{\ltitvar{3}}}
-      }
-    }
-    {}
-    }
-
-    \infer[]
-    {
-      \ova{\ltitvar{}}^m = \ova{\ltitvarp{}}_1 = \ova{\ltitvarp{}}_2 = ... = \ova{\ltitvarp{}}_{i-1} = \ova{\ltitvarp{}}_i
-      \\
-      \forall i \in 1...n, j \in 1...m.
-          \{\ltivariance{\ltitvar{j}}{\ltiS{i}}, \ltivariance{\ltitvar{j}}{\ltiT{i}}\} \subseteq \{\ltivconstant, \ltivcovariant\}
-      \\
-      \text{let \ova{k} be a permutation of 1...n st. }
-        \forall i,j \in 1...n.
-        \text{ if }
-        \ltitv{\ltiT{{k_i}}} \cap \ltitv{\ltiS{{k_j}}} \cap \ova{\ltitvarp{}} \not= \varnothing
-        \text{ then }
-        % not \leq, eg. [a -> a] depends on itself
-        i < j 
-    }
-    {
-      \ltiorderDelays{\ltiCSet{...,\ova{\ltiDEntryVX{\ltiV{}}
-                                             {\ova{\ltitvarp{}}^m}
-                                             {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                             {\ltiFn{\ltiS{}}{\ltiT{}}}}^n}}
-                                             {
-      [\ltiDEntryVX{\ltiV{}}
-                   {\ova{\ltitvarp{}}}
-                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                   {\ltiFn{\ltiS{}}{\ltiT{}}}_i
-                   |
-                   i \in \ova{k}]
-                   }
-    }
-
-    \boxed{
-    \infer[]
-    {
-      \ltiprocessDelay{\ltiCombinedThreadedEnv{}}
-                      {\ltiDEntryVX{\ltiV{}}
-                                   {\ova{\ltitvarp{}}}
-                                   {\ltiS{}}
-                                   {\ltiT{}}}
-                      {\ltiC{}}
-                      {\ltiCp{}}
-                      {\ltiCombinedThreadedEnvp{}}
-      \\\\
-      \text{Process delayed constraint 
-                      {\ltiDEntryVX{\ltiV{}}
-                                   {\ova{\ltitvarp{}}}
-                                   {\ltiS{}}
-                                   {\ltiT{}}},
-                                   with current constraint set \ltiC{},
-      }
-      \\\\
-      \text{yielding a new constraint set \ltiCp{}.}
-    }
-    {}
-    }
-
-    \infer[]
-    {
-    \ltitv{\ltiE{}} \cap \ova{\ltitvarpp{}} = \varnothing
-    \\
-            0 < \ltiFuel{} \\
-            \ltiSubst{\ltiC{}}{\ltiPolyFn{\ltiS{}}{}{\ltiT{}}}{\ltisubst{}}\\
-            \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}-1}
-                                                          {\ltiClosureCache{1}}}
-                              {\ltiEnvConcat{\ltiEnv{}}
-                                            {\hastype{\ltivar{}}
-                                                     {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}}}
-                              {\ltiE{}}
-                              {\ltiTp{}}
-                              {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}
-                                                          {\ltiClosureCache{2}}}
-                              {\ltiFpp{}}
-                              \\
-          \ltiupdateClosureCacheSingle{\ltiClosureCache{2}}
-                                {\ltiClosureID{}}
-                                {\ltifuntparamargrettype
-                                 {\ova{\ltitvarpp{}}}
-                                 {\ltivar{}}
-                                 {\ltiApplySubst{\ltisubst{}}{\ltiS{}}}
-                                 {\ltiTp{}}
-                                 {\ltiFpp{}}}
-                                {\ltiClosureCache{3}}
-                                \\
-          \ltigenconstraint{\ltiV{} \cup \overline{\ltitvarpp{}}}
-                           {\ova{\ltitvar{}}}
-                           {\ltiTp{}}
-                           {\ltiApplySubst{\ltisubst{}}{\ltiT{}}}
-                           {\ltiCpp{}}
-                           \\
-                           \ltiCpp{} \text{ does not contain delayed constraints}
-    }
-    {
-      \ltiprocessDelay{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{1}}}
-                      {\ltiDEntryVX{\ltiV{}}
-                                   {\ova{\ltitvarp{}}}
-                                   {\ltiClosureWithStkID{\ltiEnv{}}{\ltiClosureID{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
-                                   {\ltiPolyFn{\ltiS{}}{\ova{\ltitvarpp{}}}{\ltiT{}}}}
-                      {\ltiC{}}
-                      {\ltiCIntersect{\ltiC{}}{\ltiCpp{}}}
-                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{3}}}
-    }
-
-  \end{mathpar}
-  \caption{Processing delayed constraints
-  }
-\end{figure}
-
-%FIXME remove
-\newpage
-
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-type Option[a] = {match : $\ltiPoly{\text{r}}%
-                                   {\ltiFn{\text{OptionVisitor[a,r]}}%
-                                          {\text{r}}}$}
-type OptionVisitor[a,r] =
-  {caseNone : $\ltiFn{}{\text{r}}$,
-   caseSome : $\ltiFn{\text{a}}{\text{r}}$}
-\end{lstlisting}
-}
-
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-None = $\ltifuntparaminterfaceLHS{\text{s}}%
-                                 {\ltiFn{}%
-                                        {\text{Option[s]}}}%
-                                 {}$
-         {match = $\ltiufun{\text{v}}%
-                           {\text{v.caseNone()}}$}
-(* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} =%
-     \ltiClosureCacheEntry{\text{c1}}%
-                          {\ltiClosure{\text{s}}%
-                                      {\ltiNotInferred{\ltifuntparaminterface{\ltiInferred{\text{r}}}%
-                                                                             {\ltiInferred{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}%
-                                                                             {\text{v}}%
-                                                                             {\text{v.caseNone()}}}}}}$ *)
-None = $\ltifuntparaminterfaceLHS{\text{s}}%
-                                 {\ltiFn{}{\text{Option[s]}}}%
-                                 {}$
-         {match = $\ltiufunelab{\ltiInferred{\text{c1}}}%
-                               {\text{v}}%
-                               {\text{v.caseNone()}}$}
-(* fully annotated *)
-None = $\ltifuntparaminterfaceLHS{\text{s}}%
-                                 {\ltiFn{}%
-                                        {\text{Option[s]}}}%
-                                 {}$
-         {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}%
-                                         {\ltiInferred{\ltiFn{\text{OptionVisitor[s,r]}}{\text{r}}}}%
-                                         {\text{v}}%
-                                         {\text{v.caseNone()}}$}
-\end{lstlisting}
-}
-
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
-         {match = $\ltiufun{\text{v}}{\text{v.caseSome(y)}}$}
-(* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} = \ltiClosureCacheEntry{\text{c1}}{\ltiClosure{\ltiEnvConcat{\text{t}}{\hastype{\text{y}}{\text{t}}}}{\ltiNotInferred{\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\text{v}}{\text{v.caseSome(y)}}}}}}$ *)
-Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
-         {match = $\ltiufunelab{\ltiInferred{\text{c1}}}{\text{v}}{\text{v.caseSome(y)}}$}
-(* fully annotated *)
-Some = $\ltifuntparaminterfaceLHS{\text{t}}{\ltiFn{\text{t}}{\text{Option[t]}}}{\text{y}}$
-         {match = $\ltifuntparaminterface{\ltiInferred{\text{r}}}{\ltiInferred{\ltiFn{\text{OptionVisitor[t,r]}}{\text{r}}}}{\text{v}}{\text{v.caseSome(y)}}$}
-\end{lstlisting}
-}
-
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
-        x.match({caseNone = $\ltiufun{}{\text{None()}}$,
-                 caseSome = $\ltiufun{\text{y}}{\text{Some(f(y))}}$})
-(* SC annotated *)
-(* $\ltiInferred{\ltiEnv{} = {\ltiEnvConcat{\text{c}}{\ltiEnvConcat{\text{d}}{\ltiEnvConcat{\hastype{\text{f}}{\ltiFn{\text{c}}{\text{d}}}}{\hastype{\text{x}}{\text{Option[c]}}}}}}}$ *)
-(* $\ltiInferred{\ltiClosureCache{} =}$
-     $\ltiInferred{\ltiClosureCacheEntry{\text{c1}}{\ltiClosure{\ltiEnv{}}{\ltiNotInferred{\ltifuninterface{\ltiInferred{\ltiFn{}{\ltilstOption{\ltiBot}}}}{}{\text{None[\ltiInferred{\ltiBot}]()}}}}}}$,
-     $\ltiInferred{\ltiClosureCacheEntry{\text{c2}}{\ltiClosure{\ltiEnv{}}{\ltiNotInferred{\ltifuninterface{\ltiInferred{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}}{\text{y}}{\text{Some[\ltiInferred{\text{d}}](f(y))}}}}}}$
-*)
-map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
-        x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltiufunelab{\ltiInferred{\text{c1}}}{}{\text{None()}}$,
-                    caseSome = $\ltiufunelab{\ltiInferred{\text{c2}}}{\text{y}}{\text{Some(f(y))}}$})
-(* fully annotated *)
-map = $\ltifuntparaminterfaceLHS{\text{c,d}}{\ltiFn{\ltiFn{\text{c}}{\text{d}},\text{Option[c]}}{\text{Option[d]}}}{\text{f,x}}$
-        x.match[$\ltiInferred{\text{d}}$]({caseNone = $\ltifuninterface{\ltiInferred{\ltiFn{}{\ltilstOption{\ltiBot}}}}{}{\text{None[\ltiInferred{\ltiBot}]()}}$,
-                    caseSome = $\ltifuninterface{\ltiInferred{\ltiFn{\text{c}}{\ltilstOption{\text{d}}}}}{\text{y}}{\text{Some[\ltiInferred{\text{d}}](f(y))}}$})
-\end{lstlisting}
-}
-
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-map($\ltiufun{\text{y}}{\text{1+y}}$, Some(42))
-(* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} =%
-      \ltiClosureCacheEntry{\text{c1}}%
-                           {\ltiClosure{\ltiEmptyEnv}%
-                                       {\ltiNotInferred%
-                                        {\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}%
-                                                         {\text{y}}%
-                                                         {\text{1+y}}}}}}$ *)
-map[$\ltiInferred{\text{Int, Int}}$]($\ltiufunelab{\ltiInferred{\text{c1}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
-(* fully annotated *)
-map[$\ltiInferred{\text{Int, Int}}$]($\ltifuninterface{\ltiInferred{\ltiFn{\text{Int}}{\text{Int}}}}{\text{y}}{\text{1+y}}$, Some[$\ltiInferred{\text{Int}}$](42))
-\end{lstlisting}
-}
-
-
-
-{
-\singlespacing
-\begin{lstlisting}[language=ml,mathescape=true]
-id = $\ltifuntparaminterface{\text{a}}{\ltiFn{\text{a}}{\text{a}}}{\text{x}}{\text{x}}$
-
-let app = $\ltiufun{\text{f},\text{x}}{\ltiapp{\text{f}}{\text{x}}}$ in
-  $\ltiapp{\text{app}}%
-          {\text{id}, \text{1}}$
-(* SC annotated *)
-(* $\ltiInferred{\ltiClosureCache{} =%
-      \ltiClosureCacheEntry{\text{c1}}%
-                           {\ltiClosure{\ltiEmptyEnv}%
-                                       {\ltiNotInferred%
-                                        {\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{a}}{\text{a}}},\text{Int}}%
-                                                                             {\text{Int}}}}%
-                                                         {\text{f,x}}%
-                                                         {\ltiappinst{\text{f}}{\ltiInferred{\text{Int}}}{\text{x}}}}}}}$ *)
-let app = $\ltiufunelab{\text{c1}}{\text{f},\text{x}}{\ltiapp{\text{f}}{\text{x}}}$ in
-  $\ltiapp{\text{app}}%
-          {\text{id}, \text{1}}$
-(* Fully annotated *)
-let app = $\ltifuninterface{\ltiInferred{\ltiFn{\ltiPoly{\text{a}}{\ltiFn{\text{a}}{\text{a}}},\text{Int}}%
-                                               {\text{Int}}}}%
-                           {\text{f},\text{x}}%
-                           {\ltiappinst{\text{f}}{\ltiInferred{\text{Int}}}{\text{x}}}$ in
-  $\ltiapp{\text{app}}%
-          {\text{id}, \text{1}}$
-\end{lstlisting}
-}
-
-%\subsection{Symbolic closure Metatheory}
-%
-%\begin{lemma}[Subtyping (External Language)]
-%   \ltiSdsubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-%    iff
-%   \ltiisubtypeseen{\ltiSubtypeSeen{}}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-%\end{lemma}
-%
-%\begin{lemma}[Soundness (External Language)]
-%  If \ltitSdjudgement{\ltiEnv{}}
-%                     {\ltiE{}}
-%                     {\ltiT{}}
-%                     {\ltiEp{}}
-%                     and
-%                     \ltiSdsubtypeseen{\varnothing}{\ltiEnv{}}{\ltiT{}}{\ltiS{}}
-%                     then
-%    \ltitjudgement{\ltiEnv{}}
-%                  {\ltiEp{}}
-%                  {\ltiS{}}
-%                  {\ltiEpp{}}
-%\end{lemma}
-%
-%\begin{lemma}[Completeness (External Language)]
-%  If \ltitjudgement{\ltiEnv{}}
-%                   {\ltiE{}}
-%                   {\ltiT{}}
-%                   {\ltiEp{}}
-%                  then
-%  \ltitSdjudgement{\ltiEnv{}}
-%                     {\ltiE{}}
-%                     {\ltiT{}}
-%                     {\ltiEp{}}
-%\end{lemma}
-%
-%\begin{lemma}[Soundness (Symbolic Closure Language)]
-%  If there exists some fuel \ltiFuel{} such that
-%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-%                      {\ltiEnv{}}
-%                      {\ltiE{1}}
-%                      {\ltiT{}}
-%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-%                      {\ltiE{2}},
-%                      then
-%    \ltitSdjudgement{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}
-%                    {\ltielimClosLHS{\ltiClosureCache{}}{\ltiE{2}}}
-%                    {\ltiS{}}
-%                    {\ltiEp{}}
-%                    such that
-%                      \ltiisubtype{\ltielimClosEnvLHS{\ltiClosureCache{}}{\ltiEnv{}}}{\ltiS{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}.
-%\end{lemma}
-%
-%\begin{lemma}[Completeness 1 (Symbolic Closure Language)]
-%  If \ltitSdjudgement{\ltiEnv{}}
-%                     {\ltiE{}}
-%                     {\ltiT{}}
-%                     {\ltiEp{}}
-%                     then
-%    either
-%    and fuel \ltiFuel{}
-%    such that
-%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-%                      {\ltiEnv{}}
-%                      {\ltiF{}}
-%                      {\ltiT{}}
-%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-%                      {\ltiFp{}}.
-%\end{lemma}
-%
-%% TODO timeout rules for type system
-%% TODO 
-%\begin{lemma}[Completeness 2 (Symbolic Closure Language)]
-%  If \ltitSdjudgement{\ltiEnv{}}
-%                     {\ltiE{}}
-%                     {\ltiT{}}
-%                     {\ltiEp{}}
-%                     then
-%    there exists a term \ltiF{} such that \ltiE{} is a partial erasure of \ltiF{}
-%    and fuel \ltiFuel{}
-%    such that
-%    \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
-%                      {\ltiEnv{}}
-%                      {\ltiF{}}
-%                      {\ltiT{}}
-%                      {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-%                      {\ltiFp{}}.
-%\end{lemma}
-
+%\input{symbolic-ta-synthesis}
 %\input{symbolic-extended}
 %\input{colored}
 
