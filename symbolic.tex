@@ -2958,7 +2958,7 @@ Ideally, SCL always infers sound annotations and types for external terms.
                   {\ltiTp{}}
                    in the internal language,
                   where 
-                  \ltiisubtype{}{\ltiTp{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiTp{}}}.
+                  \ltiisubtype{}{\ltiTp{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiT{}}}.
 \end{conjecture}
 
 %Several key 
@@ -3076,7 +3076,7 @@ Another major restriction is that we may only pick a single
 elaboration for each symbolic closure. This disallows simple programs like 
 \ltilet{\text{f}}{\ltiufun{\ltivar{}}{\ltiE{}}}
        {\ltiRec{\text{left}=\ltiapp{\text{f}}{1},
-                \text{right}=\ltiapp{\text{f}}{"a"}}}.
+                \text{right}=\ltiapp{\text{f}}{\text{``a''}}}}.
 We have considered several approaches to lifting this restriction.
 First is to infer an \emph{intersection type} for \text{f}.
 That way, \text{f}'s type would be
@@ -3180,10 +3180,17 @@ Our SCL model does not feature equi-recursive recursive types. Adding them would
 lift the restriction that a symbolic closure may not be passed to itself.
 In the elaboration phase, we introduce a recursive type when we discover
 a symbolic closure that we are currently elaborating.
-For example, in the program \ltilet{\ltivar{}}{\ltiufun{\ltivar{}}{\ltivar{}}}{\ltiapp{\ltivar{}}{\ltivar{}}},
-{\ltivar{}} may be given type
-\ltiFn{\ltiMu{\ltivar{}}{\ltiFn{\ltivar{}}{\ltivar{}}}}
-      {\ltiMu{\ltivar{}}{\ltiFn{\ltivar{}}{\ltivar{}}}}.
+For example, the program ``\ltilet{\ltivar{}}{\ltiufun{\ltivar{}}{\ltivar{}}}{\ltiapp{\ltivar{}}{\ltivar{}}}'',
+{\ltivar{}} is passed to itself.
+Using this method of elaboration, {\ltivar{}} will be
+assigned the type
+\ltiFn{\ltiMu{\ltitvar{}}{\ltiFn{\ltitvar{}}{\ltitvar{}}}}
+      {\ltiMu{\ltitvar{}}{\ltiFn{\ltitvar{}}{\ltitvar{}}}},
+where
+{\ltiMu{\ltitvar{}}{\ltiFn{\ltitvar{}}{\ltitvar{}}}}
+stands for
+the given type of {\ltivar{}}.
+
 
 Distinguishing between a type error
 and running out of fuel in SCL would significantly complicate the model.
@@ -3191,14 +3198,15 @@ One way this might be able to be achieved is based on a technique for
 proving type soundness for big-step reduction relations.
 For each type and subtype rule, we add extra rules to explicitly
 handle all cases where the derivation can ``get stuck,''
-and return a special fuel value denoting ``ran out of fuel''.
+and return a special fuel value denoting ``ran out of fuel'' in rules
+that get stuck when checking for sufficient fuel.
 Then, another set of rules will propagate this special fuel value
 back to the root of the derivation, which allows us to distinguish
 the two cases.
 
 % something totally different? Symbolic closures as primitives + don't go wrong
 
-Up till now, our conjectures and discussion have been centered around compiling to \ltiFsub.
+Up till now, our conjectures and discussion have been centered around compiling SCL to \ltiFsub.
 Another direction we could take is to lift all restrictions
 on SCL (except symbolic reduction fuel, to keep it decidable),
 ignore elaborations, and treat SCL as a type \emph{checker} rather than a
@@ -3223,8 +3231,8 @@ like the following.
                        {\ltiT{}} up-to symbolic closure types.
 \end{conjecture}
 
-This better reflects the original intended use-case of symbolic closures,
-in optional type systems with evaluation semantics based on type-erasure.
+This better reflects the original intended use-case of symbolic closures:
+optional type systems with evaluation semantics based on type-erasure.
 Indeed, if symbolic closures were to be added to a language like Typed Clojure,
 there is no compelling reason to implement elaboration rules and so it is
 natural to leave symbolic closures unrestricted. While we believe unrestricted
