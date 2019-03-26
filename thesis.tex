@@ -123,9 +123,9 @@
 \singlespacing
 \tableofcontents
 
-\listoffigures
+%\listoffigures
 
-\listoftheorems
+%\listoftheorems
 \doublespacing
 
 \newpage
@@ -139,10 +139,7 @@
 
 \section{My Thesis}
 
-Typed Clojure is a sound and practical optional type system for Clojure.
-
-Typed Clojure is an optional type system for the Clojure programming language
-that aims to check idiomatic Clojure code.
+\emph{Typed Clojure is a sound and practical optional type system for Clojure.}
 
 \section{Structure of this Dissertation}
 
@@ -150,33 +147,34 @@ This document progresses in several parts that support my thesis statement, pres
 in which they were developed.
 
 Part~\ref{part:types} motivates and presents the design of Typed Clojure.
+It addresses both parts of my thesis statement.
 
 \begin{itemize}
-  \item \emph{Typed Clojure is sound} We formalize Typed Clojure, including
+  \item \emph{Typed Clojure is sound} I formalize Typed Clojure, including
     its characteristic features like hash-maps, multimethods, and Java interoperability,
     and prove the model type sound.
   \item \emph{Typed Clojure is practical} 
-    \begin{itemize}
-      \item We present an empirical study of real-world Typed Clojure usage
+      I present an empirical study of real-world Typed Clojure usage
         in over 19,000 lines of code, showing its features correspond to actual usage patterns.
-    \end{itemize}
-    % our annotation approach can be repurposed to generate clojure.spec which can be \emph{run}.
-    % use results to explore both the quality of the tool and to explore what the inferred specs
-    % tell us about clj programs.
 \end{itemize}
 
-As a response to the results of this work, I pursued three distinct research directions.
+The results and industry feedback of this work inspired three distinct research directions
+to help improve the experience of using Typed Clojure.
 
+\begin{itemize}
+  \item
 \partref{part:autoann} presents a solution to lower the annotation burden in real-world Typed Clojure programs.
-We formalize and implement a tool to automatically annotate types for top-level
+I formalize and implement a tool to automatically annotate types for top-level
 user and library definitions, and empirically study the manual changes needed for the generated annotations
 to pass type checking.
-
-%Part~\ref{part:spec} investigates clojure.spec, Clojure's official runtime verification library.
-%Released 5 years after Typed Clojure, clojure.spec represents a significant development in Clojure
-%verification. I investigate clojure.spec's design and compare it to Typed Clojure
-%by producing a formal model of clojure.spec and repurposing the automatic annotation tool 
-%from Part~\ref{part:autoann} to automatically produce clojure.spec annotations for real-world Clojure programs.
+  \item
+\partref{part:implementations} describes the design and implementation of a 
+new code analyzer for Clojure, in service of enabling user-provided type rules for Clojure macros
+    to help make type checking complex macro usages more robust.
+\item \partref{part:symbolic-closures} motivates and describes \emph{symbolic closure types},
+      a technique that enhances type checking with symbolic execution, that helps check some
+      common Clojure idioms via a compatible extension of Typed Clojure's original design.
+\end{itemize}
 
 \part{Practical Optional Types for Clojure}
 \label{part:types}
@@ -221,6 +219,7 @@ to pass type checking.
 
 \part{%Local Type Argument Synthesis with Symbolic Closures
 Symbolic Closures}
+\label{part:symbolic-closures}
 
 \input{symbolic}
 
