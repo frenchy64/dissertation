@@ -110,16 +110,15 @@
 %\begin{dedication}
 %\end{dedication}
 
-\begin{abstract}
-\input{abstract}
-\end{abstract}
 
 \maketitle
 \signaturepage
 \copyrightpage
 %\makeack
 %\makededication
-\makeabstract
+%\makeabstract
+
+\input{abstract}
 
 \singlespacing
 \tableofcontents
@@ -134,7 +133,50 @@
 %turns on chapter numbering, resets page numbering and uses arabic numerals for page numbers;
 \mainmatter
 
-\input{thesis-statement}
+%\input{thesis-statement}
+
+\chapter{Introduction}
+
+\section{My Thesis}
+
+Typed Clojure is a sound and practical optional type system for Clojure.
+
+Typed Clojure is an optional type system for the Clojure programming language
+that aims to check idiomatic Clojure code.
+
+\section{Structure of this Dissertation}
+
+This document progresses in several parts that support my thesis statement, presented in chronological order
+in which they were developed.
+
+Part~\ref{part:types} motivates and presents the design of Typed Clojure.
+
+\begin{itemize}
+  \item \emph{Typed Clojure is sound} We formalize Typed Clojure, including
+    its characteristic features like hash-maps, multimethods, and Java interoperability,
+    and prove the model type sound.
+  \item \emph{Typed Clojure is practical} 
+    \begin{itemize}
+      \item We present an empirical study of real-world Typed Clojure usage
+        in over 19,000 lines of code, showing its features correspond to actual usage patterns.
+    \end{itemize}
+    % our annotation approach can be repurposed to generate clojure.spec which can be \emph{run}.
+    % use results to explore both the quality of the tool and to explore what the inferred specs
+    % tell us about clj programs.
+\end{itemize}
+
+As a response to the results of this work, I pursued three distinct research directions.
+
+\partref{part:autoann} presents a solution to lower the annotation burden in real-world Typed Clojure programs.
+We formalize and implement a tool to automatically annotate types for top-level
+user and library definitions, and empirically study the manual changes needed for the generated annotations
+to pass type checking.
+
+%Part~\ref{part:spec} investigates clojure.spec, Clojure's official runtime verification library.
+%Released 5 years after Typed Clojure, clojure.spec represents a significant development in Clojure
+%verification. I investigate clojure.spec's design and compare it to Typed Clojure
+%by producing a formal model of clojure.spec and repurposing the automatic annotation tool 
+%from Part~\ref{part:autoann} to automatically produce clojure.spec annotations for real-world Clojure programs.
 
 \part{Practical Optional Types for Clojure}
 \label{part:types}
