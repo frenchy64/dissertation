@@ -2961,7 +2961,7 @@ Ideally, SCL always infers sound annotations and types for external terms.
                   \ltiisubtype{}{\ltiTp{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiTp{}}}.
 \end{conjecture}
 
-Several key 
+%Several key 
 
 %\begin{conjecture}[SCL Completeness 1]
 %  If \ltitjudgementNoElab{\ltiEnv{}}
@@ -3022,20 +3022,214 @@ based on fuel, such as the following.
     such that
     \ltitSstkjudgementNoElab{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiEmptyClosureCache}}
                       {\ltiEmptyEnv}
-                      {\ltiF{}}
-                      {\ltiT{}}
+                      {\ltiE{}}
+                      {\ltiTp{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCache{}}}
-                      {\ltiFp{}}.
+                      {\ltiFp{}},
+          and \ltiisubtype{\ltiEnv{}}{\ltielimClosTLHS{\varnothing}{\ltiClosureCache{}}{\ltiTp{}}}{\ltiT{}}.
 \end{conjecture}
 
-Unfortunately, this requires that SCL distinguishes between a type error
-and running out of fuel, which would significantly complicate the model.
+Unfortunately, this does not hold in the presented model of SCL, at least in part because of the restrictions placed on
+symbolic closures and our use of ``off-the-shelf'' type argument synthesis.
+Furthermore, we would need to distinguish type errors from running out of fuel.
+We now discuss some specific issues we face when trying to achieve a system with Strong Completeness,
+and speculate on how to fix them.
+
+The restriction in \ltiSCAbs disallows symbolic closures to cross into a new type variable
+scope, like
+``\ltilet{\text{f}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+       {\ltifun{\ltitvar{}}{\ltivar{}}{\ltitvar{}}{\ltiapp{\text{f}}{\ltivar{}}}}.''
+We have considered two fixes, both with their own tradeoffs.
+The first is to infer a polymorphic type for $\text{f}$---we simply quantify
+over each type variable that occurs out-of-scope with respect to $\text{f}$'s
+definition context.
+In the present example, instead of recording $\text{f}$'s type as
+``\ltiPolyFn{\ltitvar{}}{}{...}'' at the application site,
+we would record the polymorphic type
+``\ltiPolyFn{\ltitvar{}}{\ltitvar{}}{...}'',
+since {\ltitvar{}} is not in scope at $\text{f}$'s definition.
+The complication here is related to type argument synthesis.
+Since $\text{f}$ now has a polymorphic type, 
+the application must elaborate to \ltiappinst{\text{f}}{\ltitvar{}}{\ltivar{}}.
+Furthermore, if $\text{f}$ is passed as an argument to a polymorphic function
+such as \ltiapp{\text{map}}{\text{f},\ltiE{}},
+we would have to also infer type arguments for operands
+(like CDuce~\cite{polyduce2}).
+
+Another approach to handling out-of-scope type variables is to 
+enrich types with type contexts.
+Here, $\text{f}$ would have type 
+``(\ltistackmapping{\ltitvarp{}}{\ltiPolyFn{\ltitvarp{}}{}{...}})'',
+which says ``in a type context that starts with some
+type variable \ltitvar{},
+expands to \ltiPolyFn{\ltitvar{}}{}{...}''.
+This way, checking the body of ``\ltifun{\ltitvar{}}{\ltivar{}}{\ltitvar{}}{\ltiapp{\text{f}}{\ltivar{}}}''
+would effectively update $\text{f}$'s type to 
+``\ltiPolyFn{\ltitvar{}}{}{...}''.
+This approach resembles contextual subtyping~\cite{Dunfield2004Tridirectional},
+except their dependence of types on type contexts is purely syntactic.
+Type contexts are eliminated too early to check our example,
+because the $\text{f}$'s annotation must occur at its definition, but
+there the type environment is empty.
+
+Another major restriction is that we may only pick a single
+elaboration for each symbolic closure. This disallows simple programs like 
+\ltilet{\text{f}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+       {\ltiRec{\text{left}=\ltiapp{\text{f}}{1},
+                \text{right}=\ltiapp{\text{f}}{"a"}}}.
+We have considered several approaches to lifting this restriction.
+First is to infer an \emph{intersection type} for \text{f}.
+That way, \text{f}'s type would be
+\ltiIFn{\ltiFn{\text{Int}}{\text{Int}},{\ltiFn{\text{Str}}{\text{Str}}}},
+which says ``returns an Int when given an Int, and returns a Str
+when given a Str.''
+Now choosing the final elaboration for {\ltiE{}} becomes more complicated,
+but the intersection type checking literature presents several solutions~\cite{wells2002branching,Dunfield2004Tridirectional,polyduce1}.
+
+We could also try and guess a polymorphic type for \text{f}
+based on its use sites,
+in an approach resembling Trace Typing~\cite{Andreasen2016TraceTA}.
+Here, say we know 
+\text{f} is type \ltiFn{\text{Int}}{\text{Int}}
+and we learn it is also of type \ltiFn{\text{Str}}{\text{Str}},
+we could guess a generalization like
+``\ltiPolyFn{\ltitvar{}}{\ltitvar{}}{\ltitvar{}}''
+based on the shape of both observations.
+Since the definition type environment of \text{f} is always handy
+in the elaboration cache, we could check if \text{f} inhabits
+the generalized type (Trace Typing only checks use sites to
+verify a polymorphic type).
+
+The restriction in \ltiSCAppInfPT that type argument synthesis
+may not reason about symbolic closures rules out checking
+\ltiapp{\text{map}}{\ltiufun{\ltivar{}}{\ltiF{}}, \ltiE{}}.
+Supporting symbolic closures in type argument synthesis requires
+a following a notion of data flow in polymorphic types.
+For example, the free theorems~\cite{wadler1989theorems}
+of the type for \text{map} implies that
+its function argument may be invoked only with elements of
+its collection argument.
+We can visualize the data flow \text{map} must adhere to.
+
+\[
+\ltiPolyFn{\ltiFn{\text{a}_{\tikz[overlay,remember picture] \node [] (b) {};}}
+                 {\text{b}^{\tikz[overlay,remember picture] \node [] (c) {};}}
+                 ,
+          {\text{List[a}_{\tikz[overlay,remember picture] \node [] (a) {};}
+                 \text{]}}
+                 }
+          {\text{a,b}}
+          {\text{List[}^{\tikz[overlay,remember picture] \node [] (d) {};}
+           \text{b]}}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[red,->,bend right=-45](Start2.east) to (End2.north east);
+\end{tikzpicture} 
+\]
+
+Now, the role of type argument synthesis is to integrate symbolic closures
+into this data flow.
+For our example, the type of \ltiE{} flows to \text{List[a]},
+which informs the symbolic closure of its input, and then \text{List[b]}
+is derived from the output of the symbolic closure.
+
+\[
+\begin{array}{c}
+\ltiapp{\text{map}}{\ltiufun{{\tikz[overlay,remember picture] \node [] (b2) {};}\ltivar{}}
+                             {\ltiF{}}{\tikz[overlay,remember picture] \node [] (c0) {};},
+                             \ltiE{}{\tikz[overlay,remember picture] \node [] (a0) {};}} \\\\
+\ltiPolyFn{\ltiFn{\text{a}_{\tikz[overlay,remember picture] \node [] (b) {};}}
+                 {\text{b}^{\tikz[overlay,remember picture] \node [] (c) {};}}
+                 ,
+          {\text{List[a}_{\tikz[overlay,remember picture] \node [] (a) {};}
+                 \text{]}}
+                 }
+          {\text{a,b}}
+          {\text{List[}^{\tikz[overlay,remember picture] \node [] (d) {};}
+           \text{b]}}
+\begin{tikzpicture}[remember picture, overlay,
+                  text width = 2.5cm ]
+  \coordinate (Start0) at (a0);
+  \coordinate (End0) at (a);
+  \coordinate (Start1) at (a);
+  \coordinate (End1) at (b);
+  \coordinate (Start1b) at (b);
+  \coordinate (End1b) at (b2);
+  \coordinate (Start2a) at (c0);
+  \coordinate (End2a) at (c);
+  \coordinate (Start2) at (c);
+  \coordinate (End2) at (d);
+  \draw[blue,dotted,thick,->](Start0.south) to (End0.east);
+  \draw[red,->,bend right=-45](Start1.south) to (End1.east);
+  \draw[blue,dotted,thick,->](Start1b.south) to (End1b.east);
+  \draw[blue,dotted,thick,->](Start2a.south) to (End2a.east);
+  \draw[red,->,bend right=-45](Start2.east) to (End2.north east);
+\end{tikzpicture} 
+\end{array}
+\]
+
+Formalizing this intuition into a type-argument synthesis algorithm is work-in-progress.
+
+% Recursive types
+Our SCL model does not feature equi-recursive recursive types. Adding them would allow us to
+lift the restriction that a symbolic closure may not be passed to itself.
+In the elaboration phase, we introduce a recursive type when we discover
+a symbolic closure that we are currently elaborating.
+For example, in the program \ltilet{\ltivar{}}{\ltiufun{\ltivar{}}{\ltivar{}}}{\ltiapp{\ltivar{}}{\ltivar{}}},
+{\ltivar{}} may be given type
+\ltiFn{\ltiMu{\ltivar{}}{\ltiFn{\ltivar{}}{\ltivar{}}}}
+      {\ltiMu{\ltivar{}}{\ltiFn{\ltivar{}}{\ltivar{}}}}.
+
+Distinguishing between a type error
+and running out of fuel in SCL would significantly complicate the model.
 One way this might be able to be achieved is based on a technique for
 proving type soundness for big-step reduction relations.
 For each type and subtype rule, we add extra rules to explicitly
-handle all cases where the derivation can ``get stuck.''
-Then, running out of fuel can be recognized by a derivation ending
-in a symbolic reduction rule with zero fuel.
+handle all cases where the derivation can ``get stuck,''
+and return a special fuel value denoting ``ran out of fuel''.
+Then, another set of rules will propagate this special fuel value
+back to the root of the derivation, which allows us to distinguish
+the two cases.
+
+% something totally different? Symbolic closures as primitives + don't go wrong
+
+Up till now, our conjectures and discussion have been centered around compiling to \ltiFsub.
+Another direction we could take is to lift all restrictions
+on SCL (except symbolic reduction fuel, to keep it decidable),
+ignore elaborations, and treat SCL as a type \emph{checker} rather than a
+type inferencer.
+Then, we could attempt to prove a type soundness theorem
+like the following.
+
+\begin{conjecture}[Unrestricted SCL Type Soundness]
+  If there exists fuel {\ltiFuel{}} such that
+     \ltitSstkjudgementNoElab{\ltiFuel{}}
+                       {\ltiEmptyEnv}
+                       {\ltiE{}}
+                       {\ltiT{}}
+                       {\ltiFuelp{}}
+                       {\ltiEp{}}
+  for external term \ltiE{}, and
+                       SCL type \ltiT{},
+                      then
+  evaluating {\ltiE{}}
+                       yields a value $v$, whose type \ltiTp{}
+                       is a subtype of
+                       {\ltiT{}} up-to symbolic closure types.
+\end{conjecture}
+
+This better reflects the original intended use-case of symbolic closures,
+in optional type systems with evaluation semantics based on type-erasure.
+Indeed, if symbolic closures were to be added to a language like Typed Clojure,
+there is no compelling reason to implement elaboration rules and so it is
+natural to leave symbolic closures unrestricted. While we believe unrestricted
+symbolic closures are type sound, we are unsure how to approach proving such
+a theorem.
 
 % - Solution
 %   - "obvious" function annotations
