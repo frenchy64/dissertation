@@ -418,15 +418,126 @@ would be apparent from an expected type, not the type of \ltivar{}.
 % - good related works section for "Impredicative Polymorphism"
 
 \paragraph{Mixing Symbolic Execution and Type Checking}
-Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
-in the same system, specifying a mode for (nested) regions of code.
-They argue this tradeoff keeps the predictability of type checking, while preserving enough
-symbolic execution to drive further checking.
-%In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
+Mix~\cite{Khoo2010MTC} allows an interplay of symbolic execution~\cite{King1976SEP} with type checking
+by providing syntactic regions,
+with terms
+\MixTregion{\ltiE{}} signaling to use type checking for {\ltiE{}},
+and
+\MixSregion{e} for symbolic execution.
+For example, the code
+%
+\[
+\MixSregion{\ltilet{\text{id}}{\ltiufun{\ltivar{}}{\ltivar{}}}
+                  {\MixTregion{  ...\ \MixSregion{\ltiapp{\text{id}}{3}}
+                               \ ...\ \MixSregion{\ltiapp{\text{id}}{3.0}}
+                               \ ... }}}
+\]
+%
+uses symbolic execution to execute \text{id}, abstracting
+results as types so they may be checked in typed regions.
+Comparatively, symbolic closures deeply integrates a small amount of
+symbolic execution with a type system in such a way that delayed symbolic computations
+may pass between typed regions.
+Since Mix cleanly separates symbolic execution and type checking, it is difficult
+to compare the two approaches.
+In rough terms, symbolic closures use typed regions by default and automatically adds symbolic regions
+around unannotated functions.
+%
+\[
+\MixTregion{\ltilet{\text{id}}{\MixSregion{\ltiufun{\ltivar{}}{\ltivar{}}}}
+                   {  ...\ \ltiapp{\text{id}}{3}
+                    \ ...\ \ltiapp{\text{id}}{3.0}
+                    \ ... }}
+\]
+%
+Typing rules are then added to introduce a symbolic closure type
+and also to apply them, which involves checking the delayed body in a typed region.
+%
+\begin{mathpar}
+\infer[]
+  {}
+  { \ltitjudgementNoElab{\ltiEnv{}}{\MixSregion{\ltiufun{\ltivar{}}{\ltiE{}}}}
+                        {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+  }
+
+\infer[]
+  { \ltitjudgementNoElab{\ltiEnv{}}{\MixTregion{\ltiF{}}}
+                        {\ltiClosure{\ltiEnvp{}}{\ltiufun{\ltivar{}}{\ltiEp{}}}}
+    \\\\
+    \ltitjudgementNoElab{\ltiEnv{}}{\MixTregion{\ltiE{}}}{\ltiS{}}
+    \\
+    \ltitjudgementNoElab{\ltiEnvConcat{\ltiEnvp{}}{\hastype{\ltivar{}}{\ltiS{}}}}
+                        {\MixTregion{\ltiEp{}}}
+                        {\ltiT{}}
+  }
+  { \ltitjudgementNoElab{\ltiEnv{}}{\MixTregion{\ltiapp{\ltiF{}}{\ltiE{}}}}{\ltiT{}}
+  }
+\end{mathpar}
+
+When forced to delineate type checking from symbolic execution like this, it interesting to ask to what degree symbolic
+closures even use symbolic execution.
+One view is that symbolic closures symbolically execute the \emph{runtime} closure-introduction rule.
+%
+\begin{mathpar}
+\infer[]
+  {}
+  {
+  \opsem {\openv{}}
+         {\ltiufun{\x{}}{\e{}}}
+         {\closurenosuffix{\openv{}}{\ltiufun{\x{}}{\e{}}}}
+         }
+\end{mathpar}
+%
+The symbolic closure type
+{\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+is then the symbolic value of the runtime closure
+{\closurenosuffix{\openv{}}{\ltiufun{\x{}}{\e{}}}},
+related by the typing rule
+%
+\begin{mathpar}
+\infer []
+{ 
+  \overrightarrowcaption{
+  \ltitjudgementNoElab{}{\ltiEnvLookup{\openv{}}{y}}{\ltiEnvLookup{\ltiEnv{}}{y}}
+  }
+  ^{y \in dom(\openv{})}
+              }
+{ \ltitjudgementNoElab {\ltiEnvp{}}
+                       {\closurenosuffix
+                        {\openv{}}
+                        {\ltiufun{\ltivar{}}{\ltiE{}}}}
+                       {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
+          }
+\end{mathpar}
+
+%\begin{mathpar}
+%\infer[]
+%{ \opsem {\openv{}}
+%         {\e{f}}
+%         {\closurenosuffix {\openv{c}} {\abs {\x{}} {\t{}} {\e{b}}}}
+%         \\
+%  \opsem {\openv{}}
+%         {\e{a}}
+%         {\v{a}}
+%         \\
+%  \opsem {\extendopenv {\openv{c}} {\x{}} {\v{a}}}
+%         {\e{b}}
+%         {\v{}}
+%       }
+%{ \opsem {\openv{}}
+%         {\appexp {\e{f}} {\e{a}}}
+%         {\v{}}
+%       }
+%\end{mathpar}
+
 Symbolic closures type check an anonymous function if annotated, otherwise it is treated symbolically.
 As the authors envision, this is akin to automatically inserting
 the mode of a code region based on its context, with a Mix-like language
 becoming the intermediate language.
+
+%TODO
+%Mix also uses symbolic execution for flow-sensitivity.
+% >> talk about occurrence tpying.
 
 % Let arguments go first
 
@@ -444,10 +555,9 @@ where the same code may be checked at multiple types.
 Carlier and Wells give an approachable explanation of ``expansion'' in their survey paper~\cite{carlier2005expansion},
 a mechanism that informs an intersection type system when it should
 check the same term at different types.
-%This is achieved by splicing typing rules (like intersection-introduction) into existing typing
-%derivations derived from 
-
-%On the other hand, symbolic closures 
+This is achieved by splicing typing rules (like intersection-introduction) into existing typing
+derivations derived from 
+In contrast, symbolic closures delay the construction of a typing derivation 
 
 %In Section 3.1, they provide a motivating example for expansion, constructed to be untypable 
 %with simple (non-recursive) types, and show how expansion assigns it a type.
