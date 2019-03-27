@@ -340,6 +340,7 @@ process for domain-specific type error messages.
 \chapter{Related Work to Symbolic Closures% and Combining Type Checking with Symbolic Analysis
 }
 
+\paragraph{Bidirectional Type Checking}
 Symbolic closures were originally designed as an extension of Local Type Inference~\cite{PierceLTI}.
 Our presentation omitted their bidirectional checking (we did not propagate type information down the syntax
 tree using synthesis/checking rules)
@@ -377,20 +378,30 @@ that matches \ltiPolyFn{\text{?}}{}{\text{?}}, which is \ltiPolyFn{\ltiBot}{}{\l
 This ensures that the function at least conforms to the most optimistic interpretation of its
 prototype, and then by returning a symbolic closure type instead of \ltiPolyFn{\ltiBot}{}{\ltiTop}
 allows us to check more specific requirements later.
-Of course, this example requires that we specify how type argument synthesis works with
-symbolic closures, but it illustrates how symbolic closures relate to the rest of the system.
+Of course, to fully check this example, it requires that we specify how type argument synthesis works with
+symbolic closures, but it at least illustrates how symbolic closures relate to the rest of the system.
 
-Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
-in the same system, specifying a mode for (nested) regions of code.
-They argue this tradeoff keeps the predictability of type checking, while preserving enough
-symbolic execution to drive further checking.
-%In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
-Symbolic closures type check an anonymous function if annotated, otherwise it is treated symbolically.
-As the authors envision, this is akin to automatically inserting
-the mode of a code region based on its context, with a Mix-like language
-becoming the intermediate language.
-
-% Let arguments go first
+\paragraph{Local Type Argument Synthesis}
+Spine-local type inference~\cite{DBLP:journals/corr/abs-1805-10383}
+explores Local Type Inference in the context of System F (without subtyping).
+They present a greedy type argument synthesis algorithm
+which more aggressively propagates type information
+to an application's arguments.
+To check arguments, type variable instantiations are guessed
+based on the expected type of the application.
+For example, when checking \ltiapp{\text{id}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+with expected type \ltiFn{\ltiT{}}{\ltiS{}},
+where \text{id} has type \ltiPolyFn{\ltitvar{}}{\ltitvar{}}{\ltitvar{}},
+\ltitvar{} would be guessed to have type \ltiFn{\ltiT{}}{\ltiS{}}
+and then {\ltiufun{\ltivar{}}{\ltiE{}}} would be checked at that type.
+This would fail if the application was in synthesis mode.
+In this specific example, symbolic closures would allow the checking
+of \ltiufun{\ltivar{}}{\ltiE{}} to be delayed to when more type information
+is available, in either checking or synthesis modes.
+Unfortunately, it does not seem that their algorithm can check
+\ltiapp{\text{map}}{\ltiufun{\ltivar{}}{\ltiE{}},[1,2,3]}
+even in checking mode, because only the type of \ltiE{}
+would be apparent from an expected type, not the type of \ltivar{}.
 
 % Spine-local type inference
 % - Judgement \vdash^P digs down an application to find the head
@@ -407,6 +418,19 @@ becoming the intermediate language.
 %   - see "Type Inference Failures" section
 % - good related works section for "Impredicative Polymorphism"
 
+\paragraph{Mixing Symbolic Execution and Type Checking}
+Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
+in the same system, specifying a mode for (nested) regions of code.
+They argue this tradeoff keeps the predictability of type checking, while preserving enough
+symbolic execution to drive further checking.
+%In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
+Symbolic closures type check an anonymous function if annotated, otherwise it is treated symbolically.
+As the authors envision, this is akin to automatically inserting
+the mode of a code region based on its context, with a Mix-like language
+becoming the intermediate language.
+
+% Let arguments go first
+
 % Dunfield works I need to compare to
 % - Greedy Bidirectional Polymorphism
 % - Sound and complete bidirectional typechecking for higher-rank polymorphism with existentials and indexed types
@@ -414,6 +438,8 @@ becoming the intermediate language.
 
 % Other works with undecidable type checking
 % - Hybrid type checking - Knowles, Flanagan
+
+% Intersection types
 
 \chapter{Future work}
 
