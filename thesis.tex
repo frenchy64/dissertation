@@ -399,7 +399,9 @@ of \ltiufun{\ltivar{}}{\ltiE{}} to be delayed to when more type information
 is available, in either checking or synthesis modes.
 Unfortunately, it does not seem that their algorithm can check
 \ltiapp{\text{map}}{\ltiufun{\ltivar{}}{\ltiE{}},[1,2,3]}
-even in checking mode, because only the type of \ltiE{}
+even in checking mode, and so does not seem to assist us in solving similar
+problems with symbolic closures.
+This case does not check because only the type of \ltiE{}
 would be apparent from an expected type, not the type of \ltivar{}.
 
 % Spine-local type inference
@@ -424,7 +426,7 @@ with terms
 \MixTregion{\ltiE{}} signaling to use type checking for {\ltiE{}},
 and
 \MixSregion{e} for symbolic execution.
-For example, the code
+In Mix, for example, the term
 %
 \[
 \MixSregion{\ltilet{\text{id}}{\ltiufun{\ltivar{}}{\ltivar{}}}
@@ -433,10 +435,12 @@ For example, the code
                                \ ... }}}
 \]
 %
-uses symbolic execution to execute \text{id}, abstracting
-results as types so they may be checked in typed regions.
-Comparatively, symbolic closures deeply integrates a small amount of
-symbolic execution with a type system in such a way that delayed symbolic computations
+symbolically executes \MixSregion{\ltiapp{\text{id}}{3}}
+and
+\MixSregion{\ltiapp{\text{id}}{3.0}}, propagating result types
+\text{Int} and \text{Real} back to the typed regions, respectively.
+Comparatively, symbolic closures integrates only a small amount of
+symbolic execution with a type system, but in such a way that delayed symbolic computations
 may pass between typed regions.
 Since Mix cleanly separates symbolic execution and type checking, it is difficult
 to compare the two approaches.
@@ -475,8 +479,8 @@ and also to apply them, which involves checking the delayed body in a typed regi
 \end{mathpar}
 
 When forced to delineate type checking from symbolic execution like this, it interesting to ask to what degree symbolic
-closures even use symbolic execution.
-One view is that symbolic closures symbolically execute the \emph{runtime} closure-introduction rule.
+closures even uses symbolic execution.
+Our view is that (at least) symbolic closures symbolically execute the runtime-closure introduction rule.
 %
 \begin{mathpar}
 \infer[]
@@ -492,7 +496,7 @@ The symbolic closure type
 {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
 is then the symbolic value of the runtime closure
 {\closurenosuffix{\openv{}}{\ltiufun{\x{}}{\e{}}}},
-related by the typing rule
+related by the following typing rule.
 %
 \begin{mathpar}
 \infer []
@@ -509,6 +513,12 @@ related by the typing rule
                        {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}}
           }
 \end{mathpar}
+%
+As evidenced by the lack of symbolic regions in the above application rule,
+a ``symbolic reduction'' of a symbolic closure is not particularly related
+to symbolic execution---it merely kicks off some delayed type checking.
+However, \ltiEnv{}, \ltiS{}, and \ltiT{} in that rule may contain symbolic closure
+types, so symbolic values are being used to reason about the program.
 
 %\begin{mathpar}
 %\infer[]
@@ -530,13 +540,58 @@ related by the typing rule
 %       }
 %\end{mathpar}
 
-Symbolic closures type check an anonymous function if annotated, otherwise it is treated symbolically.
-As the authors envision, this is akin to automatically inserting
-the mode of a code region based on its context, with a Mix-like language
-becoming the intermediate language.
+%Symbolic closures type check an anonymous function if annotated, otherwise it is treated symbolically.
+%As the authors envision, this is akin to automatically inserting
+%the mode of a code region based on its context, with a Mix-like language
+%becoming the intermediate language.
 
-%TODO
-%Mix also uses symbolic execution for flow-sensitivity.
+Mix also uses symbolic execution to enhance simple type systems with flow-sensitivity.
+For example, the following Mix program uses symbolic execution 
+to flow-sensitively reason about \text{int?}, a predicate that returns true only for integer values.
+%
+\[
+\MixSregion{\ltilet{\text{f}}{\ltiufun{\ltivar{}}{(\ltiif{\ltiapp{\text{int?}}{\ltivar{}}}{\ltivar{}}{\textsf{nil}})}}
+                  {\MixTregion{  ...\ \MixSregion{\ltiapp{\text{f}}{3}}
+                               \ ...\ \MixSregion{\ltiapp{\text{f}}{3.0}}
+                               \ ... }}}
+\]
+%
+The symbolic regions determine
+\MixSregion{\ltiapp{\text{f}}{3}} has type \text{Int} and
+\MixSregion{\ltiapp{\text{f}}{3.0}} type \text{Nil} via symbolic execution.
+Symbolic closures are instead designed to be compatible with flow-sensitive type systems like occurrence typing~\cite{TF10}.
+Here is the analogous program using symbolic closures.
+%
+\[
+\MixTregion{\ltilet{\text{f}}{\MixSregion{\ltiufun{\ltivar{}}{(\ltiif{\ltiapp{\text{int?}}{\ltivar{}}}{\ltivar{}}{\textsf{nil}})}}}
+                  {  ...\ {\ltiapp{\text{f}}{3}}
+                               \ ...\ {\ltiapp{\text{f}}{3.0}}
+                               \ ... }}
+\]
+%
+Now, let us assume occurrence typing is also used to check this program, and
+that \text{int?} is typed as a predicate for integers.
+The call to
+{\ltiapp{\text{f}}{3}}
+triggers the symbolic reduction
+%
+\[
+\ltitjudgementNoElab{\hastype{\ltivar{}}{\text{Int}}}
+                    {(\ltiif{\ltiapp{\text{int?}}{\ltivar{}}}{\ltivar{}}{\textsf{nil}})}
+                    {\text{Int}}
+\]
+%
+which has type \text{Int}, because the else-branch is unreachable, and 
+similarly {\ltiapp{\text{f}}{3.0}} triggers
+%
+\[
+\ltitjudgementNoElab{\hastype{\ltivar{}}{\text{Int}}}
+                    {(\ltiif{\ltiapp{\text{int?}}{\ltivar{}}}{\ltivar{}}{\textsf{nil}})}
+                    {\text{Nil}}
+\]
+%
+which has type \text{Nil}, because the else-branch is unreachable.
+
 % >> talk about occurrence tpying.
 
 % Let arguments go first
