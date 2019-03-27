@@ -340,7 +340,7 @@ process for domain-specific type error messages.
 \chapter{Related Work to Symbolic Closures% and Combining Type Checking with Symbolic Analysis
 }
 
-\paragraph{Bidirectional Type Checking}
+\paragraph{Local Type Inference}
 Symbolic closures were originally designed as an extension of Local Type Inference~\cite{PierceLTI}.
 Our presentation omitted their bidirectional checking (we did not propagate type information down the syntax
 tree using synthesis/checking rules)
@@ -381,7 +381,6 @@ allows us to check more specific requirements later.
 Of course, to fully check this example, it requires that we specify how type argument synthesis works with
 symbolic closures, but it at least illustrates how symbolic closures relate to the rest of the system.
 
-\paragraph{Local Type Argument Synthesis}
 Spine-local type inference~\cite{DBLP:journals/corr/abs-1805-10383}
 explores Local Type Inference in the context of System F (without subtyping).
 They present a greedy type argument synthesis algorithm
@@ -439,7 +438,71 @@ becoming the intermediate language.
 % Other works with undecidable type checking
 % - Hybrid type checking - Knowles, Flanagan
 
-% Intersection types
+\paragraph{Intersection Type Checking}
+In hindsight, the idea behind symbolic closures resembles intersection type checking,
+where the same code may be checked at multiple types.
+Carlier and Wells give an approachable explanation of ``expansion'' in their survey paper~\cite{carlier2005expansion},
+a mechanism that informs an intersection type system when it should
+check the same term at different types.
+%This is achieved by splicing typing rules (like intersection-introduction) into existing typing
+%derivations derived from 
+
+%On the other hand, symbolic closures 
+
+%In Section 3.1, they provide a motivating example for expansion, constructed to be untypable 
+%with simple (non-recursive) types, and show how expansion assigns it a type.
+
+
+% survey
+% Expansion: the Crucial Mechanism for Type Inference with Intersection Types: A Survey and Explanation1
+% https://www.sciencedirect.com/science/article/pii/S1571066105050656
+% - "expansion" seems similar to inferring intersection types via symbolic closures
+%   - Section 6.2 talks about type inference for rank-2 intersection types
+%     - advantage is that expansion never has to introduce intersections under ->
+%       - do we do this with symbolic closures?
+% - "Expansion is an operation on typings that simulates the effect of splicing in typing rules
+%    uses at nested positions in some derivation of that typing."
+% - omega expansion looks very similar to symbolic closures types (Section 4)
+%   - at least in that it embeds the term in the type to track its origin 
+% - Section 5.2 talks about cost of type inference == beta reduction
+
+% (Intersection type systems)
+% Principal Types and Unification for Simple Intersection Type Systems
+% https://www.sciencedirect.com/science/article/pii/S0890540185711418
+
+\paragraph{Let-polymorphism}
+
+
+\paragraph{Directional Polymorphism}
+
+% MLsub
+% https://www.cl.cam.ac.uk/~sd601/thesis.pdf
+% https://www.cl.cam.ac.uk/~sd601/papers/mlsub-preprint.pdf
+%
+% Polar type system (Jim)
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.123.8718&rep=rep1&type=pdf
+
+% Pottier
+% Simplifying Subtyping Constraints: A Theory
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.41.7032&rep=rep1&type=pdf
+% A Framework for Type Inference with Subtyping%
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.55.2364&rep=rep1&type=pdf
+
+% ML_F
+% http://gallium.inria.fr/~remy/mlf/mlf-type-inference-long.pdf
+
+% \paragraph{Hindley-Milner}
+
+%TODO
+%\input{hm-comparison}
+
+%TODO
+%Xie and Oliveira~\cite{xie2018let} present a type system where
+%argument type information flows to the function position in applications.
+%Then, defining `let` as sugar propagates enough information to avoid
+%a custom rule for `let`.
+%No information is propagated from functions to applications, so the benefits
+%of Colored Local Type Inference are negated.
 
 \chapter{Future work}
 
