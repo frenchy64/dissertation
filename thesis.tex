@@ -271,11 +271,10 @@ Symbolic Closures}
 
 %Runtime analysis \cite{Mastrangelo:2015:UYO:2814270.2814313}
 
-\chapter{Future work}
-
 %\cite{Mastrangelo:2015:UYO:2814270.2814313} 
 
-\paragraph{Interleaving Type Checking with Expansion, Extensible type systems and Symbolic Analysis}
+\chapter{Related Work to Extensible Type Systems%and Interleaving Type Checking with Expansion
+}
 
 Turnstile~\cite{Chang2017TSM} type checks a program during expansion
 by repurposing the Racket macro system.
@@ -324,17 +323,6 @@ where the dynamic semantics are defined by runtime Clojure constructs (\texttt{d
 and \texttt{defmacro}), and towers of static semantics are progressively specified in terms of the static
 analysis of other Clojure forms.
 
-Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
-in the same system, specifying a mode for (nested) regions of code.
-They argue this tradeoff keeps the predictability of type checking, while preserving enough
-symbolic execution to drive further checking.
-In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
-Our preliminary explorations in symbolic execution for Typed Clojure, for example, type checks an
-anonymous function if annotated, otherwise treats it symbolically.
-As the authors envision, this is akin to automatically inserting
-the mode of a code region based on its context, with a Mix-like language
-becoming the intermediate language.
-
 Type Tailoring~\cite{greenmanttailoring} is an approach to provide more information
 to a host type system than it might be capable of by itself.
 In particular, the authors use the host platform's metaprogramming functionality
@@ -343,6 +331,66 @@ error messages by incorporating surface syntax. Their experiments are based in T
 syntax before checking it. Since Typed Clojure recently changed to interleave macroexpansion
 and type checking, we could extend this technique to also refine calls based on the
 types of their arguments (like SoundX).
+
+Other work is relevant to our investigations of improving the user experience
+of Typed Clojure. SweetT~\cite{pombrio2018inferring} automatically infers type rules
+for syntactic sugar. Helium~\cite{Heeren2003STI} provides hooks into the type inference
+process for domain-specific type error messages.
+
+\chapter{Related Work to Symbolic Closures% and Combining Type Checking with Symbolic Analysis
+}
+
+Symbolic closures were originally designed as an extension of Local Type Inference~\cite{PierceLTI}.
+Our presentation omitted their bidirectional checking (we did not propagate type information down the syntax
+tree using synthesis/checking rules)
+and so was not a superset of Local Type Inference---in
+particular, it does not take advantage of the relaxed optimality conditions when inferring type
+arguments in checking mode.
+However, adding back bidirectional checking should be possible by starting with the rules of Local
+Type Inference, adding a \emph{synthesis} rule for functions that introduces a symbolic
+closure, application and subtyping rules for symbolic closures, and some side conditions to restrict 
+how a symbolic closure may be reasoned about (like our ``must not contain symbolic closures''
+conditions scattered in various rules).
+This way, a symbolic closure should only be introduced where Local Type Inference fails---when
+a type of a function must be synthesized---and so seems more likely to be a superset of 
+Local Type Inference.
+
+Colored Local Type Inference~\cite{coloredlti01} extends Local Type Inference with partial
+information propagation. Their type inference algorithm does not use explicit synthesis/checking
+rules, instead passing ``prototypes'' \emph{P}
+down the syntax tree that containing partial expected type information used for type checking.
+A prototype is a type \emph{T} extended with the wildcard ``?'', denoting unknown information,
+and the specific shape of a prototype denotes which type rule to use.
+The rule inferring unannotated functions \ltiufun{\ltivar{}}{\ltiE{}} requires a prototype \ltiPolyFn{T}{}{P}, where
+\emph{T} is the fully known expected type for {\ltivar{}}.
+A symbolic closure could be introduced when checking an unannotated function with prototype
+\ltiPolyFn{P}{}{P'} or ``?'' (the equivalent of Local Type Inference's ``synthesis'' rules).
+In the more complicated case of \ltiPolyFn{P}{}{P'}, a symbolic reduction of 
+\ltiufun{\ltivar{}}{\ltiE{}} is required to ensure it at least conforms its the prototype.
+For example, inferring the type of \ltiapp{\text{map}}{\ltiufun{\ltivar{}}{\ltiE{}},[1,2,3]} with
+Colored Local Type Inference (where \text{map} has type ``\ltiPolyFn{\ltiFn{\text{a}}{\text{b}},\text{List[a]}}{\text{a,b}}{\text{List[b]}}'')
+checks \ltiufun{\ltivar{}}{\ltiE{}} with prototype \ltiPolyFn{\text{?}}{}{\text{?}}.
+We can be optimistic and check the function 
+at the largest (most specific) subtype of 
+\ltiPolyFn{\ltiBot}{}{\ltiTop}
+that matches \ltiPolyFn{\text{?}}{}{\text{?}}, which is \ltiPolyFn{\ltiBot}{}{\ltiTop}.
+This ensures that the function at least conforms to the most optimistic interpretation of its
+prototype, and then by returning a symbolic closure type instead of \ltiPolyFn{\ltiBot}{}{\ltiTop}
+allows us to check more specific requirements later.
+Of course, this example requires that we specify how type argument synthesis works with
+symbolic closures, but it illustrates how symbolic closures relate to the rest of the system.
+
+Mix~\cite{Khoo2010MTC} cleanly separates symbolic execution~\cite{King1976SEP} from type checking
+in the same system, specifying a mode for (nested) regions of code.
+They argue this tradeoff keeps the predictability of type checking, while preserving enough
+symbolic execution to drive further checking.
+%In Typed Clojure, symbolic execution is managed by occurrence typing~\cite{TF10}.
+Symbolic closures type check an anonymous function if annotated, otherwise it is treated symbolically.
+As the authors envision, this is akin to automatically inserting
+the mode of a code region based on its context, with a Mix-like language
+becoming the intermediate language.
+
+% Let arguments go first
 
 % Spine-local type inference
 % - Judgement \vdash^P digs down an application to find the head
@@ -358,6 +406,16 @@ types of their arguments (like SoundX).
 % - their sense of "locality" is less ambitious than symbolic closures
 %   - see "Type Inference Failures" section
 % - good related works section for "Impredicative Polymorphism"
+
+% Dunfield works I need to compare to
+% - Greedy Bidirectional Polymorphism
+% - Sound and complete bidirectional typechecking for higher-rank polymorphism with existentials and indexed types
+% - Complete and Easy Bidirectional Typechecking for Higher-Rank Polymorphism
+
+% Other works with undecidable type checking
+% - Hybrid type checking - Knowles, Flanagan
+
+\chapter{Future work}
 
 % Possible future work on Higher-rank types
 % - see https://www.microsoft.com/en-us/research/publication/practical-type-inference-for-arbitrary-rank-types/
@@ -376,18 +434,6 @@ types of their arguments (like SoundX).
 %       - in the sense that it's not-complete (can't check all programs)
 %     - nice discussion of partial type inference
 
-% Dunfield works I need to compare to
-% - Greedy Bidirectional Polymorphism
-% - Sound and complete bidirectional typechecking for higher-rank polymorphism with existentials and indexed types
-% - Complete and Easy Bidirectional Typechecking for Higher-Rank Polymorphism
-
-% Other works with undecidable type checking
-% - Hybrid type checking - Knowles, Flanagan
-
-Other work is relevant to our investigations of improving the user experience
-of Typed Clojure. SweetT~\cite{pombrio2018inferring} automatically infers type rules
-for syntactic sugar. Helium~\cite{Heeren2003STI} provides hooks into the type inference
-process for domain-specific type error messages.
 
 \printbibliography
 
