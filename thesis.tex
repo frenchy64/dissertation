@@ -607,16 +607,28 @@ which has type \text{Nil}, because the else-branch is unreachable.
 \paragraph{Intersection Type Checking}
 In hindsight, the idea behind symbolic closures resembles intersection type checking,
 where the same code may be checked at multiple types.
-Carlier and Wells give an approachable explanation of ``expansion'' in their survey paper~\cite{carlier2005expansion},
+Carlier and Wells~\cite{carlier2005expansion} give an approachable explanation of ``expansion'',
 a mechanism that informs an intersection type system when it should
 check the same term at different types.
 This is achieved by splicing typing rules (like intersection-introduction) into existing typing
-derivations derived from 
-In contrast, symbolic closures delay the construction of a typing derivation 
+derivations that are derived from the principal typings of subterms.
+In contrast, symbolic closures do not assume principal types are available, and
+delays the construction of typing derivation(s) for a delayed term
+altogether until it is obvious how to construct it.
+Then, it is matter of combining a symbolic closure's typing derivations
+to recover the (intersection) type it was used at.
 
 %In Section 3.1, they provide a motivating example for expansion, constructed to be untypable 
 %with simple (non-recursive) types, and show how expansion assigns it a type.
 
+%TODO how do SC relate to this statement?
+% - However, computing these principal typings is as expensive as evaluation, 
+%   for the simple reason that principal typings for a term in the full system
+%   express all of the information in the term’s β-normal form
+% - do SC perform less reductions? eg. (lambda (x) x) does not reduce, but I assume
+%   the Coppo algorithm constructs a principal type for it. Then, what if it is
+%   use like (lambda (z) (let ([f (lambda (x) x)]) (f (f (f z))))) ?
+%   Does it still infer an intersection type for f? Obviously, SC's do nothing here.
 
 % survey
 % Expansion: the Crucial Mechanism for Type Inference with Intersection Types: A Survey and Explanation1
@@ -636,7 +648,10 @@ In contrast, symbolic closures delay the construction of a typing derivation
 % https://www.sciencedirect.com/science/article/pii/S0890540185711418
 
 \paragraph{Let-polymorphism}
+% \paragraph{Hindley-Milner}
 
+%TODO
+%\input{hm-comparison}
 
 \paragraph{Directional Polymorphism}
 
@@ -656,10 +671,6 @@ In contrast, symbolic closures delay the construction of a typing derivation
 % ML_F
 % http://gallium.inria.fr/~remy/mlf/mlf-type-inference-long.pdf
 
-% \paragraph{Hindley-Milner}
-
-%TODO
-%\input{hm-comparison}
 
 %TODO
 %Xie and Oliveira~\cite{xie2018let} present a type system where
