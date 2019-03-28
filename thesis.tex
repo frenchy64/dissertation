@@ -872,11 +872,38 @@ This illustrates the promise of symbolic closures to treat previously untypable 
 as ``black-boxes'' during type checking, especially in a setting where top-level
 type information is always provided.
 
-\paragraph{Let-polymorphism}
-% \paragraph{Hindley-Milner}
-
+\paragraph{Hindley-Milner and Let-polymorphism}
 %TODO
 %\input{hm-comparison}
+Kanellakis and Mitchell~\cite{kanellakis1989polymorphic}
+provide a set of (pathological) ML programs that exhibit exponential
+growth in the size of their principal type schemes.
+%Later, Mairson~\cite{Mairson:1989} confirmed that
+%the problem of ML type-checking is \textsc{DExpTime}-complete.
+We use their benchmarks to compare symbolic closures with
+global type inference in the style of Milner~\cite{milner1978theory}.
+
+Example 3.1 of~\cite{kanellakis1989polymorphic} uses a lambda-encoding of pairs to create a principal type
+which appears to grow exponentially in length, however has a linear time representation as a directed acyclic graph.
+It is designed to avoid ML's let-construct to remove the influence of let-polymorphism.
+Let $P$ stand for (copies of) the code \clj{(fn [x] (fn [z] (z x x)))} in the following, where the left
+hand side term has the right hand side type.
+We can see the size of the type grows linearly in the number of occurrences of $P$.
+
+{
+\[
+\begin{array}{c@{}c@{}c@{}c@{}ccc@{}c@{}c@{}c@{}c@{}c}
+  &&{(P\ 1)}&&        & : &    && \ltiClosure{\hastype{\text{x}}{\text{Int}}}{{P}}&&\\
+  &{(P\ } &{(P\ 1)}& {)}&    & : &   &\ltiClosure{\hastype{\text{x}}
+                                               {(&\ltiClosure{\hastype{\text{x}}{\text{Int}}}{{P}}&)}}
+                                      {{P}}&\\
+  {(P\ }&{(P\ }&{(P\ 1)}&{)}&{)}    & : &   \ltiClosure{\hastype{\text{x}}
+                                                   {(&\ltiClosure{\hastype{\text{x}}{(&\ltiClosure{\hastype{\text{x}}{\text{Int}}}{{P}}&)}}{{P}}&)}}
+                                          {{P}}
+\end{array}
+\]
+}
+
 
 \paragraph{Directional Polymorphism}
 

@@ -156,6 +156,7 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
   %basicstyle=\footnotesize,        % size of fonts used for the code
   commentstyle=\color{mygray},    % comment style
   escapeinside={(*@}{@*)},
+  mathescape=true,
   %moredelim=**[is][\color{red}]{@}{@},
   moredelim=**[is][\color{red}]{__red>}{<red__},
   %escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
@@ -225,7 +226,7 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \usepackage{booktabs}
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 
-\newcommand{\clj}[1]{\lstinline{#1}}
+\newcommand{\clj}[1]{\text{\lstinline{#1}}}
 \newcommand{\js}[1]{\lstinline{#1}}
 \newcommand{\java}[1]{\lstinline{#1}}
 \newcommand{\rkt}[1]{\lstinline{#1}}
