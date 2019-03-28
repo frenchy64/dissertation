@@ -694,10 +694,9 @@ who similarly bind \text{x} to a value of type \text{Real}.
 % https://dl.acm.org/citation.cfm?id=201001
 % Closure analysis in constraint form -	Jens Palsberg
 
-
 Giannini and Rocca~\cite{giannini1988characterization}
-provide the following strongly-normalizing term that has no higher-order polymorphic 
-type, which we write in Clojure and refer to as \GRterm.
+provide the following strongly-normalizing term is not typable in System F,
+which we write in Clojure and refer to as \GRterm.
 
 %separate to preserve spacing
 \begin{cljlisting}
@@ -721,12 +720,12 @@ Symbolic closures answer neither of these questions.
 Instead, they provide answers relevant to checking and inferring types:
 \begin{itemize}
   \item Can \GRterm accept an argument of type \ltiT{}?
-  \item When given an argument of type \ltiT{}, of what type are the values returned by \GRterm?
-  \item Does \GRterm's call-by-value normal form inhabit \ltiFn{\ltiT{}}{\ltiS{}}?
+  \item When given an argument of type \ltiT{}, what type is the value returned by \GRterm?
+  \item Does \GRterm inhabit \ltiFn{\ltiT{}}{\ltiS{}}?
 \end{itemize}
 
 To illustrate, we turn to
-our prototype of symbolic closures~\footnote{https://github.com/frenchy64/lti-model}
+our preliminary implementation of symbolic closures~\footnote{https://github.com/frenchy64/lti-model}
 to explore \GRterm.
 It exposes the type checking query \clj{(tc p e)},
 which returns the type of checking \clj{e} at expected prototype \clj{p},
