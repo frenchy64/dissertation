@@ -722,10 +722,22 @@ Instead, they provide answers relevant to checking and inferring types:
 \begin{itemize}
   \item Can \GRterm accept an argument of type \ltiT{}?
   \item When given an argument of type \ltiT{}, of what type are the values returned by \GRterm?
-  \item Does \GRterm inhabit \ltiFn{\ltiT{}}{\ltiS{}}?
+  \item Does \GRterm's call-by-value normal form inhabit \ltiFn{\ltiT{}}{\ltiS{}}?
 \end{itemize}
-For example, type checking \GRterm with symbolic closures yields the following symbolic closure
-type which we refer to as \GRclosure.
+
+To illustrate, we turn to
+our prototype of symbolic closures~\footnote{https://github.com/frenchy64/lti-model}
+to explore \GRterm.
+It exposes the type checking query \clj{(tc p e)},
+which returns the type of checking \clj{e} at expected prototype \clj{p},
+where a prototype is a type that can contain ``wildcards'' \clj{?}.
+Now we can query the type of \GRterm as if it had a type.
+The caveat: without a rich enough prototype,
+a benign symbolic closure type may be provided as an answer---you only get out what you put in
+(for this reason, symbolic closures perform particularly well when top-level types are always provided).
+
+For example, \clj{(tc ? GR)} asks to synthesize a type for the (provably untypable) \GRterm.
+Unsurprising, a symbolic closure type greets us (below).
 
 % full output
 %(Closure
@@ -781,7 +793,7 @@ type which we refer to as \GRclosure.
 }
 
 The term of \GRclosure is the (call-by-value) normal form of \GRterm, 
-derived applying the symbolic closure of \clj{(fn [x] ...)} to  \clj{D}.
+derived by applying the symbolic closure of \clj{(fn [x] ...)} to  \clj{D}.
 The type environment
 \ltiEnv{} captures the type environment at the point the \clj{(fn [y] ...)} term
 was type checked.
@@ -795,40 +807,66 @@ as a result of the application.
 %{\ltiEnv{k}} and {\ltiEnv{D}}, and 
 %\clj{K} by {\ltiEnv{D}}.
 
-Now, we can query the symbolic closure type for \GRterm
-as if it had a type, with the caveat that, without a rich enough query,
-we might get a similarly benign symbolic closure type as an answer.
 As explained in \secref{symbolic:section:formal-model}, two ways
 to query a symbolic closure are by applying it or using subtyping.
-
-Using our prototype of symbolic closures~\footnote{https://github.com/frenchy64/lti-model},
-we can experimentally discover what shape of argument \GRterm accepts by following error messages.
-After a few minutes of experimentation (and thinking),
-we found that \GRterm accepts an argument of type \clj{[Any -> [Any -> Int]]}.
-The following (subtyping) query leaves the return type of \GRterm to be inferred,
-and tells us that \GRterm returns values of type \clj{Int} with such inputs
-(\clj{(tc p e)} returns the type of \clj{e} where its expected type is the prototype \clj{p}).
+We can experimentally discover what shape of argument \GRterm accepts 
+by querying it at different prototypes, and using error messages and
+visual inspections of \GRterm and its normal form (calculated by \GRclosure) as guidance.
+We started with the query \clj{(tc [Any -> ?] GR)}, which
+gives the error message \clj{Cannot invoke Any}.
+Then we inspected \GRclosure, and noticed \clj{y}
+must have shape \clj{[? -> [? -> ?]]} based on its usage.
+Incorporating that information results in our first interesting query result.
 
 \begin{cljlisting}
-(tc [[Any -> [Any -> Int]] -> ?]
+(tc [[? -> [? -> ?]] -> ?]
     GR)
-;=> [[Any -> [Any -> Int]] -> Int]
+;=> [[Any -> [Any -> Nothing]] -> Nothing]
 \end{cljlisting}
 
-From the type, we manually constructed a Clojure program to see what kind of \clj{Int} is being returned.
-Predictably, it was the \clj{Int} we provided.
+This was calculated by observing a result type of \clj{Nothing}
+from the application of \GRclosure to an argument of type \clj{[Any -> [Any -> Nothing]]}
+(derived by minimizing/maximising wildcards 
+in covariant/contravariant positions, respectively, with respect to the relevant part of the prototype).
+We can find other interesting types \GRclosure inhabits by varying the query.
+
+\begin{cljlisting}
+(tc [[? -> [? -> Int]] -> ?]
+    GR)
+;=> [[Any -> [Any -> Int]] -> Int]
+
+(tc (All [a] [[? -> [? -> a]] -> ?])
+    GR)
+;=> (All [a] [[Any -> [Any -> a]] -> a])
+\end{cljlisting}
+
+With the last query, we stumble on how to use \GRterm as a glorified identity function.
+We can verify this by evaluating a few terms.
 
 \begin{cljlisting}
 (GR (fn [_] (fn [_] 42))) ;=> 42
+(GR (fn [_] (fn [_] 24))) ;=> 24
 \end{cljlisting}
 
-Finally, we queried the \emph{type} of that program using symbolic closures,
-which is \clj{Int}.
+We can also synthesize the types of these calls.
 
 \begin{cljlisting}
-(tc ?
-    (GR (fn [_] (fn [_] 42))))
+(tc ? (GR (fn [_] (fn [_] 42))))
 ;=> Int
+\end{cljlisting}
+
+The original use case of symbolic closures is to type check
+top-level functions against provided types,
+but whose bodies are too difficult to type check with traditional means.
+The following (extreme) example shows how checking the definition
+of a simple identity function can be thwarted, and how symbolic closures
+can make checking the definition of functions much more flexible.
+
+\begin{cljlisting}
+(tc (All [a] [a -> a])
+    (fn [z]
+      (GR (fn [_] (fn [_] z)))))
+;=> (All [a] [a -> a])
 \end{cljlisting}
 
 This illustrates the promise of symbolic closures to treat previously untypable terms
