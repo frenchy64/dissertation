@@ -442,8 +442,8 @@ and
 Comparatively, symbolic closures integrates only a small amount of
 symbolic execution with a type system, but in such a way that delayed symbolic computations
 may pass between typed regions.
-Since Mix cleanly separates symbolic execution and type checking, it is difficult
-to compare the two approaches.
+Since Mix cleanly separates symbolic execution and type checking and its formalism does not support
+function types, it is difficult to compare the two approaches.
 In rough terms, symbolic closures use typed regions by default and automatically adds symbolic regions
 around unannotated functions.
 %
@@ -621,6 +621,9 @@ to recover the (intersection) type it was used at.
 %In Section 3.1, they provide a motivating example for expansion, constructed to be untypable 
 %with simple (non-recursive) types, and show how expansion assigns it a type.
 
+%TODO
+%With the full power of intersection type systems, a principal type expresses
+
 %TODO how do SC relate to this statement?
 % - However, computing these principal typings is as expensive as evaluation, 
 %   for the simple reason that principal typings for a term in the full system
@@ -646,6 +649,191 @@ to recover the (intersection) type it was used at.
 % (Intersection type systems)
 % Principal Types and Unification for Simple Intersection Type Systems
 % https://www.sciencedirect.com/science/article/pii/S0890540185711418
+
+\paragraph{Higher-order Control Flow Analysis}
+
+%% (found via the expansion survey as an application of intersection types)
+% http://delivery.acm.org/10.1145/260000/258951/p1-banerjee.pdf?ip=140.182.72.36&id=258951&acc=ACTIVE%20SERVICE&key=EA62C54EFA59E1BA%2EEC3C9CD27046E2ED%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&__acm__=1553786311_eb5536bb95ba54f3a2979f7a216e898e
+% A Modular, Polyvariant, and Type-Based Closure Analysis, Anindya Banerjee
+
+%TODO aka. Closure-analysis 
+% http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.36.6128
+% Analysis and Efficient Implementation of Functional Programs (1991), Peter Sestoft
+Closure analysis~\cite{sestoft1991analysis} approximates the set of arguments which a given
+function may be applied, as well as which functions a given term
+may evaluate to.
+Each function term is labelled 
+\Sesoftlambda{\Sesoftlabel}{\ltivar{}}{\ltiE{}}, where the label {\Sesoftlabel}
+abstracts over the set of all runtime closures
+\closurenosuffix{\openv{}}{\Sesoftlambda{}{\ltivar{}}{\ltiE{}}}
+where runtime environment {\openv{}} can choose arbitrary bindings for {\ltiE{}}'s
+free term variables.
+In contrast, a ``tagged'' symbolic closure term
+\ltiufunelab{\ltiClosureID{}}{\ltivar{}}{\ltiE{}}
+uses identifier {\ltiClosureID{}} to stand for
+\closurenosuffix{\openv{}}{\ltiufun{\ltivar{}}{\ltiE{}}}
+where the bindings in the runtime environment {\openv{}} are of the types
+given in the type environment \ltiEnv{} where the term was encountered
+by the type checker.
+In an unrestricted setting of symbolic closures, the same term
+may be used with different identifiers.
+For example, in
+%
+\[
+\ltilet{\text{f}}{\ltiufun{\text{x}}{\ltiufun{\text{y}}{\text{x}}}}{...{\ltiapp{\text{f}}{3}}...{\ltiapp{\text{f}}{3.0}}...}
+\]
+%
+the first call to \text{f} tags the inner function as {\ltiufunelab{\ltiClosureID{1}}{\text{y}}{\text{x}}}
+with {\ltiClosureID{1}} standing for the set of closures
+whose runtime environments bind \text{x} to a value of type \text{Int},
+and the second call tags it as {\ltiufunelab{\ltiClosureID{2}}{\text{y}}{\text{x}}}
+with {\ltiClosureID{2}} standing for the set of closures
+who similarly bind \text{x} to a value of type \text{Real}.
+
+
+% https://dl.acm.org/citation.cfm?id=201001
+% Closure analysis in constraint form -	Jens Palsberg
+
+
+Giannini and Rocca~\cite{giannini1988characterization}
+provide the following strongly-normalizing term that has no higher-order polymorphic 
+type, which we write in Clojure and refer to as \GRterm.
+
+%separate to preserve spacing
+\begin{cljlisting}
+(let [I (fn [a] a)
+      K (fn [b] (fn [c] b))
+      D (fn [d] (d d))]
+  ((fn [x] (fn [y] ((y (x I))
+                    (x K))))
+   D))
+\end{cljlisting}
+%separate to preserve spacing
+
+Palsberg~\cite{Palsberg:1995:CAC:200994.201001}
+uses \GRterm to motivate program analyses
+that answer basic questions like:
+\begin{itemize}
+  \item For every application point, which abstractions can be applied?
+  \item For every abstraction, to which arguments can it be applied?
+\end{itemize}
+Symbolic closures answer neither of these questions.
+Instead, they provide answers relevant to checking and inferring types:
+\begin{itemize}
+  \item Can \GRterm accept an argument of type \ltiT{}?
+  \item When given an argument of type \ltiT{}, of what type are the values returned by \GRterm?
+  \item Does \GRterm inhabit \ltiFn{\ltiT{}}{\ltiS{}}?
+\end{itemize}
+For example, type checking \GRterm with symbolic closures yields the following symbolic closure
+type which we refer to as \GRclosure.
+
+% full output
+%(Closure
+% {I (Closure {} (fn [a] a)),
+%  K (Closure {I (Closure {} (fn [a] a))} (fn [b] (fn [c] b))),
+%  D
+%  (Closure
+%   {I (Closure {} (fn [a] a)),
+%    K (Closure {I (Closure {} (fn [a] a))} (fn [b] (fn [c] b)))}
+%   (fn [d] (d d))),
+%  x
+%  (Closure
+%   {I (Closure {} (fn [a] a)),
+%    K (Closure {I (Closure {} (fn [a] a))} (fn [b] (fn [c] b)))}
+%   (fn [d] (d d)))}
+% (fn [y] ((y (x I)) (x K))))
+
+%abbreviated
+%(Closure
+% {I (Closure {} I),
+%  K (Closure {I (Closure {} I)} K),
+%  D (Closure {I (Closure {} I), K (Closure {I (Closure {} I)} K)} D),
+%  x (Closure {I (Closure {} I), K (Closure {I (Closure {} I)} K)} D)}
+% (fn [y] ((y (x I)) (x K))))
+
+% where Ic = (Closure {} I)
+%       Kc = (Closure {I Ic} K)
+%       Dc = (Closure {I Ic, K Kc} D)
+%(Closure
+% {I Ic,
+%  K Kc,
+%  D Dc,
+%  x Dc}
+% (fn [y] ((y (x I)) (x K))))
+{
+\singlespacing
+\[
+\begin{array}{lll}
+\ltiClosure{\ltiEnv{}}{\text{\clj{(fn [y] ((y (x I)) (x K)))}}},
+              \text{ where }&
+{\ltiEnv{}} =  \ltiEnvConcat{\hastype{\text{\clj{I}}}{{\text{\clj{I}}}_c}}
+              {\ltiEnvConcat{\hastype{\text{\clj{K}}}{{\text{\clj{K}}}_c}}
+              {\ltiEnvConcat{\hastype{\text{\clj{D}}}{{\text{\clj{D}}}_c}}
+              {\ltiEnvConcat{\hastype{\text{\clj{x}}}{{\text{\clj{D}}}_c}}}}}\\&
+{\GRclosuretag{I}} = \ltiClosure{\ltiEnv{I}}{\text{\clj{I}}}\\&
+%{\GRclosuretag{K}} = \ltiClosure{\hastype{\text{\clj{I}}}{{\text{\clj{I}}}_c}}{\text{\clj{K}}}\\&
+{\GRclosuretag{K}} = \ltiClosure{\ltiEnv{k}}{\text{\clj{K}}}\\&
+%{\GRclosuretag{D}} = \ltiClosure{\ltiEnvConcat{\hastype{\text{\clj{I}}}{{\text{\clj{I}}}_c}}{\hastype{\text{\clj{K}}}{{\text{\clj{K}}}_c}}}
+%                                  {\text{\clj{D}}}
+{\GRclosuretag{D}} = \ltiClosure{\ltiEnv{D}}{\text{\clj{D}}}\\&
+\end{array}
+\]
+}
+
+The term of \GRclosure is the (call-by-value) normal form of \GRterm, 
+derived applying the symbolic closure of \clj{(fn [x] ...)} to  \clj{D}.
+The type environment
+\ltiEnv{} captures the type environment at the point the \clj{(fn [y] ...)} term
+was type checked.
+There, the bindings \clj{I}, \clj{K}, and \clj{D} are all symbolic closure types
+{\GRclosuretag{I}},
+{\GRclosuretag{K}}, and
+{\GRclosuretag{D}}, respectively,
+with \clj{x} also having type {\GRclosuretag{D}}
+as a result of the application.
+%Due to Clojure's left-to-right semantics for \clj{let} bindings, \clj{I} is also bound by
+%{\ltiEnv{k}} and {\ltiEnv{D}}, and 
+%\clj{K} by {\ltiEnv{D}}.
+
+Now, we can query the symbolic closure type for \GRterm
+as if it had a type, with the caveat that, without a rich enough query,
+we might get a similarly benign symbolic closure type as an answer.
+As explained in \secref{symbolic:section:formal-model}, two ways
+to query a symbolic closure are by applying it or using subtyping.
+
+Using our prototype of symbolic closures~\footnote{https://github.com/frenchy64/lti-model},
+we can experimentally discover what shape of argument \GRterm accepts by following error messages.
+After a few minutes of experimentation (and thinking),
+we found that \GRterm accepts an argument of type \clj{[Any -> [Any -> Int]]}.
+The following (subtyping) query leaves the return type of \GRterm to be inferred,
+and tells us that \GRterm returns values of type \clj{Int} with such inputs
+(\clj{(tc p e)} returns the type of \clj{e} where its expected type is the prototype \clj{p}).
+
+\begin{cljlisting}
+(tc [[Any -> [Any -> Int]] -> ?]
+    GR)
+;=> [[Any -> [Any -> Int]] -> Int]
+\end{cljlisting}
+
+From the type, we manually constructed a Clojure program to see what kind of \clj{Int} is being returned.
+Predictably, it was the \clj{Int} we provided.
+
+\begin{cljlisting}
+(GR (fn [_] (fn [_] 42))) ;=> 42
+\end{cljlisting}
+
+Finally, we queried the \emph{type} of that program using symbolic closures,
+which is \clj{Int}.
+
+\begin{cljlisting}
+(tc ?
+    (GR (fn [_] (fn [_] 42))))
+;=> Int
+\end{cljlisting}
+
+This illustrates the promise of symbolic closures to treat previously untypable terms
+as ``black-boxes'' during type checking, especially in a setting where top-level
+type information is always provided.
 
 \paragraph{Let-polymorphism}
 % \paragraph{Hindley-Milner}
