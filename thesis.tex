@@ -1050,9 +1050,33 @@ Pc5 = {x {x {x {x {x {x {x {x {x {x {x {x Pc4}
 
 \chapter{Future work}
 
-\begin{verbatim}
-TODO
-\end{verbatim}
+The most pressing future work for Typed Clojure is part of the ongoing work
+presented after \partref{part:types}.
+
+\section{Future work for Automatic Annotations}
+A larger scale investigation of Clojure usage patterns is now possible by
+repurposing the automatic annotation tool described in \partref{part:autoann}
+to generate and enforce clojure.spec annotations.
+As well as testing the robustness of the tool's design, 
+the resulting data would be
+useful in investigating general questions like how effectively Clojure users utilize unit and generative testing,
+how Clojure code evolves of code over time, and the prevalence of idioms that Typed Clojure and clojure.spec
+have (and have not) been designed around.
+
+\section{Future work for Extensible Types}
+\figref{part:implementations} outlines a code analyzer that paves the way to a future implementation
+of extensible typing rules for Typed Clojure.
+The next steps in this direction involve deciding the user interface for such a system
+and performing a survey of commonly used macros to determine which features must be supported.
+
+\section{Future work for Symbolic Closures}
+Symbolic closures (\partref{part:symbolic-closures})
+show much promise in improving the user-experience of Typed Clojure.
+However, our preliminary work is still not well understood.
+\chapref{chapter:symbolic:metatheory} outlines several conjectures we hope to first prove.
+Finally, the problem of integrating symbolic closures with type argument synthesis
+is a crucial piece of future work, that (we hope) will prove symbolic closures
+as indispensable in checking many common Clojure problems.
 
 % Possible future work on Higher-rank types
 % - see https://www.microsoft.com/en-us/research/publication/practical-type-inference-for-arbitrary-rank-types/
