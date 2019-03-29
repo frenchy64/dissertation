@@ -883,14 +883,17 @@ growth in the size of their principal type schemes.
 We use their benchmarks to compare symbolic closures with
 global type inference in the style of Milner~\cite{milner1978theory}.
 
-Example 3.1 of~\cite{kanellakis1989polymorphic} uses a lambda-encoding of pairs to create a principal type
+Example 3.1 of~\cite{kanellakis1989polymorphic} uses a lambda-encoding of pairs to create an ML principal type
 which appears to grow exponentially in length, however has a linear time representation as a directed acyclic graph.
 It is designed to avoid ML's let-construct to remove the influence of let-polymorphism.
+The idea behind the program is to duplicate types \ltiS{} by placing them in (lambda-encoded) tuples,
+following the pattern \ltiS{}, $\langle\ltiS{},\ltiS{}\rangle$, $\langle\langle\ltiS{},\ltiS{}\rangle,\langle\ltiS{},\ltiS{}\rangle\rangle$,
+and so on.
 To compare with symbolic closures,
 let $P$ stand for (copies of) the code \clj{(fn [x] (fn [z] (z x x)))} in the following, where the left
 hand side term has the right hand side type.
 We can see the size of the type grows linearly in the number of occurrences of $P$---specifically,
-only the outermost symbolic closure's \emph{environment} increases.
+the outermost symbolic closure's \emph{environment} increases in size.
 
 {
 \[
@@ -907,6 +910,65 @@ only the outermost symbolic closure's \emph{environment} increases.
 }
 
 Example 3.4 of~\cite{kanellakis1989polymorphic}
+exhibits exponential growth in the size of ML principal types by exploiting
+let-polymorphism's ability to copy type variables and assign new names to them.
+It follows the following pattern, which is similar to the previous benchmark, except
+intermediate values are let-bound.
+
+\begin{minipage}[t]{0.3\linewidth}
+\begin{cljlisting}
+(let [x0 1
+      x1 (P x0)]
+  x1)
+\end{cljlisting}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\linewidth}
+\begin{cljlisting}
+(let [x0 1
+      x1 (P x0)
+      x2 (P x1)]
+  x2)
+\end{cljlisting}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\linewidth}
+\begin{cljlisting}
+(let [x0 1
+      x1 (P x0)
+      x2 (P x1)
+      x3 (P x2)]
+  x3)
+\end{cljlisting}
+\end{minipage}
+
+Unlike ML, we find that symbolic closures are rather sensitive to whether $P$
+is let-bound or copied.
+If let-bound at the top of each term, the types of each term are
+identical to the previous example, and so grow linearly in size.
+This is because the resulting type of each term is a symbolic closure of the
+\clj{(fn [z] (z x x))} term occuring in $P$, whose definition type environment
+never increases to include new variables (in particular, \clj{x1}, \clj{x2}, and \clj{x3}
+are never in-scope there).
+If $P$ is copied, however, the number of symbolic closures reachable from
+the innermost occurrence of $P$ grows exponentially, and so the resulting type also
+grows exponentially.
+We can reduce this to linear growth with sharing as below, where term returning \clj{xi} has type \clj{Pci}.
+Each \clj{(fn [z] ...)} term comes from a different copy of $P$, in particular
+the \clj{(fn [z] ...)} in type \clj{Pci} originates from the innermost $P$ in term \clj{xi}.
+
+\begin{cljlisting}
+Pc1 = {x0 Int,                         x Int}@(fn [z] (z x x)))
+Pc2 = {x0 Int, x1 Pc1,                 x Pc1}@(fn [z] (z x x)))
+Pc3 = {x0 Int, x1 Pc1, x2 Pc2,         x Pc2}@(fn [z] (z x x)))
+Pc4 = {x0 Int, x1 Pc1, x2 Pc2, x3 Pc3, x Pc3}@(fn [z] (z x x)))
+\end{cljlisting}
+
+
+
+
+
+
 
 \paragraph{Directional Polymorphism}
 
