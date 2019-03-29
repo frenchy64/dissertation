@@ -890,7 +890,8 @@ The idea behind the program is to duplicate types \ltiS{} by placing them in (la
 following the pattern \ltiS{}, $\langle\ltiS{},\ltiS{}\rangle$, $\langle\langle\ltiS{},\ltiS{}\rangle,\langle\ltiS{},\ltiS{}\rangle\rangle$,
 and so on.
 To compare with symbolic closures,
-let $P$ stand for (copies of) the code \clj{(fn [x] (fn [z] (z x x)))} in the following, where the left
+let $P$ stand for \clj{(fn [x] (fn [z] (z x x)))}
+and $P_z$ for \clj{(fn [z] (z x x))} in the following, where the left
 hand side term has the right hand side type.
 We can see the size of the type grows linearly in the number of occurrences of $P$---specifically,
 the outermost symbolic closure's \emph{environment} increases in size.
@@ -898,13 +899,13 @@ the outermost symbolic closure's \emph{environment} increases in size.
 {
 \[
 \begin{array}{c@{}c@{}c@{}c@{}ccr@{}r@{}r@{}r@{}r@{}r@{}r@{}r@{}r}
-  &&{(P\ 1)}&&        & : &    \ltiClosure{\hastype{\text{x}}{&&&\text{Int}&&}&}{P}\\
+  &&{(P\ 1)}&&        & : &    \ltiClosure{\hastype{\text{x}}{&&&\text{Int}&&}&}{P_z}\\
   &{(P\ } &{(P\ 1)}& {)}&    & : &   \ltiClosure{\hastype{\text{x}}
-                                                 {&&(\ltiClosure{\hastype{\text{x}}{&\text{Int}&}}{{P}})&&}}
-                                                {P}\\
+                                                 {&&(\ltiClosure{\hastype{\text{x}}{&\text{Int}&}}{{P_z}})&&}}
+                                                {P_z}\\
 {(P\ }&{(P\ }&{(P\ 1)}&{)}&{)}    & : &   \ltiClosure{\hastype{\text{x}}
-                                                      {&(\ltiClosure{\hastype{\text{x}}{&(\ltiClosure{\hastype{\text{x}}{&\text{Int}&}}{{P}})&}}{{P}})}&}
-                                                     {P}
+                                                      {&(\ltiClosure{\hastype{\text{x}}{&(\ltiClosure{\hastype{\text{x}}{&\text{Int}&}}{P_z})&}}{P_z})}&}
+                                                     {P_z}
 \end{array}
 \]
 }
@@ -947,27 +948,76 @@ is let-bound or copied.
 If let-bound at the top of each term, the types of each term are
 identical to the previous example, and so grow linearly in size.
 This is because the resulting type of each term is a symbolic closure of the
-\clj{(fn [z] (z x x))} term occuring in $P$, whose definition type environment
+$P_z$ term occuring in $P$, whose definition type environment
 never increases to include new variables (in particular, \clj{x1}, \clj{x2}, and \clj{x3}
 are never in-scope there).
-If $P$ is copied, however, the number of symbolic closures reachable from
+If $P$ is copied, however, the number of symbolic closures types reachable from
 the innermost occurrence of $P$ grows exponentially, and so the resulting type also
 grows exponentially.
-We can reduce this to linear growth with sharing as below, where term returning \clj{xi} has type \clj{Pci}.
-Each \clj{(fn [z] ...)} term comes from a different copy of $P$, in particular
-the \clj{(fn [z] ...)} in type \clj{Pci} originates from the innermost $P$ in term \clj{xi}.
+We can reduce this to linear growth with sharing as below, where \clj{xi} has type \clj{Pci},
+because the exponential growth happens by duplicating symbolic closure types.
+Each $P_z$ term comes from a different copy of $P$, in particular
+the $P_z$ term of symbolic closure type \clj{Pci} originates from the $P$ occurring on the right-hand-side of \clj{xi}.
 
 \begin{cljlisting}
-Pc1 = {x0 Int,                         x Int}@(fn [z] (z x x)))
-Pc2 = {x0 Int, x1 Pc1,                 x Pc1}@(fn [z] (z x x)))
-Pc3 = {x0 Int, x1 Pc1, x2 Pc2,         x Pc2}@(fn [z] (z x x)))
-Pc4 = {x0 Int, x1 Pc1, x2 Pc2, x3 Pc3, x Pc3}@(fn [z] (z x x)))
+Pc1 = {x0 Int,                         x Int}@Pz
+Pc2 = {x0 Int, x1 Pc1,                 x Pc1}@Pz
+Pc3 = {x0 Int, x1 Pc1, x2 Pc2,         x Pc2}@Pz
+Pc4 = {x0 Int, x1 Pc1, x2 Pc2, x3 Pc3, x Pc3}@Pz
 \end{cljlisting}
 
+Example 3.5 of~\cite{kanellakis1989polymorphic} gives a series of terms whose ML principal
+type is doubly-exponential in the size of the term,
+reduced to exponential when converted to a directed acyclic graph.
+The pattern is below, which, for $i>1$ and $j=i-1$, binds \clj{xi} to \clj{(fn [y] (xj (xj y)))}.
 
+\begin{minipage}[t]{0.31\linewidth}
+\begin{cljlisting}
+(let [x1 (fn [x] (P x))
+      x2 (fn [y]
+           (x1 (x1 y)))]
+  (x2 1))
+\end{cljlisting}
+\end{minipage}
+%
+\begin{minipage}[t]{0.31\linewidth}
+\begin{cljlisting}
+(let [x1 (fn [x] (P x))
+      x2 (fn [y]
+           (x1 (x1 y)))
+      x3 (fn [y]
+           (x2 (x2 y)))]
+  (x3 1))
+\end{cljlisting}
+\end{minipage}
+%
+\begin{minipage}[t]{0.31\linewidth}
+\begin{cljlisting}
+(let [x1 (fn [x] (P x))
+      x2 (fn [y]
+           (x1 (x1 y)))
+      x3 (fn [y]
+           (x2 (x2 y)))
+      x4 (fn [y]
+           (x3 (x3 y)))]
+  (x4 1))
+\end{cljlisting}
+\end{minipage}
 
+The symbolic closure type for these terms grows exponentially in size, again because 
+the number of reachable closures grows exponentially. However, each symbolic closure
+is distinct, so no sharing is possible. The term ending in \clj{xi}
+is given type \clj{Pci}, below.
 
-
+\begin{cljlisting}
+Pc1 = {x Int}                                      @Pz
+Pc2 = {x Pc1}                                      @Pz
+Pc3 = {x {x Pc2}@Pz}                               @Pz
+Pc4 = {x {x {x {x {x Pc3}@Pz}@Pz}@Pz}@Pz}          @Pz
+Pc5 = {x {x {x {x {x {x {x {x {x {x {x {x Pc4}
+       @Pz}@Pz}@Pz}@Pz}@Pz}@Pz}@Pz}@Pz}@Pz}@Pz}@Pz}@Pz
+                                        
+\end{cljlisting}
 
 
 \paragraph{Directional Polymorphism}
