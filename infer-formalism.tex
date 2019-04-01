@@ -54,9 +54,6 @@ $$
 \label{infer:sec:formal:collection-phase}
 
 \begin{figure}
-  \ifdefined\PAPER
-  \footnotesize
-  \fi
   $$
   \begin{altgrammar}
     \val{} &::=& \num{}
@@ -239,17 +236,12 @@ recursive calls to \trackEOp{} to gather inference results---in the empty case,
 we have no data to recur on.
 
 \begin{figure}
-  \ifdefined\PAPER
-  \footnotesize
-  \fi
 \begin{mathpar}
-  \begin{array}{llll}
     \infer [B-Track]
     { \opsemtrack{\openv{}}{\e{}}{\v{}}{\res{}} \\\\
     \trackmeta{\v{}}{\inferpath{}}{\vp{}}{\resp{}}}
     { \opsemtrack{\openv{}}{\trackE{\e{}}{\inferpath{}}}{\vp{}}{\unionres{\res{}}{\resp{}}}
     }
-  \end{array}
 
 \infer [B-App]
 { \opsemtrack{\openv{}}{\e{1}}{\closure{\uabs{\x{}}{\e{}}}{\openvp{}}}{\res{1}} \\\\
@@ -259,22 +251,20 @@ we have no data to recur on.
 { \opsemtrack{\openv{}}{\appexp{\e{1}}{\e{2}}}{\vp{}}{\bigunionres{\ova{\res{i}}}}
 }
 
-  \begin{array}{lll}
     \infer [B-Clos]
     {}
     { \opsemtrack{\openv{}}{\uabs{\x{}}{\e{}}}{\closure{\uabs{\x{}}{\e{}}}{\openv{}}}{\emptyres{}}}
-    \\\\
+
     \infer [B-Val]
     {}
     { \opsemtrack{\openv{}}{\val{}}{\val{}}{\emptyres{}} }
-    \ \ \ \ \ \ 
+
 
     \infer [B-Var]
     {}
     { \opsemtrack{\openv{}}{\xvar{}}{\inopenvnoeq{\openv{}}{\xvar{}}}{\emptyres{}}
     }
-  \end{array}
-%
+
 \infer [B-Delta]
 { \opsemtrack{\openv{}}{\e{}}{\const{}}{\res{1}}
   \\
