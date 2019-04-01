@@ -719,11 +719,12 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
     %\textsf{req}(\atenv{}, \Unionsplice{\ova{\t{}}}) = \bigcup\ova{\textsf{req}(\atenv{},\t{})}\\
     %\textsf{req}(\atenv{}, \t{}) = [] \text{, otherwise}
     \squashhorizonally{} : \atenv{} \rightarrow \atenv{}\\
-    \squashhorizonally{}(\atenv{}) =
-      \textsf{fold}(\mergealiases{}, \atenv{}, \textsf{groupSimilarReq}(\atenv{}))\\
-    \\\\
+    \squashhorizonally{}(\atenv{}) = \\
+    \ \ \ \ 
+      \textsf{fold}(\mergealiases{}, \atenv{}, \textsf{groupSimilarReq}(\atenv{}))\\\\
     \squashglobal{} : \atenv{} \rightarrow \atenv{}\\
-    \squashglobal{} = \squashhorizonally{} \circ \aliassinglehmap{}
+    \squashglobal{} = \\
+    \ \ \ \ \squashhorizonally{} \circ \aliassinglehmap{}
   \end{array}
   \begin{array}{lllll}
     \aliassinglehmap{} : \atenv{} \rightarrow \atenv{}\\
