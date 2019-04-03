@@ -7,13 +7,10 @@ jobs:
      steps:
        - checkout
        - run: make
-       - run: make pldi
+       - run: make oopsla
        - store_artifacts:
            path: ~/dissertation/thesis.pdf
            destination: thesis-draft.pdf
-       - store_artifacts:
-           path: ~/dissertation/pldi19.pdf
-           destination: pldi19-submission.pdf
        - store_artifacts:
            path: ~/dissertation/oopsla19.pdf
            destination: oopsla19-submission.pdf
