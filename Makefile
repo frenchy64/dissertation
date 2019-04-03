@@ -43,5 +43,15 @@ pldi:
 fast-pldi:
 	pdflatex pldi19.tex 
 
+oopsla:
+	pdflatex oopsla19.tex 
+	bibtex oopsla19
+	pdflatex oopsla19.tex 
+	bibtex oopsla19
+	pdflatex oopsla19.tex 
+
+fast-oopsla:
+	pdflatex oopsla19.tex 
+
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lod *.loe *-blx.bib *.run.xml

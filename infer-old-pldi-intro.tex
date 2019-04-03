@@ -1,0 +1,495 @@
+\emph{It is better to have 100 functions operate on one data structure than 10 functions on 10 data structures.}---Alan Perlis
+
+Optional type systems~\cite{bracha2004pluggable} extend existing untyped languages
+with type checking.
+For example,
+TypeScript~\cite{typescript} and Flow~\cite{flow} extend
+JavaScript,
+Hack~\cite{hack} extends PHP,
+and
+mypy~\cite{mypy} extends Python.
+They typically support existing syntax and idioms of their target languages.
+
+Transitioning to an optional type system
+requires adding type annotations to existing code,
+a significant manual burden.
+This overhead has sparked interest in 
+tooling to help create~\cite{saftoiu2010jstrace,pyannotate,typette18,An10dynamicinference,pytype} and
+evolve~\cite{kristensen2017inference}
+these annotations.
+
+Clojure~\cite{Hic08} is an untyped language that compiles to the Java
+Virtual Machine. Compared to languages already mentioned, it
+strongly encourages programming with plain data structures, and is
+a good example of implementing Perlis' advise in our opening quote.
+Clojure provides
+many functions and idioms around persistent, immutable hash-maps,
+including literal map syntax \clj{\{k v ...\}}, interned \emph{keywords}
+suitable both for map keys (e.g., \clj{:a}, \clj{:b}) and
+functions that look themselves up in a map (e.g., \clj{(:a \{:a 1\}) => 1}),
+and a suite of functions to deeply transform, manipulate, and validate
+maps, with multimethods providing open extension.
+Typed Clojure~\cite{bonnaire2016practical} is an optional type system for Clojure
+designed to recognize these idioms given sufficient type annotations---which our
+tool assists the programmer in writing.
+
+\begin{figure}
+\begin{cljlisting}
+(defn nodes
+  "Returns the number of nodes in a binary tree."
+  [t] (case (:op t)
+        :leaf 1
+        :node (+ 1 (nodes (:left t))
+                   (nodes (:right t)))))
+(assert (= 3 (nodes
+               {:op :node,
+                :left {:op :leaf, :val 2},
+                :right {:op :leaf, :val 3}})))
+\end{cljlisting}
+\caption{A typical use of maps in Clojure
+to represent records,
+that requires type annotations
+to check with Typed Clojure.
+Our tool %\texttt{core.typed.annotator}
+will automatically annotate this program
+with a useful recursive type (\figref{fig:infer:nodestype}).
+}
+\label{fig:infer:nodes}
+\end{figure}
+
+Maps in Clojure often replace records or objects,
+demonstrated in \figref{fig:infer:nodes}:
+instead of representing a binary tree with \texttt{Node} and \texttt{Leaf} classes,
+they are encoded in maps
+with an explicit keyword \emph{dispatch entry} (e.g., \clj{:op}) to distinguish
+cases---\clj{\{:op :leaf, :val ...\}} for instances of \texttt{Leaf}, and
+\clj{\{:op :node, :left ..., :right ...\}} for \texttt{Node}.
+
+This emphasis on maps has far-reaching
+implications for
+Typed Clojure. %~\cite{bonnaire2016practical}, an optional type system for Clojure.
+Types for maps (written
+\clj{'\{:op ':leaf, :val ...\}} and
+\clj{'\{:op ':node, :left ..., :right ...\}}
+for our examples) combine with
+ad-hoc union types and
+equirecursive type aliases
+in the type:
+
+\begin{cljlisting}
+(defalias Tree
+  (U '{:op ':node, :left Tree, :right Tree}
+     '{:op ':leaf, :val Int}))
+\end{cljlisting}
+
+Porting \figref{fig:infer:nodes} to Typed Clojure involves writing a type definition
+\clj{Tree}, and annotating \clj{nodes} as
+\begin{cljlisting}
+(ann nodes [Tree -> Int])
+\end{cljlisting}
+Existing annotation tools fail to
+generate these types since
+only classes are given
+recursive types,
+%are inferred via class invariants,
+%like a \texttt{Tree} class with fields of type \texttt{Tree},
+%however these approaches depend on classes to infer
+%recursive types
+and so cannot infer recursive types for plain data,
+such as JSON or heterogeneous dictionaries.
+%
+To demonstrate the current state-of-the-art in automatic annotation tools for optional type systems,
+we transliterate \figref{fig:infer:nodes} to JavaScript using plain objects. 
+We use TypeWiz~\cite{typewiz} to generate TypeScript annotations via dynamic analysis,
+as it is well maintained and generates comparable annotations
+to similar tools~\cite{saftoiu2010jstrace,pyannotate,typette18,An10dynamicinference,pytype,kristensen2017inference}.
+
+\begin{figure}
+\begin{lstlisting}[language=JavaScript]
+function nodes(t: {left: {op: string, val: number},
+                   op: string,
+                   right: {op: string, val: number}}
+                | {op: string, val: number}) ...
+\end{lstlisting}
+%\begin{lstlisting}[language=JavaScript]
+%function nodes(t: @{left: {op: string, val: number},
+%                   op: string,
+%                   right: {op: string, val: number}}
+%                | {op: string, val: number}@) {
+%  switch t.op {
+%    case "node": 
+%      return 1 + nodes(t.left) + nodes(t.right);
+%    case "leaf": return 1;
+%    default: throw t.op;
+%  }
+%}
+%nodes({op: "node",
+%       left: {op: "leaf", val: 1},
+%       right: {op: "leaf", val: 2}}); //test
+%\end{lstlisting}
+\caption{TypeWiz's TypeScript annotations for \figref{fig:infer:nodes}.}
+\label{fig:infer:typewiz}
+\end{figure}
+
+\figref{fig:infer:typewiz} shows the actual output of TypeWiz for a JavaScript translation of \figref{fig:infer:nodes}.
+Unfortunately, the annotation is too specific: it only accepts trees of height 1 or 2.
+For fair comparison, even a class-based translation to JavaScript with
+a common \js{nodes} method yields a shallow annotation:
+\begin{lstlisting}[language=JavaScript]
+class Node {              class Leaf { 
+  public left: Leaf;        public data: number;
+  public right: Leaf;
+  ...                       ...
+}                         }
+\end{lstlisting}
+%\begin{lstlisting}[language=JavaScript]
+%class Node {                class Leaf { 
+%  public left: @Leaf@;          public data: @number@;
+%  public right: @Leaf@;
+%  //constructors omitted
+%  nodes() {                   nodes() {
+%    return 1 +                  return 1;
+%     this.left.nodes() +      }
+%     this.right.nodes();    }
+%  }
+%}
+%new Node(new Leaf(1), new Leaf(2)).nodes(); //test
+%\end{lstlisting}
+
+Since TypeWiz uses dynamic analysis, it is faithfully
+providing the exact types that are observed at runtime.
+Unfortunately, incrementally better test coverage does not quickly converge
+to useful annotations.
+For example, if we add an example of a nested \js{Node}
+on just the left branch
+%\begin{lstlisting}[language=JavaScript]
+%new Node(new Node(...), new Leaf(...)).nodes();
+%\end{lstlisting}
+the annotation for the plain objects version is still not recursive (alarmingly, it instead
+grows linearly in the number of nodes), and the class-based
+version helpfully updates the type of \js{left} to \js{Leaf|Node},
+but \js{right} still remains \js{Leaf}.
+%\begin{lstlisting}[language=JavaScript]
+%class Node {               class Leaf { 
+%  public left: Leaf@|Node@;    public data: number;
+%  public right: Leaf;        ...
+%  ...                      }
+%}
+%\end{lstlisting}
+
+%In Python, the PyType tool for generating mypy generates an
+%even less interesting annotation.
+%\begin{lstlisting}[language=python]
+%def nodes(t) -> int: ...
+%\end{lstlisting}
+%In contrast, encoding \clj{nodes} as a method gives PyType
+%\begin{lstlisting}
+%class Leaf:
+%    val = ...  # type: Any
+%    def __init__(self, val) -> None: ...
+%    def nodes(self) -> int: ...
+%class Node:
+%    left = ...  # type: Any
+%    right = ...  # type: Any
+%    def __init__(self, left, right) -> None: ...
+%    def nodes(self) -> Any: ...
+%\end{lstlisting}
+
+%
+%Existing automated annotation approaches cannot derive
+%any further structure to the input of \clj{nodes}, other
+%than its explicit runtime representation.
+%In Typed Clojure~\cite{bonnaire2016practical} notation,
+%they infer:
+%
+%\begin{cljlisting}
+%(ann nodes ['{:op Keyword,
+%              :left '{:op Keyword :val Int},
+%              :right '{:op Keyword :val Int}}
+%            -> Int])
+%\end{cljlisting}
+
+On the other hand,
+our approach recognizes \figref{fig:infer:nodes} as traversing recursively defined
+data with two cases, distinguished by the \clj{:op}
+entry (\figref{fig:infer:nodestype}).
+
+\begin{figure}
+\begin{cljlisting}
+(defalias Op 
+  (U '{:op ':node, :left Op, :right Op}
+     '{:op ':leaf, :val Int}))
+(ann nodes [Op -> Int])
+\end{cljlisting}
+  \caption{Our tool's Typed Clojure annotation of \figref{fig:infer:nodes}.
+  \clj{defalias} introduces an equirecursive type alias,
+  \clj{U} is a set-theoretic union type constructor,
+  and \clj{':node} is a singleton type containing just the keyword value
+  \clj{:node}.
+}
+\label{fig:infer:nodestype}
+\end{figure}
+
+Our approach is sensitive enough to
+to compute optional keys for each constructor.
+Adding a unit test that includes a \clj{:val}
+entry in a \clj{:node} yields the annotation
+%For example, the following call uses a \clj{:val}
+%entry for in a \clj{:node} map:
+%\begin{cljlisting}
+%(nodes {:op :node,
+%        :left {:op :node, :val 42, ...},
+%        :right {:op :leaf, ...}})
+%\end{cljlisting}
+\begin{cljlisting}
+(defalias Op 
+  (U (HMap :mandatory
+           {:op ':node, :left Op, :right Op}
+           :optional {:val Int})
+     '{:op ':leaf, :val Int}))
+\end{cljlisting}
+
+Furthermore, we aggressively combine recursive data used
+in the same file.
+Given a 3-way node example with the key \clj{:node3},
+used as input to a distinct function \clj{nodes'},
+our tool generates the combined type shown in \figref{fig:infer:node3}.
+%Say \clj{nodes'}
+%is similar to \clj{nodes},
+%but
+%whose unit tests also use a 3-way node \clj{:node3}.
+%%\begin{cljlisting}
+%%(nodes' {:op :node3,
+%%         :left {:op :leaf, :val 1}
+%%         :mid {:op :leaf, :val 2}
+%%         :right {:op :leaf, :val 3}})
+%%\end{cljlisting}
+%The information derived from observing the executions
+%of both functions are combined based on
+%the common dispatch key (\figref{fig:infer:node3}).
+
+\begin{figure}
+\begin{cljlisting}
+(defalias Op 
+  (U (HMap :mandatory
+           {:op ':node, :left Op, :right Op}
+           :optional {:val Int})
+     '{:op ':node3, :left Op, :mid Op, :right Op}
+     '{:op ':leaf, :val Int}))
+(ann nodes [Op -> Int])
+(ann nodes' [Op -> Int])
+\end{cljlisting}
+\caption{Optional entries and combined information across functions.
+  \clj{HMap} is the expanded heterogeneous map type constructor, specifying both
+  mandatory and optional entries.
+  }
+\label{fig:infer:node3}
+\end{figure}
+
+%, where plain
+%heterogeneous hash-maps are idiomatic over predefined classes or records.
+%Typed Clojure, in turn, has extensive support for specifying and checking
+%heterogeneous maps.
+%However, the high annotation burden has put off industrial users in practice.
+%
+
+% - set the scene for inferring types
+%   - Typed Clojure
+%   - optional/gradual typing requires annotations
+
+% Typed Clojure has interesting idioms.
+% Similarly we have to take into account specific idioms,
+% Must deal with same realities as ESOP
+% - need HMap's because we know.
+% What does TypeScript auto ann do with `nodes`?
+% - not class based
+% - try python systems
+% 
+% - need to guess nominal names
+% - need to guess grouping
+% - nominal types: don't need to think about recursion
+%  - just give a name, indirection is directed in a big table of names
+%  - humans are used to referring things by name
+
+% other 
+
+% a class invariant is a recursive property "for free"
+% - check locally, get recursion for free
+
+% nothing for free in our setting
+
+% we have names but not nominal types
+
+%This paper starts to address a major usability flaw
+%for gradually and optionally typed languages:
+%writing type annotations is a manual process.
+%
+%Take \texttt{nodes} (\figref{infer:fig:nodes}),
+%written in Clojure.
+%As is good style, it comes with a unit test.
+%Our goal is to \textit{generate} Typed Clojure~\cite{bonnaire2016practical}
+%annotations
+%for this function, relieving most of the annotation
+%burden.
+
+%\begin{figure}
+%\begin{cljlisting}
+%(defn nodes [t]
+%  (case (:op t)
+%    :leaf 1
+%    :node (+ 1 (nodes (:left t))
+%               (nodes (:right t)))))
+%(assert (= 3 (nodes
+%               {:op :node 
+%                :left {:op :leaf :val 2}
+%                :right {:op :leaf :val 3}})))
+%\end{cljlisting}
+%\caption{A Clojure function counting tree nodes, with test.}
+%\label{infer:fig:nodes}
+%\end{figure}
+
+%\begin{figure}
+%\begin{cljlisting}
+%(defalias Op (U '{:op ':node ':left Op ':right Op}
+%                '{:op ':leaf ':val Int}))
+%(ann nodes [Op -> Int])
+%\end{cljlisting}
+%\caption{Automatically inferred Typed Clojure annotations.}
+%\label{infer:fig:nodestype}
+%\end{figure}
+
+%Our approach features several stages.
+%First, we \textit{instrument} top-level functions
+%(Section \ref{instrument-TODO}),
+%then run the unit tests and \textit{track}
+%how they are used at runtime
+%(Section \ref{track-TODO}).
+%At this point, we have a preliminary
+%annotation:
+%
+%\begin{cljlisting}
+%(ann vertices ['{:op ':node,
+%                 :left '{:op ':leaf :val Int},
+%                 :right '{:op ':leaf :val Int}}
+%               -> Int])
+%\end{cljlisting}
+%
+%This type is too specific---trees are recursively
+%defined---we \textit{squash} types to be
+%recursive from example unrollings (Section \ref{recursive-TODO}):
+%
+%\begin{cljlisting}
+%(defalias Op 
+%  (U '{:op ':node, :left Op, :right Op}
+%     '{:op ':leaf, :val Int}))
+%(ann vertices [Op -> Int])
+%\end{cljlisting}
+
+%\begin{Verbatim}
+%(declare Node Leaf)
+%(defalias Op (U Node Leaf))
+%(defalias Node 
+%  '{:op ':node :left Op :right Op})
+%(defalias Leaf '{:op ':leaf :val int})
+%(ann verbatim [Op -> Int]})
+%\end{Verbatim}
+%
+%If \texttt{Op} is used in multiple positions
+%in the program, local recursive types are redundant.
+%In this paper, we name and \textit{merge} recursive
+%types, reusing them in annotations.
+% 
+%\begin{cljlisting}
+%(ann vertices [Op -> Int])
+%(ann sum-tree [Op Op -> Op])
+%\end{cljlisting}
+% 
+%If minor variants of the recursive types occur
+%across a program,
+%we use \textit{optional} entries%~\cite{typed-clojure}
+%to reduce redundancy (Section \ref{optional-merge-TODO}).
+% 
+%\begin{cljlisting}
+%(defalias Op 
+%  (U '{:op ':node, :left Op, :right Op}
+%     (HMap :mandatory {:op ':leaf :val Int}
+%           :optional {:label Str})))
+%\end{cljlisting}
+%
+%After inserting these annotations, we can run the
+%type checker over them to check their usefulness.
+%We found annotations to be readable and minimize
+%redundancy compared to hand-written annotations
+%(Section \ref{experiment1}).
+%Minimal changes were needed to successfully type check
+%functions with the generated annotations,
+%mostly consisting of local function and loop annotations,
+%and renaming of type aliases
+%(Section \ref{experiment2}).
+%Generating and running \textit{tests} improved the quality
+%of type annotations by exercising more paths through the
+%program (Section \ref{experiment3}).
+
+%Several open questions remain.
+%Automatically
+%drawing the typed-untyped boundary in gradual typing
+%would mean less manual casts are needed.
+%(Section \ref{boundaries}).
+
+%The Clojure programming language has several verification
+%systems that require annotating your programs.
+%Typed Clojure is a type system that supports many Clojure
+%idioms. Here, we must provide type annotations for
+%top level variables, local functions, and invoked libraries.
+%Clojure.spec is a pseudo contract system
+%that can also generate tests.
+%Similarly, specifications (``specs'') must be provided
+%for all top level variables.
+%
+%These annotations are useful for learning about our programs,
+%but they can be burdensome to write and maintain.
+%Currently, one must reverse engineer annotations
+%by visual analysis of the source code.
+%
+%In this paper, we present a tool that automatically
+%generates annotations, based on the tests already present
+%in idiomatic Clojure programs.
+%These annotations are readable, compact, feature good
+%names, and recover recursively defined records.
+%There is no guarantee the generated annotations will
+%immediately type check, however.
+%
+%Our goal is to minimize the difference needed
+%to type check programs from the generated annotations.
+%We envision programmers running our tool, generating
+%a few dozen lines of annotations, and only a fraction
+%of them should need manual changing to actually type
+%check a program.
+
+% - give introductory example
+%   - generate types + specs
+%   - show delta needed to typecheck
+% - enumerate our contributions
+% - signpost the rest of the paper
+
+
+\Dsection*{Contributions}
+\begin{itemize}
+\item We outline a generalized approach to automatically
+  generating type annotations (\secref{infer:sec:overview}).
+%\item
+%  Our main contribution is a robust, easy to use, open source tool that 
+%  Clojure programmers can use to help learn about and specify 
+%  their programs.
+\item
+  We describe a novel approach to reconstructing recursively
+  defined structural records from fully unrolled examples
+  in a formal model of our inference algorithm (\secref{infer:sec:formalism}).
+\item
+  We show how to extend our approach with space-efficient and lazy
+  runtime tracking (\secref{infer:sec:extensions}).
+\item
+  We report our experience using this algorithm to generate
+  types, tests, and contracts on several
+  Clojure libraries and programs (\secref{infer:chap:evaluation}).
+\end{itemize}

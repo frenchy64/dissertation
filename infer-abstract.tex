@@ -36,30 +36,42 @@
 % Tool-Assisted Type Annotations for Recursive Ad-Hoc Data Structures
 % Annotating Recursive Ad-Hoc Data Structures for Optional Type Systems
 
-We present a semi-automated workflow for porting
-untyped programs to optional type systems that require top-level
-type annotations.
-Unlike previous work, we infer useful types for
-heterogeneous and recursive entities
-represented as plain data structures like maps, vectors, and sequences.
+% A Semi-Automatic Workflow for Type Annotating Ad-Hoc Data Structures
 
-Our approach uses dynamic analysis to observe program execution
-via a test suite or examples.
-Then, type annotations are synthesized by
+We present a semi-automated workflow for porting
+untyped programs to annotation-driven optional type systems.
+Unlike previous work, we infer useful types for
+heterogeneous and recursive entities that have ``ad-hoc''
+representations as plain data structures like maps, vectors, and sequences.
+
+Our workflow starts by using dynamic analysis to collect samples from program execution
+via test suites or examples.
+Then, initial type annotations are inferred by
 combining observations across different parts of the program.
 Finally, the programmer uses the type system
-as a feedback loop to tweak the provided annotations.
+as a feedback loop to tweak the provided annotations until they
+type check.
 
-We outline our philosophy
-of what makes a type ``useful''
-when using incomplete methods like dynamic analysis to
-solve undecidable type inference problems.
+Since inferring perfect annotations is usually undecidable
+and dynamic analysis is necessarily incomplete,
+the key to our approach is generating close-enough annotations
+that are easy to manipulate to their final form by following static type error
+messages.
+We explain our philosophy to achieving this
+%, including choosing compact, recursive types with recognizable names,
+and provide a formal model that embodies this philosophy
+for the collection and inference phases of our workflow,
+using maps as the primary ``ad-hoc'' data representation.
 
+We report on using our workflow to convert real untyped Clojure programs to type check with Typed Clojure,
+which both feature extensive support for ad-hoc data representations.
+First, we visually inspect the initial annotations for conformance to our philosophy.
+Second, we quantify the kinds of manual changes needed to amend them.
+Third, we verify the initial annotations are meaningfully underprecise by enforcing them at runtime.
 
-We test our workflow by porting untyped Clojure programs to Typed Clojure,
-and report on our results.
-We first visually inspect initial annotations for their ``usefulness'' according
-to our philosophy.
+We find that the kinds of changes needed are
+usually straightforward operations on the initial annotations,
+leading to a substantial reduction in the effort required to port such programs.
 
 %Our only requirement of existing
 %programs is that they be runnable, with a suite of tests or
@@ -83,13 +95,13 @@ to our philosophy.
 %an algorithm for automatically inferring recursive structural types
 %from data examples, a challenge not considered in prior work.
 
-Our approach, as must be the case for a testing-driven tool, is
-incomplete---programs may have too few unit tests, and untested
-execution paths can have differing type behavior. We therefore
-evaluate our tool by running it on real Clojure programs and then
-completing the porting to Typed Clojure. We find that while
-some changes are always needed, the generated types are
-valuable and the effort reduction is substantial.
+%Our approach, as must be the case for a testing-driven tool, is
+%incomplete---programs may have too few unit tests, and untested
+%execution paths can have differing type behavior. We therefore
+%evaluate our tool by running it on real Clojure programs and then
+%completing the porting to Typed Clojure. We find that while
+%some changes are always needed, the generated types are
+%valuable and the effort reduction is substantial.
 
 %%%% OLD
 %  The untyped-typed porting process is costly, but

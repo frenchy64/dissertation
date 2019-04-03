@@ -80,11 +80,11 @@ and then use runtime analysis results to rule out
 impossible invariants. The second ``building-up'' strategy (for dynamic type inference)
 assumes nothing and uses runtime analysis results to build up invariant/type knowledge.
 
-Examples of invariant detection tools include Daikon~\cite{ernst2001dynamically},
-DIDUCE~\cite{hangal2002tracking}, and Carrot~\cite{pytlik2003automated}, and
+Examples of invariant detection tools include Daikon~\infercitep{ernst2001dynamically},
+DIDUCE~\infercitep{hangal2002tracking}, and Carrot~\infercitep{pytlik2003automated}, and
 typically enhance statically typed languages with more expressive types or contracts.
-Examples of dynamic type inference include our tool, Rubydust \cite{An10dynamicinference},
-JSTrace~\cite{saftoiu2010jstrace}, and TypeDevil~\cite{pradel2015typedevil},
+Examples of dynamic type inference include our tool, Rubydust \infercitep{An10dynamicinference},
+JSTrace~\infercitep{saftoiu2010jstrace}, and TypeDevil~\infercitep{pradel2015typedevil},
 and typically target untyped languages.
 
 Both strategies have different space behavior with respect to representing
@@ -116,7 +116,7 @@ would be redundant with the explicit typing disciplines of these languages.
 On the other hand, the process of moving from Clojure to Typed Clojure
 mostly involves writing simple type signatures without dependencies
 between variables. Typed Clojure recovers relevant dependent information
-via occurrence typing~\cite{TF10}, and gives the option to manually annotate necessary
+via occurrence typing~\infercitep{TF10}, and gives the option to manually annotate necessary
 dependencies in function signatures when needed.
 
 
@@ -126,8 +126,8 @@ dependencies in function signatures when needed.
 \paragraph{Other Annotation Tools}
 Static analyzers
 for JavaScript
-(TSInfer~\cite{kristensen2017inference}) and for Python (Typpete~\cite{typette18}
-and Pytype~\cite{pytype})
+(TSInfer~\infercitep{kristensen2017inference}) and for Python (Typpete~\infercitep{typette18}
+and Pytype~\infercitep{pytype})
 automatically annotate code with types.
 Pytype and Typpete inferred \texttt{nodes} in \figref{fig:infer:nodes}
 as \texttt{(? -> int)}
@@ -143,7 +143,7 @@ a compact recursive type containing \emph{both} \clj{Leaf} and \clj{Node}.
 This is similar to our experience with TypeWiz in \Dchapref{infer:chapter:intro}.
 (We were unable to install TSInfer.)
 
-NoRegrets~\cite{noregrets2018} uses dynamic analysis to learn how a program
+NoRegrets~\infercitep{noregrets2018} uses dynamic analysis to learn how a program
 is used, and automatically runs the tests of downstream projects to
 improve test coverage.
 Their \emph{dynamic access paths} represented as
