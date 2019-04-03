@@ -23,36 +23,65 @@
 %type systems. When not discouraged, programmers often
 %annotate tens of thousands of lines of code without assistance.
 
-Programming languages that encourage programming with plain values over declared classes
-tend follow Alan Perlis' advise:
-``It is better to have 100 functions operate on one data structure than 10 functions on 10 data structures.''
+%Programming languages that encourage programming with plain values over declared classes
+%tend follow Alan Perlis' advise:
+%``It is better to have 100 functions operate on one data structure than 10 functions on 10 data structures.''
 %As a consequence, a rich variety of idioms and 
 
-As a consequence of this flexibility, the central data structures in such languages
-are used in numerous, implicit 
+%As a consequence of this flexibility, the central data structures in such languages
+%are used in numerous, implicit 
 
-We present a semi-automated \emph{workflow} for programmers moving
-to optional types.
+% Recursive Type Annotations for Ad-Hoc Data Structures
+% Semi-Automatic Type Annotations for Recursive Ad-Hoc Data Structures
+% Tool-Assisted Type Annotations for Recursive Ad-Hoc Data Structures
+% Annotating Recursive Ad-Hoc Data Structures for Optional Type Systems
 
-%We present an approach to lighten the load on programmers moving to
-%optional types. Our only requirement of existing
+We present a semi-automated workflow for porting
+untyped programs to optional type systems that require top-level
+type annotations.
+Unlike previous work, we infer useful types for
+heterogeneous and recursive entities
+represented as plain data structures like maps, vectors, and sequences.
+
+Our approach uses dynamic analysis to observe program execution
+via a test suite or examples.
+Then, type annotations are synthesized by
+combining observations across different parts of the program.
+Finally, the programmer uses the type system
+as a feedback loop to tweak the provided annotations.
+
+We outline our philosophy
+of what makes a type ``useful''
+when using incomplete methods like dynamic analysis to
+solve undecidable type inference problems.
+
+
+We test our workflow by porting untyped Clojure programs to Typed Clojure,
+and report on our results.
+We first visually inspect initial annotations for their ``usefulness'' according
+to our philosophy.
+
+%Our only requirement of existing
 %programs is that they be runnable, with a suite of tests or
 %examples. Given a running program, we instrument the execution, record
 %type information, summarize it, and annotate the existing program with
 %the recovered types.
 
-We apply our approach to Clojure, a dynamically typed
-language with a culture of unit testing as well as both an existing
-optional type system and a contract system. Given a component under
-consideration, we instrument the source and analyze the behavior of the
-program while running unit tests.
-Equipped with this information, we summarize it by generating compact
-type specifications for all the functions in the component, including
-well-named type definitions. Our tool can also automatically generate
-contracts using the Clojure spec tool. Since Clojure relies
-heavily on ad-hoc data structures in the Lisp tradition, we describe
-an algorithm for automatically inferring recursive structural types
-from data examples, a challenge not considered in prior work.
+%We present an approach to lighten the load on programmers moving to
+%optional types. 
+
+%We apply our approach to Clojure, a dynamically typed
+%language with a culture of unit testing as well as both an existing
+%optional type system and a contract system. Given a component under
+%consideration, we instrument the source and analyze the behavior of the
+%program while running unit tests.
+%Equipped with this information, we summarize it by generating compact
+%type specifications for all the functions in the component, including
+%well-named type definitions. Our tool can also automatically generate
+%contracts using the Clojure spec tool. Since Clojure relies
+%heavily on ad-hoc data structures in the Lisp tradition, we describe
+%an algorithm for automatically inferring recursive structural types
+%from data examples, a challenge not considered in prior work.
 
 Our approach, as must be the case for a testing-driven tool, is
 incomplete---programs may have too few unit tests, and untested
