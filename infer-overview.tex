@@ -47,19 +47,22 @@ results in more samples like this, most which use the path element
 \resentry{\clj{['nodes :dom \{:key :op\}]}}{\clj{':leaf}} \\
 \resentry{\clj{['nodes :dom \{:key :op\}]}}{\clj{':node}} \\
 \resentry{\clj{['nodes :dom \{:key :val\}]}}{\clj{?}} \\
+\resentry{\clj{['nodes :dom \{:key :left\}]}}{\clj{?}}\\
+\resentry{\clj{['nodes :dom \{:key :right\}]}}{\clj{?}}\\
 \resentry{\clj{['nodes :dom \{:key :left\} \{:key :op\}]}}{\clj{':leaf}}\\
 \resentry{\clj{['nodes :dom \{:key :right\} \{:key :op\}]}}{\clj{':leaf}}\\
 \resentry{\clj{['nodes :dom \{:key :left\} \{:key :val\}]}}{\clj{Int}}\\
-\resentry{\clj{['nodes :dom \{:key :right\} \{:key :val\}]}}{\clj{Int}}\\
-\resentry{\clj{['nodes :rng]}}{\clj{Int}}
+\resentry{\clj{['nodes :dom \{:key :right\} \{:key :val\}]}}{\clj{Int}}
+%\\ \resentry{\clj{['nodes :rng]}}{\clj{Int}}
 }
 
 Now, our task is to transform these samples into a readable and useful annotation.
-This the function of the inference phase (formalized in \secref{infer:sec:formal:inference-phase}),
-which is split into two steps: first it generates a naive type from samples, then it
-manipulates and combines those types to be compact and recursive.
+This is the function of the inference phase (formalized in \secref{infer:sec:formal:inference-phase}),
+which is split into three passes: first it generates a naive type from samples, then it
+combines types that occur syntactically near eachother (``squash locally''),
+and then aggressively across different function annotations (``squash globally'').
 
-We can reconcile these samples into a type that resembled TypeWiz's
+The initial naive type generated from these samples resembles TypeWiz's
 ``verbatim'' annotation given in \Dchapref{infer:chapter:intro}, except
 the \clj{?} placeholder represents incomplete information about a path
 (this process is formalized as \generatetenv{} in \figref{infer:fig:generatetenv}).
@@ -70,6 +73,225 @@ the \clj{?} placeholder represents incomplete information about a path
                                        :right '{:op ':leaf, :val Int}}) -> Int])
 \end{cljlisting}
 
+Next, the two ``squashing'' phases.
+The intuition behind both are based on seeing types as directed graphs,
+where vertices are type aliases, and an edge connects
+two vertices $v1$ and $v2$ if $v1$ is mentioned in $v2$'s type.
+
+Local squashing (\squashlocal{} in \figref{infer:fig:squashlocal})
+constructs such a graph by creating type aliases from map types
+using a post-order traversal of the original types.
+In this example, the previous annotations become:
+
+\begin{cljlisting}
+(defalias op-leaf1 '{:op ':leaf, :val ?})
+(defalias op-leaf2 '{:op ':leaf, :val Int})
+(defalias op-leaf3 '{:op ':leaf, :val Int})
+(defalias op-node '{:op ':node, :left op-leaf2, :right op-leaf3})
+(ann nodes [(U op-leaf1 op-node) -> Int])
+\end{cljlisting}
+
+As a graph, this becomes the left-most graph below. The dotted edge
+from \clj{op-leaf2} to \clj{op-leaf1} signifies that they are to be merged,
+based on the similar structure of the types they point to.
+
+\begin{tikzpicture}[
+        > = stealth, % arrow head style
+        shorten > = 1pt, % don't touch arrow head to node
+        auto,
+        %node distance = 1.5cm, % distance between nodes
+        semithick % line style
+    ]
+  \tikzstyle{invalias}=[
+      draw = none,
+      thick,
+      fill = none,
+      rounded rectangle,
+      text opacity=0
+  ]
+  \tikzstyle{alias}=[
+      draw = black,
+      thick,
+      fill = white,
+      rounded rectangle,
+  ]
+  \tikzstyle{ann}=[
+      draw = gray,
+      thick,
+      fill = white,
+      rectangle,
+  ]
+
+  \begin{scope}
+
+    \node[ann]   (nodes) {\clj{nodes}};
+    \node[alias] (leaf1) [right = 0.7cm of nodes] {\clj{op-leaf1}};
+    \node[alias] (leaf2) [below = 0.1cm of leaf1] {\clj{op-leaf2}};
+    \node[alias] (leaf3) [below = 0.1cm of leaf2] {\clj{op-leaf3}};
+    \node[alias] (op-node) [below of=nodes]       {\clj{op-node}};
+
+    \path[->] (nodes) edge node {} (leaf1);
+    \path[->] (nodes) edge node {} (op-node);
+    \path[->] (op-node) edge node  {} (leaf2.west);
+    \path[->] (op-node) edge node  {} (leaf3.west);
+
+    \draw[->,dotted,thick,red] (leaf2.east) to [bend right] (leaf1.east);
+  \end{scope}
+
+  \begin{scope}[xshift=4.5cm]
+    \node[ann]   (nodes) {\clj{nodes}};
+    \node[alias] (leaf1) [right = 0.7cm of nodes] {\clj{op-leaf1}};
+    \node[invalias] (leaf2) [below = 0.1cm of leaf1] {\clj{op-leaf2}};
+    \node[alias] (leaf3) [below = 0.1cm of leaf2] {\clj{op-leaf3}};
+    \node[alias] (op-node) [below of=nodes]       {\clj{op-node}};
+
+    \path[->] (nodes) edge node {} (leaf1);
+    \path[->] (nodes) edge node {} (op-node);
+    \path[->] (op-node) edge node  {} (leaf1);
+    \path[->] (op-node) edge node  {} (leaf3);
+
+    \draw[->,dotted,thick,red] (leaf3.east) to [bend right] (leaf1.east);
+  \end{scope}
+
+  \begin{scope}[xshift=9cm]
+    \node[ann]   (nodes) {\clj{nodes}};
+    \node[alias] (leaf1) [right = 0.7cm of nodes] {\clj{op-leaf1}};
+    \node[invalias] (leaf2) [below = 0.1cm of leaf1] {\clj{op-leaf2}};
+    \node[invalias] (leaf3) [below = 0.1cm of leaf2] {\clj{op-leaf3}};
+    \node[alias] (op-node) [below of=nodes]       {\clj{op-node}};
+
+    \path[->] (nodes) edge node {} (leaf1);
+    \path[->] (nodes) edge node {} (op-node);
+    \path[->] (op-node) edge node  {} (leaf1);
+  \end{scope}
+\end{tikzpicture}
+
+After several merges (reading the graphs left-to-right), local squashing results in the following:
+
+\begin{cljlisting}
+(defalias op-leaf '{:op ':leaf, :val Int})
+(defalias op-node '{:op ':node, :left op-leaf, :right op-leaf})
+(ann nodes [(U op-leaf op-node) -> Int])
+\end{cljlisting}
+
+All three duplications of the \clj{':leaf} type in the naive annotation have
+been consolidated into their own name,
+with the \clj{?} placeholder for the \clj{:val} entry being absorbed into \clj{Int}.
+
+Now, the global squashing phase (\squashglobal{} in \figref{infer:fig:squashglobal})
+proceeds similarly, except the notion of a vertex is expanded to also include
+\emph{unions} of map types, calculated, again, with a post-order traversal of the types
+giving:
+
+\begin{cljlisting}
+(defalias op-leaf '{:op ':leaf, :val Int})
+(defalias op-node '{:op ':node, :left op-leaf, :right op-leaf})
+(defalias op-leaf-node (U op-leaf op-node))
+(ann nodes [op-leaf-node -> Int])
+\end{cljlisting}
+
+This creates \clj{op-leaf-node}, giving the left-most graph below.
+
+\begin{tikzpicture}[
+        > = stealth, % arrow head style
+        shorten > = 1pt, % don't touch arrow head to node
+        auto,
+        %node distance = 1.5cm, % distance between nodes
+        semithick % line style
+    ]
+  \tikzstyle{invalias}=[
+      draw = none,
+      thick,
+      fill = none,
+      rounded rectangle,
+      text opacity=0
+  ]
+  \tikzstyle{alias}=[
+      draw = black,
+      thick,
+      fill = white,
+      rounded rectangle,
+  ]
+  \tikzstyle{ann}=[
+      draw = gray,
+      thick,
+      fill = white,
+      rectangle,
+  ]
+
+  \begin{scope}
+    \node[ann]   (nodes) {\clj{nodes}};
+    \node[alias] (op-leaf-node) [below = 0.7cm of nodes] {\clj{op-leaf-node}};
+    \node[alias] (op-leaf) [right = 0.7cm of nodes] {\clj{op-leaf}};
+    \node[alias] (op-node) [right = 0.5cm of op-leaf-node] {\clj{op-node}};
+
+    \path[->] (nodes) edge node {} (op-leaf-node);
+    \path[->] (op-leaf-node) edge node  {} (op-leaf);
+    \path[->] (op-leaf-node) edge node  {} (op-node);
+    \path[->] (op-node) edge node  {} (op-leaf);
+
+    \draw[->,dotted,thick,red] (op-leaf-node) to [bend right] (op-leaf);
+  \end{scope}
+
+  \begin{scope}[xshift=5cm]
+    \node[ann]   (nodes) {\clj{nodes}};
+    \node[alias] (op-leaf-node) [below = 0.7cm of nodes] {\clj{op-leaf-node}};
+    \node[invalias] (op-leaf) [right = 0.7cm of nodes] {\clj{op-leaf}};
+    \node[alias] (op-node) [right = 0.5cm of op-leaf-node] {\clj{op-node}};
+
+    \path[->] (nodes) edge node {} (op-leaf-node);
+    \draw[->] (op-leaf-node) to [bend right=20] (op-node);
+    \draw[->] (op-node) to [bend right=20] (op-leaf-node);
+
+    \draw[->,dotted,thick,red] (op-node) to (op-leaf-node);
+  \end{scope}
+
+  \begin{scope}[xshift=10cm]
+    \node[ann]   (nodes) {\clj{nodes}};
+    \node[alias] (op-leaf-node) [below = 0.7cm of nodes] {\clj{op-leaf-node}};
+
+    \path[->] (nodes) edge node {} (op-leaf-node);
+    \path[->] (op-leaf-node.east) edge [loop right] node {} (op-leaf-node.east);
+  \end{scope}
+\end{tikzpicture}
+
+Now, type aliases are merged based on overlapping \emph{sets} of top-level keysets and likely tags.
+Since \clj{op-leaf} and \clj{op-leaf-node} refer to maps with identical keysets
+(\clj{:op} and \clj{:val}) and whose likely tags agree (the \clj{:op} entry
+is probably a tag, and they are both \clj{':leaf}),
+they are merged and all occurrences of \clj{op-leaf}
+are renamed to \clj{op-leaf-node}, creating a \emph{mutually recursive type}
+between the remaining aliases:
+
+\begin{cljlisting}
+(defalias op-node '{:op ':node, :left op-leaf-node, :right op-leaf-node})
+(defalias op-leaf-node (U '{:op ':leaf, :val Int} op-node))
+(ann nodes [op-leaf-node -> Int])
+\end{cljlisting}
+
+The aliases \clj{op-node} and \clj{op-leaf-node} are then merged for similar reasons, giving:
+
+\begin{cljlisting}
+(defalias op-leaf-node (U '{:op ':leaf, :val Int}
+                          '{:op ':node, :left op-leaf-node, :right op-leaf-node}))
+(ann nodes [op-leaf-node -> Int])
+\end{cljlisting}
+
+All that remains is to choose a recognizable name for the alias.
+Since all its top-level types seem to use the \clj{:op} entry for
+tags, we choose the name \clj{Op} and output the final annotation:
+
+\begin{cljlisting}
+(defalias Op (U '{:op ':leaf, :val Int}
+                '{:op ':node, :left Op, :right Op}))
+(ann nodes [Op -> Int])
+\end{cljlisting}
+
+The rest of the porting workflow involves the programmer repeatedly type checking
+their code and gradually tweaking the generated annotations until they type check.
+It turns out that this annotation immediately type checks the definition of \clj{nodes}
+and all its valid usages, so we turn to a more complicated function \clj{visit-leaf}
+to demonstrate a typical scenario.
 
 \begin{cljlisting}
 (defn visit-leaf "Updates :leaf nodes in tree t with function f."
@@ -77,20 +299,54 @@ the \clj{?} placeholder represents incomplete information about a path
           :node (assoc t :left (visit-leaf f (:left t))
                          :right (visit-leaf f (:right t)))
           :leaf (f t)))
-(def t1 {:op :node, :left {:op :leaf, :val 1}, :right {:op :leaf, :val 2}})
-(nodes t1)  ;=>3
-(visit-leaf (fn [leaf] (assoc leaf :val (inc (:val leaf)))) t1)
-;=> {:op :node, :left {:op :leaf, :val 2}, :right {:op :leaf, :val 3}}
 \end{cljlisting}
+
+This higher-order function uses \clj{assoc} to associate new children
+as it recurses down a given tree to update leaf nodes with the provided function.
+The following test simply increments the leaf values of the previously-defined \clj{t1}.
+
+\begin{cljlisting}
+(deftest visit-leaf-test 
+  (is (= (visit-leaf (fn [leaf] (assoc leaf :val (inc (:val leaf)))) t1)
+         {:op :node, :left {:op :leaf, :val 2}, :right {:op :leaf, :val 3}})))
+\end{cljlisting}
+
+Running this test under instrumentation yields some interesting runtime samples
+whose calculation is made efficient by space-efficient tracking (\secref{infer:sec:space-efficient-tracking}),
+which ensures a function is not repeatedly tracked unnecessarily.
+The following two samples demonstrate how to handle multiple arguments
+(by parameterizing the \clj{:dom} path element)
+and higher-order functions
+(by nesting \clj{:dom} or \clj{:rng} path elements).
+
+\inferrule[]
+{}
+{
+\resentry{\clj{['visit-leaf \{:dom 1\} \{:key :op\}]}}{\clj{':leaf}}\\
+\resentry{\clj{['visit-leaf \{:dom 0\} \{:dom 0\} \{:key :op\}]}}{\clj{':leaf}}
+}
+
+Here is our automatically generated initial annotation.
 
 % initial annotation
 \begin{cljlisting}
 (defalias Op (U '{:op ':leaf, :val t/Int} '{:op ':node, :left Op, :right Op}))
-(ann visit-leaf [[Op :-> Any] Op :-> Any])
+(ann visit-leaf [[Op -> Any] Op -> Any])
 \end{cljlisting}
+
+Notice the surprising occurrences of \clj{Any}. They originate
+from \clj{?} placeholders due to the lazy tracking of maps 
+(\secref{infer:sec:lazy-tracking}).
+% FIXME Wait, why does this happen for the return value of visit-leaf, because
+%       it should be traversed by the (is (= ))??
+%Since \clj{visit-leaf} does not traverse the results of \clj{f},
+%and 
+%its tracking is not realized.
 
 \begin{cljlisting}
 (*@\colorbox{pink}{(defalias Leaf}@*) '{:op ':leaf, :val Int}(*@\colorbox{pink}{)}@*)
 (defalias Op (U (*@\colorbox{pink}{Leaf}@*) '{:op ':node, :left Op, :right Op}))
-(ann visit-leaf [[(*@\colorbox{pink}{Leaf}@*) :-> (*@\colorbox{pink}{Op}@*)] Op :-> (*@\colorbox{pink}{Op}@*)])
+(ann visit-leaf [[(*@\colorbox{pink}{Leaf}@*) -> (*@\colorbox{pink}{Op}@*)] Op -> (*@\colorbox{pink}{Op}@*)])
 \end{cljlisting}
+
+% TODO Point to experiments

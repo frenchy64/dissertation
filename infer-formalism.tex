@@ -699,7 +699,7 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
 \begin{mathpar}
   \begin{array}{lllll}
     \textsf{req}: \atenv{}, \alias{} \rightarrow \HMapreq{}\\
-    \textsf{req}(\atenv{}, \alias{}) = \textsf{req}(\atenv{}, \alias{})\\
+    \textsf{req}(\atenv{}, \alias{}) = \textsf{req}(\atenv{}, \atenv{}[\alias{}])\\
     \textsf{req}(\atenv{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) = \HMapreq{}\\
     \\\\
     %\textsf{req}: \atenv{}, \alias{} \rightarrow \ova{\HMapreq{}}\\
