@@ -64,9 +64,9 @@ def nodes(t) -> int: ...                           // PyType
 
 Each annotation is clearly insufficient to meaningfully check both the function definition
 and valid usages. To show a desirable annotation for the ``ad-hoc'' program,
-we show the same program in Clojure~\infercitep{Hic08}, where such programs
-are idiomatic and fully supported by its built-in runtime verification library
-clojure.spec and its primary optional type system Typed Clojure~\infercitep{bonnaire2016practical}.
+we port it to Clojure~\infercitep{Hic08}, where it
+enjoys full support from the built-in runtime verification library
+clojure.spec and primary optional type system Typed Clojure~\infercitep{bonnaire2016practical}.
 
 \begin{cljlisting}
 (defn nodes [t] (case (:op t)
@@ -74,6 +74,50 @@ clojure.spec and its primary optional type system Typed Clojure~\infercitep{bonn
                   :leaf 1))
 (nodes {:op :node, :left {:op :leaf, :val 1}, :right {:op :leaf, :val 2}}) ;=>3
 \end{cljlisting}
+
+Making this style viable requires a harmony of language features, in particular to
+support programming with functions and immutable values, but
+none of which comes at the expense of object-orientation. Clojure is hosted on the Java Virtual Machine
+and has full interoperability with Java objects and classes---even Clojure's core design embraces
+object-orientation by exposing a collection of Java interfaces to create new kinds of data structures.
+The \clj{\{k v ...\}} syntax creates a persistent and immutable Hash Array Mapped Trie~\cite{bagwell2001ideal},
+which can be efficiently manipulated by dozens of built-in functions.
+The leading colon syntax like \clj{:op} creates an interned \emph{keyword}, which are ideal for map keys
+for their fast equality checks, and also look themselves up in maps when used as functions
+(e.g., \clj{(:op t)} is like JavaScript's \js{t.op}).
+\emph{Multimethods} regain the extensibility we lost when abandoning methods, like the following.
+
+\begin{cljlisting}
+(defmulti nodes-mm :op)
+(defmethod nodes-mm :node [t] (+ 1 (nodes-mm (:left t)) (nodes-mm (:right t))))
+(defmethod nodes-mm :leaf [t] 1)
+\end{cljlisting}
+
+On the type system side, Typed Clojure supports a variety of heterogeneous types,
+in particular for maps, along with occurrence typing \cite{TF10} to follow local control flow.
+Many key features come together to represent our ``ad-hoc'' binary tree as the following type.
+
+\begin{cljlisting}
+(defalias Tree
+  (U '{:op ':node, :left Tree, :right Tree}
+     '{:op ':leaf, :val Int}))
+\end{cljlisting}
+
+The \clj{defalias} form introduces an equi-recursive type alias \clj{Tree},
+\clj{U} a union type, \clj{'\{:kw Type ...\}} for heterogeneous keyword map types,
+and \clj{':node} for keyword singleton types.
+With the following function annotation, Typed Clojure can intelligently type check
+the definition and usages of \clj{nodes}.
+
+\begin{cljlisting}
+(ann nodes [Tree -> Int])
+\end{cljlisting}
+
+This research presents an approach based on dynamic analysis to automatically inferring 
+recursive, structural, and compact annotations
+like the Typed Clojure annotation for \clj{nodes} along with \clj{Tree}.
+We show how our approach tolerates unresolvable ambiguities or lossy data collection
+to generate close-enough annotations that are often straightforward to manually amend.
 
 % talk about "why" it's idiomatic in Clojure.
 % - hamt's
