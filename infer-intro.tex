@@ -46,7 +46,7 @@ object-oriented style in general.
 Correspondingly, existing state-of-the-art automatic annotation tools are not designed
 to support them.
 There are several ways to trivially handle such cases.
-Some enumerate the tree representation verbatim, like TypeWiz~\infercitep{typewiz}.
+Some enumerate the tree representation ``verbatim'' in a union, like TypeWiz~\infercitep{typewiz}.
 
 \begin{lstlisting}[language=JavaScript]
 function nodes(t: {left: {op: string, val: number}, op: string,
@@ -54,12 +54,12 @@ function nodes(t: {left: {op: string, val: number}, op: string,
                 | {op: string, val: number}) ...
 \end{lstlisting}
 
-Others discard most (or all) structure, like Typette~\infercitep{typette18} 
+Others ``discard'' most (or all) structure, like Typette~\infercitep{typette18} 
 and PyType~\infercitep{pytype} for Python.
 
 \begin{lstlisting}[language=Python]
-def nodes(t: Dict[(Sequence, object)]) -> int: ... // Typette
-def nodes(t) -> int: ...                           // PyType
+def nodes(t: Dict[(Sequence, object)]) -> int: ... # Typette
+def nodes(t) -> int: ...                           # PyType
 \end{lstlisting}
 
 Each annotation is clearly insufficient to meaningfully check both the function definition
@@ -113,13 +113,23 @@ the definition and usages of \clj{nodes}.
 (ann nodes [Tree -> Int])
 \end{cljlisting}
 
-This research presents an approach based on dynamic analysis to automatically inferring 
-recursive, structural, and compact annotations
-like the Typed Clojure annotation for \clj{nodes} along with \clj{Tree}.
-We show how our approach tolerates unresolvable ambiguities or lossy data collection
-to generate close-enough annotations that are often straightforward to manually amend.
+This (manually written) Typed Clojure annotation involving \clj{Tree}
+is significantly different from TypeWiz's ``verbatim'' annotation for \js{nodes}.
+First, it is recursive, and so supports trees of arbitrary depth (TypeWiz's annotation
+supports trees of height $<3$).
+Second, it uses singleton types \clj{':leaf} and \clj{':node} to distinguish each case
+(TypeWiz upcasts \js{"leaf"} and \js{"node"} to \js{string}).
+Third, the tree type is factored out under a name to enhance readability and reusability.
+On the other end of the spectrum, the ``discarding'' annotations of Typette and PyType
+are too imprecise to use meaningfully (they include trees of arbitrary depth, but
+also many other values).
 
-% talk about "why" it's idiomatic in Clojure.
-% - hamt's
-% - multimethods give extensibility
-% - functional programming with immutable values
+The challenge we overcome in this research is to automatically generate
+annotations like Typed Clojure's \clj{Tree}, in such a way that the ease of manual amendment is
+only mildly reduced by unresolvable ambiguities and incomplete data collection.
+
+%This research presents an approach based on dynamic analysis to automatically inferring 
+%recursive, structural, and compact annotations
+%like the Typed Clojure annotation for \clj{nodes} along with \clj{Tree}.
+%We show how our approach tolerates unresolvable ambiguities and incomplete data collection
+%to generate close-enough annotations that are often straightforward to manually amend.
