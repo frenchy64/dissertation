@@ -155,7 +155,7 @@ While they support nested data, they do not attempt to factor out common types a
 or create recursive types like our squashing algorithms.
 
 \infercitet{discala2016automatic}
-present a machine learning algorithm to translate data denormalized
+present a machine learning algorithm to translate denormalized
 and nested data that is commonly found in NoSQL databases to traditional
 relational formats used by standard RDBMS.
 A key component is a schema generation algorithm which arranges related
@@ -164,8 +164,14 @@ Phases 1 and 2 of their algorithm roughly correspond to our local and global
 squashing algorithms, respectively, where first locally accessible information
 is combined, and then global information.
 They choose a loose method of relating entities (soft functional dependencies) to compensate
-for data inconsistencies and to help users learn about their data via higher-level
-abstractions.
+for data inconsistencies and to help users learn about their data via higher-level abstractions.
+Where our squashing algorithms for map types are based on (sets of) keysets---on the 
+assumption that related entities use similar keysets---they also join attributes
+based on their similar values.
+This enables more effective entity matching via equivalent attributes
+with different names (e.g., ``Email'' vs ``UserEmail'').
+Our approach instead assumes programs are somewhat internally consistent, and instead
+optimizes to handle missing samples from incomplete dynamic analysis.
 %TODO how does this relate to us?
 %TODO do they infer recursive schemas?
 
