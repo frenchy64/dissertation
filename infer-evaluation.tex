@@ -502,7 +502,7 @@ to be relatively compact (only 16 type aliases are used by the
   startrek      & 166  &  25  & 0  & 10   & 0  & Yes\\
   math.comb     & 923  &  601 & 0  & 320  & 0  & Yes\\
   fs            & 588  &  543 & 0  & 215  & 0  & Yes\\
-  data.json     & 528  &  401 & 0  & 174  & 0  & No (1/79 failed)\\ %with-out-str pprinting related test
+  data.json     & 528  &  401 & 0  & 174  & 0  & No (1/79 failed)\\ % pprinting related test
   mini.occ      & 530  &  131 & 3  & 25   & 15 & Yes\\
  %data.xml      &      & \\
  % cc            & 1776 & 448 & 4  & N/A 
@@ -510,6 +510,8 @@ to be relatively compact (only 16 type aliases are used by the
 \end{tabular}
   \caption{Summary of the quantity and kinds of generated specs and whether they passed
   unit tests when enabled.
+  The one failing test was related to pretty-printing JSON, and seems to be an artifact
+  of our testing environment, as it still fails with all specs removed.
   }
 \label{infer:fig:genspec}
 \end{figure*}
