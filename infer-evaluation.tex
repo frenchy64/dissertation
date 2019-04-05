@@ -495,25 +495,21 @@ to be relatively compact (only 16 type aliases are used by the
 
 \begin{figure*}
 \begin{tabular}
-{|         l   || l   | l l  | l  | l | l |}
-  Library       & LOC  &  LS & RS & IT & MS & UT\\ 
+{|         l   || l   | l || l  | l  | l || l |}
+  Library       & LOC  &  Lines of specs  & Recursive & Instance & Maps & Passed Tests?\\ 
   \hline
   \hline
-  startrek      & 166  &  25  & 0  & 10   & 0  & Y\\
-  math.comb     & 923  &  601 & 0  & 320  & 0  & Y\\
-  fs            & 588  &  543 & 0  & 215  & 0  & Y\\
+  startrek      & 166  &  25  & 0  & 10   & 0  & Yes\\
+  math.comb     & 923  &  601 & 0  & 320  & 0  & Yes\\
+  fs            & 588  &  543 & 0  & 215  & 0  & Yes\\
   data.json     & 528  \\
-  mini.occ      & 530  %\\
+  mini.occ      & 530  \\
  %data.xml      &      & \\
  % cc            & 1776 & 448 & 4  & N/A 
   %\\
 \end{tabular}
-  \caption{\emph{Generated specs}:
-  LS = Number of lines of spec generated,
-  RS = No. recursive specs,
-  IT = No. instance testing specs,
-  MS = Useful map types,
-  UT = Passed unit tests with specs enabled.
+  \caption{Summary of the quantity and kinds of generated specs and whether they passed
+  unit tests when enabled.
   }
 \label{infer:fig:genspec}
 \end{figure*}
