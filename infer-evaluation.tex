@@ -460,7 +460,7 @@ to be relatively compact (only 16 type aliases are used by the
 %\end{figure*}
 
 \begin{figure*}
-\begin{tabular}{|r||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|r||c|c|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
   Library       & \rotatebox{270}{Lines of code}
                 & \rotatebox{270}{Lines of Generated Global/Local Types}
                 & \rotatebox{270}{Lines manually added/removed}
@@ -480,15 +480,16 @@ to be relatively compact (only 16 type aliases are used by the
                 \\ 
   \hline
   \hline
-  startrek   & 166  & 133/3   & 70/41    & 5  & 0 & 0 & 2 & 13& 1 & 5 & 1 & 1 & 2 & 0 & 0 & 0           \\
-  math.comb  & 923  & 395/147 & 124/120  & 23 & 1 & 11& 19& 2 & 5 & 0 & 9 & 3 & 2 & 4 & 1 & 3           \\
-  fs         & 588  & 157/1   & 119/86   & 50 & 0 & 0 & 2 & 3 & 4 & 4 & 11& 2 & 9 & 0 & 0 & 0           \\
-  data.json  & 528  & 168/9   & 94/125             \\
-  mini.occ   & 530  & 49/1    & 46/26              \\
+  startrek   & 166  & 133/3   & 70/41    & 5  & 0 & 0 & 2 & 13& 1 & 5 & 1 & 1 & 2 & 0 & 0 & 0 \\
+  math.comb  & 923  & 395/147 & 124/120  & 23 & 1 & 11& 19& 2 & 5 & 0 & 9 & 3 & 2 & 4 & 1 & 3 \\
+  fs         & 588  & 157/1   & 119/86   & 50 & 0 & 0 & 2 & 3 & 4 & 4 & 11& 2 & 9 & 0 & 0 & 0 \\
+  data.json  & 528  & 168/9   & 94/125   & 6  & 0 & 0 & 2 & 4 & 11& 5 & 5 & 0 & 7 & 20& 0 & 0 \\
+  mini.occ   & 530  & 49/1    & 46/26    & 7  & 0 & 0 & 2 & 5 & 4 & 6 & 2 & 0 & 2 & 0 & 0 & 1 \\
  % cc            & 1776 & 448 & 4  & N/A 
   %\\
 \end{tabular}
-  \caption{
+  \caption{Lines of generated annotations, git line diff for total manual changes to type check the program,
+  and the kinds of manual changes.
   }
 \end{figure*}
 
