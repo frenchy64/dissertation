@@ -337,11 +337,13 @@ Here is our automatically generated initial annotation.
 Notice the surprising occurrences of \clj{Any}. They originate
 from \clj{?} placeholders due to the lazy tracking of maps 
 (\secref{infer:sec:lazy-tracking}).
-% FIXME Wait, why does this happen for the return value of visit-leaf, because
-%       it should be traversed by the (is (= ))??
-%Since \clj{visit-leaf} does not traverse the results of \clj{f},
-%and 
-%its tracking is not realized.
+Since \clj{visit-leaf} does not traverse the results of \clj{f},
+nor does anything traverse \clj{visit-leaf}'s results (hash-codes are used for equality checking)
+its tracking is not realized.
+Also, the first argument of \clj{visit-leaf} takes something more specific than an \clj{Op}.
+Any of these imprecisions could trigger a type error from Typed Clojure on usages of \clj{visit-leaf},
+and then manual intervention is needed (highlighted). We factor out and use a new alias \clj{Leaf}
+and replace occurrences of \clj{Any} with \clj{Op}.
 
 \begin{cljlisting}
 (*@\colorbox{pink}{(defalias Leaf}@*) '{:op ':leaf, :val Int}(*@\colorbox{pink}{)}@*)
@@ -350,3 +352,8 @@ from \clj{?} placeholders due to the lazy tracking of maps
 \end{cljlisting}
 
 % TODO Point to experiments
+We measure the success of our workflow by using it to type check real Clojure programs.
+Experiment 1 (\secref{infer:sec:experiment1}) manually inspects a selection of inferred types.
+Experiment 2 (\secref{infer:sec:experiment2}) classifies and quantifies the kinds of changes needed.
+Experiment 3 (\secref{infer:sec:experiment3}) enforces initial annotations at runtime to ensure
+they are meaningfullly imprecise.
