@@ -140,6 +140,35 @@ programs for invariants that cannot be proved statically. Our approach is instea
 the user check the generated annotations with a static type system, with static type errors
 guiding the user to manually add casts when needed.
 
+\paragraph{Schema Inference}
+\infercitet{baazizi2017schema}
+infer structural properties of JSON data using a custom JSON schema format.
+Their schema inference algorithm proceeds in two stages:
+schema inference and schema fusion.
+This resembles our collection and naive type environment construction phases.
+There are slight differences between schema fusion and our approach.
+Schema fusion upcasts heterogeneous array types to be homogeneous, where
+we maintain heterogeneous vector types until a differently-sized
+vector type is found in the same position.
+We also support function types, which JSON lacks.
+While they support nested data, they do not attempt to factor out common types as names
+or create recursive types like our squashing algorithms.
+
+\infercitet{discala2016automatic}
+present a machine learning algorithm to translate data denormalized
+and nested data that is commonly found in NoSQL databases to traditional
+relational formats used by standard RDBMS.
+A key component is a schema generation algorithm which arranges related
+data into tables via a matching algorithm which discovers related attributes.
+Phases 1 and 2 of their algorithm roughly correspond to our local and global
+squashing algorithms, respectively, where first locally accessible information
+is combined, and then global information.
+They choose a loose method of relating entities (soft functional dependencies) to compensate
+for data inconsistencies and to help users learn about their data via higher-level
+abstractions.
+%TODO how does this relate to us?
+%TODO do they infer recursive schemas?
+
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
 % https://cs.au.dk/~amoeller/papers/tstools/paper.pdf
