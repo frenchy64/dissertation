@@ -339,10 +339,10 @@ from \clj{?} placeholders due to the lazy tracking of maps
 (\secref{infer:sec:lazy-tracking}).
 Since \clj{visit-leaf} does not traverse the results of \clj{f},
 nor does anything traverse \clj{visit-leaf}'s results (hash-codes are used for equality checking)
-its tracking is not realized.
-Also, the first argument of \clj{visit-leaf} takes something more specific than an \clj{Op}.
-Any of these imprecisions could trigger a type error from Typed Clojure on usages of \clj{visit-leaf},
-and then manual intervention is needed (highlighted). We factor out and use a new alias \clj{Leaf}
+neither tracking is realized.
+Also notice the first argument of \clj{visit-leaf} is underprecise.
+These could trigger type errors on usages of \clj{visit-leaf},
+so manual intervention is needed (highlighted). We factor out and use a new alias \clj{Leaf}
 and replace occurrences of \clj{Any} with \clj{Op}.
 
 \begin{cljlisting}
