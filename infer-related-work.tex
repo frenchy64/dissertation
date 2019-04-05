@@ -120,18 +120,25 @@ via occurrence typing~\infercitep{TF10}, and gives the option to manually annota
 dependencies in function signatures when needed.
 
 \paragraph{Reverse Engineering Programs with Static Analysis}
-M{\"u}ller et. al~\infercitep{muller1992reverse} present Rigi, a tool to analyze
-the structure of large software systems.
-They combine static analysis 
-and a user-facing graphical environment to allow users to view and manipulate
+Rigi~\infercitep{muller1992reverse} analyzes
+the structure of large software systems,
+combining static analysis 
+with a user-facing graphical environment to allow users to view and manipulate
 the in-progress reverse engineering results.
+We instead use a static type system as a feedback mechanism,
+which forces more aggressive compacting of generated annotations.
+
 Lackwit~\infercitep{o1997lackwit} uses static analysis to identify abstract 
 data types in C programs. Like our work, they share representations between
 values, except they use type inference with representations encoded as types.
 Recursive representations are inferred via Felice and Coppos's
 work on type inference with recursive types~\infercitep{cardone1991type},
-where we rely on our imprecise ``squashing'' algorithms.
+where we rely on our imprecise ``squashing'' algorithms over incomplete runtime samples.
 
+Soft Typing~\infercitep{CF91} uses static analysis to insert runtime checks into untyped
+programs for invariants that cannot be proved statically. Our approach is instead to let
+the user check the generated annotations with a static type system, with static type errors
+guiding the user to manually add casts when needed.
 
 % Inference and Evolution of TypeScript Declaration Files
 % - they submit pull requests from their tool's output
