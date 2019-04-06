@@ -463,27 +463,24 @@ to be relatively compact (only 16 type aliases are used by the
   Library       & \rotatebox{270}{Lines of code}
                 & \rotatebox{270}{Lines of Generated Global/Local Types}
                 & \rotatebox{270}{Lines manually added/removed}
-                & \rotatebox{270}{Casts}
-                & \rotatebox{270}{Instantiation}
+                & \rotatebox{270}{Casts/Instantiations}
                 & \rotatebox{270}{Polymorphic annotation}
                 & \rotatebox{270}{Local annotation}
-                & \rotatebox{270}{Workaround Type System Shortcoming}
-                & \rotatebox{270}{Overprecise argument type}
+                & \rotatebox{270}{Type System Workaround/no-check}
+                & \rotatebox{270}{Overprecise argument/return type}
                 & \rotatebox{270}{Uncalled function (bad test coverage)}
-                & \rotatebox{270}{Add No-check annotation to skip checking function}
-                & \rotatebox{270}{Add Variable arity argument type}
-                & \rotatebox{270}{Overprecise return type}
-                & \rotatebox{270}{Add Keyword argument types}
-                & \rotatebox{270}{Added filter annotation}
-                & \rotatebox{270}{Erase/upcast HVec annotation}
+                & \rotatebox{270}{Variable-arity/keyword arg type}
+                & \rotatebox{270}{Add occurrence typing annotation}
+                & \rotatebox{270}{Erase or upcast HVec annotation}
+                & \rotatebox{270}{Add missing case in defalias}
                 \\ 
   \hline
   \hline
-  startrek   & 166  & 133/3   & 70/41    & 5  & 0 & 0 & 2 & 13& 1 & 5 & 1 & 1 & 2 & 0 & 0 & 0 \\
-  math.comb  & 923  & 395/147 & 124/120  & 23 & 1 & 11& 19& 2 & 5 & 0 & 9 & 3 & 2 & 4 & 1 & 3 \\
-  fs         & 588  & 157/1   & 119/86   & 50 & 0 & 0 & 2 & 3 & 4 & 4 & 11& 2 & 9 & 0 & 0 & 0 \\
-  data.json  & 528  & 168/9   & 94/125   & 6  & 0 & 0 & 2 & 4 & 11& 5 & 5 & 0 & 7 & 20& 0 & 0 \\
-  mini.occ   & 530  & 49/1    & 46/26    & 7  & 0 & 0 & 2 & 5 & 4 & 6 & 2 & 0 & 2 & 0 & 0 & 1 \\
+  startrek   & 166  & 133/3   & 70/41    & 5  / 0 & 0 & 2 & 13/1 & 1 /2 & 5 &  1 /  0 & 0 & 0 & 0\\
+  math.comb  & 923  & 395/147 & 124/120  & 23 / 1 & 11& 19& 2 /9 & 5 /2 & 0 &  3 /  4 & 1 & 3 & 0\\
+  fs         & 588  & 157/1   & 119/86   & 50 / 0 & 0 & 2 & 3 /11& 4 /9 & 4 &  2 /  0 & 0 & 0 & 0\\
+  data.json  & 528  & 168/9   & 94/125   & 6  / 0 & 0 & 2 & 4 /5 & 11/7 & 5 &  0 /  20& 0 & 0 & 0\\
+  mini.occ   & 530  & 49/1    & 46/26    & 7  / 0 & 0 & 2 & 5 /2 & 4 /2 & 6 &  0 /  0 & 0 & 1 & 5\\
  % cc            & 1776 & 448 & 4  & N/A 
   %\\
 \end{tabular}
