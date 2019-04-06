@@ -1,6 +1,16 @@
 \Dchapter{Extensions}
 \label{infer:sec:extensions}
 
+Two optimizations are crucial for practical implementations of the collection phase.
+First, space-efficient tracking efficiently handles a common case with higher-order
+functions where the same function is tracked at multiple paths.
+Second, instead of tracking a potentially large value by eagerly traversing it, lazy tracking
+offers a pay-as-you-go model by wrapping a value and only tracking subparts as they are accessed.
+Both were necessary to collect samples from the compiler implementation we instrumented for
+Experiment 1 (\secref{infer:sec:experiment1})
+because it used many higher-order functions and its AST representation can be quite large
+which made it intractible to eagerly traverse each time it got passed to one of dozens of functions.
+
 %\Dsection{Polymorphic types}
 %
 %\begin{figure}
