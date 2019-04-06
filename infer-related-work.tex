@@ -184,17 +184,17 @@ optimizes to handle missing samples from incomplete dynamic analysis.
 Static analyzers
 for JavaScript
 (TSInfer~\infercitep{kristensen2017inference}) and for Python (Typpete~\infercitep{typette18}
-and Pytype~\infercitep{pytype})
+and PyType~\infercitep{pytype})
 automatically annotate code with types.
-Pytype and Typpete inferred \texttt{nodes} in \figref{fig:infer:nodes}
+PyType and Typpete inferred \texttt{nodes}
 as \texttt{(? -> int)}
 and \texttt{Dict[(Sequence, object)] -> int}, respectively---our tool 
 infers it as \clj{[Op -> Int]} by also generating a compact recursive
-type (\figref{fig:infer:nodestype}).
-Similarly, a class-based translation of \figref{fig:infer:nodes}
+type.
+Similarly, a class-based translation of
 inferred both \texttt{left} and \texttt{right}
 fields
-as \texttt{Any} by Pytype, and as \texttt{Leaf} by Typpete---our tool
+as \texttt{Any} by PyType, and as \texttt{Leaf} by Typpete---our tool
 uses \clj{Op},
 a compact recursive type containing \emph{both} \clj{Leaf} and \clj{Node}.
 This is similar to our experience with TypeWiz in \Dchapref{infer:chapter:intro}.

@@ -18,8 +18,8 @@ explicit test suite for \clj{nodes}.
 The first step is the instrumentation phase
 (formalized in \secref{infer:sec:formal:collection-phase}), which 
 monitors the inputs and outputs of \clj{nodes}
-by redefining like so, where \clj{<nodes-body>} begins the \clj{case} expression of
-the original \clj{nodes} definition.
+by redefining it to use the \clj{track} function like so (where \clj{<nodes-body>} begins the \clj{case} expression of
+the original \clj{nodes} definition):
 
 \begin{cljlisting}
 (def nodes (fn [t'] (track ((fn [t] <nodes-body>) (track t' ['nodes :dom]))
@@ -76,7 +76,7 @@ the \clj{?} placeholder represents incomplete information about a path
 Next, the two ``squashing'' phases.
 The intuition behind both are based on seeing types as directed graphs,
 where vertices are type aliases, and an edge connects
-two vertices $v1$ and $v2$ if $v1$ is mentioned in $v2$'s type.
+two vertices $u$ and $v$ if $u$ is mentioned in $v$'s type.
 
 Local squashing (\squashlocal{} in \figref{infer:fig:squashlocal})
 constructs such a graph by creating type aliases from map types
@@ -261,7 +261,7 @@ Since \clj{op-leaf} and \clj{op-leaf-node} refer to maps with identical keysets
 is probably a tag, and they are both \clj{':leaf}),
 they are merged and all occurrences of \clj{op-leaf}
 are renamed to \clj{op-leaf-node}, creating a \emph{mutually recursive type}
-between the remaining aliases:
+between the remaining aliases in the middle graph:
 
 \begin{cljlisting}
 (defalias op-node '{:op ':node, :left op-leaf-node, :right op-leaf-node})
@@ -269,7 +269,7 @@ between the remaining aliases:
 (ann nodes [op-leaf-node -> Int])
 \end{cljlisting}
 
-The aliases \clj{op-node} and \clj{op-leaf-node} are then merged for similar reasons, giving:
+In the right-most graph, the aliases \clj{op-node} and \clj{op-leaf-node} are merged for similar reasons:
 
 \begin{cljlisting}
 (defalias op-leaf-node (U '{:op ':leaf, :val Int}
