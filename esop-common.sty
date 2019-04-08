@@ -8,13 +8,16 @@
 \usepackage{enumitem}
 \usepackage{float}
 \usepackage{chngcntr}
+% computer modern lacks a bold, monospaced font. this adds one 
+% by using lmodern, a font that is designed to be a superset of computer modern.
+\either{\usepackage{lmodern}}{} % bold font in listing https://tex.stackexchange.com/a/115444
 
 \floatstyle{plain} % optionally change the style of the new float
 \newfloat{Code}{H}{myc}
 
 \usepackage{listings}
 
-\lstdefinelanguage{clojure}%
+\lstdefinelanguage{Clojure}%
 {morekeywords={*,*1,*2,*3,*agent*,*allow-unresolved-vars*,*assert*,*clojure-version*,*command-line-args*,%
 *compile-files*,*compile-path*,*e,*err*,*file*,*flush-on-newline*,*in*,*macro-meta*,%
 *math-context*,*ns*,*out*,*print-dup*,*print-length*,*print-level*,*print-meta*,*print-readably*,%
@@ -109,7 +112,7 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 
 \lstset{ %
   upquote=true,
-  language=clojure,                % choose the language of the code
+  language=Clojure,                % choose the language of the code
   columns=fixed,
   basewidth=.5em,
   basicstyle=\ttfamily,       % the size of the fonts that are used for the code
@@ -162,18 +165,22 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
   %moredelim=**[is][\color{red}]{@}{@},
   moredelim=**[is][\color{red}]{__red>}{<red__},
   %escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
-  keywordstyle=\textbf,       % keyword style
+  keywordstyle=\bfseries,       % keyword style
   stringstyle=\color{stringgray}\textit,     % string literal style
 }
 
 \lstnewenvironment{cljlisting}
-{\either{\singlespacing}{}}
+{\either{\singlespacing}{}
+\lstset{language=Clojure,
+        }
+}
 {}
 
 % this is specifically for big CLJS example in the pldi submission
 \lstnewenvironment{cljlistingnumbered}
 {\either{\singlespacing}{}
-\lstset{numbers=left,
+\lstset{language=Clojure,
+        numbers=left,
         numbersep=-8pt
 }}
 {}
@@ -228,11 +235,11 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
 \usepackage{booktabs}
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 
-\newcommand{\clj}[1]{\text{\lstinline{#1}}}
-\newcommand{\js}[1]{\lstinline{#1}}
-\newcommand{\java}[1]{\lstinline{#1}}
-\newcommand{\rkt}[1]{\lstinline{#1}}
-\newcommand{\sml}[1]{\lstinline{#1}}
+\newcommand{\clj}[1]{\text{\lstinline[language=Clojure]{#1}}}
+\newcommand{\js}[1]{\lstinline[language=JavaScript]{#1}}
+\newcommand{\java}[1]{\lstinline[language=Java]{#1}}
+\newcommand{\rkt}[1]{\lstinline[language=Lisp]{#1}}
+\newcommand{\sml}[1]{\lstinline[language=ML]{#1}}
 
 \usepackage{url}
 \newcounter{ex}
