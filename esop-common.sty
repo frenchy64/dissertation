@@ -82,7 +82,8 @@ with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
    alsodigit=-,%
    alsoletter=:/?,% don't highlight keywords, or namespaced keywords, consider predicates
    morecomment=[l];,%
-   morestring=[b]"%
+   morestring=[b]",%
+   moredelim=**[is][\color{red}]{__red>}{<red__},%
   }[keywords,comments,strings]%
 
 \lstdefinelanguage{JavaScript}{
