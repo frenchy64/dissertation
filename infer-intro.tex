@@ -14,9 +14,8 @@ new Node(new Leaf(1), new Leaf(2)).nodes(); //=> 3 (constructors implicit)
 \end{lstlisting}
 
 An alternative ``ad-hoc'' representation uses plain JavaScript Objects
-with explicit tags.
+with explicit tags, which is less extensible but simpler.
 Then, the method becomes a recursive function that explicitly takes a tree as input.
-We trade the extensiblility and (presumably) speed of a method for a simple, reversible serialization to JSON.
 
 \begin{lstlisting}[language=JavaScript]
 function nodes(t) { switch t.op { 
