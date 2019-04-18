@@ -2260,7 +2260,7 @@ $$
 }
 
 \newcommand\soundnesslemmahypothesis[0]{
-If \judgementrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}},
+If \judgementshowrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}},
 \satisfies{\openv{}}{\propenv{}}, 
 \isconsistent{\openv{}},
 and \opsem {\openv{}} {\e{}} {\a{}} 
@@ -2284,7 +2284,7 @@ and all of the following hold:
 }
 
 \newcommand\soundnesstheorembody[1]{
-If \judgementrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}}
+If \judgementshowrewrite{\propenv{}}{\ep{}}{\t{}}{\filterset{\thenprop{\prop{}}}{\elseprop{\prop{}}}}{\object{}}{\e{}}
 and \opsem {\openv{}} {\e{}} {\v{}} 
 then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\propp{}}}}{\objectp{}}{\v{}}
         for some \thenprop{\propp{}}, \elseprop{\propp{}} and {\objectp{}}.
@@ -2310,7 +2310,7 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
 }
 
 \newcommand\wrongtheorembody[1]{
-  If {\judgementrewrite {} {\ep{}} {\t{}} {\filterset {\thenprop{\prop{}}}{\elseprop{\prop{}}}} {\object{}}{\e{}}}
+  If {\judgementshowrewrite {} {\ep{}} {\t{}} {\filterset {\thenprop{\prop{}}}{\elseprop{\prop{}}}} {\object{}}{\e{}}}
   then \notopsem{}{\e{}}{\wrong{}}.
 }
 
@@ -2328,7 +2328,7 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
 
 \begin{proof}
   Corollary of lemma~\ref{#1:lemma:soundness}, since by lemma~\ref{#1:lemma:soundness}
-  when {\judgementrewrite {} {\ep{}} {\t{}} {\filterset {\thenprop{\prop{}}}{\elseprop{\prop{}}}} {\object{}}{\e{}}}, 
+  when {\judgementshowrewrite {} {\ep{}} {\t{}} {\filterset {\thenprop{\prop{}}}{\elseprop{\prop{}}}} {\object{}}{\e{}}}, 
  either
     \opsem {} {\e{}} {\v{}} or
     \opsem {} {\e{}} {\errorvalv{}}, therefore \notopsem{}{\e{}}{\wrong{}}.
