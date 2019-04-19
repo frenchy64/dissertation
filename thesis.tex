@@ -737,7 +737,7 @@ The caveat: without a rich enough prototype,
 a benign symbolic closure type may be provided as an answer---you only get out what you put in
 (for this reason, symbolic closures perform particularly well when top-level types are always provided).
 
-For example, \clj{(tc ? GR)} asks to synthesize a type for the (provably untypable) \GRterm.
+For example, \clj{(tc ? GR)} asks to synthesize a type for \GRterm.
 Unsurprising, a symbolic closure type greets us (below).
 
 % full output
@@ -873,6 +873,41 @@ can make checking the definition of functions much more flexible.
 This illustrates the promise of symbolic closures to treat previously untypable terms
 as ``black-boxes'' during type checking, especially in a setting where top-level
 type information is always provided.
+
+%http://web.cs.ucla.edu/~palsberg/tba/papers/banerjee-icfp97.pdf
+% A modular, polyvariant and type-based closure analysis - Banerjee
+Banerjee~\cite{banerjee1997modular}
+achieves a similar effect by
+instrumenting the rank 2 fragment of the intersection type discipline
+with flow information of closure values.
+Function terms are labelled and
+arrow types are annotated with sets of labels which denote
+which functions it may represent.
+They demonstrate by analyzing the following term
+$(\l f. (\l x. f I)(f 0))I$
+where $I$ represents the identity function.
+They label the term
+$(\l^1 f. (\l^2 x. f (\l^3 u. u))(f 0))(\l^4 v. v)$
+and infer overall type
+$t \xrightarrow[]{\{3\}} t$,
+which says values of this type originate from the lambda labeled $3$,
+with fresh type variable $t$.
+
+Their system inherits the principal typing property of intersection
+types, which we lack in Typed Clojure.
+To compensate for this, our prototype for unrestricted symbolic closures
+types returns the full code and type environment for the corresponding closure
+of lambda $3$, so it may
+be further checked later when more type information is available.
+For example, plugging this example into our prototype gives the
+following symbolic closure type (using their labelled lambda syntax)
+$\ltiClosure{\ltiEnv{}}{\l^3 u. u}$,
+where $\ltiEnv{} = \{f : \ltiClosure{\{\}}{\l^4 v. v}, x : \text{Int}\}$.
+
+%\begin{cljlisting}
+%(tc ? ((fn [f] ((fn [x] (f (fn [u] u))) (f 0))) (fn [v] v)))
+%\end{cljlisting}
+
 
 \paragraph{Hindley-Milner and Let-polymorphism}
 %TODO
@@ -1021,6 +1056,27 @@ Pc5 = {x {x {x {x {x {x {x {x {x {x {x {x Pc4}
                                         
 \end{cljlisting}
 
+% https://link.springer.com/content/pdf/10.1007%2FBFb0032745.pdf
+% Type-Directed Flow Analysis for Typed Intermediate Languages - Suresh Jagannathan, Stephen Week~s, and Andrew Wright 
+% - seems like their "abstract-closures" probably relate to symbolic closures
+% - they "exploit types to control a flow analysis algorithm"
+\paragraph{Flow analysis for typed languages}
+Jagannathan, Weeks and Wright~\cite{jagannathan1997type}
+give a flow analysis for a typed intermediate language.
+Their ``abstract closures'' resemble our symbolic closures,
+and, like ours, their algorithm is not guaranteed to terminate.
+Our work explicitly integrates symbolic closures as a new type
+in the language and therefore assists in type inference,
+whereas their main result is a separate flow analysis that 
+exploit types to increase flow accuracy.
+
+% Faithful Translations between Polyvariant Flows and Polymorphic Types
+% http://people.cs.ksu.edu/~tamtoft/Papers/Amt+Tur:FTPFPT-2000/short.pdf
+% Torben Amtoft and Franklyn Turbak
+
+% Gilray's thesis
+% pg 44 has a long list of references to check
+% https://thomas.gilray.org/pdf/thesis-gilray.pdf
 
 %TODO
 %\paragraph{Directional Polymorphism}
