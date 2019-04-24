@@ -1,0 +1,80 @@
+\documentclass[9pt]{extarticle}
+
+\newcommand{\PAPER}{}
+\newcommand{\either}[2]{#2}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{symb-common}
+\usepackage{pdflscape}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{positioning,calc}
+
+\title{}
+
+\author{Ambrose Bonnaire-Sergeant}
+
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{bibliography.bib}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\begin{mathpar}
+  \inferrule*[lab=UAbs]
+   { }
+   {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                                   {\ltiEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+                                   {\ltiClosure{\ltiEnv{}}{\ltiufun{\ltivar{}}{\ltiF{}}}}
+                                   {\ltiCombinedThreadedEnv{}}
+                                   {\ltiufun{\ltivar{}}{\ltiF{}}}
+   }
+
+  \inferrule*[lab=UApp]
+  {
+   \ltitSstkjudgementNoElabCombined{\varnothing}
+                      {\ltiEnvp{}}
+                      {\ltiE{1}}
+                      {\ltiClosure{{\ltiEnv{}}}{\ltiufun{{\ltivar{}}}
+                                                    {\ltiF{}}}}
+                      {\ltiClosureCache{}}
+                      {\ltiufunelab{\ltiInferred{\text{c1}}}{\text{x}}{\text{x}}}
+   \\
+   \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
+                      {\ltiEnvp{}}
+                      {\ltiE{2}}
+                      {\ltiS{}}
+                      {\ltiClosureCache{}}
+                      {\ltiEp{}}
+   \\\\\\
+    \ltitSstkjudgementNoElabCombined{\ltiClosureCache{}}
+                      {\ltiEnvConcat{\ltiEnv{}}
+                                    {\hastypesmall{\ltivar{}}
+                                                  {\ltiS{}}}}
+                      {\ltiF{}}
+                      {\ltiT{}}
+                      {\ltiClosureCache{}}
+                      {\ltiFp{}}
+  }
+  {
+    \ltitSstkjudgementNoElabCombined{\ltiCombinedThreadedEnv{}}
+                      {\ltiEnvp{}}
+                      {\ltiapp{\ltiE{1}}
+                              {\ltiE{2}}}
+                      {\ltiT{}}
+                      {\ltiCombinedThreadedEnvp{}}
+                      {\ltiapp{\ltiFp{}}{\ltiEp{}}}
+  }
+\end{mathpar}
+
+\begin{cljlisting}
+(map (fn [x] x) [1 2 3])
+\end{cljlisting}
+
+\end{document}
