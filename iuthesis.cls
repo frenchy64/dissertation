@@ -330,15 +330,15 @@
     \check@val\@title
     \end{center}
     \egroup
-    \vspace*{2em}
+    \vspace*{12em}
     %\begin{center}\large\adforn{19}\end{center}
     %\vspace*{2em}
     \bgroup
     \Large
     \begin{center}
     \check@val\@author
-    \vspace*{1em}\\
-    {\large \today}
+    %\vspace*{1em}\\
+    %{\large \today}
     \end{center}
     \egroup
     \vfill
@@ -347,7 +347,7 @@ Submitted to the faculty of the University Graduate School \\
 in partial fulfillment of the requirements \\
 for the degree \\
 \check@val\@degree \\
-in the \check@val\@departmentname\ of \check@val\@department \\
+in the \check@val\@departmentname\ of \check@val\@department, \\
 Indiana University \\
 \check@val\@submitdate
 %    \check@val\@submitdate
