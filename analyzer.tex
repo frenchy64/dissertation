@@ -261,7 +261,9 @@ form and assign it type \clj{Any}.
 \figref{fig:analyzer:tc-ignore} shows the implementation of the \clj{tc-ignore} macro.
 It demonstrates the \clj{do}-special-form protocol:
 if the first member of a \clj{do} is the keyword
+\[
 \clj{:clojure.core.typed.special-form/special-form},
+\]
 the following keyword names a special typing rule to use
 to check the entire form.
 A corresponding typing rule must then be registered with the type checker under this name,

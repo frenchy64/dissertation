@@ -668,8 +668,9 @@ Our algorithm does not apply any heuristics to approximate
 variable arguments --- instead we emit types that reflect
 only the arities that were called during the unit tests.
 
-A good example of this phemonenon is the type inferred
-for the \clj{plus} helper function from \clj{math.combinatorics}.
+The \clj{math.combinatorics} experiment contains
+a good example of this phemonenon in the type inferred
+for the \clj{plus} helper function.
 From the generated type, we can see the tests exercise this function with 2, 6,
 and 7 arguments.
 

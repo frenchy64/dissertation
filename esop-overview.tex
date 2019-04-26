@@ -48,17 +48,17 @@ A simple one-argument function \clj{greet} is annotated with \clj{ann} to take a
 (defn greet [n] (*invoke str "Hello, " n "!" invoke*))
 (*invoke greet "Grace" invoke*) ;=> "Hello, Grace!" :- Str
 \end{cljlisting}
-%
+
 Providing \clj{nil} (exactly Java's \java{null})
 is a static type error---\clj{nil} is not a string.
-%
+
 \begin{cljlisting}
 (*invoke greet nil invoke*) ; Type Error: Expected Str, given nil
 \end{cljlisting}
 
 \paragraph{Unions} To allow \clj{nil}, we use \emph{ad-hoc unions} (\clj{nil} and \clj{false}
 are logically false).
-%
+
 \begin{cljlisting}
 (*typed ann  greet-nil [(U nil Str) -> Str] typed*)
 (defn greet-nil [n] (*invoke str "Hello" (when n (*invoke str ", " n invoke*)) "!" invoke*))
@@ -66,7 +66,7 @@ are logically false).
 (*invoke greet-nil nil invoke*)      ;=> "Hello!"         :- Str
 \end{cljlisting}
 %
-%
+
 Typed Clojure prevents well-typed code from dereferencing \clj{nil}.
 %This is important for Clojure programs---\clj{nil}
 %is treated like any other distinct datum in Clojure.
@@ -75,7 +75,7 @@ Typed Clojure prevents well-typed code from dereferencing \clj{nil}.
 models type-based control flow.
 In \clj{greetings}, a branch ensures \clj{repeat}
 is never passed \clj{nil}.
-%
+
 \begin{cljlisting}
 (*typed ann  greetings [Str (U nil Int) -> Str] typed*)
 (defn greetings [n i]
@@ -83,9 +83,9 @@ is never passed \clj{nil}.
 (*invoke greetings "Donald" 2 invoke*)  ;=> "Hello, hello, hello, Donald!" :- Str
 (*invoke greetings "Grace" nil invoke*) ;=> "Hello, Grace!"                :- Str
 \end{cljlisting}
-%
+
 Removing the branch is a static type error---\clj{repeat} cannot be passed \clj{nil}.
-%
+
 \begin{cljlisting}
 (*typed ann  greetings-bad [Str (U nil Int) -> Str] typed*)
 (defn greetings-bad [n i]           ; Expected Int, given (U nil Int)
@@ -173,11 +173,11 @@ instance, returning a nullable string.
 Typed Clojure can integrate with the Clojure compiler to avoid expensive reflective 
 calls like \clj{getParent}, however if a specific overload cannot be found based on the
 surrounding static context, a type error is thrown.
-%
+
 \begin{cljlisting}
 (fn [f] (*interop .getParent f interop*)) ; Type Error: Unresolved interop: getParent
 \end{cljlisting}
-%
+
 Function arguments default to \clj{Any}, which is similar to a union of all types. Ascribing
 a parameter type allows Typed Clojure to find a specific method.
 
@@ -199,17 +199,19 @@ a parameter type allows Typed Clojure to find a specific method.
 
 The conditional guards from dereferencing \clj{nil}, and---as before---removing 
 it is a static type error, as typed code could possibly dereference \clj{nil}.
+
 \begin{cljlisting}
 (defn parent-bad-in [f :- (U nil File)]
   (*interop .getParent f interop*)) ; Type Error: Cannot call instance method on nil.
 \end{cljlisting}
 
 Typed Clojure rejects programs that assume methods cannot return \clj{nil}.
-%
+
 \begin{cljlisting}
 (defn parent-bad-out [f :- File] :- Str
   (*interop .getParent f interop*)) ; Type Error: Expected Str, given (U nil Str).
 \end{cljlisting}
+
 Method targets can never be \clj{nil}.
 Typed Clojure also prevents passing \clj{nil} as Java method or
 constructor arguments by default---this restriction can be
@@ -260,11 +262,11 @@ This simple multimethod takes a keyword (\clj{Kw}) and says hello in different l
 When invoked, the arguments are first supplied to the dispatch function---\clj{identity}---yielding
 a \emph{dispatch value}. A method is then chosen
 based on the dispatch value, to which the arguments are then passed to return a value.
-%
+
 \begin{cljlisting}
 (*invoke map hi [*vec :en :fr :bocce vec*] invoke*) ;=> (*list "hello" "bonjour" "um..." list*)
 \end{cljlisting}
-%
+
 For example, 
 \clj{(*invoke hi :en invoke*)} evaluates to \clj{"hello"}---it executes
 the \clj{:en} method
@@ -311,10 +313,10 @@ an equality check for other values.
 (*invoke isa? :en :en invoke*)       ;=> true
 (*invoke isa? String Object invoke*) ;=> true
 \end{cljlisting}
-%
+
 The current dispatch value and---in turn---each method's associated dispatch value
 is supplied to \clj{isa?}. If exactly one method returns true, it is chosen.
-%
+
 For example,
 the call
   \clj{(*invoke pname "STAINS/JELLY" invoke*)}
@@ -428,7 +430,7 @@ are immutable hash-maps, typicially with keyword keys.
 %
 Keywords double as functions that
 look themselves up in a map, or return \clj{nil} if absent.
-%
+
 \begin{exmp}
 \begin{cljlisting}
 (def breakfast {*map :en "waffles" :fr "croissants" map*})
@@ -440,18 +442,18 @@ look themselves up in a map, or return \clj{nil} if absent.
 
 \emph{HMap types} describe the most common usages of
 keyword-keyed maps.
+
 \begin{cljlisting}
 breakfast ; :- (HMap :mandatory {:en Str, :fr Str}, :complete? true)
 \end{cljlisting}
+
 This says
 \clj{:en} and \clj{:fr} are known entries mapped to strings,
 and the map is fully specified---that is, no other entries exist---by \clj{:complete?} being \clj{true}.
-
+%
 HMap types default to partial specification.
 \clj{'\{:en Str :fr Str\}} abbreviates:
-\begin{cljlisting}
-(HMap :mandatory {:en Str, :fr Str})
-\end{cljlisting}
+\clj{(HMap :mandatory {:en Str, :fr Str})}.
 
 %
 \begin{exmp}
@@ -474,6 +476,7 @@ result from this code base).
 
 %\newpage
 
+\begin{minipage}{\linewidth}
 \begin{exmp}
 \begin{cljlisting}
 (*typed defalias RawKeyPair ; extra keys disallowed
@@ -488,6 +491,7 @@ result from this code base).
 \end{cljlisting}
 \label{example:circleci}
 \end{exmp}
+\end{minipage}
 %
 %(ann enc-keypair [RawKeyPair -> EncKeyPair])
 %(defn enc-keypair [{pk :priv :as kp}] ; original map is kp
@@ -495,10 +499,11 @@ result from this code base).
 %         :enc-priv (encrypt pk))) ; add encrypted private key
 %
 %\inputminted[firstline=10,lastline=22]{clojure}{code/demo/src/demo/key.clj}
+
 As \clj{EncKeyPair} is fully specified, we remove extra keys like \clj{:priv}
 via \clj{dissoc}, which returns a new map that is the first argument without the
 entry named by the second argument. Notice removing \clj{dissoc} causes a type error.
-%
+
 \begin{cljlisting}
 (defn enc-keypair-bad [kp] ; Type error: :priv disallowed
   (*invoke assoc kp :enc-priv (*invoke encrypt (*invoke :priv kp invoke*) invoke*) invoke*))
@@ -609,8 +614,7 @@ type.
 It's natural to dispatch on the \clj{class} of an instance---it's similarly
 natural to dispatch on a known entry like \clj{:Meal}.
 
-%\newpage
-
+\begin{minipage}{\linewidth}
 \begin{exmp}
 \begin{cljlisting}
 (*typed ann desserts [Order -> Int] typed*)
@@ -625,7 +629,8 @@ natural to dispatch on a known entry like \clj{:Meal}.
 \end{cljlisting}
 \label{example:desserts-on-meal}
 \end{exmp}
-%
+\end{minipage}
+
 The \clj{:combo} method is verified to only structurally recur
 on \clj{Order}s. This is achieved because we learn the argument \clj{o} must
 be of type
@@ -654,6 +659,7 @@ In practice, \clj{:lunch} and \clj{:dinner} meals will dispatch to the \clj{Long
 method, but Typed Clojure infers a slightly more general type due to the definition
 of \clj{:combo} meals.
 
+\begin{minipage}{\linewidth}
 \begin{exmp}
 \begin{cljlisting}
 (*typed ann desserts' [Order -> Int] typed*)
@@ -669,6 +675,7 @@ of \clj{:combo} meals.
 \end{cljlisting}
 \label{example:desserts-on-class}
 \end{exmp}
+\end{minipage}
 %
 %(desserts' {:Meal :combo 
 %            :meal1 {:Meal :lunch :desserts 1}
@@ -690,7 +697,11 @@ as present or absent.
 
 In the \clj{nil} method,
 \clj{(*invoke isa? (*invoke class (*invoke :desserts o invoke*) invoke*) nil invoke*)}
-must be true---which implies \clj{(*invoke class (*invoke :desserts o invoke*) invoke*)} is \clj{nil}.
+must be true---which implies
+\[
+\clj{(*invoke class (*invoke :desserts o invoke*) invoke*)}
+\]
+is \clj{nil}.
 %
 Since lookups on missing keys return \clj{nil}, either
 \begin{itemize}

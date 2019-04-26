@@ -15,6 +15,7 @@
 \usepackage{infer-common}
 \usepackage{symb-common}
 \usepackage{quals-common}
+\usepackage[final]{pdfpages} % to insert cv
 
 % related to typesetting theorems, moved here for compatibility with acmart.cls
 %\newcommand\@dotsep{12}
@@ -105,7 +106,7 @@
 \frontmatter %turns off chapter numbering and uses roman numerals for page numbers
 
 \begin{acknowledgements}
-  TODO
+  \input{acknowledgements}
 \end{acknowledgements}
 
 %\begin{dedication}
@@ -1178,5 +1179,11 @@ as indispensable in checking many common Clojure problems.
 
 \newpage
 \input{esop-appendix}
+
+% Force CV to appear in TOC, but with no page number
+\addtocontents{toc}{\bigskip Curriculum Vitae\par}
+
+\includepdf[pages=-]{ambrosebs-cv.pdf}
+
 
 \end{document}

@@ -2364,13 +2364,16 @@ then \judgementrewrite{}{\v{}}{\t{}}{\filterset{\thenprop{\propp{}}}{\elseprop{\
 \newcommand\consistentwithonlydef[1]{
 \begin{definition}[Consistent with] \label{#1:definition:consistentwith}
   \consistentwith{\v{}}{\openv{}}
-  iff $\forall$ \closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}} in \v{},
-  if \judgementselfrewrite{}{\closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}}}{\t{}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}}
+  iff 
+  \begin{itemize}
+    \item $\forall$ \closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}} in \v{},
+          if \judgementselfrewrite{}{\closure{\openv{1}}{\abs{\x{}}{\s{}}{\e{}}}}{\t{}}{\filterset{\topprop{}}{\botprop{}}}{\emptyobject{}},
   and $\forall$ \objectp{} in \t{}, either 
-  \objectp{} = \emptyobject{}, or 
-  \objectp{} = {\pth{\pathelemp{}}{\x{}}},
-  or 
-\inopenvnoeq{\openv{}}{\objectp{}} = {\inopenvnoeq{\openv{1}}{\objectp{}}}.
+      \objectp{} = \emptyobject{}, or 
+      \objectp{} = {\pth{\pathelemp{}}{\x{}}},
+      or 
+    \inopenvnoeq{\openv{}}{\objectp{}} = {\inopenvnoeq{\openv{1}}{\objectp{}}}.
+  \end{itemize}
 
 % In code like
 % (let [x true]

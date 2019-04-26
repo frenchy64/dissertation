@@ -695,11 +695,10 @@ for the internal language.
 Terms \ltiE{} and \ltiF{} range over 
 variables \ltivar{},
 explicitly typed polymorphic functions
-                         \ltifuntparaminterface{\ova{\ltitvar{}}}
-                                               {\ltiFn{\ltiT{}}{\ltiS{}}}
-                                               {\ltivar{}}
-                                               {\ltiE{}},
-(where the entire function is of type \ltiPoly{\ova{\ltitvar{}}}{\ltiFn{\ltiT{}}{\ltiS{}}}, its \emph{interface}),
+                         \ltifuntparamargtype{\ova{\ltitvar{}}}
+                                             {\ltivar{}}
+                                             {\ltiT{}}
+                                             {\ltiE{}},
 function application
 with explicit type arguments
 \ltiappinst{\ltiF{}}{\ova{\ltiR{}}}{\ltiE{}},
@@ -711,20 +710,19 @@ Types \ltiT{}, \ltiS{}, and \ltiR{} are
 type variables \ltitvar{},
 top type \ltiTop,
 bottom type \ltiBot,
-polymorphic types \ltiPoly{\ova{\ltitvar{}}}{\ltiT{}},
-record types \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}},
-and function types
-\ltiFn{\ltiT{}}{\ltiS{}}.
+polymorphic function types \ltiPolyFn{\ltiT{}}{\ova{\ltitvar{}}}{\ltiS{}}
+(where bound type variables are enumerated over the arrow),
+and
+record types \ltiRec{\ova{\hastype{\ltivar{}}{\ltiT{}}}}.
 Type environments \ltiEnv{}
 consist of 
 the empty environment
 \ltiEmptyEnv,
-variable types
-\hastype{\ltivar{}}{\ltiT{}},
-type variables 
-\ltitvar{},
-and concatenation
-\ltiEnvConcat{\ltiEnv{}}{\ltiEnvp{}}.
+concatenation of variable typings
+``\ltiEnvConcat{\ltiEnv{}}{\hastype{\ltivar{}}{\ltiT{}}}'',
+and 
+concatenation of type variables
+``\ltiEnvConcat{\ltiEnv{}}{\ltitvar{}}''.
 
 We assume different term and type variables are distinct,
 and treat terms and types that are equal up to alpha-renaming as equivalent.
