@@ -2569,14 +2569,17 @@ with our desired function type with
   \]
 
 
-  \[
-    \boxed{\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
+  \begin{mathpar}
+    % spread boxed over two lines for dissertation
+    \boxed{
+    \infer[]
+    {}
+    {\ltielimClosT{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiT{}}{\ltiTp{}}
+    \\
     \text{ Converts symbolic closures in \ltiT{} to explicit types in \ltiTp{},
     with seen symbolic closures \ova{\ltiClosureID{}}.}
-    }
-  \]
+    }}
 
-  \[
   \begin{array}{llll}
     \ltielimClosTalign{\ova{\ltiClosureID{}}}{\ltiClosureCache{}}{\ltiTop}{\ltiTop}
                       \\
@@ -2611,7 +2614,7 @@ with our desired function type with
                                    % this condition is checked in S-Closure and constraint system
                                    %, \ova{\ltitvar{}} \cap \ltitv{\ltiE{}} = \varnothing
   \end{array}
-  \]
+  \end{mathpar}
   \caption{Elaboration Metafunctions for SCL Terms and Types}
   \label{symbolic:figure:SC-language-elaboration}
 \end{figure}

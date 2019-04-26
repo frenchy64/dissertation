@@ -1908,6 +1908,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
       \begin{subcase}[T-GetHMapAbsent]
   \ep{} = {\getexp {\ep{m}} {\ep{k}}},
   \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}} {\e{k}},
+  \\
   \judgementrewrite {\propenv{}} {\ep{m}} {\HMapgeneric {\mandatory{}} {\absent}}
            {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
            {\object{m}}
@@ -1932,6 +1933,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
       \begin{subcase}[T-GetHMapPartialDefault]
   \ep{} = {\getexp {\ep{m}} {\ep{k}}},
   \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}}{\e{k}},
+  \\
  \judgementrewrite {\propenv{}} {\ep{m}} {\HMapp {\mandatory{}} {\absent}}
            {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
            {\object{m}}
@@ -1986,6 +1988,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
       \begin{subcase}[T-GetHMapAbsent]
   \ep{} = {\getexp {\ep{m}} {\ep{k}}},
   \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}} {\e{k}},
+  \\
   \judgementrewrite {\propenv{}} {\ep{m}} {\HMapgeneric {\mandatory{}} {\absent}}
            {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
            {\object{m}}
@@ -2035,6 +2038,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
       \begin{subcase}[T-GetHMapPartialDefault]
   \ep{} = {\getexp {\ep{m}} {\ep{k}}},
   \judgementtworewrite {\propenv{}} {\ep{k}} {\Value {k}}{\e{k}},
+  \\
  \judgementrewrite {\propenv{}} {\ep{m}} {\HMapp {\mandatory{}} {\absent}}
            {\filterset {\thenprop {\prop{m}}} {\elseprop {\prop{m}}}}
            {\object{m}}
@@ -2051,7 +2055,7 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
                           {\x{}}}{\object{}}
 
          Parts 1 and 2 are the same as the B-GetMissing subcase of T-GetHMapAbsent.
-         Part 3 is trivial as \t{} = \Top.
+         Part 3 is trivial, since \t{} = \Top.
       \end{subcase}
   \end{itemize}
 \end{case}

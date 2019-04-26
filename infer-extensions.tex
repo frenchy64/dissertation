@@ -317,6 +317,9 @@ The following generated specs
 correspond to the first \clj{Op} case
 of \figref{infer:fig:cljs}
 (lines \ref{infer:listing:cljs:Op:op:bindingStart}-\ref{infer:listing:cljs:Op:op:bindingEnd}).
+
+
+\begin{minipage}{\linewidth}%added minipage for dissertation
 \begin{cljlistingnumbered}
   (defmulti op-multi-spec :op) ;dispatch on :op key
   (defmethod op-multi-spec :binding ;match :binding
@@ -330,6 +333,7 @@ of \figref{infer:fig:cljs}
   ; emit's first argument :ast has spec ::Op
   (s/fdef emit :args (s/cat :ast ::Op) :ret nil?)
 \end{cljlistingnumbered}
+\end{minipage}
 
 
 %However, there are several non-trivial details to manage.
