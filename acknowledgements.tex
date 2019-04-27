@@ -2,7 +2,7 @@ The moment I touched down in Bloomington from Perth, Western Australia
 to start graduate school at Indiana University,
 I knew it would be my home for at least the next 5 years.
 That is, until my confused cab driver informed me with a gasp
-(just as I was saying ``Indiana Un...'') that I had in fact arrived one
+(just as I was saying ``Indiana Un\ldots'') that I had in fact arrived one
 state over from my intended destination, in Bloomington, \emph{Illinois}.
 The last such case was an 80-year-old woman 6 months prior (this happens pretty often apparently)
 and she took a cab ride over to fix it, and so, with the airport closed,
@@ -17,14 +17,14 @@ Reconnecting with Dan Friedman and Will Byrd in Bloomington after they suggested
 I attend graduate school there three years earlier at Clojure/conj 2011 was surreal.
 Will has been a consistent friend and inspiration, and his commitement
 to miniKanren is a model for my work on Typed Clojure.
-Jason Hemann, Cameron \& Rebecca Swords, Jaime Guerrero, Praveen Narayanan, Aaron Hsu,
-Mike Vitousek, and Tori Lewis all embraced me and help me find my feet. Thank you
-for your continued friendship and generosity.
+Jason Hemann, Cameron \& Rebecca Swords, Jaime Guerrero, 
+and Tori Lewis all embraced me and help me find my feet. Thank you
+for your friendship over the years.
 
 After our student cohort returned from a memorable POPL'15
 in Mumbai, India, we brought back a taste for set-theoretic
 types. Conversations seemed to periodically end with ``unfortunately, it's written in French.''
-Andrew M. Kent and I spent many afternoons deciphering 
+Andrew M.~Kent and I spent many afternoons deciphering 
 terse equations from Giuseppe Castagna papers and
 Zhiwu Xu's awe-inspiring dissertation.
 While I couldn't quite manage to apply their ideas to Typed Clojure,
@@ -34,14 +34,14 @@ set-theoretic types until he could explain it
 in his own style and, finally, apply it as a new theoretical foundation
 to Typed Racket. I remember how daunting such a task felt, and
 I have been privileged to work closely with such a dedicated
-researcher. Andrew has been a close friend since we started
-at IU within a semester of each other under Sam. We've done most things
-in graduate school together, from skipping class to float down a river in Eugene, Oregon,
+researcher.
+Throughout graduate school at IU, Andrew and I have done most things together,
+from skipping class to float down a river in Eugene,~Oregon,
 to finishing our dissertations in the same week.
 Andrew and his family Carrie, Charlotte, Harrison, Sydney, and Dwight
 quickly acquainted this Aussie with many American traditions like Thanksgiving,
-(white) Christmases, Super Bowls, and generally good warm company. Thank you
-for everything.
+(white) Christmas, Super Bowl, and generally good warm company. I don't know how I would
+have done it without the Kents.
 
 I am grateful for everyone who has helped me along my journey
 with Typed Clojure, especially the hundreds of
@@ -49,7 +49,7 @@ contributors to my crowdfunding campaigns, members of the
 Clojure community, and those that invited or attended my talks.
 
 To all those that tried Typed Clojure and reported on their experience:
-first, I'm sorry; second, thank you; third, bear with me.
+I'm sorry. And thank you.
 Of them, the developers at CircleCI shaped this dissertation in two ways.
 Having access to their large Typed Clojure
 codebase was an invaluable opportunity as a researcher, and enabled the
@@ -81,29 +81,36 @@ but preserved my bizarre something-or-other ideas (I can tell, because
 I find my ideas hilarious and this dissertation is a hoot).
 Sam guided me on how to systematically squeeze out all the magic of an idea---or, perhaps
 equivalently, turn bumbling feelings into facts---and crucially how to know \emph{when} you'd
-want to do that.
+want to do that (it's ok to indulge in uncertainty for a time).
 
 I remember sharing my latest bumblings with Mike Vollmer at the whiteboard in Lindley Hall
 on how to summarize nested cons cells by ``rolling them up'' into an equi-recursive type.
 We both poked at the problem for a few minutes and agreed there was something cool there,
 but it was mostly just a feeling (well, to me at least, Mike might have already solved it).
-Over the next few months, weekly IU Gradual Typing meetings
-gave me room to flesh out some vague ideas of viewing types as graphs and ``squashing''
-them into recursive types.
-Jeremy Siek always gave me his attention during these meetings,
-alternating between poignantly sassy remarks that helped expand my point of view
-(``another name for a subgraph is...a graph!'')
-and suggesting useful references or comparisons to existing systems.
+Mike has been a supporter of mine since before we met, and I look back fondly on our
+many conversations, our bonkers two-shy-introverts-navigating-Mumbai experience,
+and the many terrible movies we shared.
+Weekly IU Gradual Typing meetings
+gave me room to elaborate on that initial conversation, manifesting into
+viewing types as graphs and ``squashing'' them into recursive types---thanks
+Matteo Cimini, Rajan Walia, Spenser Bauman, Jeremy Siek, Mike Vitousek, Deyaaeldeen Almahallawi,
+Caner Derici, Sarah Spall, and David Christiansen
+for your attention and suggestions.
 
 The idea of mixing symbolic execution with type checking was the result of my refusal
 to accept that programs like \clj{(map (fn [x] x) [1 2 3])} required a type annotation
 on \clj{x} under local type inference
 (``but the type is \emph{right there}!'', I repeated to Sam for years).
+Our talk series PL Wonks was always eager to hear my latest work,
+thanks to regular attendees and speakers Aaron Hsu, Ryan Scott, Kyle Carter, 
+Vikraman Choudhury, Matthew Heimerdinger, Paulette Koronkevich, Praveen Narayanan,
+and
+Chaitanya Koparkar for your presense and attention.
 Once Andre Kuhlenschmidt, one of the most humble and meticulous computer scientists
 I know, remarked (in a packed room) ``these rules make complete sense'' 
 about my solution during my final PL Wonks talk,
 it sparked a bout of confidence that carried
-me through the final weeks of my year-long dissertation grind.
+me through the final weeks before my defense.
 
 Thanks to my committee Ryan, Larry, and Ken for your feedback, and for being
 lots of fun to present to.
@@ -113,10 +120,9 @@ and to finally realize that Ken's neverending quest to ask the right questions
 is a superpower.
 
 Even though I'd like to think I'd never let Andrew graduate before me,
-it was my wife Marcela that inspired my goal to complete my graduate career in
-under 5 years, much faster than I'd dreamed possible.
-While our plans changed for various reasons, we decided to stick to
-finishing my Quals, Proposal, Dissertation, and Defense in 18 months.
-Her belief in my ability helped cement my resolve, and her demands
-to be referred to as Mrs. Typed Clojure with a matching cap never
+it was my wife Marcela that inspired me to wrap up my graduate career.
+While our other plans changed for various reasons, we decided to stick to
+my ambitious plan---it has been a tremendous grind and it's hard to believe
+it's over.  Her belief in my ability helped cement my resolve, and her demands
+to be referred to as Mrs.~Typed Clojure with a matching cap never
 fails to make me blush.
