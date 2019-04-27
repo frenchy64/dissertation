@@ -1,0 +1,61 @@
+
+
+I am grateful for everyone who has helped me continue
+with Typed Clojure, especially the hundreds of
+contributors to my crowdfunding campaigns, members of the
+Clojure community, those that invited or attended my talks.
+
+To all those that tried Typed Clojure and reported on their experience: I'm sorry, 
+and your efforts were not in vain.
+Of them, the developers at CircleCI shaped this dissertation in two ways.
+Having access to their large Typed Clojure
+codebase was an invaluable opportunity as a researcher, and enabled the
+discussion of Typed Clojure ``in practice.''
+Later, I was informed of CircleCI's decision to stop using Typed Clojure
+in a thoughtful email from their engineering team.
+I enthusiastically requested a public post-mortem (generously left
+to my discretion), and so
+Marc O'Morain---then an active Typed Clojure user---blogged \emph{Why we're no longer using Core.typed}
+on behalf of his team.
+It blew up, making frontpage news on tech sites for days.
+Many of my Clojure buddies reached out with messages of solidarity, I particularly remember 
+one from Chas Emerick who's always looked out for me.
+While I was stunned at this sequence of events, it felt right.
+The post summarized my own frustrations with Typed Clojure: Clojure
+deserves an amazing type system, and we're just not there yet.
+Interest in Typed Clojure ground to a halt,
+and all that remained was my resolve to address everything in that blog
+post.
+
+The second half of graduate school gave me the structure and freedom to
+realize the foundation of that vision. Having a trusting and encouraging advisor
+gave me the confidence to try new directions that felt distinctly my own.
+Sam directed my ideas and giddy prototypes into actionable research,
+but preserved my bizarre something-or-other ideas (I can tell, because
+I find my ideas hilarious and this dissertation is a hoot).
+Sam guided me on how to systematically squeeze out all the magic of an idea---or, perhaps
+equivalently, turn bumbling feelings into cold, dead facts---and crucially how to know \emph{when} you'd
+want to do that.
+
+I remember sharing my latest bumblings with Mike Vollmer at the whiteboard in Lindley Hall
+on how to summarize nested cons cells by ``rolling them up'' into an equi-recursive type.
+We both poked at the problem for a few minutes and agreed there was something cool there,
+but it was mostly just a feeling (well, to me at least, Mike might have already solved it).
+Over the next few months, weekly IU Gradual Typing meetings
+gave me room to flesh out some vague ideas of viewing types as graphs and ``squashing''
+them into recursive types.
+Jeremy Siek always gave me his attention during these meetings,
+alternating between poignantly sassy remarks that helped expand my point of view
+(``another name for a subgraph is...a graph!'')
+and suggesting useful references or comparisons to existing systems.
+
+The idea of mixing symbolic execution with type checking came from a refusal
+to accept that programs like \clj{(map (fn [x] x) [1 2 3])} required a type annotation
+on \clj{x} under local type inference
+(``but the type is \emph{right there}!'', I persistently repeated to Sam for years).
+Once Andre Kuhlenschmidt, one of the most humble and meticulous computer scientists
+I know, remarked (in a packed room) ``these rules make complete sense'' 
+during the question-time of my final PL Wonks talk on symbolic closures,
+it sparked a final bout of confidence that carried
+me through the final weeks of my year-long dissertation grind.
+
