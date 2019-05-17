@@ -1,0 +1,28 @@
+% redefine \part to not make a new page
+%  Approach: create \@ambrosepart from \@part and remove formatting from both
+%            (left \@spart alone, so \part* isn't changed)
+\renewcommand\part{\cleardoublepage %\thispagestyle{empty}%
+  %\null\vfil%
+  \markboth{}{}
+  \secdef\@ambrosepart\@spart}
+
+\def\@ambrosepart[#1]#2{%
+  \ifnum \c@secnumdepth >-2\relax \refstepcounter{part}%
+    \addcontentsline{toc}{part}{\partname\ \thepart.
+        \protect\enspace\protect\noindent#1}%
+  \else
+    \addcontentsline{toc}{part}{#1}\fi
+  \begingroup\centering
+  \ifnum \c@secnumdepth >-2\relax
+       {\fontsize{\@xviipt}{22}\bfseries
+         \partname\ \thepart} \vskip 20\p@ \fi
+  \fontsize{\@xxpt}{25}\bfseries
+      #1\vfil\vfil\endgroup%
+      %\newpage\thispagestyle{empty}%
+      % vertical space for chapter heading (doesn't seem to work very consistently)
+      \vskip 20\p@
+      }
+
+% also provide a way to start a chapter without a page break so the first
+% chapter of a part is on the same page as the part title
+\newcommand\chapternobreak[1]{{\let\clearpage\relax \chapter{#1}}}

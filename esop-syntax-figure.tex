@@ -1,4 +1,4 @@
-\begin{figure*}
+\begin{figure}[h]
 $$
 \begin{altgrammar}
   \expd{}, \e{} &::=& \x{}
@@ -42,7 +42,7 @@ $$
   \MultimethodExp{}     &::=& \multimethodexpsyntax{}
                 &\mbox{%Immutable First-Class 
                 Multimethods}
-                      \\\\
+                      \\%\\ save space...
   \s{}, \t{}    &::=& \Top 
                       \alt \class{}
                       \alt {\Value \singletonmeta{}} 
@@ -59,7 +59,7 @@ $$
                 &\mbox{Types} \\
                 \auxhmapsyntax{}\\
   \singletonallsyntax{}
-                \\ \\
+                \\% \\ save space...
                 \openvsyntax{}\\\\
 
                 %\tatypesyntax{}\\\\
@@ -87,9 +87,9 @@ $$
 \end{altgrammar}
 $$
 \caption{Syntax of Terms, Types, Propositions, and Objects}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}
+\begin{figure}
 $$
 \begin{array}{lllr}
   \Nil &\equiv& {\ValueNil}\\
@@ -98,9 +98,9 @@ $$
 \end{array}
 $$
 \caption{Type abbreviations}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}
+\begin{figure}
 $$
 \begin{array}{lllr}
   \judgementtwo{\propenv{}}{\e{}}{\t{}} &\equiv& 
@@ -119,4 +119,4 @@ $$
 \end{array}
 $$
 \caption{Judgment abbreviations}
-\end{figure*}
+\end{figure}

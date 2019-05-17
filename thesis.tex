@@ -11,6 +11,7 @@
 \usepackage{savesym}
 \savesymbol{r}
 \savesymbol{AA}
+\usepackage{thesis-format}
 \usepackage{esop-common}
 \usepackage{infer-common}
 \usepackage{symb-common}
@@ -213,7 +214,7 @@ Finally, \partref{part:related-future-work} presents the related work and future
 \part{Automatic Annotations for Typed Clojure}
 \label{part:autoann}
 
-\chapter{Abstract}
+\chapternobreak{Abstract}
 \input{infer-abstract}
 
 \input{infer-intro}
@@ -1177,8 +1178,7 @@ as indispensable in checking many common Clojure problems.
 \printbibliography
 
 
-\newpage
-\input{esop-appendix}
+\include{esop-appendix} % include for newpage
 
 % Force CV to appear in TOC, but with no page number
 \addtocontents{toc}{\bigskip Curriculum Vitae\par}

@@ -18,10 +18,13 @@ o	Table of Contents
 
 [x] At the end of the abstract, add your committee members' names/post-nominal letters (like on your acceptance page). It is fine if this makes the abstract two pages long. 
 
-[ ] Vertically center the content of the dedication page. The page content is currently horizontally centered (centered between the right and left sides of the page) but should also be vertically centered (centered between the top and bottom edges of the page). 
+[x](Note: I don't have a dedication page ... -Ambrose)
+Vertically center the content of the dedication page. The page content is currently horizontally centered (centered between the right and left sides of the page) but should also be vertically centered (centered between the top and bottom edges of the page). 
 
 [ ] Remove pages that are intro pages for sections. Intro pages are those that have only the chapter/section title on the page. Instead, place this information on the first page of the actual page of the chapter/section. Adjust page numbers on the table of contents as needed as a result of this change. 
 
-[ ] Begin the actual numbering with the acceptance page as page ii, and continue with lowercase Roman numerals until the start of the actual body of the thesis. That page, whether part of your full introduction or of your first chapter, should be numbered using the Arabic numeral 1, and every page thereafter should be numbered consecutively until you reach the vita page. Currently not all pages have a physical page number present -- please correct this so that the appropriate pages have pagination. 
+[ ] Begin the actual numbering with the acceptance page as page ii, and continue with lowercase Roman numerals until the start of the actual body of the thesis. That page, whether part of your full introduction or of your first chapter, should be numbered using the Arabic numeral 1, and every page thereafter should be numbered consecutively until you reach the vita page.
+
+[ ] Currently not all pages have a physical page number present -- please correct this so that the appropriate pages have pagination. 
 
 [ ] All four sides of each page of your submission must have, at a minimum, a one inch margin. The following pages definitely have content extending into one or more margins and need to be corrected but you should check every page to make sure the margin space is correct: 84, 85, 91, 94, 103. 
