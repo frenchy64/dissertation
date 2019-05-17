@@ -1316,11 +1316,11 @@ $
 $
 (see \secref{sec:isaformal}).
 Since \t{} = \Keyword{}, we check the method body with
-$
+$$
 \judgement{{\isprop{\Keyword}{\x{}}},{\isprop {\Value{\makekw{en}}}{\x{}}}}
   {\makestr{hello}}
-  {\String}{\filterset{\topprop{}}{\topprop{}}}{\emptyobject{}}
-$.
+  {\String}{\filterset{\topprop{}}{\topprop{}}}{\emptyobject{}}\text{.}
+$$
 Finally from the interface type \t{m}, we know \thenprop{\prop{}} = \elseprop{\prop{}} = \topprop{},
 and \object{} = \emptyobject{}, which also agrees with the method body, above.
 Notice the overall type of a \defmethodliteral{} is the same as its first subexpression \e{m}.

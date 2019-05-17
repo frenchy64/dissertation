@@ -393,7 +393,7 @@ We believe that Clojure programmers will enjoy the ability to rapidly recheck
 small parts of their code base, just like they are used to in untyped Clojure.
 
 Now, we discuss the merits of collection at evaluation-time over expansion-time.
-We avoid expansion-time for side-effects because Clojure code can be
+We avoid side-effects at expansion-time because Clojure code can be
 evaluated in two ways: from the original source code in on-the-fly compilation mode, and 
 from precompiled JVM bytecode in ahead-of-time compilation mode.
 In the latter, code is expanded ahead-of-time (potentially in a different environment)

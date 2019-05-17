@@ -1,5 +1,5 @@
-%\documentclass[11pt]{iuthesis}
-\documentclass[11pt,final]{iuthesis}
+\documentclass[11pt]{iuthesis}
+%\documentclass[11pt,final]{iuthesis}
 
 %TODO use something like https://bitbucket.org/amiede/classicthesis/wiki/Home
 
@@ -38,6 +38,7 @@
 %  citecolor=black,
 %  urlcolor=black,
 %}
+
 
 \title{Typed Clojure in Theory and Practice}
 \author{Ambrose Bonnaire-Sergeant}
@@ -81,6 +82,11 @@
 \makeatother
 
 \usepackage[backend=bibtex]{biblatex}
+% https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
+% wrap url's without spilling the margins
+\usepackage{url}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
 \addbibresource{bibliography.bib}
 
 %\addtolength{\textwidth}{.5in}
@@ -404,7 +410,7 @@ allows us to check more specific requirements later.
 Of course, to fully check this example, it requires that we specify how type argument synthesis works with
 symbolic closures, but it at least illustrates how symbolic closures relate to the rest of the system.
 
-Spine-local type inference~\cite{DBLP:journals/corr/abs-1805-10383}
+Spine-local type inference~\cite{Jenkins:2018:STI:3310232.3310233}
 explores Local Type Inference in the context of System F (without subtyping).
 They present a greedy type argument synthesis algorithm
 which more aggressively propagates type information
@@ -1183,7 +1189,7 @@ as indispensable in checking many common Clojure problems.
 % Force CV to appear in TOC, but with no page number
 \addtocontents{toc}{\bigskip Curriculum Vitae\par}
 
-\includepdf[pages=-]{ambrosebs-cv.pdf}
+\includepdf[pages=-]{cv/ambrosebs-cv.pdf}
 
 
 \end{document}

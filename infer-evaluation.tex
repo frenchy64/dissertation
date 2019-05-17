@@ -738,7 +738,7 @@ entry from the singleton vector \clj{'[NameTypeMap]}.
 Two cases were missing from \clj{E}.
 The manual changes are highlighted (\clj{P} required no changes with five cases).
 
-\begin{minipage}[t]{0.5\linewidth}
+\begin{minipage}[t]{0.54\linewidth}
 \begin{cljlisting}
 (defalias T
   (U (*@\colorbox{pink}{'\{:T ':not, :type T\}}@*)
@@ -753,16 +753,18 @@ The manual changes are highlighted (\clj{P} required no changes with five cases)
 \end{cljlisting}
 \end{minipage}
 %
-\begin{minipage}[t]{0.5\linewidth}
+\begin{minipage}[t]{0.4\linewidth}
 \begin{cljlisting}
 (defalias E
   (U (*@\colorbox{pink}{'\{:E ':add1\}}@*)
      (*@\colorbox{pink}{'\{:E ':n?\}}@*)
-     '{:E ':app, :args (Vec E), :fun E}
+     '{:E ':app, :args (Vec E),
+       :fun E}
      '{:E ':false}
-     '{:E ':if, :else E, :test E, :then E}
-     '{:E ':lambda, :arg Sym, :arg-type T,
-       :body E}
+     '{:E ':if, :else E,
+       :test E, :then E}
+     '{:E ':lambda, :arg Sym,
+       :arg-type T, :body E}
      '{:E ':var, :name Sym}))
 \end{cljlisting}
 \end{minipage}

@@ -660,22 +660,24 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
     \\\\
     \squash : \atenv{}, \ova{\alias{}}, \ova{\alias{}} \rightarrow \atenv{}\\
     \squash(\atenv{}, [], \textsf{d}) = \atenv{}\\
-    \squash(\atenv{}, \alias{1} :: \textsf{w}, \textsf{d}) = 
-      \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{1}\})\\
+    \squash(\atenv{}, \alias{1} :: \textsf{w}, \textsf{d}) = \\
     \begin{array}{lllll}
+      \squash(\atenvp{}, \textsf{w} \cup \textsf{as}, \textsf{d} \cup \{\alias{1}\})\\
       \begin{array}{@{}llll}
-        \text{where }
-        &\textsf{as} = \aliasesin{}(\atenv{}[\alias{1}]) \setminus \textsf{d}\\
-        &\textsf{ap} = \textsf{d} \setminus \{\alias{1}\}\\
-        &\begin{array}{@{}llll}
-           \textsf{f}(\atenv{}, \alias{2}) = 
-             &\textsf{if } \neg \shouldmergeOp{}(\ova{\fullyresolve{}(\atenv{}, \alias{})}),\\
-             &\textsf{then } \atenv{}\\
-             &\textsf{else } \mergealiases{}(\atenv{}, \ova{\alias{i}})\\
-        \end{array}\\
-        &\begin{array}{@{}llll}
-          \atenvp{} = &\textsf{if } \alias{} \in \textsf{d} \textsf{, then } \atenv{} \text{,}\\
-          &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
+        \text{where}\\
+        \begin{array}{@{}llll}
+          &\textsf{as} = \aliasesin{}(\atenv{}[\alias{1}]) \setminus \textsf{d}\\
+          &\textsf{ap} = \textsf{d} \setminus \{\alias{1}\}\\
+          &\begin{array}{@{}llll}
+             \textsf{f}(\atenv{}, \alias{2}) = 
+               &\textsf{if } \neg \shouldmergeOp{}(\ova{\fullyresolve{}(\atenv{}, \alias{})}),\\
+               &\textsf{then } \atenv{}\\
+               &\textsf{else } \mergealiases{}(\atenv{}, \ova{\alias{i}})\\
+          \end{array}\\
+          &\begin{array}{@{}llll}
+            \atenvp{} = &\textsf{if } \alias{} \in \textsf{d} \textsf{, then } \atenv{} \text{,}\\
+            &\textsf{else } \textsf{fold}(\textsf{f}, \atenv{}, \textsf{ap} \cup \textsf{as})
+          \end{array}
         \end{array}
       \end{array}
     \end{array}
@@ -719,13 +721,16 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
     \aliassinglehmap{} : \atenv{} \rightarrow \atenv{}\\
     \aliassinglehmap{}(\atenv{}) = \textsf{fold}(\textsf{f}, \atenvp{}, \atenvp{}[\aenv{}])\\
     \begin{array}{llll}
-      \text{where } &\atenvp{} = \textsf{fold}(\singlehmap{}, \atenv{}, \atenv{}[\tenv{}])\\
+      \text{where} \\
+      \begin{array}{llll}
+                    &\atenvp{} = \textsf{fold}(\singlehmap{}, \atenv{}, \atenv{}[\tenv{}])\\
                     &\textsf{f}(\atenv{0}, \t{}(\ova{\s{}}^n)) = (\atenv{n}, \t{}(\sp{})) \text{, if } \t{} = \HMaptwo{\HMapreq{}}{\HMapopt{}}\\
                     &\begin{array}{lllll}
                       \text{where } \ova{(\atenv{i}, \s{i}) = \singlehmap{}(\atenv{i-1}, \s{i})}
                      \end{array}
                     \\
                     &\textsf{f}(\atenv{}, \t{}) = \singlehmap{}(\atenv{}, \t{}) \text{, otherwise}
+      \end{array}
     \end{array}
     \\\\
     \singlehmap{} : \forall \alpha. \atenv{}, (\alpha, \t{}) \rightarrow \atenv{}\\
@@ -747,7 +752,9 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
                                      \ova{\alias{}} = \textsf{remDiffTag}(\textsf{similarReq}(\ova{\kw{}}))
                                      ]\\
     \begin{array}{lllll}
-      \text{where} &\textsf{r} = \{(\ova{\kw{}}, \ova{\alias{}}) | \HMaptwo{\{\ova{\kw{}\ \t{}}\}}{\HMapopt{}} \in \textsf{rng}(\atenv{}[\aenv{}]),
+      \text{where} \\
+      \begin{array}{lllll}
+                   &\textsf{r} = \{(\ova{\kw{}}, \ova{\alias{}}) | \HMaptwo{\{\ova{\kw{}\ \t{}}\}}{\HMapopt{}} \in \textsf{rng}(\atenv{}[\aenv{}]),
                                                                               \ova{\alias{}} = \textsf{matchingReq}(\ova{\kw{}})\}\\
                    &\textsf{matchingReq}(\ova{\kw{}}) = [\alias{} | (\alias{}, \HMaptwo{\HMapreq{}}{\HMapopt{}}) \in \atenv{}]\\
                    &\textsf{similarReq}(\ova{\kw{}}) = [\alias{} | \ova{\kwp{}}^n \subseteq \ova{\kw{}}^m,
@@ -760,6 +767,7 @@ into a type environment. Via $\generatetenv{}(\res{})$, we start to trace
                                                                        \text{ then }
                                                                        \ova{\kwp{} = \kwpp{}}
                                                                       ]
+      \end{array}
     \end{array}
   \end{array}
 \end{mathpar}

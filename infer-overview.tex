@@ -272,8 +272,9 @@ between the remaining aliases in the middle graph:
 In the right-most graph, the aliases \clj{op-node} and \clj{op-leaf-node} are merged for similar reasons:
 
 \begin{cljlisting}
-(defalias op-leaf-node (U '{:op ':leaf, :val Int}
-                          '{:op ':node, :left op-leaf-node, :right op-leaf-node}))
+(defalias op-leaf-node
+  (U '{:op ':leaf, :val Int}
+     '{:op ':node, :left op-leaf-node, :right op-leaf-node}))
 (ann nodes [op-leaf-node -> Int])
 \end{cljlisting}
 

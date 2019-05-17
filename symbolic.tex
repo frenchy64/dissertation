@@ -128,7 +128,9 @@ Typed Clojure offers several
 wrappers for common functions where this problem
 is common---the previous example might use the ``typed''
 constructor
+\[
 \clj{(t/atom :- (U nil Int), nil)}.
+\]
 However, the ``hard-to-synthesize arguments'' problem
 is a deeper and more pervasive issue when checking Clojure code.
 We don't have the luxury, desire, nor do we think it would be particularly
@@ -515,7 +517,7 @@ in an even more convoluted way with \clj{app-inc}---by accepting a function
 
 Importantly, \clj{app-inc}'s first argument has a function
 type to the left on an arrow, in particular \clj{[Int -> Int]}.
-Under these conditions, subtyping asserts that ``the symbolic
+Under these conditions, subtyping asserts ``the symbolic
 closure \clj{(fn [g y] (g y))} is a subtype of \clj{[[Int -> Int] Int -> Int]}''
 by assuming \clj{g : [Int -> Int]} and \clj{y : Int} and
 verifying that \clj{(g y)} checks as \clj{Int}---which is almost immediate by
@@ -1257,13 +1259,14 @@ For convienience, we use threaded environments \ltiCombinedThreadedEnv{} to stan
 the pair \ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}.
 
 We now describe the organization of type inference.
-The SCL typing judgment
+The typing judgment for SCL is written
     \ltitSstkjudgement{\ltimakeCombinedThreadedEnv{\ltiFuel{}}{\ltiClosureCache{}}}
                       {\ltiEnv{}}
                       {\ltiE{}}
                       {\ltiT{}}
                       {\ltimakeCombinedThreadedEnv{\ltiFuelp{}}{\ltiClosureCachep{}}}
                       {\ltiEp{}}
+                      and
 says with initial fuel \ltiFuel{} and elaboration cache \ltiClosureCache{},
 external term \ltiE{} is of SCL type \ltiT{}
 in SCL context \ltiEnv{}, elaborating to SCL term \ltiEp{} with 

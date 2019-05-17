@@ -1,0 +1,424 @@
+% LaTeX source of my resume
+% =========================
+
+% Commented for easy reuse... ;)
+
+% See the `README.md` file for more info.
+
+% This file is licensed under the CC-NC-ND Creative Commons license.
+
+
+% Start a document with the here given default font size and paper size.
+\documentclass[11pt]{article}
+
+% Set the page margins.
+\usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
+
+% Setup the language.
+\usepackage[english]{babel}
+\hyphenation{Some-long-word}
+
+% Makes resume-specific commands available.
+\usepackage{resume}
+
+\begin{document}  % begin the content of the document
+\sloppy  % this to relax whitespacing in favour of straight margins
+
+
+% title on top of the document
+\maintitle{CV: Ambrose Bonnaire-Sergeant}{Last update on \today}
+
+\nobreakvspace{0.3em}  % add some page break averse vertical spacing
+
+% \noindent prevents paragraph's first lines from indenting
+% \mbox is used to obfuscate the email address
+% \sbull is a spaced bullet
+% \href well..
+% \\ breaks the line into a new paragraph
+\noindent\href{mailto:abonnairesergeant.at.gmail.dot.com}{abonnairesergeant\mbox{}[at]\mbox{}gmail.com}\sbull
+%\textsmaller{+}31.646469087\sbull
+\href{http://ambrosebs.com/}{ambrosebs.com}\sbull
+\href{https://github.com/frenchy64}{github.com/frenchy64}
+%\\
+%Luddy Hall, Room 3025\sbull
+%700 N Woodlawn Ave \sbull
+%Bloomington \sbull 
+%IN 47408 \sbull
+%USA
+
+
+%\spacedhrule{0.9em}{-0.4em}  % a horizontal line with some vertical spacing before and after
+
+\roottitle{Education}
+
+\headedsection
+  {\href{http://www.indiana.edu}{Indiana University Bloomington}}
+  {\textsc{Bloomington, Indiana}} {%
+  \headedsubsection
+    {Ph.D. in Computer Science 
+    %(candidate)
+    }
+    {%Fall 
+    2014 --- 
+   % Spring 
+    2019 %(expected)
+    }
+    {}
+  \headedsubsection
+    {Master of Science in Computer Science}
+    {2014 ---
+    2017}
+    {}
+}
+
+\headedsection
+  {\href{http://www.uwa.edu.au}{University of Western Australia}}
+  {\textsc{Western Australia, Australia}} {%
+  \headedsubsection
+    {BSc in Computer Science with Honours}
+    {2008 ---
+    2013}
+    {}
+}
+
+\roottitle{Employment}
+
+\headedsection
+  {Software Developer (Remote Intern)}
+  {\textsc{Sparkfund, }}
+  {%
+      {\textit{May 2017 --- Febuary 2018}}
+      {\bodytext{Studied verification techniques used in practice (Clojure).
+      \begin{itemize}
+        \item enhanced interactive pricing estimation tools using ClojureScript and om.next
+        \item produced internal pricing reports in collaboration with sales team using Clojure and Google Sheets
+        \item parallelized the CI builds of several projects with a migration to CircleCI 2.0 Workflows
+        \item completed company-wide upgrade to a version of Clojure with breaking changes
+        %\item 
+          %and participated in daily standup, pair programming,
+          %weekly 1-1's with managers,
+          %and monthly planning meetings
+        %\item worked remotely
+        %\item used Clojure, ClojureScript, om.next, Google Sheets, Salesforce, Asana, Boot
+      \end{itemize}
+      }}
+  }
+
+\headedsection
+  {{Research Assistant / Assistant Instructor}}
+  {\textsc{Indiana University Bloomington, }} {%
+    {\textit{Fall 2014---Spring 2019}}
+    {
+    \begin{itemize}
+      \item published peer reviewed papers about Typed Clojure and clojure.spec
+      \item taught undergraduates introductory programming based on How To Design Programs (C211) 
+        and introductory data structures (C343)
+    \end{itemize}
+    }
+}
+
+%\headedsection
+%  {{Research Assistant}}
+%  {\textsc{Indiana University Bloomington}} {%
+%  \headedsubsection
+%    {%Advisor: Sam Tobin-Hochstadt
+%    }
+%    { Fall 2014---Summer 2015, Spring 2016---Fall 2016, 
+%    Summer 2018 --- Fall 2018, Spring 2019}
+%    {\bodytext{
+%    \begin{itemize}
+%      \item Produced papers about Typed Clojure and clojure.spec.
+%    \end{itemize}
+%    }
+%     %\bodytext{
+%     %   We have worked to formalise and publish a paper on the fundamentals
+%     %   of Typed Clojure, and worked towards extending Typed Clojure with gradual typing.
+%     %   More recently, we developed a
+%     %   framework to infer type annotations for optional type systems
+%     %   based on \href{http://ambrosebs.com/auto-ann.html}{runtime instrumentation}.
+%     % }
+%    }
+%}
+
+%\headedsection
+%  {{Assistant Instructor}}
+%  {\textsc{Indiana University Bloomington}} {%
+%  \headedsubsection
+%    {Instructors: Sam Tobin-Hochstadt, Suzanne Menzel, Chung-chieh Shan}
+%    {F.~2015, F.~2016---Sp.~2018}
+%    {
+%    \bodytext{Taught undergraduates C211, an introductory programming
+%      language course based on How To Design Programs.
+%			Also C343, introductory data structures.
+%    Conducted labs and office hours.
+%    }
+%    }
+%}
+
+\headedsection
+  {Analyst Programmer}
+  {\textsc{University of Western Australia, }}
+  {%
+    {\textit{2010 --- 2011}}
+    {
+      \begin{itemize}
+        \item conducted interviews of library staff to identify
+          the format and location of research data
+        \item set up VIVO semantic web software, utilizing Java, XSLT,
+          bash, and Linux
+      \end{itemize}
+    }
+  }
+
+\roottitle{Open Source Work}
+
+\headedsection
+  {Crowdfunded Open Source work}
+  {\textsc{Perth, Western Australia}} {%
+
+  \headedsubsection
+  {\href{https://www.indiegogo.com/projects/typed-clojure-clojure-spec-auto-annotations}{Automatic
+    Annotations for Typed Clojure and clojure.spec}
+    (\$8,621 USD raised by 69 backers)
+  }
+    {2016}
+    {\bodytext{
+      This campaign concentrated on automating the manual labor of type and spec annotations.
+      It helped me attend multiple industry conferences to meet real users
+      of Typed Clojure and clojure.spec to discuss the needs of the community.
+      }}
+
+  \headedsubsection
+  {\href{https://www.indiegogo.com/projects/gradual-typing-for-clojure}{Gradual Typing for Clojure}
+    (\$11,695 USD raised by 199 backers)
+  }
+    {2015}
+    {\bodytext{These funds helped me design a \emph{gradual typing} framework for Typed Clojure.
+      %which is still in development. 
+      It supports automatic contracts for
+      global variables based on the typed-untyped boundary, as well as allowing
+      arbitrary exporting of macros from typed namespaces---a shortcoming of previous systems.
+      }}
+
+  \headedsubsection
+    {\href{https://www.indiegogo.com/projects/typed-clojure}{Typed Clojure}
+    (\$35,254 USD raised by 545 backers)
+  }
+    {2013}
+    {\bodytext{
+      These funds helped support me as I worked on improving 
+      and extending Typed Clojure's type system.
+      \$5,000 of these funds were used to commission
+      further open source work on tools.analyzer, now
+      an important Clojure library.
+    }}
+}
+\headedsection
+  {\href{http://ambrosebs.com/\#gsoc}{Google Summer of Code}} {\textsc{Clojure organisation}} {
+  \headedsubsection
+    {Student} {2012, 2013}
+    {}
+    {\bodytext{
+      I developed Typed Clojure, improving the support of
+      Clojure idioms, supporting more expressive types,
+      and adding documentation.
+      }
+    }
+    {}
+  \headedsubsection
+    {Mentor} {2014 (3 students), 2015 (2 students)}
+    {}
+    {\bodytext{
+        I have mentored 5 projects, including several adding
+        advanced type system features to Typed Clojure,
+        and work towards a ClojureScript compiler using
+        tools.analyzer as a backend.
+      }}
+    {}
+  \headedsubsection
+    {Administrator} {2014, 2015}
+    {}
+    {\bodytext{
+      My role as an administrator included proposing
+      projects, preparing and reviewing application documents,
+      and advertising for interested students.
+      }}
+    {}
+}
+
+\headedsection{Selected Open Source Contributions}{
+\headedsection
+  {\href{https://github.com/clojure/core.typed}{core.typed}}
+  {\textsc{Lead Developer}} {%
+    {
+      \bodytext{
+      Designed, implemented, and maintain
+        the main library of Typed Clojure.
+      }
+    }
+}
+\headedsection
+  {\href{https://github.com/clojure/core.match}{core.match}}
+  {\href{https://github.com/clojure/core.match/commits?author=frenchy64}{\textsc{Contributor}}} {%
+    {\bodytext{
+        Studied optimising pattern matching literature and collaborated
+        on a pattern matcher for Clojure.
+      }
+    }
+}
+
+\headedsection
+  {\href{https://github.com/clojure/clojure}{Clojure}}
+  {\href{https://github.com/clojure/clojure/commits?author=frenchy64}{\textsc{Contributor}}} {%
+    {\bodytext{
+      Contributed several minor patches improving error messages,
+      fixing bugs, and adding features to the core Clojure language.
+      }
+    }
+   }
+
+\headedsection
+  {\href{https://github.com/clojure/clojurescript}{ClojureScript}}
+  {\href{https://github.com/clojure/clojurescript/commits?author=frenchy64}{\textsc{Contributor}}} {%
+    {\bodytext{
+      Converts the internal AST representation of ClojureScript's compiler
+      to tools.analyzer format. Various bug fixes and performance enhancements.
+      }
+    }
+   }
+%\bodytext
+%  {\href{https://github.com/clojure/clojure/commits?author=frenchy64}{Clojure},
+%   \href{https://github.com/clojure/clojurescript/commits?author=frenchy64}{ClojureScript},
+%   \href{https://github.com/clojure/core.match/commits?author=frenchy64}{core.match}
+%  % ,
+%   %\href{tools.analyzer.jvm}
+%   }
+   }
+
+%\headedsection
+%  {\href{https://github.com/clojure/clojurescript}{ClojureScript}}
+%  {\href{https://github.com/clojure/clojurescript/commits?author=frenchy64}{\textsc{Contributor}}}
+
+
+
+
+\roottitle{Research Groups}
+
+\headedsection
+  {\href{http://wonks.github.io/}{PL Wonks}}
+  {\textsc{Indiana University Bloomington}} {%
+}
+
+\headedsection
+  {\href{http://prl.ccs.neu.edu/gtp/index.html}{Gradual Typing Group}}
+  {\textsc{Indiana University Bloomington}} {%
+}
+
+
+\roottitle{Conference Publications}
+
+%\headedsection
+%  {\href{https://frenchy64.github.io/papers/submitted-pldi19-squash-work-draft.pdf}{Squash the work! Inferring Recursive Type Annotations from Plain Data for Optional Type Systems}
+%  (In submission)}
+%  {\textsc{with Sam Tobin-Hochstadt}} {%
+%    {}
+%}
+
+\headedsection
+  {\href{http://frenchy64.github.io/papers/esop16-short.pdf}{Practical Optional Types for Clojure}
+  (ESOP'16)}
+  {\textsc{with Rowan Davies, Sam Tobin-Hochstadt}} {%
+    {}
+}
+
+\roottitle{Theses}
+
+\headedsection
+  {\href{https://s3.amazonaws.com/github/downloads/frenchy64/papers/ambrose-honours.pdf}{A Practical Optional Type System for Clojure} }
+  {\textsc{supervised by Rowan Davies}} {%
+  \bodytext{Undergraduate Honours dissertation.}
+}
+
+%\spacedhrule{1.6em}{-0.4em}
+
+%\vspace{0.5em}
+%\inlineheadsection
+%  {Natural languages:}
+%  {Dutch \emph{(mother tongue)}, English \emph{(full professional proficiency)}, German \emph{(limited working proficiency)}, French \emph{(elementary proficiency)} and Mandarin Chinese \emph{(beginner)}.}
+%
+
+%\spacedhrule{1.6em}{-0.4em}
+
+
+
+\roottitle{Selected Talks}
+
+\headedsection
+  {\href{https://www.youtube.com/watch?v=kcZVkvO1Dpo}{Tool-assisted spec Development}}
+  {\textsc{Clojure/conj 2017}} {%
+}
+\headedsection
+  {\href{http://ambrosebs.com/talks/esop16.pdf}{Practical Optional Types for Clojure}}
+  {\textsc{ESOP 2016}} {%
+  }
+\headedsection
+  {\href{https://www.youtube.com/watch?v=yG9CffLlXx0}{Typed Clojure: From Optional to Gradual Typing}}
+  {\textsc{Strangeloop 2015}} {%
+}
+\headedsection
+  {\href{https://www.youtube.com/watch?v=a0gT0syAXsY}{Typed Clojure in Practice}}
+  {\textsc{Strangeloop 2014}} {%
+}
+\headedsection
+  {\href{https://www.youtube.com/watch?v=a0gT0syAXsY}{Typed Clojure}}
+  {\textsc{Clojure/conj 2012}} {%
+}
+\headedsection
+  {\href{https://www.youtube.com/watch?v=irjP8BO1B8Y}{Introduction to Logic Programming}}
+  {\textsc{Clojure/conj 2011}} {%
+}
+
+%\roottitle{Programming languages}
+%
+%\bodytext
+%  {
+%        Proficient in Clojure. Experience with Java, C, Racket, Coq, and Agda.
+%        }
+%
+\roottitle{Service}
+
+\bodytext
+  {
+\begin{itemize}
+    %already mentioned above
+  %\item Google Summer of Code Administrator for Clojure (2014-2015)
+  \item Organizer of \href{http://wonks.github.io}{PL Wonks}, Indiana University's weekly Programming Languages seminar
+    (2017-2019)
+  \item President of Indiana University Graduate Computer Science Association
+    (2017-2019)
+\end{itemize}
+    }
+
+%\bodytext
+%  {Experienced with open source development and maintenance, 
+%    including Git, GitHub, and continuous integration.
+%    Enjoys building static and dynamic
+%    program verification tools for dynamically typed languages.
+%    Experienced Clojure programmer.
+%    Some experience in Java, C, Racket, and Scheme.
+%  }
+
+%\roottitle{Personal}
+%
+%\bodytext
+%  {I live in Bloomington, Indiana and have a US work permit.
+%  }
+
+
+%\headedsection{Interests}
+%{\bodytext
+%  {Singing, guitar, reading, teaching.}
+%}
+
+
+\end{document}

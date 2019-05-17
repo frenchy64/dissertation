@@ -317,7 +317,6 @@ an equality check for other values.
 The current dispatch value and---in turn---each method's associated dispatch value
 is supplied to \clj{isa?}. If exactly one method returns true, it is chosen.
 For example,
-the call
   \clj{(*invoke pname "STAINS/JELLY" invoke*)}
 picks the \clj{String} method because \clj{(*invoke isa? String String invoke*)}
 is true, and
@@ -682,7 +681,7 @@ of \clj{:combo} meals.
 %;=> 3
 
 In the \clj{Long} method, Typed Clojure learns that
-its argument is at least of type \clj{'\{:desserts Long\}}---since
+its argument is at least of type \clj{'\{:desserts Long\}}, since
 \clj{(*invoke isa? (*invoke class (*invoke :desserts o invoke*) invoke*) Long invoke*)}
 must be true.
 %

@@ -1588,9 +1588,9 @@ We then consider applying the evaluated argument to the dispatch function:
              {\filterset {\thenprop {\prop{2}}}
                          {\elseprop {\prop{2}}}}
                        {\object{2}}
-                       {\v{2}}.
+                       {\v{2}},
        \end{itemize}
-       we can then apply the inductive hypothesis
+       we can apply the inductive hypothesis
        to derive
   \judgementrewrite {\propenv{}} {\v{e}} 
   {\replacefor{\t{d}}
@@ -2085,10 +2085,10 @@ we can apply the inductive hypothesis to satisfy our overall goal for this subca
     \item[]
       \begin{subcase}[T-AssocHMap]
   \judgementtworewrite {\propenv{}} {\ep{m}} {\HMapgeneric {\mandatory{}} {\absent}} {\e{m}},
-  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value{\k{}}}{\e{k}},
+  \judgementtworewrite {\propenv{}} {\ep{k}} {\Value{\k{}}}{\e{k}},\\
   \judgementtworewrite {\propenv{}} {\ep{v}} {\t{}}{\e{v}},
   {\k{}} $\not\in$ {\absent{}},
-  \ep{} = {\assocexp {\ep{m}} {\ep{k}} {\ep{v}}},
+  \ep{} = {\assocexp {\ep{m}} {\ep{k}} {\ep{v}}},\\
   \e{} = {\assocexp {\e{m}} {\e{k}} {\e{v}}},
   \issubtypein{}{\HMapgeneric {\extendmandatoryset {\mandatory{}}{\k{}}{\t{}}} {\absent}}{\t{}},
   \thenprop{\prop{}} = {\topprop{}},

@@ -1,0 +1,2 @@
+all:
+	xelatex *-cv.tex
