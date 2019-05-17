@@ -1,0 +1,27 @@
+[ ] Throughout the dissertation, only size 11 or 12 point font should be used with the only exceptions being the title on the title page and any footnotes. The title, only, on the title page may be as large as 16 point font while footnotes can be no smaller than 10 point. All other font must be size 11 or 12 point font. This requirement includes all content including section and chapter headings. Please change font sizes throughout your dissertation to align with these requirements. 
+
+[ ] Black font and/or gray shading should be used throughout the dissertation with the only exception being areas where a different font color serves a purpose in explaining or highlighting some aspect of the research/dissertation in a way black font could not. Change all non-black font/shading which serves no other purpose to black font/shading. This includes, but is not limited to, the text on the CV pages. 
+
+[x](Note: I don't have a Dedication, so this was already correct -Ambrose)
+Please reorder the front matter materials as follows: 
+o	Title Page 
+o	Acceptance Page 
+o	Copyright Page 
+o	Dedication 
+o	Acknowledgements 
+o	Abstract 
+o	Table of Contents 
+
+[x] No text on the title page should appear in italics. Specifically, the submission paragraph should be changed so it is not italicized. 
+
+[x] Center the sentence on your Acceptance page (page ii) that begins "Accepted by the Graduate faculty". 
+
+[ ] At the end of the abstract, add your committee members' names/post-nominal letters (like on your acceptance page). It is fine if this makes the abstract two pages long. 
+
+[ ] Vertically center the content of the dedication page. The page content is currently horizontally centered (centered between the right and left sides of the page) but should also be vertically centered (centered between the top and bottom edges of the page). 
+
+[ ] Remove pages that are intro pages for sections. Intro pages are those that have only the chapter/section title on the page. Instead, place this information on the first page of the actual page of the chapter/section. Adjust page numbers on the table of contents as needed as a result of this change. 
+
+[ ] Begin the actual numbering with the acceptance page as page ii, and continue with lowercase Roman numerals until the start of the actual body of the thesis. That page, whether part of your full introduction or of your first chapter, should be numbered using the Arabic numeral 1, and every page thereafter should be numbered consecutively until you reach the vita page. Currently not all pages have a physical page number present -- please correct this so that the appropriate pages have pagination. 
+
+[ ] All four sides of each page of your submission must have, at a minimum, a one inch margin. The following pages definitely have content extending into one or more margins and need to be corrected but you should check every page to make sure the margin space is correct: 84, 85, 91, 94, 103. 

@@ -342,7 +342,7 @@
     \end{center}
     \egroup
     \vfill
-    \begin{center}\itshape
+    \begin{center}%\itshape
 Submitted to the faculty of the University Graduate School \\
 in partial fulfillment of the requirements \\
 for the degree \\
@@ -368,9 +368,12 @@ Indiana University \\
   \def\signaturepage{
     \typeout{Signature Page}
     \bgroup
+    \centering
     \noindent
+    \par\centering
     Accepted by the Graduate Faculty, Indiana University, in partial
     fulfillment of the requirements for the degree of \check@val\@degree.
+    \par
     \egroup
     \vskip.5in
     \hbox to\textwidth{\hfill\IUT@sig{\check@val\@principaladvisor, Ph.D.}}%
