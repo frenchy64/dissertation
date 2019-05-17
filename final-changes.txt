@@ -16,7 +16,7 @@ o	Table of Contents
 
 [x] Center the sentence on your Acceptance page (page ii) that begins "Accepted by the Graduate faculty". 
 
-[ ] At the end of the abstract, add your committee members' names/post-nominal letters (like on your acceptance page). It is fine if this makes the abstract two pages long. 
+[x] At the end of the abstract, add your committee members' names/post-nominal letters (like on your acceptance page). It is fine if this makes the abstract two pages long. 
 
 [ ] Vertically center the content of the dedication page. The page content is currently horizontally centered (centered between the right and left sides of the page) but should also be vertically centered (centered between the top and bottom edges of the page). 
 

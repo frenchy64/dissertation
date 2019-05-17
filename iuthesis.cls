@@ -279,9 +279,11 @@
       \vskip\baselineskip%
       \hbox to\hsize{\hfill\check@val\@principaladvisor, Ph.D.}%
     \fi
-    \ifnum\IUT@abstype=\IUT@ugsabstract%
+    %changed conditional to =0 to force signature lines to print without losing the rest of the thesis -Ambrose
+    \ifnum\IUT@abstype=0%\IUT@ugsabstract%
       \IUT@dbgmsg{makeabstract (ugs): signature lines}%
-      \ifIUT@abstractsigs%
+      %changed conditional to =0 to force signature lines to print -Ambrose
+      \ifnum\IUT@abstype=0%\ifIUT@abstractsigs%
       \vbox{
 \hbox to\textwidth{%
   \IUT@sig[2.5in]{\check@val\@principaladvisor, Ph.D.}\hfill%
