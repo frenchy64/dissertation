@@ -60,6 +60,20 @@
 \parindent=0pt
 \normalparindent=0pt
 
+% make chapter headers 12pt 
+\newcommand\chapterfontsize{12pt}
+
+\makeatletter
+\patchcmd{\@makechapterhead}
+ {\fontsize{\@xivpt}{18}}
+ {\fontsize{\chapterfontsize}{\chapterfontsize}}
+ {}{}
+\patchcmd{\@makeschapterhead}
+ {\fontsize{\@xivpt}{18}}
+ {\fontsize{\chapterfontsize}{\chapterfontsize}}
+ {}{}
+\makeatother
+
 \usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
 \renewcommand{\thepart}{\Roman{part}}
 \renewcommand{\thechapter}{\arabic{chapter}}

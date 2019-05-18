@@ -1,3 +1,4 @@
+\newcommand\partfontsize{12pt}
 % redefine \part to not make a new page
 %  Approach: create \@ambrosepart from \@part and remove formatting from both
 %            (left \@spart alone, so \part* isn't changed)
@@ -14,9 +15,9 @@
     \addcontentsline{toc}{part}{#1}\fi
   \begingroup\centering
   \ifnum \c@secnumdepth >-2\relax
-       {\fontsize{\@xviipt}{22}\bfseries
+       {\fontsize{\partfontsize}{\partfontsize}\bfseries
          \partname\ \thepart} \vskip 20\p@ \fi
-  \fontsize{\@xxpt}{25}\bfseries
+  \fontsize{\partfontsize}{\partfontsize}\bfseries
       #1\vfil\vfil\endgroup%
       %\newpage\thispagestyle{empty}%
       % vertical space for chapter heading (doesn't seem to work very consistently)
