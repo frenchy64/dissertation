@@ -284,21 +284,36 @@
       \IUT@dbgmsg{makeabstract (ugs): signature lines}%
       %changed conditional to =0 to force signature lines to print -Ambrose
       \ifnum\IUT@abstype=0%\ifIUT@abstractsigs%
-      \vbox{
-\hbox to\textwidth{%
-  \IUT@sig[2.5in]{\check@val\@principaladvisor, Ph.D.}\hfill%
-  \IUT@sig[2.5in]{\check@val\@thirdreader, Ph.D.}%
-}%
-\hbox to\textwidth{%
-  \IUT@sig[2.5in]{\check@val\@secondreader, Ph.D.}\hfill%
-  \ifIUT@three\else\IUT@sig[2.5in]{\check@val\@fourthreader, Ph.D.}\fi%
-}%
-\ifx\@fifthreader\relax\else%
-  \hbox to\textwidth{%
-    \hfill\IUT@sig[2.5in]{\check@val\@fifthreader, Ph.D.}%
-  }%
-\fi%
-      }
+      % START OLD SIGS
+%      \vbox{
+%\hbox to\textwidth{%
+%  \IUT@sig[2.5in]{\check@val\@principaladvisor, Ph.D.}\hfill%
+%  \IUT@sig[2.5in]{\check@val\@thirdreader, Ph.D.}%
+%}%
+%\hbox to\textwidth{%
+%  \IUT@sig[2.5in]{\check@val\@secondreader, Ph.D.}\hfill%
+%  \ifIUT@three\else\IUT@sig[2.5in]{\check@val\@fourthreader, Ph.D.}\fi%
+%}%
+%\ifx\@fifthreader\relax\else%
+%  \hbox to\textwidth{%
+%    \hfill\IUT@sig[2.5in]{\check@val\@fifthreader, Ph.D.}%
+%  }%
+%\fi%
+%      }
+      % END OLD SIGS
+      % START COPIED FROM ACCEPTANCE PAGE
+    \vskip.5in
+    \hbox to\textwidth{\hfill\IUT@sig{\check@val\@principaladvisor, Ph.D.}}%
+    \hbox to\textwidth{\hfill\IUT@sig{\check@val\@secondreader, Ph.D.}}%
+    \hbox to\textwidth{\hfill\IUT@sig{\check@val\@thirdreader, Ph.D.}}%
+    \ifIUT@three\else%
+      \hbox to\textwidth{\hfill\IUT@sig{\check@val\@fourthreader, Ph.D.}}%
+    \fi%
+    \ifx\@fifthreader\relax\else%
+      \hbox to\textwidth{\hfill\IUT@sig{\check@val\@fifthreader, Ph.D.}}%
+    \fi
+    \vfill
+      % END COPIED FROM ACCEPTANCE PAGE
       \fi
     \fi
     \newpage

@@ -693,7 +693,7 @@ in \figref{fig:analyzer:config-inheritance} show their propagation---\clj{unanal
 initializes \clj{::config} on line 9, and \clj{analyze-outer} propagates it on line 16 after further analysis.
 
 \begin{figure}
-  \lstset{numbers=left}
+\lstset{numbers=left,xleftmargin=2em,framexleftmargin=1.5em}
   \begin{cljlisting}
 (defn unanalyzed
   "Create an unanalyzed AST node from form and env"
@@ -706,7 +706,7 @@ initializes \clj{::config} on line 9, and \clj{analyze-outer} propagates it on l
    __red>::config<red__ {}})
 
 (defn analyze-outer
-  "If ast is :unanalyzed, then call analyze-form on it, otherwise returns ast."
+  "If ast is :unanalyzed, call analyze-form on it, otherwise return ast"
   [ast]
   (case (:op ast)
     :unanalyzed (__red>assoc<red__ (analyze-form (:form ast) (:env ast))
@@ -783,7 +783,7 @@ We already hinted at how this support works in
 we make that explicit with a small type system implementation.
 
 \begin{figure}
-  \lstset{numbers=left}
+\lstset{numbers=left,xleftmargin=2em,framexleftmargin=1.5em}
 \begin{cljlisting}
 (defn check
   "Check an analyzed AST node has the expected type."
@@ -1143,7 +1143,7 @@ depends on the \emph{evaluation} of \clj{e1}.
 For example,
 
 {
-\lstset{numbers=left}
+\lstset{numbers=left,xleftmargin=2em,framexleftmargin=1.5em}
 \begin{cljlisting}
 (do (defmacro mac [] 42)
     (mac))
@@ -1296,9 +1296,9 @@ $$
      19      &                                                    & & \text{\clj{run-post-passes}}^{<}                             \\
      20      &                                                    & & \text{\clj{check}}^{<}                                       \\
      21      &                                                    & & \textcolor{red}{\text{\clj{eval-top-level}}}^{<}             \\
-     22      & \text{\clj{run-post-passes}}^{<}                   & \\
-     23      & \text{\clj{check}}^{<}                             & \\
-     24      & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}   & \\
+     22      & \text{\clj{run-post-passes}}^{<}                   & &\\
+     23      & \text{\clj{check}}^{<}                             & &\\
+     24      & \textcolor{red}{\text{\clj{eval-top-level}}^{<}}   & &\\
      25      & \text{\clj{check-top-level}}^{<}                   & &                     \\
   \end{array}
 $$
@@ -1333,7 +1333,7 @@ to undo the markers if these semantics are undesirable for particular
 situations.
 
 \begin{figure}
-  \lstset{numbers=left}
+\lstset{numbers=left,xleftmargin=2em,framexleftmargin=1.5em}
 \begin{cljlisting}
 (defn check-expr
   "Check an AST node has the expected type."
