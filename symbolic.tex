@@ -344,7 +344,7 @@ Take the following illustrative code, identical the previous
 example, except the function is let-bound as \clj{f}.
 
 {
-\lstset{numbers=left}
+\lstset{numbers=left,xleftmargin=2em,framexleftmargin=1.5em}
 \begin{cljlisting}
 (let [f (fn [x] (inc x))](*@\label{symbolic:example:let-bound:def-f}@*)
   (f 1))(*@\label{symbolic:example:let-bound:app-f}@*)
@@ -390,7 +390,7 @@ and would throw a runtime error.
 % must save type context
 \begin{figure}
 {
-\lstset{numbers=left}
+\lstset{numbers=left,xleftmargin=2em,framexleftmargin=1.5em}
 \begin{cljlisting}
 (let [f (let [y 1](*@\label{symbolic:example:closure-red:y-def-site}@*)
           (fn [x] (+ x y)))](*@\label{symbolic:example:closure-red:y-usage}@*)

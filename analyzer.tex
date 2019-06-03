@@ -1165,14 +1165,14 @@ $$
 \begin{array}{r||l|l|l|l|}
 \text{Time} & \text{\clj{(do}}               & \text{\clj{(defmacro mac [] 42)}} & \text{\clj{(mac))}}\\
 \hline
-            & \text{\clj{analyze+eval}}^{>}  &                      \\
-            & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}} &                      \\
-            &                                & \text{\clj{analyze+eval}}^{>}   \\
-            &                                & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}}    \\
-            &                                & \text{\clj{analyze+passes}}     \\
-            &                                & \text{\clj{check}}              \\
-            &                                & \textcolor{red}{\text{\clj{eval}}}                 \\
-            &                                & \text{\clj{analyze+eval}}^{<}   \\
+            & \text{\clj{analyze+eval}}^{>}  &                                                   & \\
+            & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}} &                                  & \\
+            &                                & \text{\clj{analyze+eval}}^{>}                     & \\
+            &                                & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}}   & \\
+            &                                & \text{\clj{analyze+passes}}                       & \\
+            &                                & \text{\clj{check}}                                & \\
+            &                                & \textcolor{red}{\text{\clj{eval}}}                & \\
+            &                                & \text{\clj{analyze+eval}}^{<}                     & \\
             &                                & & \text{\clj{analyze+eval}}^{>}   \\
             &                                & & \textcolor{red}{\text{\clj{macroexpand-1}}^{*}}    \\
             &                                & & \text{\clj{analyze+passes}}     \\
